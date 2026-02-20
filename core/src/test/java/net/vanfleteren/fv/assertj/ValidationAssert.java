@@ -13,13 +13,13 @@ public class ValidationAssert<SELF extends ValidationAssert<SELF, VALIDATION, T>
     }
 
     public ValidValidationAssert<?, Validation.Valid<T>, T> isValid() {
-        assertThat(actual.valid()).as("Expected validation to be valid but was invalid").isTrue();
+        assertThat(actual.isValid()).as("Expected validation to be valid but was invalid").isTrue();
         return new ValidValidationAssert<>((Validation.Valid<T>) actual);
     }
 
     @SuppressWarnings("unchecked")
     public InvalidValidationAssert<?, Validation.Invalid, T> isInvalid() {
-        assertThat(actual.valid()).as("Expected validation to be invalid but was valid").isFalse();
+        assertThat(actual.isValid()).as("Expected validation to be invalid but was valid").isFalse();
         return new InvalidValidationAssert<>((Validation.Invalid) actual);
     }
 

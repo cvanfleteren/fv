@@ -11,7 +11,7 @@ public sealed interface Validation<T> {
      * Indicates whether the validation is successful.
      * @return true if validation is successful, false otherwise.
      */
-    boolean valid();
+    boolean isValid();
 
     default <R> Validation<R> map(Function1<T, R> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
@@ -46,7 +46,7 @@ public sealed interface Validation<T> {
     /**
      * Creates a successful validation.
      */
-    static <T> Validation<T> valid(T value) {
+    static <T> Validation<T> isValid(T value) {
         return new Valid<>(value);
     }
 
@@ -75,7 +75,7 @@ public sealed interface Validation<T> {
         }
 
         @Override
-        public boolean valid() {
+        public boolean isValid() {
             return true;
         }
     }
@@ -92,7 +92,7 @@ public sealed interface Validation<T> {
         }
 
         @Override
-        public boolean valid() {
+        public boolean isValid() {
             return false;
         }
     }

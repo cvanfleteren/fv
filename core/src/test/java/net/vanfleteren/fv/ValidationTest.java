@@ -18,11 +18,11 @@ public class ValidationTest {
             String value = "Success";
 
             // Act
-            Validation<String> result = Validation.valid(value);
+            Validation<String> result = Validation.isValid(value);
 
             // Assert
             assertThat(result).isInstanceOf(Validation.Valid.class);
-            assertThat(result.valid()).isTrue();
+            assertThat(result.isValid()).isTrue();
             assertThat(((Validation.Valid<String>) result).value()).isEqualTo(value);
         }
 
@@ -37,7 +37,7 @@ public class ValidationTest {
 
             // Assert
             assertThat(result).isInstanceOf(Validation.Invalid.class);
-            assertThat(result.valid()).isFalse();
+            assertThat(result.isValid()).isFalse();
             assertThat(((Validation.Invalid) (Object) result).errors()).containsExactly(error1, error2);
         }
 
@@ -48,14 +48,14 @@ public class ValidationTest {
 
             // Assert
             assertThat(result).isInstanceOf(Validation.Invalid.class);
-            assertThat(result.valid()).isFalse();
+            assertThat(result.isValid()).isFalse();
             assertThat(((Validation.Invalid) (Object) result).errors()).isEmpty();
         }
 
         @Test
         void valid_whenGivenNull_throwsNullPointerException() {
             // Act & Assert
-            assertThatCode(() -> Validation.valid(null))
+            assertThatCode(() -> Validation.isValid(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("Value cannot be null");
         }
@@ -77,7 +77,7 @@ public class ValidationTest {
         @Test
         void isValid_whenValid_returnsValidValidationAssert() {
             // Arrange
-            Validation<String> valid = Validation.valid("Success");
+            Validation<String> valid = Validation.isValid("Success");
 
             // Act & Assert
             assertThatValidation(valid)
@@ -110,7 +110,7 @@ public class ValidationTest {
         @Test
         void isInvalid_whenValid_fails() {
             // Arrange
-            Validation<String> valid = Validation.valid("Success");
+            Validation<String> valid = Validation.isValid("Success");
 
             // Act & Assert
             assertThatCode(() -> assertThatValidation(valid).isInvalid())
@@ -138,14 +138,14 @@ public class ValidationTest {
         @Test
         void upcast_whenCalled_allowsAssignmentToSuperType() {
             // Arrange
-            Validation<String> stringValidation = Validation.valid("Success");
+            Validation<String> stringValidation = Validation.isValid("Success");
 
             // Act
             Validation<Object> objectValidation = stringValidation.upcast();
 
             // Assert
             assertThat(objectValidation).isSameAs(stringValidation);
-            assertThat(objectValidation.valid()).isTrue();
+            assertThat(objectValidation.isValid()).isTrue();
         }
     }
 
@@ -155,7 +155,7 @@ public class ValidationTest {
         @Test
         void map_whenValid_returnsMappedValue() {
             // Arrange
-            Validation<String> valid = Validation.valid("123");
+            Validation<String> valid = Validation.isValid("123");
 
             // Act
             Validation<Integer> result = valid.map(Integer::parseInt);
@@ -184,7 +184,7 @@ public class ValidationTest {
         @Test
         void map_whenMapperIsNull_throwsNullPointerException() {
             // Arrange
-            Validation<String> valid = Validation.valid("Success");
+            Validation<String> valid = Validation.isValid("Success");
 
             // Act & Assert
             assertThatCode(() -> valid.map(null))
@@ -199,10 +199,10 @@ public class ValidationTest {
         @Test
         void flatMap_whenValidAndMapperReturnsValid_returnsValidValidation() {
             // Arrange
-            Validation<String> valid = Validation.valid("123");
+            Validation<String> valid = Validation.isValid("123");
 
             // Act
-            Validation<Integer> result = valid.flatMap(s -> Validation.valid(Integer.parseInt(s)));
+            Validation<Integer> result = valid.flatMap(s -> Validation.isValid(Integer.parseInt(s)));
 
             // Assert
             assertThatValidation(result)
@@ -213,7 +213,7 @@ public class ValidationTest {
         @Test
         void flatMap_whenValidAndMapperReturnsInvalid_returnsInvalidValidation() {
             // Arrange
-            Validation<String> valid = Validation.valid("abc");
+            Validation<String> valid = Validation.isValid("abc");
             ErrorMessage error = new ErrorMessage("Invalid number");
 
             // Act
@@ -232,7 +232,7 @@ public class ValidationTest {
             Validation<String> invalid = Validation.invalid(error);
 
             // Act
-            Validation<Integer> result = invalid.flatMap(s -> Validation.valid(Integer.parseInt(s)));
+            Validation<Integer> result = invalid.flatMap(s -> Validation.isValid(Integer.parseInt(s)));
 
             // Assert
             assertThatValidation(result)
@@ -243,7 +243,7 @@ public class ValidationTest {
         @Test
         void flatMap_whenFlatMapperIsNull_throwsNullPointerException() {
             // Arrange
-            Validation<String> valid = Validation.valid("Success");
+            Validation<String> valid = Validation.isValid("Success");
 
             // Act & Assert
             assertThatCode(() -> valid.flatMap(null))
@@ -258,7 +258,7 @@ public class ValidationTest {
         @Test
         void fold_whenValid_callsValidMapper() {
             // Arrange
-            Validation<String> valid = Validation.valid("Success");
+            Validation<String> valid = Validation.isValid("Success");
 
             // Act
             String result = valid.fold(
@@ -288,7 +288,7 @@ public class ValidationTest {
         @Test
         void fold_whenValidMapperIsNull_throwsNullPointerException() {
             // Arrange
-            Validation<String> valid = Validation.valid("Success");
+            Validation<String> valid = Validation.isValid("Success");
 
             // Act & Assert
             assertThatCode(() -> valid.fold(errors -> "invalid", null))
@@ -299,7 +299,7 @@ public class ValidationTest {
         @Test
         void fold_whenInvalidMapperIsNull_throwsNullPointerException() {
             // Arrange
-            Validation<String> valid = Validation.valid("Success");
+            Validation<String> valid = Validation.isValid("Success");
 
             // Act & Assert
             assertThatCode(() -> valid.fold(null, value -> "valid"))
