@@ -166,4 +166,85 @@ class RuleTest {
                     .hasErrorMessage("must.be.positive");
         }
     }
+
+    @Nested
+    class Or {
+
+        @Test
+        void or_whenFirstRuleMatches_returnsValidValidation() {
+            // Arrange
+            Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> combined = rule1.or(rule2);
+
+            // Act
+            Validation<String> result = combined.test("apple"); // Fails rule2, matches rule1 (length > 3)
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("apple");
+        }
+
+        @Test
+        void or_whenSecondRuleMatches_returnsValidValidation() {
+            // Arrange
+            Rule<String> rule1 = Rule.of(s -> s.length() > 5, "too.short");
+            Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> combined = rule1.or(rule2);
+
+            // Act
+            Validation<String> result = combined.test("hi"); // Fails rule1 (length <= 5), matches rule2
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("hi");
+        }
+
+        @Test
+        void or_whenBothRulesFail_returnsInvalidWithAccumulatedErrors() {
+            // Arrange
+            Rule<String> rule1 = Rule.of(s -> s.length() > 5, "too.short");
+            Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> combined = rule1.or(rule2);
+
+            // Act
+            Validation<String> result = combined.test("abc");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("too.short", "must.start.with.h");
+        }
+
+        @Test
+        void or_whenOtherRuleIsNull_throwsNullPointerException() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> true, "msg");
+
+            // Act & Assert
+            assertThatCode(() -> rule.or(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("other rule cannot be null");
+        }
+
+        @Test
+        void or_whenCombiningWithRuleOfSuperType_compilesAndWorks() {
+            // Arrange
+            Rule<Number> isPositive = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
+            Rule<BigDecimal> isMinusFortyTwo = Rule.of(b -> b.compareTo(new BigDecimal("-42")) == 0, "must.be.minus.forty.two");
+
+            // Act
+            Rule<BigDecimal> combined = isMinusFortyTwo.or(isPositive);
+
+            // Assert
+            assertThatValidation(combined.test(new BigDecimal("10"))).isValid();
+            assertThatValidation(combined.test(new BigDecimal("-42"))).isValid();
+
+            assertThatValidation(combined.test(new BigDecimal("-1")))
+                    .isInvalid()
+                    .hasErrorMessages("must.be.minus.forty.two", "must.be.positive");
+        }
+    }
 }

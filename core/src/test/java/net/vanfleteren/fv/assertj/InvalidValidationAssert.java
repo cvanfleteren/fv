@@ -17,4 +17,9 @@ public class InvalidValidationAssert<SELF extends InvalidValidationAssert<SELF, 
         assertThat(actual.errors()).map(ErrorMessage::message).contains(errorMessage);
         return (SELF) this;
     }
+
+    public SELF hasErrorMessages(String... errorMessages) {
+        assertThat(actual.errors()).map(ErrorMessage::message).containsExactly(errorMessages);
+        return (SELF) this;
+    }
 }

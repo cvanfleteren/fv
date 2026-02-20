@@ -17,7 +17,6 @@ public interface Rule<T> {
      */
     Validation<T> test(T value);
 
-
     static <T> Rule<T> of(Predicate<T> predicate, String errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
@@ -28,6 +27,24 @@ public interface Rule<T> {
         Objects.requireNonNull(other, "other rule cannot be null");
         return value -> test(value).flatMap(v -> other.test(value).map(o -> v));
     }
+
+    default Rule<T> or(Rule<? super T> other) {
+        Objects.requireNonNull(other, "other rule cannot be null");
+        return input -> {
+            Validation<T> first = this.test(input);
+            if (first.isValid()) {
+                return first;
+            }
+
+            Validation<T> second = Validation.narrowSuper(other.test(input));
+            if (second.isValid()) {
+                return second;
+            }
+
+            return Validation.invalid(first.errors().appendAll(second.errors()));
+        };
+    }
+
 
     /**
      * Narrows a {@code Rule<? super T>} to a {@code Rule<T>}.

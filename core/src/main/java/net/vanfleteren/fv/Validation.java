@@ -13,6 +13,8 @@ public sealed interface Validation<T> {
      */
     boolean isValid();
 
+    List<ErrorMessage> errors();
+
     default <R> Validation<R> map(Function1<T, R> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
         return switch(this) {
@@ -49,6 +51,11 @@ public sealed interface Validation<T> {
         return (Validation<T>) validation;
     }
 
+    @SuppressWarnings("unchecked")
+    static <T> Validation<T> narrowSuper(Validation<? super T> validation) {
+        return (Validation<T>) validation;
+    }
+
     /**
      * Creates a successful validation.
      */
@@ -78,6 +85,11 @@ public sealed interface Validation<T> {
     record Valid<T> (T value) implements Validation<T> {
         public Valid {
             Objects.requireNonNull(value, "Value cannot be null");
+        }
+
+        @Override
+        public List<ErrorMessage> errors() {
+            return List.of();
         }
 
         @Override
