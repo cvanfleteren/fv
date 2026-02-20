@@ -15,6 +15,7 @@ public sealed interface Validation<T> {
 
     List<ErrorMessage> errors();
 
+    //region common functional operations on single validations
     default <R> Validation<R> map(Function1<T, R> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
         return switch(this) {
@@ -39,23 +40,9 @@ public sealed interface Validation<T> {
             case Invalid(var errors) -> whenInvalid.apply(errors);
         };
     }
+    //endregion
 
-    /**
-     * Narrows a {@code Validation<? extends T>} to a {@code Validation<T>}.
-     * @param validation The validation to narrow.
-     * @param <T> The target type.
-     * @return The narrowed validation.
-     */
-    @SuppressWarnings("unchecked")
-    static <T> Validation<T> narrow(Validation<? extends T> validation) {
-        return (Validation<T>) validation;
-    }
-
-    @SuppressWarnings("unchecked")
-    static <T> Validation<T> narrowSuper(Validation<? super T> validation) {
-        return (Validation<T>) validation;
-    }
-
+    //region factory methods
     /**
      * Creates a successful validation.
      */
@@ -78,6 +65,26 @@ public sealed interface Validation<T> {
     static <T> Validation<T> invalid(List<ErrorMessage> errors) {
         return (Validation<T>) new Invalid(errors);
     }
+    //endregion
+
+    //region casting
+    /**
+     * Narrows a {@code Validation<? extends T>} to a {@code Validation<T>}.
+     * @param validation The validation to narrow.
+     * @param <T> The target type.
+     * @return The narrowed validation.
+     */
+    @SuppressWarnings("unchecked")
+    static <T> Validation<T> narrow(Validation<? extends T> validation) {
+        return (Validation<T>) validation;
+    }
+
+    @SuppressWarnings("unchecked")
+    static <T> Validation<T> narrowSuper(Validation<? super T> validation) {
+        return (Validation<T>) validation;
+    }
+    //endregion
+
 
     /**
      * Represents a successful validation.
