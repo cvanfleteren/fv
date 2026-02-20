@@ -251,4 +251,60 @@ public class ValidationTest {
                     .hasMessage("flatMapper cannot be null");
         }
     }
+
+    @Nested
+    class Fold {
+
+        @Test
+        void fold_whenValid_callsValidMapper() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+
+            // Act
+            String result = valid.fold(
+                    errors -> "Invalid: " + errors.size(),
+                    value -> "Valid: " + value
+            );
+
+            // Assert
+            assertThat(result).isEqualTo("Valid: Success");
+        }
+
+        @Test
+        void fold_whenInvalid_callsInvalidMapper() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid(new ErrorMessage("Error1"), new ErrorMessage("Error2"));
+
+            // Act
+            String result = invalid.fold(
+                    errors -> "Invalid: " + errors.size(),
+                    value -> "Valid: " + value
+            );
+
+            // Assert
+            assertThat(result).isEqualTo("Invalid: 2");
+        }
+
+        @Test
+        void fold_whenValidMapperIsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+
+            // Act & Assert
+            assertThatCode(() -> valid.fold(errors -> "invalid", null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("invalidMapper cannot be null");
+        }
+
+        @Test
+        void fold_whenInvalidMapperIsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+
+            // Act & Assert
+            assertThatCode(() -> valid.fold(null, value -> "valid"))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("validMapper cannot be null");
+        }
+    }
 }

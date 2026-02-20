@@ -13,7 +13,6 @@ public sealed interface Validation<T> {
      */
     boolean valid();
 
-
     default <R> Validation<R> map(Function1<T, R> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
         return switch(this) {
@@ -27,6 +26,15 @@ public sealed interface Validation<T> {
         return switch(this) {
             case Valid(var value) -> flatMapper.apply(value);
             default -> this.upcast();
+        };
+    }
+
+    default <R> R fold(Function1<List<ErrorMessage>, R> whenInvalid, Function1<T, R> whenValid) {
+        Objects.requireNonNull(whenInvalid, "validMapper cannot be null");
+        Objects.requireNonNull(whenValid, "invalidMapper cannot be null");
+        return switch(this) {
+            case Valid(var value) -> whenValid.apply(value);
+            case Invalid(var errors) -> whenInvalid.apply(errors);
         };
     }
 
