@@ -15,9 +15,17 @@ public sealed interface Validation<T> {
 
 
     default <R> Validation<R> map(Function1<T, R> mapper) {
-        Objects.requireNonNull(mapper, "Mapper cannot be null");
+        Objects.requireNonNull(mapper, "mapper cannot be null");
         return switch(this) {
             case Valid(var value) -> new Valid<>(mapper.apply(value));
+            default -> this.upcast();
+        };
+    }
+
+    default <R> Validation<R> flatMap(Function1<T, Validation<R>> flatMapper) {
+        Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
+        return switch(this) {
+            case Valid(var value) -> flatMapper.apply(value);
             default -> this.upcast();
         };
     }

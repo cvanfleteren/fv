@@ -189,7 +189,66 @@ public class ValidationTest {
             // Act & Assert
             assertThatCode(() -> valid.map(null))
                     .isInstanceOf(NullPointerException.class)
-                    .hasMessage("Mapper cannot be null");
+                    .hasMessage("mapper cannot be null");
+        }
+    }
+
+    @Nested
+    class FlatMap {
+
+        @Test
+        void flatMap_whenValidAndMapperReturnsValid_returnsValidValidation() {
+            // Arrange
+            Validation<String> valid = Validation.valid("123");
+
+            // Act
+            Validation<Integer> result = valid.flatMap(s -> Validation.valid(Integer.parseInt(s)));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(123);
+        }
+
+        @Test
+        void flatMap_whenValidAndMapperReturnsInvalid_returnsInvalidValidation() {
+            // Arrange
+            Validation<String> valid = Validation.valid("abc");
+            ErrorMessage error = new ErrorMessage("Invalid number");
+
+            // Act
+            Validation<Integer> result = valid.flatMap(s -> Validation.invalid(error));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("Invalid number");
+        }
+
+        @Test
+        void flatMap_whenInvalid_returnsSameInvalidInstance() {
+            // Arrange
+            ErrorMessage error = new ErrorMessage("Error");
+            Validation<String> invalid = Validation.invalid(error);
+
+            // Act
+            Validation<Integer> result = invalid.flatMap(s -> Validation.valid(Integer.parseInt(s)));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("Error");
+        }
+
+        @Test
+        void flatMap_whenFlatMapperIsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+
+            // Act & Assert
+            assertThatCode(() -> valid.flatMap(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("flatMapper cannot be null");
         }
     }
 }
