@@ -7,6 +7,7 @@ import java.util.function.Predicate;
  * Represents a validation rule that can be applied to a value.
  * @param <T> The type of the value to be validated.
  */
+@FunctionalInterface
 public interface Rule<T> {
 
     /**
@@ -21,6 +22,11 @@ public interface Rule<T> {
         Objects.requireNonNull(predicate, "predicate cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return value -> predicate.test(value) ? Validation.isValid(value) : Validation.invalid(new ErrorMessage(errorMessage));
+    }
+
+    default Rule<T> and(Rule<? super T> other) {
+        Objects.requireNonNull(other, "other rule cannot be null");
+        return value -> test(value).flatMap(v -> other.test(value).map(o -> v));
     }
 
 }
