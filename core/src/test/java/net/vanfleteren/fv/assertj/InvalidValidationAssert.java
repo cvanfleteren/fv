@@ -1,10 +1,12 @@
-package net.vanfleteren.fv;
+package net.vanfleteren.fv.assertj;
 
+import net.vanfleteren.fv.ErrorMessage;
+import net.vanfleteren.fv.Validation;
 import org.assertj.core.api.AbstractAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class InvalidValidationAssert<SELF extends InvalidValidationAssert<SELF, VALID, T>, VALID extends Validation.Invalid<T>, T>
+public class InvalidValidationAssert<SELF extends InvalidValidationAssert<SELF, VALID, T>, VALID extends Validation.Invalid, T>
         extends AbstractAssert<SELF, VALID> {
 
     protected InvalidValidationAssert(VALID actual) {

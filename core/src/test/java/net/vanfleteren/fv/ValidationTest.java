@@ -3,7 +3,7 @@ package net.vanfleteren.fv;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static net.vanfleteren.fv.ValidationAssert.assertThatValidation;
+import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -38,7 +38,7 @@ public class ValidationTest {
             // Assert
             assertThat(result).isInstanceOf(Validation.Invalid.class);
             assertThat(result.valid()).isFalse();
-            assertThat(((Validation.Invalid<String>) result).errors()).containsExactly(error1, error2);
+            assertThat(((Validation.Invalid) (Object) result).errors()).containsExactly(error1, error2);
         }
 
         @Test
@@ -49,13 +49,30 @@ public class ValidationTest {
             // Assert
             assertThat(result).isInstanceOf(Validation.Invalid.class);
             assertThat(result.valid()).isFalse();
-            assertThat(((Validation.Invalid<String>) result).errors()).isEmpty();
+            assertThat(((Validation.Invalid) (Object) result).errors()).isEmpty();
+        }
+
+        @Test
+        void valid_whenGivenNull_throwsNullPointerException() {
+            // Act & Assert
+            assertThatCode(() -> Validation.valid(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("Value cannot be null");
+        }
+
+        @Test
+        void invalid_whenGivenNull_throwsNullPointerException() {
+            // Act & Assert
+            assertThatCode(() -> new Validation.Invalid(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("Errors cannot be null");
         }
 
     }
 
     @Nested
     class Assertions {
+        //test against the Assertion helpers, getting meta :)
 
         @Test
         void isValid_whenValid_returnsValidValidationAssert() {
@@ -100,6 +117,79 @@ public class ValidationTest {
                     .isInstanceOf(AssertionError.class)
                     .hasMessageContaining("Expected validation to be invalid but was valid");
         }
+
+        @Test
+        void invalid_canBeAssignedToDifferentTypes() {
+            // Arrange
+            ErrorMessage error = new ErrorMessage("Error");
+
+            // Act
+            Validation<String> stringValidation = Validation.invalid(error);
+            Validation<Integer> integerValidation = Validation.invalid(error);
+
+            // Assert
+            assertThat(stringValidation).isInstanceOf(Validation.Invalid.class);
+            assertThat(integerValidation).isInstanceOf(Validation.Invalid.class);
+        }
     }
 
+    @Nested
+    class Upcast {
+        @Test
+        void upcast_whenCalled_allowsAssignmentToSuperType() {
+            // Arrange
+            Validation<String> stringValidation = Validation.valid("Success");
+
+            // Act
+            Validation<Object> objectValidation = stringValidation.upcast();
+
+            // Assert
+            assertThat(objectValidation).isSameAs(stringValidation);
+            assertThat(objectValidation.valid()).isTrue();
+        }
+    }
+
+    @Nested
+    class Map {
+
+        @Test
+        void map_whenValid_returnsMappedValue() {
+            // Arrange
+            Validation<String> valid = Validation.valid("123");
+
+            // Act
+            Validation<Integer> result = valid.map(Integer::parseInt);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(123);
+        }
+
+        @Test
+        void map_whenInvalid_returnsSameInvalidInstance() {
+            // Arrange
+            ErrorMessage error = new ErrorMessage("Error");
+            Validation<String> invalid = Validation.invalid(error);
+
+            // Act
+            Validation<Integer> result = invalid.map(Integer::parseInt);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("Error");
+        }
+
+        @Test
+        void map_whenMapperIsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+
+            // Act & Assert
+            assertThatCode(() -> valid.map(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("Mapper cannot be null");
+        }
+    }
 }

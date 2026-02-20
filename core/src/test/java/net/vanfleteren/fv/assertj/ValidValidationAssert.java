@@ -1,5 +1,6 @@
-package net.vanfleteren.fv;
+package net.vanfleteren.fv.assertj;
 
+import net.vanfleteren.fv.Validation;
 import org.assertj.core.api.AbstractAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;

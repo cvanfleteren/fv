@@ -1,11 +1,7 @@
-package net.vanfleteren.fv;
+package net.vanfleteren.fv.assertj;
 
-import io.vavr.control.Try;
+import net.vanfleteren.fv.Validation;
 import org.assertj.core.api.AbstractAssert;
-import org.assertj.core.api.ObjectAssert;
-
-import java.util.concurrent.Callable;
-import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,9 +17,10 @@ public class ValidationAssert<SELF extends ValidationAssert<SELF, VALIDATION, T>
         return new ValidValidationAssert<>((Validation.Valid<T>) actual);
     }
 
-    public InvalidValidationAssert<?, Validation.Invalid<T>, T> isInvalid() {
+    @SuppressWarnings("unchecked")
+    public InvalidValidationAssert<?, Validation.Invalid, T> isInvalid() {
         assertThat(actual.valid()).as("Expected validation to be invalid but was valid").isFalse();
-        return new InvalidValidationAssert<>((Validation.Invalid<T>) actual);
+        return new InvalidValidationAssert<>((Validation.Invalid) actual);
     }
 
     public static <T> ValidationAssert<?, Validation<T>, T> assertThatValidation(Validation<T> actual) {
