@@ -17,7 +17,7 @@ public sealed interface Validation<T> {
         Objects.requireNonNull(mapper, "mapper cannot be null");
         return switch(this) {
             case Valid(var value) -> new Valid<>(mapper.apply(value));
-            default -> this.upcast();
+            default -> (Validation<R>)this;
         };
     }
 
@@ -25,7 +25,7 @@ public sealed interface Validation<T> {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
         return switch(this) {
             case Valid(var value) -> flatMapper.apply(value);
-            default -> this.upcast();
+            default -> (Validation<R>)this;
         };
     }
 
@@ -38,9 +38,15 @@ public sealed interface Validation<T> {
         };
     }
 
+    /**
+     * Narrows a {@code Validation<? extends T>} to a {@code Validation<T>}.
+     * @param validation The validation to narrow.
+     * @param <T> The target type.
+     * @return The narrowed validation.
+     */
     @SuppressWarnings("unchecked")
-    default <R> Validation<R> upcast() {
-        return (Validation<R>) this;
+    static <T> Validation<T> narrow(Validation<? extends T> validation) {
+        return (Validation<T>) validation;
     }
 
     /**
@@ -84,7 +90,6 @@ public sealed interface Validation<T> {
      * Represents an invalid validation.
      * @param errors The list of error messages that describe the validation failure.
      */
-    @SuppressWarnings("unchecked")
     record Invalid(List<ErrorMessage> errors) implements Validation<Object> {
 
         public Invalid {

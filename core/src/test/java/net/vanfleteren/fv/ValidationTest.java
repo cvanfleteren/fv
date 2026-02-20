@@ -1,5 +1,6 @@
 package net.vanfleteren.fv;
 
+import io.vavr.control.Option;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -134,21 +135,23 @@ public class ValidationTest {
     }
 
     @Nested
-    class Upcast {
+    class Narrow {
         @Test
-        void upcast_whenCalled_allowsAssignmentToSuperType() {
+        void narrow_whenCalled_allowsAssignmentToSubtype() {
             // Arrange
-            Validation<String> stringValidation = Validation.isValid("Success");
+            Validation<? extends Number> numberValidation = Validation.isValid(123);
 
             // Act
-            Validation<Object> objectValidation = stringValidation.upcast();
+            Validation<Number> narrowedValidation = Validation.narrow(numberValidation);
 
             // Assert
-            assertThat(objectValidation).isSameAs(stringValidation);
-            assertThat(objectValidation.isValid()).isTrue();
+            assertThat(narrowedValidation).isSameAs(numberValidation);
+            assertThatValidation(narrowedValidation)
+                    .isValid()
+                    .hasValue(123);
         }
     }
-
+    
     @Nested
     class Map {
 

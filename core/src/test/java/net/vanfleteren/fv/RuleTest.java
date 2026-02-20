@@ -6,9 +6,38 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 class RuleTest {
+
+    @Nested
+    class Narrow {
+        @Test
+        void narrow_whenCalled_allowsAssignmentToSubtype() {
+            // Arrange
+            Rule<? super BigDecimal> superRule = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
+
+            // Act
+            Rule<BigDecimal> narrowedRule = Rule.narrow(superRule);
+
+            // Assert
+            assertThat(narrowedRule).isSameAs(superRule);
+            assertThatValidation(narrowedRule.test(BigDecimal.valueOf(10)))
+                    .isValid();
+        }
+
+        @Test
+        void test_assignmentToSuperType_compiles() {
+            Rule<BigDecimal> isPositive = Rule.of(b -> b.doubleValue() > 0, "must.be.positive");
+            // Option 1: Use a wildcard
+            Validation<? extends Number> v1 = isPositive.test(BigDecimal.valueOf(500));
+
+            // Option 2: Use narrow
+            Validation<Number> v2 = Validation.narrow(isPositive.test(BigDecimal.valueOf(500)));
+        }
+
+    }
 
     @Nested
     class FactoryMethods {

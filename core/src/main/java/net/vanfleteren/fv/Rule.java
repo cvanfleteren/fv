@@ -29,4 +29,15 @@ public interface Rule<T> {
         return value -> test(value).flatMap(v -> other.test(value).map(o -> v));
     }
 
+    /**
+     * Narrows a {@code Rule<? super T>} to a {@code Rule<T>}.
+     * @param rule The rule to narrow.
+     * @param <T> The target type.
+     * @return The narrowed rule.
+     */
+    @SuppressWarnings("unchecked")
+    static <T> Rule<T> narrow(Rule<? super T> rule) {
+        return (Rule<T>) rule;
+    }
+
 }
