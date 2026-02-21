@@ -1,6 +1,6 @@
 package net.vanfleteren.fv;
 
-    import io.vavr.collection.List;
+import io.vavr.collection.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -30,8 +30,8 @@ public class ValidationTest {
         @Test
         void invalid_whenGivenErrors_returnsInvalidValidation() {
             // Arrange
-            ErrorMessage error1 = new ErrorMessage("Error 1");
-            ErrorMessage error2 = new ErrorMessage("Error 2");
+            ErrorMessage error1 = ErrorMessage.of("Error 1");
+            ErrorMessage error2 = ErrorMessage.of("Error 2");
 
             // Act
             Validation<String> result = Validation.invalid(error1, error2);
@@ -89,7 +89,7 @@ public class ValidationTest {
         @Test
         void isValid_whenInvalid_fails() {
             // Arrange
-            Validation<String> invalid = Validation.invalid(new ErrorMessage("Error"));
+            Validation<String> invalid = Validation.invalid(ErrorMessage.of("Error"));
 
             // Act & Assert
             assertThatCode(() -> assertThatValidation(invalid).isValid())
@@ -100,7 +100,7 @@ public class ValidationTest {
         @Test
         void isInvalid_whenInvalid_returnsInvalidValidationAssert() {
             // Arrange
-            Validation<String> invalid = Validation.invalid(new ErrorMessage("Error Message"));
+            Validation<String> invalid = Validation.invalid(ErrorMessage.of("Error Message"));
 
             // Act & Assert
             assertThatValidation(invalid)
@@ -122,7 +122,7 @@ public class ValidationTest {
         @Test
         void invalid_canBeAssignedToDifferentTypes() {
             // Arrange
-            ErrorMessage error = new ErrorMessage("Error");
+            ErrorMessage error = ErrorMessage.of("Error");
 
             // Act
             Validation<String> stringValidation = Validation.invalid(error);
@@ -172,7 +172,7 @@ public class ValidationTest {
         @Test
         void map_whenInvalid_returnsSameInvalidInstance() {
             // Arrange
-            ErrorMessage error = new ErrorMessage("Error");
+            ErrorMessage error = ErrorMessage.of("Error");
             Validation<String> invalid = Validation.invalid(error);
 
             // Act
@@ -217,7 +217,7 @@ public class ValidationTest {
         void flatMap_whenValidAndMapperReturnsInvalid_returnsInvalidValidation() {
             // Arrange
             Validation<String> valid = Validation.valid("abc");
-            ErrorMessage error = new ErrorMessage("Invalid number");
+            ErrorMessage error = ErrorMessage.of("Invalid number");
 
             // Act
             Validation<Integer> result = valid.flatMap(s -> Validation.invalid(error));
@@ -231,7 +231,7 @@ public class ValidationTest {
         @Test
         void flatMap_whenInvalid_returnsSameInvalidInstance() {
             // Arrange
-            ErrorMessage error = new ErrorMessage("Error");
+            ErrorMessage error = ErrorMessage.of("Error");
             Validation<String> invalid = Validation.invalid(error);
 
             // Act
@@ -276,7 +276,7 @@ public class ValidationTest {
         @Test
         void fold_whenInvalid_callsInvalidMapper() {
             // Arrange
-            Validation<String> invalid = Validation.invalid(new ErrorMessage("Error1"), new ErrorMessage("Error2"));
+            Validation<String> invalid = Validation.invalid(ErrorMessage.of("Error1"), ErrorMessage.of("Error2"));
 
             // Act
             String result = invalid.fold(
@@ -337,7 +337,7 @@ public class ValidationTest {
             // Arrange
             List<Validation<Integer>> validations = List.of(
                     Validation.valid(1),
-                    Validation.invalid(new ErrorMessage("error")),
+                    Validation.invalid(ErrorMessage.of("error")),
                     Validation.valid(3)
             );
 
@@ -355,8 +355,8 @@ public class ValidationTest {
             // Arrange
             List<Validation<Integer>> validations = List.of(
                     Validation.valid(1),
-                    Validation.invalid(new ErrorMessage("error 1")),
-                    Validation.invalid(new ErrorMessage("error 2"))
+                    Validation.invalid(ErrorMessage.of("error 1")),
+                    Validation.invalid(ErrorMessage.of("error 2"))
             );
 
             // Act
@@ -380,6 +380,66 @@ public class ValidationTest {
             assertThatValidation(result)
                     .isValid()
                     .hasValue(List.empty());
+        }
+    }
+
+    @Nested
+    class At {
+
+        @Test
+        void at_whenValid_returnsSameValidValidation() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+
+            // Act
+            Validation<String> result = valid.at("field");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("Success");
+        }
+
+        @Test
+        void at_whenInvalid_prependsPathToAllErrorMessages() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("must.not.be.null");
+
+            // Act
+            Validation<String> result = invalid.at("field");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("field.must.not.be.null");
+        }
+
+        @Test
+        void at_whenCalledNested_prependsPathsInCorrectOrder() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("must.not.be.null");
+
+            // Act
+            Validation<String> result = invalid.at("nested").at("root");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("root.nested.must.not.be.null");
+        }
+
+        @Test
+        void at_whenMultipleErrors_prependsPathToAll() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid(ErrorMessage.of("error1"), ErrorMessage.of("error2"));
+
+            // Act
+            Validation<String> result = invalid.at("field");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("field.error1", "field.error2");
         }
     }
 }

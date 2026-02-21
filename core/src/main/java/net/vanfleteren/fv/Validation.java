@@ -42,6 +42,24 @@ public sealed interface Validation<T> {
     }
     //endregion
 
+    //regionError handling
+    default Validation<T> mapErrors(Function1<List<ErrorMessage>, List<ErrorMessage>> mapper) {
+        Objects.requireNonNull(mapper, "mapper cannot be null");
+        return switch(this) {
+            case Valid<T> v -> v;
+            case Invalid(var errors) -> invalid(mapper.apply(errors));
+        };
+    }
+
+    /**
+     * Maps error messages prepending the given name to the segments of the error message.
+     * @param name a logical name for the value being validated, eg the name of the field in a form/record/class.
+     */
+    default Validation<T> at(String name) {
+        return mapErrors(errors -> errors.map(error -> error.prepend(ErrorMessage.Path.of(name))));
+    }
+    //endregion
+
     //region common functional operations on multiple validations
 
     /**
@@ -85,6 +103,10 @@ public sealed interface Validation<T> {
     @SuppressWarnings("unchecked")
     static <T> Validation<T> invalid(ErrorMessage... errors) {
         return (Validation<T>) new Invalid(List.of(errors));
+    }
+
+    static <T> Validation<T> invalid(String errorMessage) {
+        return (Validation<T>) new Invalid(List.of(ErrorMessage.of(errorMessage)));
     }
 
     /**

@@ -20,7 +20,7 @@ public interface Rule<T> {
     static <T> Rule<T> of(Predicate<T> predicate, String errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
-        return value -> predicate.test(value) ? Validation.valid(value) : Validation.invalid(new ErrorMessage(errorMessage));
+        return value -> predicate.test(value) ? Validation.valid(value) : Validation.invalid(ErrorMessage.of(errorMessage));
     }
 
     default Rule<T> and(Rule<? super T> other) {
