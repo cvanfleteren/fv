@@ -1,7 +1,28 @@
 package net.vanfleteren.fv;
 
+import io.vavr.collection.List;
+
+import java.util.Objects;
+
 public class API {
 
+
+    public static <T> ValidateAllDSL<T> validateAll(List<T> values) {
+        return new ValidateAllDSL<>(values);
+    }
+
+    public static class ValidateAllDSL<T> {
+        private final List<T> values;
+
+        public ValidateAllDSL(List<T> values) {
+            this.values = Objects.requireNonNull(values);
+        }
+
+        public Validation<List<T>> areAll(Rule<T> rule) {
+            Objects.requireNonNull(rule, "Rule cannot be null");
+            return Validation.sequence(values.map(rule::test));
+        }
+    }
 
     public static <T> ValidationDSL<T> validateThat(T value) {
         return new ValidationDSL<>(value);
