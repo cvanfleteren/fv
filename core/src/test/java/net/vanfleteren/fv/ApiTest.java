@@ -8,6 +8,8 @@ import static net.vanfleteren.fv.API.validateThat;
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import io.vavr.collection.List;
 
+import java.math.BigDecimal;
+
 public class ApiTest {
 
     record Person(String name, int age) {
@@ -19,31 +21,31 @@ public class ApiTest {
         @Test
         void areAll_whenAllValid_returnsValidValidation() {
             // Arrange
-            List<String> names = List.of("hello", "hi", "hey");
-            Rule<String> startsWithH = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            List<BigDecimal> numbers = List.of(BigDecimal.ONE, BigDecimal.TEN);
+            Rule<Number> positive = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
 
             // Act
-            Validation<List<String>> result = validateAll(names).areAll(startsWithH);
+            Validation<List<BigDecimal>> result = validateAll(numbers).areAll(positive);
 
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(names);
+                    .hasValue(numbers);
         }
 
         @Test
         void areAll_whenSomeInvalid_returnsInvalidWithAccumulatedErrors() {
             // Arrange
-            List<String> names = List.of("hello", "apple", "hey", "banana");
-            Rule<String> startsWithH = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            List<BigDecimal> numbers = List.of(BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.TEN);
+            Rule<Number> positive = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
 
             // Act
-            Validation<List<String>> result = validateAll(names).areAll(startsWithH);
+            Validation<List<BigDecimal>> result = validateAll(numbers).areAll(positive);
 
             // Assert
             assertThatValidation(result)
                     .isInvalid()
-                    .hasErrorMessages("[1].must.start.with.h", "[3].must.start.with.h");
+                    .hasErrorMessages("[0].must.be.positive");
         }
     }
 

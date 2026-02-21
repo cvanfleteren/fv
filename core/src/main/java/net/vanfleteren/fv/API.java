@@ -1,5 +1,6 @@
 package net.vanfleteren.fv;
 
+import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 
 import java.util.Objects;
@@ -7,20 +8,20 @@ import java.util.Objects;
 public class API {
 
 
-    public static <T> ValidateAllDSL<T> validateAll(List<T> values) {
+    public static <T> ValidateAllDSL<T> validateAll(Iterable<T> values) {
         return new ValidateAllDSL<>(values);
     }
 
     public static class ValidateAllDSL<T> {
-        private final List<T> values;
+        private final Iterable<T> values;
 
-        public ValidateAllDSL(List<T> values) {
+        public ValidateAllDSL(Iterable<T> values) {
             this.values = Objects.requireNonNull(values);
         }
 
-        public Validation<List<T>> areAll(Rule<T> rule) {
+        public Validation<List<T>> areAll(Rule<? super T> rule) {
             Objects.requireNonNull(rule, "Rule cannot be null");
-            return Validation.sequence(values.map(rule::test));
+            return Validation.sequence(List.ofAll(values).map(v -> Validation.narrowSuper(rule.test(v))));
         }
     }
 
