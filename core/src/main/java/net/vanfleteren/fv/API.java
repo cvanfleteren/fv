@@ -47,8 +47,8 @@ public class API {
             this.name = name;
         }
 
-        public Validation<T> is(Rule<T> rule) {
-            return rule.test(value).at(name);
+        public Validation<T> is(Rule<? super T> rule) {
+            return Validation.narrowSuper(rule.test(value).at(name));
         }
     }
 

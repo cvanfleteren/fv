@@ -15,6 +15,8 @@ public class ApiTest {
     record Person(String name, int age) {
     }
 
+    Rule<Number> positive = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
+
     @Nested
     class ValidateAll {
 
@@ -22,7 +24,6 @@ public class ApiTest {
         void areAll_whenAllValid_returnsValidValidation() {
             // Arrange
             List<BigDecimal> numbers = List.of(BigDecimal.ONE, BigDecimal.TEN);
-            Rule<Number> positive = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
 
             // Act
             Validation<List<BigDecimal>> result = validateAll(numbers).areAll(positive);
@@ -37,7 +38,6 @@ public class ApiTest {
         void areAll_whenSomeInvalid_returnsInvalidWithAccumulatedErrors() {
             // Arrange
             List<BigDecimal> numbers = List.of(BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.TEN);
-            Rule<Number> positive = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
 
             // Act
             Validation<List<BigDecimal>> result = validateAll(numbers).areAll(positive);
@@ -68,17 +68,11 @@ public class ApiTest {
 
         @Test
         public void validationDsl_invalid() {
-            Rule<String> startsWithH = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
+            Person p = new Person("john", 0);
 
-            Rule<String> compliant = notEmpty.and(startsWithH);
+            Validation<Integer> v = validateThat(p.age(),"age").is(positive);
 
-
-            Person p = new Person("john", 30);
-
-            Validation<String> v = validateThat(p.name(),"name").is(compliant);
-
-            assertThatValidation(v).isInvalid().hasErrorMessage("name.must.start.with.h");
+            assertThatValidation(v).isInvalid().hasErrorMessage("age.must.be.positive");
         }
     }
 }
