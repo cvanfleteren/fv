@@ -25,7 +25,12 @@ public class ErrorMessage {
     }
 
     public ErrorMessage prepend(Path path) {
-        return new ErrorMessage(message, paths.prepend(path));
+        if(!paths.isEmpty() && paths.head().index.isDefined() && paths.head().text.isEmpty() && path.index.isEmpty()) {
+            // previous path was just an index, an this one hasn't got one, combine them
+            return new ErrorMessage(message, paths.tail().prepend(path.withIndex(paths.head().index).withText(path.text)));
+        } else {
+            return new ErrorMessage(message, paths.prepend(path));
+        }
     }
 
     public ErrorMessage atIndex(int index) {
@@ -40,14 +45,11 @@ public class ErrorMessage {
         return paths.map(Path::formatted).append(message).mkString(".");
     }
 
+    @With
     public record Path(String text, Option<Integer> index) {
 
         public static Path of(String path) {
             return new Path(path, Option.none());
-        }
-
-        public Path withIndex(Option<Integer> index) {
-            return new Path(text, index);
         }
 
         public String formatted() {

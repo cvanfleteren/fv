@@ -441,5 +441,20 @@ public class ValidationTest {
                     .isInvalid()
                     .hasErrorMessages("field.error1", "field.error2");
         }
+
+        @Test
+        void at_whenSequencing_combinesWithIndex() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid(ErrorMessage.of("error1"), ErrorMessage.of("error2"));
+            Validation<String> invalid2 = Validation.invalid(ErrorMessage.of("error1"), ErrorMessage.of("error2"));
+
+            // Act
+            Validation<List<String>> result = Validation.sequence(List.of(invalid, invalid2)).at("field");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("field[0].error1", "field[0].error2", "field[1].error1", "field[1].error2");
+        }
     }
 }
