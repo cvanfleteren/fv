@@ -42,11 +42,40 @@ public sealed interface Validation<T> {
     }
     //endregion
 
+    //region common functional operations on multiple validations
+
+    /**
+     * Turns a List of Validation<T> into a single Validation<List<T>>.
+     * Collects all errors if any validations are invalid.
+     */
+    static <T> Validation<List<T>> sequence(List<Validation<T>> validations) {
+        return validations.foldLeft(
+                Validation.valid(List.empty()),
+                (acc, validation) -> {
+                    if (acc instanceof Valid<List<T>>(var list)) {
+                        if (validation instanceof Valid<T>(var value)) {
+                            return Validation.valid(list.append(value));
+                        } else {
+                            return Validation.invalid(validation.errors());
+                        }
+                    } else {
+                        if (validation instanceof Valid<T>) {
+                            return acc;
+                        } else {
+                            return Validation.invalid(acc.errors().appendAll(validation.errors()));
+                        }
+                    }
+                }
+        );
+    }
+
+    //endregion
+
     //region factory methods
     /**
      * Creates a successful validation.
      */
-    static <T> Validation<T> isValid(T value) {
+    static <T> Validation<T> valid(T value) {
         return new Valid<>(value);
     }
 

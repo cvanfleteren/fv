@@ -1,6 +1,6 @@
 package net.vanfleteren.fv;
 
-import io.vavr.control.Option;
+    import io.vavr.collection.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +19,7 @@ public class ValidationTest {
             String value = "Success";
 
             // Act
-            Validation<String> result = Validation.isValid(value);
+            Validation<String> result = Validation.valid(value);
 
             // Assert
             assertThat(result).isInstanceOf(Validation.Valid.class);
@@ -56,7 +56,7 @@ public class ValidationTest {
         @Test
         void valid_whenGivenNull_throwsNullPointerException() {
             // Act & Assert
-            assertThatCode(() -> Validation.isValid(null))
+            assertThatCode(() -> Validation.valid(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("Value cannot be null");
         }
@@ -78,7 +78,7 @@ public class ValidationTest {
         @Test
         void isValid_whenValid_returnsValidValidationAssert() {
             // Arrange
-            Validation<String> valid = Validation.isValid("Success");
+            Validation<String> valid = Validation.valid("Success");
 
             // Act & Assert
             assertThatValidation(valid)
@@ -111,7 +111,7 @@ public class ValidationTest {
         @Test
         void isInvalid_whenValid_fails() {
             // Arrange
-            Validation<String> valid = Validation.isValid("Success");
+            Validation<String> valid = Validation.valid("Success");
 
             // Act & Assert
             assertThatCode(() -> assertThatValidation(valid).isInvalid())
@@ -139,7 +139,7 @@ public class ValidationTest {
         @Test
         void narrow_whenCalled_allowsAssignmentToSubtype() {
             // Arrange
-            Validation<? extends Number> numberValidation = Validation.isValid(123);
+            Validation<? extends Number> numberValidation = Validation.valid(123);
 
             // Act
             Validation<Number> narrowedValidation = Validation.narrow(numberValidation);
@@ -158,7 +158,7 @@ public class ValidationTest {
         @Test
         void map_whenValid_returnsMappedValue() {
             // Arrange
-            Validation<String> valid = Validation.isValid("123");
+            Validation<String> valid = Validation.valid("123");
 
             // Act
             Validation<Integer> result = valid.map(Integer::parseInt);
@@ -187,7 +187,7 @@ public class ValidationTest {
         @Test
         void map_whenMapperIsNull_throwsNullPointerException() {
             // Arrange
-            Validation<String> valid = Validation.isValid("Success");
+            Validation<String> valid = Validation.valid("Success");
 
             // Act & Assert
             assertThatCode(() -> valid.map(null))
@@ -202,10 +202,10 @@ public class ValidationTest {
         @Test
         void flatMap_whenValidAndMapperReturnsValid_returnsValidValidation() {
             // Arrange
-            Validation<String> valid = Validation.isValid("123");
+            Validation<String> valid = Validation.valid("123");
 
             // Act
-            Validation<Integer> result = valid.flatMap(s -> Validation.isValid(Integer.parseInt(s)));
+            Validation<Integer> result = valid.flatMap(s -> Validation.valid(Integer.parseInt(s)));
 
             // Assert
             assertThatValidation(result)
@@ -216,7 +216,7 @@ public class ValidationTest {
         @Test
         void flatMap_whenValidAndMapperReturnsInvalid_returnsInvalidValidation() {
             // Arrange
-            Validation<String> valid = Validation.isValid("abc");
+            Validation<String> valid = Validation.valid("abc");
             ErrorMessage error = new ErrorMessage("Invalid number");
 
             // Act
@@ -235,7 +235,7 @@ public class ValidationTest {
             Validation<String> invalid = Validation.invalid(error);
 
             // Act
-            Validation<Integer> result = invalid.flatMap(s -> Validation.isValid(Integer.parseInt(s)));
+            Validation<Integer> result = invalid.flatMap(s -> Validation.valid(Integer.parseInt(s)));
 
             // Assert
             assertThatValidation(result)
@@ -246,7 +246,7 @@ public class ValidationTest {
         @Test
         void flatMap_whenFlatMapperIsNull_throwsNullPointerException() {
             // Arrange
-            Validation<String> valid = Validation.isValid("Success");
+            Validation<String> valid = Validation.valid("Success");
 
             // Act & Assert
             assertThatCode(() -> valid.flatMap(null))
@@ -261,7 +261,7 @@ public class ValidationTest {
         @Test
         void fold_whenValid_callsValidMapper() {
             // Arrange
-            Validation<String> valid = Validation.isValid("Success");
+            Validation<String> valid = Validation.valid("Success");
 
             // Act
             String result = valid.fold(
@@ -291,7 +291,7 @@ public class ValidationTest {
         @Test
         void fold_whenValidMapperIsNull_throwsNullPointerException() {
             // Arrange
-            Validation<String> valid = Validation.isValid("Success");
+            Validation<String> valid = Validation.valid("Success");
 
             // Act & Assert
             assertThatCode(() -> valid.fold(errors -> "invalid", null))
@@ -302,12 +302,84 @@ public class ValidationTest {
         @Test
         void fold_whenInvalidMapperIsNull_throwsNullPointerException() {
             // Arrange
-            Validation<String> valid = Validation.isValid("Success");
+            Validation<String> valid = Validation.valid("Success");
 
             // Act & Assert
             assertThatCode(() -> valid.fold(null, value -> "valid"))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("validMapper cannot be null");
+        }
+    }
+
+    @Nested
+    class Sequence {
+
+        @Test
+        void sequence_whenAllValid_returnsValidValidationWithList() {
+            // Arrange
+            List<Validation<Integer>> validations = List.of(
+                    Validation.valid(1),
+                    Validation.valid(2),
+                    Validation.valid(3)
+            );
+
+            // Act
+            Validation<List<Integer>> result = Validation.sequence(validations);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(List.of(1, 2, 3));
+        }
+
+        @Test
+        void sequence_whenOneIsInvalid_returnsInvalidValidation() {
+            // Arrange
+            List<Validation<Integer>> validations = List.of(
+                    Validation.valid(1),
+                    Validation.invalid(new ErrorMessage("error")),
+                    Validation.valid(3)
+            );
+
+            // Act
+            Validation<List<Integer>> result = Validation.sequence(validations);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("error");
+        }
+
+        @Test
+        void sequence_whenMultipleAreInvalid_returnsInvalidValidationWithAllErrors() {
+            // Arrange
+            List<Validation<Integer>> validations = List.of(
+                    Validation.valid(1),
+                    Validation.invalid(new ErrorMessage("error 1")),
+                    Validation.invalid(new ErrorMessage("error 2"))
+            );
+
+            // Act
+            Validation<List<Integer>> result = Validation.sequence(validations);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error 1", "error 2");
+        }
+
+        @Test
+        void sequence_whenEmptyList_returnsValidValidationWithEmptyList() {
+            // Arrange
+            List<Validation<Integer>> validations = List.empty();
+
+            // Act
+            Validation<List<Integer>> result = Validation.sequence(validations);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(List.empty());
         }
     }
 }
