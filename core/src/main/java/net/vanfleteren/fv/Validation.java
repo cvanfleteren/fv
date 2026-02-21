@@ -9,6 +9,7 @@ public sealed interface Validation<T> {
 
     /**
      * Indicates whether the validation is successful.
+     *
      * @return true if validation is successful, false otherwise.
      */
     boolean isValid();
@@ -18,24 +19,24 @@ public sealed interface Validation<T> {
     //region common functional operations on single validations
     default <R> Validation<R> map(Function1<T, R> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
-        return switch(this) {
+        return switch (this) {
             case Valid(var value) -> new Valid<>(mapper.apply(value));
-            default -> (Validation<R>)this;
+            default -> (Validation<R>) this;
         };
     }
 
     default <R> Validation<R> flatMap(Function1<T, Validation<R>> flatMapper) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
-        return switch(this) {
+        return switch (this) {
             case Valid(var value) -> flatMapper.apply(value);
-            default -> (Validation<R>)this;
+            default -> (Validation<R>) this;
         };
     }
 
     default <R> R fold(Function1<List<ErrorMessage>, R> whenInvalid, Function1<T, R> whenValid) {
         Objects.requireNonNull(whenInvalid, "validMapper cannot be null");
         Objects.requireNonNull(whenValid, "invalidMapper cannot be null");
-        return switch(this) {
+        return switch (this) {
             case Valid(var value) -> whenValid.apply(value);
             case Invalid(var errors) -> whenInvalid.apply(errors);
         };
@@ -45,7 +46,7 @@ public sealed interface Validation<T> {
     //regionError handling
     default Validation<T> mapErrors(Function1<List<ErrorMessage>, List<ErrorMessage>> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
-        return switch(this) {
+        return switch (this) {
             case Valid<T> v -> v;
             case Invalid(var errors) -> invalid(mapper.apply(errors));
         };
@@ -53,6 +54,7 @@ public sealed interface Validation<T> {
 
     /**
      * Maps error messages prepending the given name to the segments of the error message.
+     *
      * @param name a logical name for the value being validated, eg the name of the field in a form/record/class.
      */
     default Validation<T> at(String name) {
@@ -67,20 +69,22 @@ public sealed interface Validation<T> {
      * Collects all errors if any validations are invalid.
      */
     static <T> Validation<List<T>> sequence(List<Validation<T>> validations) {
-        return validations.foldLeft(
+        return validations
+                .zipWithIndex()
+                .foldLeft(
                 Validation.valid(List.empty()),
-                (acc, validation) -> {
+                (acc, validationWithIndex) -> {
                     if (acc instanceof Valid<List<T>>(var list)) {
-                        if (validation instanceof Valid<T>(var value)) {
+                        if (validationWithIndex._1 instanceof Valid<T>(var value)) {
                             return Validation.valid(list.append(value));
                         } else {
-                            return Validation.invalid(validation.errors());
+                            return Validation.invalid(validationWithIndex._1.errors().map(error -> error.atIndex(validationWithIndex._2)));
                         }
                     } else {
-                        if (validation instanceof Valid<T>) {
+                        if (validationWithIndex._1 instanceof Valid<T>) {
                             return acc;
                         } else {
-                            return Validation.invalid(acc.errors().appendAll(validation.errors()));
+                            return Validation.invalid(acc.errors().appendAll(validationWithIndex._1.errors().map(error -> error.atIndex(validationWithIndex._2))));
                         }
                     }
                 }
@@ -90,6 +94,7 @@ public sealed interface Validation<T> {
     //endregion
 
     //region factory methods
+
     /**
      * Creates a successful validation.
      */
@@ -119,10 +124,12 @@ public sealed interface Validation<T> {
     //endregion
 
     //region casting
+
     /**
      * Narrows a {@code Validation<? extends T>} to a {@code Validation<T>}.
+     *
      * @param validation The validation to narrow.
-     * @param <T> The target type.
+     * @param <T>        The target type.
      * @return The narrowed validation.
      */
     @SuppressWarnings("unchecked")
@@ -140,7 +147,7 @@ public sealed interface Validation<T> {
     /**
      * Represents a successful validation.
      */
-    record Valid<T> (T value) implements Validation<T> {
+    record Valid<T>(T value) implements Validation<T> {
         public Valid {
             Objects.requireNonNull(value, "Value cannot be null");
         }
@@ -158,6 +165,7 @@ public sealed interface Validation<T> {
 
     /**
      * Represents an invalid validation.
+     *
      * @param errors The list of error messages that describe the validation failure.
      */
     record Invalid(List<ErrorMessage> errors) implements Validation<Object> {

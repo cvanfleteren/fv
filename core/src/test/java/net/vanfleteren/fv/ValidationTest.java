@@ -347,7 +347,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isInvalid()
-                    .hasErrorMessage("error");
+                    .hasErrorMessage("[1].error");
         }
 
         @Test
@@ -365,7 +365,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isInvalid()
-                    .hasErrorMessages("error 1", "error 2");
+                    .hasErrorMessages("[1].error 1", "[2].error 2");
         }
 
         @Test
