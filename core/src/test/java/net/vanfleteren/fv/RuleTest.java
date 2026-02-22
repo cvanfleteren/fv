@@ -129,7 +129,7 @@ class RuleTest {
         @Test
         void of_whenErrorMessageIsNull_throwsNullPointerException() {
             // Act & Assert
-            assertThatCode(() -> Rule.of(s -> true, null))
+            assertThatCode(() -> Rule.of(s -> true, (ErrorMessage) null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("errorMessage cannot be null");
         }

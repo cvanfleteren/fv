@@ -1,5 +1,6 @@
 package net.vanfleteren.fv.assertj;
 
+import io.vavr.collection.Map;
 import net.vanfleteren.fv.ErrorMessage;
 import net.vanfleteren.fv.Validation;
 import org.assertj.core.api.AbstractAssert;
@@ -18,8 +19,19 @@ public class InvalidValidationAssert<SELF extends InvalidValidationAssert<SELF, 
         return (SELF) this;
     }
 
+    public SELF hasErrorMessage(String errorKey, Map<String, Object> args) {
+        assertThat(actual.errors()).map(ErrorMessage::key).contains(errorKey);
+        assertThat(actual.errors().filter(e -> e.key().equals(errorKey)).head().args()).isEqualTo(args);
+        return (SELF) this;
+    }
+
     public SELF hasErrorMessages(String... errorMessages) {
         assertThat(actual.errors()).map(ErrorMessage::message).containsExactly(errorMessages);
+        return (SELF) this;
+    }
+
+    public SELF hasErrorKeys(String... errorKeys) {
+        assertThat(actual.errors()).map(ErrorMessage::key).containsExactly(errorKeys);
         return (SELF) this;
     }
 }

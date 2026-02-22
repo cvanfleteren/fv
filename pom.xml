@@ -28,6 +28,7 @@
     </developers>
     <modules>
         <module>core</module>
+        <module>rules</module>
     </modules>
     <scm>
         <connection>scm:git:https://github.com/cvanfleteren/fv.git</connection>

@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="fv in core" type="JUnit" factoryName="JUnit">
-    <module name="core" />
+  <configuration default="false" name="fv in rules" type="JUnit" factoryName="JUnit">
+    <module name="rules" />
     <option name="PACKAGE_NAME" value="net.vanfleteren.fv" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
