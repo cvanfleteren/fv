@@ -25,6 +25,29 @@ public sealed interface Validation<T> {
 
     List<ErrorMessage> errors();
 
+    //region value retrieval
+    /**
+     * Returns the valid value, or {@code fallback} if this validation is invalid.
+     */
+    default T getOrElse(T fallback) {
+        Objects.requireNonNull(fallback, "fallback cannot be null");
+        return switch (this) {
+            case Valid(var value) -> value;
+            case Invalid ignored -> fallback;
+        };
+    }
+
+    /**
+     * Returns the valid value, or throws {@link ValidationException} if this validation is invalid.
+     */
+    default T getOrElseThrow() {
+        return switch (this) {
+            case Valid(var value) -> value;
+            case Invalid(var errors) -> throw new ValidationException(errors);
+        };
+    }
+    //endregion
+
     //region common functional operations on single validations
     default <R> Validation<R> map(Function1<T, R> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");

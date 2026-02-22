@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.*;
 
 public class ValidationTest {
 
@@ -965,6 +964,75 @@ public class ValidationTest {
             assertThatValidation(result)
                     .isInvalid()
                     .hasErrorMessages("error1", "error2", "error3", "error4", "error5", "error6", "error7", "error8");
+        }
+    }
+
+    @Nested
+    class GetOrElse {
+
+        @Test
+        void getOrElse_whenValid_returnsValueIgnoringFallback() {
+            // Arrange
+            Validation<String> valid = Validation.valid("actual");
+
+            // Act
+            String result = valid.getOrElse("fallback");
+
+            // Assert
+            assertThat(result).isEqualTo("actual");
+        }
+
+        @Test
+        void getOrElse_whenInvalid_returnsFallback() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("some.error");
+
+            // Act
+            String result = invalid.getOrElse("fallback");
+
+            // Assert
+            assertThat(result).isEqualTo("fallback");
+        }
+
+        @Test
+        void getOrElse_whenFallbackIsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("some.error");
+
+            // Act & Assert
+            assertThatCode(() -> invalid.getOrElse(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("fallback cannot be null");
+        }
+    }
+
+    @Nested
+    class GetOrElseThrow {
+
+        @Test
+        void getOrElseThrow_whenValid_returnsValue() {
+            // Arrange
+            Validation<String> valid = Validation.valid("actual");
+
+            // Act
+            String result = valid.getOrElseThrow();
+
+            // Assert
+            assertThat(result).isEqualTo("actual");
+        }
+
+        @Test
+        void getOrElseThrow_whenInvalid_throwsValidationExceptionContainingErrors() {
+            // Arrange
+            ErrorMessage e1 = ErrorMessage.of("error1");
+            ErrorMessage e2 = ErrorMessage.of("error2");
+            Validation<String> invalid = Validation.invalid(e1, e2);
+
+            // Act & Assert
+            assertThatThrownBy(invalid::getOrElseThrow)
+                    .isInstanceOf(ValidationException.class)
+                    .extracting(ex -> ((ValidationException) ex).errors())
+                    .isEqualTo(List.of(e1, e2));
         }
     }
 }
