@@ -216,4 +216,91 @@ class StringRulesTest {
             defaultInvalidTest("", StringRules.endsWith("x"), "must.end.with", HashMap.of("suffix", "x"));
         }
     }
+
+    @Nested
+    class Matches {
+
+        @Test
+        void valid() {
+            defaultValidTest("12345", StringRules.matches("\\d+"));
+            defaultValidTest("ab12", StringRules.matches("[a-z]{2}\\d{2}"));
+        }
+
+        @Test
+        void invalid() {
+            defaultInvalidTest("12a", StringRules.matches("\\d+"), "must.match.regex", HashMap.of("regex", "\\d+"));
+            defaultInvalidTest("ab123", StringRules.matches("[a-z]{2}\\d{2}"), "must.match.regex", HashMap.of("regex", "[a-z]{2}\\d{2}"));
+        }
+    }
+
+    @Nested
+    class Alpha {
+
+        @Test
+        void valid() {
+            defaultValidTest("", StringRules.alpha);          // empty is ok; combine with notEmpty if you need non-empty
+            defaultValidTest("abc", StringRules.alpha);
+            defaultValidTest("Åß", StringRules.alpha);        // unicode letters are allowed
+        }
+
+        @Test
+        void invalid() {
+            defaultInvalidTest("abc1", StringRules.alpha, "must.be.alpha");
+            defaultInvalidTest("a b", StringRules.alpha, "must.be.alpha");
+            defaultInvalidTest("-", StringRules.alpha, "must.be.alpha");
+        }
+    }
+
+    @Nested
+    class AlphaNumeric {
+
+        @Test
+        void valid() {
+            defaultValidTest("", StringRules.alphaNumeric);
+            defaultValidTest("abc", StringRules.alphaNumeric);
+            defaultValidTest("abc123", StringRules.alphaNumeric);
+            defaultValidTest("Åß١٢3", StringRules.alphaNumeric); // letters + digits (unicode digits too)
+        }
+
+        @Test
+        void invalid() {
+            defaultInvalidTest("a_b", StringRules.alphaNumeric, "must.be.alphanumeric");
+            defaultInvalidTest("a b", StringRules.alphaNumeric, "must.be.alphanumeric");
+            defaultInvalidTest("!", StringRules.alphaNumeric, "must.be.alphanumeric");
+        }
+    }
+
+    @Nested
+    class OnlyDigits {
+
+        @Test
+        void valid() {
+            defaultValidTest("", StringRules.onlyDigits);
+            defaultValidTest("0123", StringRules.onlyDigits);
+            defaultValidTest("١٢٣", StringRules.onlyDigits); // unicode digits are allowed by Character.isDigit
+        }
+
+        @Test
+        void invalid() {
+            defaultInvalidTest("12a", StringRules.onlyDigits, "must.be.digits.only");
+            defaultInvalidTest("12 3", StringRules.onlyDigits, "must.be.digits.only");
+            defaultInvalidTest("-", StringRules.onlyDigits, "must.be.digits.only");
+        }
+    }
+
+    @Nested
+    class OnlyAsciiDigits {
+
+        @Test
+        void valid() {
+            defaultValidTest("", StringRules.onlyAsciiDigits());
+            defaultValidTest("0123", StringRules.onlyAsciiDigits());
+        }
+
+        @Test
+        void invalid() {
+            defaultInvalidTest("١٢٣", StringRules.onlyAsciiDigits(), "must.be.ascii.digits.only");
+            defaultInvalidTest("12a", StringRules.onlyAsciiDigits(), "must.be.ascii.digits.only");
+        }
+    }
 }

@@ -5,6 +5,7 @@ import net.vanfleteren.fv.ErrorMessage;
 import net.vanfleteren.fv.Rule;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class StringRules {
 
@@ -72,7 +73,7 @@ public class StringRules {
     }
     //endregion
 
-    //region contains / starts / ends
+    //region contains / starts / ends / matches
     public static Rule<String> contains(String fragment) {
         Objects.requireNonNull(fragment, "fragment cannot be null");
         return Rule.of(
@@ -95,6 +96,49 @@ public class StringRules {
                 s -> s.endsWith(suffix),
                 ErrorMessage.of("must.end.with", "suffix", suffix)
         );
+    }
+
+    public static Rule<String> matches(String regex) {
+        Objects.requireNonNull(regex, "regex cannot be null");
+        Pattern pattern = Pattern.compile(regex);
+        return Rule.of(
+                s -> pattern.matcher(s).matches(),
+                ErrorMessage.of("must.match.regex", "regex", regex)
+        );
+    }
+
+    /**
+     * Fails if the string contains anything other than letters.
+     * Uses {@link Character#isLetter(int)} so it supports unicode letters (not just A-Z).
+     */
+    public static final Rule<String> alpha = Rule.of(
+            s -> s.codePoints().allMatch(Character::isLetter),
+            "must.be.alpha"
+    );
+
+    /**
+     * Fails if the string contains anything other than letters or digits.
+     * Uses {@link Character#isLetterOrDigit(int)} so it supports unicode letters/digits.
+     */
+    public static final Rule<String> alphaNumeric = Rule.of(
+            s -> s.codePoints().allMatch(Character::isLetterOrDigit),
+            "must.be.alphanumeric"
+    );
+
+    /**
+     * Fails if the string contains anything other than digits.
+     * Note: this accepts unicode digits too (e.g. Arabic-Indic digits). If you want ASCII-only digits,
+     * use a regex like {@code "^[0-9]+$"} instead.
+     */
+    public static final Rule<String> onlyDigits = Rule.of(
+            s -> s.codePoints().allMatch(Character::isDigit),
+            "must.be.digits.only"
+    );
+
+    // Optional ASCII-only variant if you want it strict:
+    public static Rule<String> onlyAsciiDigits() {
+        Pattern p = Pattern.compile("[0-9]*");
+        return Rule.of(s -> p.matcher(s).matches(), ErrorMessage.of("must.be.ascii.digits.only"));
     }
     //endregion
 
