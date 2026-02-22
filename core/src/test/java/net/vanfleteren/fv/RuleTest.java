@@ -90,6 +90,17 @@ class RuleTest {
     @Nested
     class And {
 
+
+        @Test
+        void and_whenCombinedWithSuperRule_orderDoesntMatter() {
+            Rule<Number> numberRule = Rule.of(o -> true, "msg");
+            Rule<BigDecimal> decimalRule = Rule.of(o -> true, "msg");
+
+
+            Rule<BigDecimal> and = decimalRule.and(numberRule);
+            Rule<BigDecimal> and2 = numberRule.and(decimalRule);
+        }
+
         @Test
         void and_whenBothRulesMatch_returnsValidValidation() {
             // Arrange
@@ -169,6 +180,18 @@ class RuleTest {
 
     @Nested
     class Or {
+
+        @Test
+        void or_whenCombinedWithSuperRule_orderDoesntMatter() {
+            Rule<Number> numberRule = Rule.of(o -> true, "msg");
+            Rule<BigDecimal> decimalRule = Rule.of(o -> true, "msg");
+
+            Rule<BigDecimal> or = decimalRule.or(numberRule);
+            Rule<BigDecimal> or2 = numberRule.or(decimalRule);
+
+            assertThatValidation(or.test(BigDecimal.valueOf(10))).isValid();
+            assertThatValidation(or2.test(BigDecimal.valueOf(10))).isValid();
+        }
 
         @Test
         void or_whenFirstRuleMatches_returnsValidValidation() {

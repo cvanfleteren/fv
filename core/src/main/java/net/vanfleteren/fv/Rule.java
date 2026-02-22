@@ -23,20 +23,22 @@ public interface Rule<T> {
         return value -> predicate.test(value) ? Validation.valid(value) : Validation.invalid(ErrorMessage.of(errorMessage));
     }
 
-    default Rule<T> and(Rule<? super T> other) {
+    @SuppressWarnings("unchecked")
+    default <S extends T> Rule<S> and(Rule<? super S> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
-        return value -> test(value).flatMap(v -> other.test(value).map(o -> v));
+        return value -> test(value).flatMap(v -> other.test(value).map(o -> (S) v));
     }
 
-    default Rule<T> or(Rule<? super T> other) {
+    @SuppressWarnings("unchecked")
+    default <S extends T> Rule<S> or(Rule<? super S> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input -> {
-            Validation<T> first = this.test(input);
+            Validation<S> first = (Validation<S>) this.test(input);
             if (first.isValid()) {
                 return first;
             }
 
-            Validation<T> second = Validation.narrowSuper(other.test(input));
+            Validation<S> second = (Validation<S>) other.test(input);
             if (second.isValid()) {
                 return second;
             }
