@@ -58,10 +58,68 @@ public sealed interface Validation<T> {
         };
     }
 
+    /**
+     * Like {@link #map(Function1)} but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
+     * ValidationExceptions that are thrown are handled cleanly, accumulating the errors present.
+     */
+    default <R> Validation<R> mapCatching(Function1<T, R> mapper) {
+        return mapCatching(mapper, "could.not.be.mapped");
+    }
+
+    /**
+     * Like {@link #map(Function1)} but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
+     * ValidationExceptions that are thrown are handled cleanly, accumulating the errors present.
+     */
+    default <R> Validation<R> mapCatching(Function1<T, R> mapper, String errorMessage) {
+        Objects.requireNonNull(mapper, "mapper cannot be null");
+        Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
+        return switch (this) {
+            case Valid(var value) -> {
+                try {
+                    yield new Valid<>(mapper.apply(value));
+                } catch (ValidationException e) {
+                    yield Validation.invalid(e.errors());
+                } catch (RuntimeException e) {
+                    yield Validation.invalid(errorMessage);
+                }
+            }
+            default -> (Validation<R>) this;
+        };
+    }
+
     default <R> Validation<R> flatMap(Function1<T, Validation<R>> flatMapper) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
         return switch (this) {
             case Valid(var value) -> flatMapper.apply(value);
+            default -> (Validation<R>) this;
+        };
+    }
+
+    /**
+     * Like {@link #flatMap(Function1)} (Function1)} but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
+     * ValidationExceptions that are thrown are handled cleanly, accumulating the errors present.
+     */
+    default <R> Validation<R> flatMapCatching(Function1<T, Validation<R>> flatMapper) {
+        return flatMapCatching(flatMapper, "could.not.be.mapped");
+    }
+
+    /**
+     * Like {@link #flatMap(Function1)} (Function1)} but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
+     * ValidationExceptions that are thrown are handled cleanly, accumulating the errors present.
+     */
+    default <R> Validation<R> flatMapCatching(Function1<T, Validation<R>> flatMapper, String errorMessage) {
+        Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
+        Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
+        return switch (this) {
+            case Valid(var value) -> {
+                try {
+                    yield flatMapper.apply(value);
+                } catch (ValidationException e) {
+                    yield Validation.invalid(e.errors());
+                } catch (RuntimeException e) {
+                    yield Validation.invalid(errorMessage);
+                }
+            }
             default -> (Validation<R>) this;
         };
     }

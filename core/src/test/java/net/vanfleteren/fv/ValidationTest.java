@@ -197,6 +197,103 @@ public class ValidationTest {
     }
 
     @Nested
+    class MapCatching {
+
+        @Test
+        void mapCatching_whenValidAndMapperSucceeds_returnsMappedValue() {
+            // Arrange
+            Validation<String> valid = Validation.valid("123");
+
+            // Act
+            Validation<Integer> result = valid.mapCatching(Integer::parseInt);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(123);
+        }
+
+        @Test
+        void mapCatching_whenValidAndMapperThrows_returnsInvalidWithDefaultErrorMessage() {
+            // Arrange
+            Validation<String> valid = Validation.valid("abc");
+
+            // Act
+            Validation<Integer> result = valid.mapCatching(Integer::parseInt);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("could.not.be.mapped");
+        }
+
+        @Test
+        void mapCatching_whenInvalid_returnsSameInvalidInstance() {
+            // Arrange
+            ErrorMessage error = ErrorMessage.of("Error");
+            Validation<String> invalid = Validation.invalid(error);
+
+            // Act
+            Validation<Integer> result = invalid.mapCatching(Integer::parseInt);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("Error");
+        }
+
+        @Test
+        void mapCatchingWithErrorMessage_whenValidAndMapperSucceeds_returnsMappedValue() {
+            // Arrange
+            Validation<String> valid = Validation.valid("123");
+
+            // Act
+            Validation<Integer> result = valid.mapCatching(Integer::parseInt, "custom.error");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(123);
+        }
+
+        @Test
+        void mapCatchingWithErrorMessage_whenValidAndMapperThrows_returnsInvalidWithCustomErrorMessage() {
+            // Arrange
+            Validation<String> valid = Validation.valid("abc");
+
+            // Act
+            Validation<Integer> result = valid.mapCatching(Integer::parseInt, "custom.error");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("custom.error");
+        }
+
+        @Test
+        void mapCatching_whenMapperIsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+
+            // Act & Assert
+            assertThatCode(() -> valid.mapCatching(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("mapper cannot be null");
+        }
+
+        @Test
+        void mapCatching_whenErrorMessageIsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+
+            // Act & Assert
+            assertThatCode(() -> valid.mapCatching(Integer::parseInt, null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("errorMessage cannot be null");
+        }
+    }
+
+    @Nested
     class FlatMap {
 
         @Test
@@ -252,6 +349,127 @@ public class ValidationTest {
             assertThatCode(() -> valid.flatMap(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("flatMapper cannot be null");
+        }
+    }
+
+    @Nested
+    class FlatMapCatching {
+
+        @Test
+        void flatMapCatching_whenValidAndFlatMapperReturnsValid_returnsThatValidation() {
+            // Arrange
+            Validation<String> valid = Validation.valid("123");
+
+            // Act
+            Validation<Integer> result = valid.flatMapCatching(s -> Validation.valid(Integer.parseInt(s)));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(123);
+        }
+
+        @Test
+        void flatMapCatching_whenValidAndFlatMapperReturnsInvalid_returnsThatInvalid() {
+            // Arrange
+            Validation<String> valid = Validation.valid("whatever");
+            ErrorMessage error = ErrorMessage.of("some.error");
+
+            // Act
+            Validation<Integer> result = valid.flatMapCatching(s -> Validation.invalid(error));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("some.error");
+        }
+
+        @Test
+        void flatMapCatching_whenInvalid_returnsSameInvalidInstance() {
+            // Arrange
+            ErrorMessage error = ErrorMessage.of("Error");
+            Validation<String> invalid = Validation.invalid(error);
+
+            // Act
+            Validation<Integer> result = invalid.flatMapCatching(s -> Validation.valid(Integer.parseInt(s)));
+
+            // Assert
+            assertThat(result).isSameAs(invalid);
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("Error");
+        }
+
+        @Test
+        void flatMapCatching_whenValidAndFlatMapperThrowsRuntimeException_becomesInvalidWithDefaultErrorMessage() {
+            // Arrange
+            Validation<String> valid = Validation.valid("abc");
+
+            // Act
+            Validation<Integer> result = valid.flatMapCatching(s -> {
+                throw new RuntimeException("boom");
+            });
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("could.not.be.mapped");
+        }
+
+        @Test
+        void flatMapCatching_whenValidAndFlatMapperThrowsRuntimeException_becomesInvalidWithCustomErrorMessage() {
+            // Arrange
+            Validation<String> valid = Validation.valid("abc");
+
+            // Act
+            Validation<Integer> result = valid.flatMapCatching(s -> {
+                throw new RuntimeException("boom");
+            }, "custom.error");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("custom.error");
+        }
+
+        @Test
+        void flatMapCatching_whenValidAndFlatMapperThrowsValidationException_becomesInvalidWithThoseErrors() {
+            // Arrange
+            Validation<String> valid = Validation.valid("abc");
+            ErrorMessage e1 = ErrorMessage.of("error1");
+            ErrorMessage e2 = ErrorMessage.of("error2");
+
+            // Act
+            Validation<Integer> result = valid.flatMapCatching(s -> {
+                throw new ValidationException(List.of(e1, e2));
+            });
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error1", "error2");
+        }
+
+        @Test
+        void flatMapCatching_whenFlatMapperIsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+
+            // Act & Assert
+            assertThatCode(() -> valid.flatMapCatching(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("flatMapper cannot be null");
+        }
+
+        @Test
+        void flatMapCatching_whenErrorMessageIsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+
+            // Act & Assert
+            assertThatCode(() -> valid.flatMapCatching(s -> Validation.valid(1), null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("errorMessage cannot be null");
         }
     }
 

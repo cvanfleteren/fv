@@ -126,24 +126,31 @@ public class API {
 
     public static class ValidationDSL<T> {
 
-        private final T value;
+        private final Validation<T> validation;
         private String name = "";
 
         public ValidationDSL(T value) {
-            this.value = value;
+            this.validation = Validation.valid(value);
         }
 
         public ValidationDSL(T value, String name) {
-            this.value = value;
+            this.validation = Validation.valid(value);
+            this.name = name;
+        }
+
+        private ValidationDSL(Validation<T> validation, String name) {
+            this.validation = Objects.requireNonNull(validation, "validation cannot be null");
             this.name = name;
         }
 
         public <Z> ValidationDSL<Z> map(Function1<T, Z> mapper) {
-            return new ValidationDSL<>(mapper.apply(value), name);
+            return new ValidationDSL<>(validation.mapCatching(mapper), name);
         }
 
         public Validation<T> is(Rule<? super T> rule) {
-            return Validation.narrowSuper(Rule.notNull().and(rule).test(value).at(name));
+            Objects.requireNonNull(rule, "rule cannot be null");
+            return validation
+                    .flatMap(v -> Validation.narrowSuper(Rule.notNull().and(rule).test(v).at(name)));
         }
     }
 

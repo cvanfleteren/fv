@@ -50,6 +50,7 @@ public class ClientViewTest {
         Person person = new Person(" John ", 18);
         // the name was trimmed
         assertThat(person.name).isEqualTo("John");
+        assertThat(person.age).isEqualTo(18);
     }
 
     @Test

@@ -100,6 +100,23 @@ public class ApiTest {
         }
 
         @Test
+        public void map_whenMapFails_becomesInvalidWithErrorMessage() {
+            // Arrange
+            var value = "  abc  ";
+
+            // Act
+            var result = validateThat(value)
+                    .map(Integer::parseInt)
+                    .map(i -> i * 2)
+                    .is(Rule.of(i -> i == 246, "must.be.246"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("could.not.be.mapped");
+        }
+
+        @Test
         public void map_whenMappingToDifferentType_worksCorrectly() {
             // Arrange
             var value = "123";
