@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static net.vanfleteren.fv.API.assertAllValid;
 import static net.vanfleteren.fv.API.validateThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ClientViewTest {
 
@@ -30,6 +31,25 @@ public class ClientViewTest {
         ValidationAssert.assertThatValidation(personV)
                 .isValid()
                 .hasValue(new Person("John", 30));
+    }
+
+
+    @Test
+    void constructorValidation_whenMappingValues_returnsTupleWithValidValues() {
+
+        record Person(String name, int age) {
+            Person {
+                var values = assertAllValid(
+                        validateThat(name, "name").map(String::trim).is(minLength),
+                        validateThat(age, "age").is(minAge)
+                );
+                name = values._1();
+            }
+        }
+
+        Person person = new Person(" John ", 18);
+        // the name was trimmed
+        assertThat(person.name).isEqualTo("John");
     }
 
     @Test

@@ -59,4 +59,8 @@ public interface Rule<T> {
         return (Rule<T>) rule;
     }
 
+    static <T> Rule<T> notNull() {
+        return Rule.of(Objects::nonNull, "can.not.be.null");
+    }
+
 }
