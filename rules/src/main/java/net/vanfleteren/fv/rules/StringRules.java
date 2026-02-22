@@ -1,9 +1,11 @@
 package net.vanfleteren.fv.rules;
 
 import io.vavr.collection.HashMap;
+import io.vavr.collection.Set;
 import net.vanfleteren.fv.ErrorMessage;
 import net.vanfleteren.fv.Rule;
 
+import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -74,14 +76,6 @@ public class StringRules {
     //endregion
 
     //region contains / starts / ends / matches
-    public static Rule<String> contains(String fragment) {
-        Objects.requireNonNull(fragment, "fragment cannot be null");
-        return Rule.of(
-                s -> s.contains(fragment),
-                ErrorMessage.of("must.contain", "fragment", fragment)
-        );
-    }
-
     public static Rule<String> startsWith(String prefix) {
         Objects.requireNonNull(prefix, "prefix cannot be null");
         return Rule.of(
@@ -90,11 +84,71 @@ public class StringRules {
         );
     }
 
+    public static Rule<String> startsWithIgnoreCase(String prefix) {
+        Objects.requireNonNull(prefix, "prefix cannot be null");
+        return Rule.of(
+                s -> s.regionMatches(true, 0, prefix, 0, prefix.length()),
+                ErrorMessage.of("must.start.with.ignorecase", "prefix", prefix)
+        );
+    }
+
     public static Rule<String> endsWith(String suffix) {
         Objects.requireNonNull(suffix, "suffix cannot be null");
         return Rule.of(
                 s -> s.endsWith(suffix),
                 ErrorMessage.of("must.end.with", "suffix", suffix)
+        );
+    }
+
+    public static Rule<String> endsWithIgnoreCase(String suffix) {
+        Objects.requireNonNull(suffix, "suffix cannot be null");
+        return Rule.of(
+                s -> s.length() >= suffix.length()
+                        && s.regionMatches(true, s.length() - suffix.length(), suffix, 0, suffix.length()),
+                ErrorMessage.of("must.end.with.ignorecase", "suffix", suffix)
+        );
+    }
+
+    public static Rule<String> contains(String fragment) {
+        Objects.requireNonNull(fragment, "fragment cannot be null");
+        return Rule.of(
+                s -> s.contains(fragment),
+                ErrorMessage.of("must.contain", "fragment", fragment)
+        );
+    }
+
+    public static Rule<String> containsIgnoreCase(String fragment) {
+        Objects.requireNonNull(fragment, "fragment cannot be null");
+
+        return Rule.of(
+                s -> {
+                    int needleLen = fragment.length();
+                    if (needleLen == 0) {
+                        return true; // matches String.contains("")
+                    }
+
+                    int maxStart = s.length() - needleLen;
+                    if (maxStart < 0) {
+                        return false; // fragment longer than input can never match
+                    }
+
+                    for (int i = 0; i <= maxStart; i++) {
+                        if (s.regionMatches(true, i, fragment, 0, needleLen)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                },
+                ErrorMessage.of("must.contain.ignorecase", "fragment", fragment)
+        );
+    }
+
+    public static Rule<String> notIn(Set<String> forbidden) {
+        Objects.requireNonNull(forbidden, "forbidden cannot be null");
+
+        return Rule.of(
+                s -> !forbidden.contains(s),
+                ErrorMessage.of("must.not.be.in", "forbidden", forbidden)
         );
     }
 

@@ -1,6 +1,7 @@
 package net.vanfleteren.fv.rules;
 
 import io.vavr.collection.HashMap;
+import io.vavr.collection.HashSet;
 import io.vavr.collection.Map;
 import net.vanfleteren.fv.Rule;
 import org.junit.jupiter.api.Nested;
@@ -184,6 +185,25 @@ class StringRulesTest {
     }
 
     @Nested
+    class ContainsIgnoreCase {
+
+        @Test
+        void valid() {
+            defaultValidTest("hello", StringRules.containsIgnoreCase("ELL"));
+            defaultValidTest("HELLO", StringRules.containsIgnoreCase("ell"));
+            defaultValidTest("HeLlO", StringRules.containsIgnoreCase("eLl"));
+            defaultValidTest("hello", StringRules.containsIgnoreCase(""));
+            defaultValidTest("", StringRules.containsIgnoreCase(""));
+        }
+
+        @Test
+        void invalid() {
+            defaultInvalidTest("hello", StringRules.containsIgnoreCase("XYZ"), "must.contain.ignorecase", HashMap.of("fragment", "XYZ"));
+            defaultInvalidTest("", StringRules.containsIgnoreCase("x"), "must.contain.ignorecase", HashMap.of("fragment", "x"));
+        }
+    }
+
+    @Nested
     class StartsWith {
 
         @Test
@@ -201,6 +221,25 @@ class StringRulesTest {
     }
 
     @Nested
+    class StartsWithIgnoreCase {
+
+        @Test
+        void valid() {
+            defaultValidTest("hello", StringRules.startsWithIgnoreCase("HE"));
+            defaultValidTest("HELLO", StringRules.startsWithIgnoreCase("he"));
+            defaultValidTest("HeLlO", StringRules.startsWithIgnoreCase("hEl"));
+            defaultValidTest("hello", StringRules.startsWithIgnoreCase(""));
+            defaultValidTest("", StringRules.startsWithIgnoreCase(""));
+        }
+
+        @Test
+        void invalid() {
+            defaultInvalidTest("hello", StringRules.startsWithIgnoreCase("XY"), "must.start.with.ignorecase", HashMap.of("prefix", "XY"));
+            defaultInvalidTest("", StringRules.startsWithIgnoreCase("x"), "must.start.with.ignorecase", HashMap.of("prefix", "x"));
+        }
+    }
+
+    @Nested
     class EndsWith {
 
         @Test
@@ -214,6 +253,46 @@ class StringRulesTest {
         void invalid() {
             defaultInvalidTest("hello", StringRules.endsWith("xy"), "must.end.with", HashMap.of("suffix", "xy"));
             defaultInvalidTest("", StringRules.endsWith("x"), "must.end.with", HashMap.of("suffix", "x"));
+        }
+    }
+
+    @Nested
+    class EndsWithIgnoreCase {
+
+        @Test
+        void valid() {
+            defaultValidTest("hello", StringRules.endsWithIgnoreCase("LO"));
+            defaultValidTest("HELLO", StringRules.endsWithIgnoreCase("lo"));
+            defaultValidTest("HeLlO", StringRules.endsWithIgnoreCase("LlO"));
+            defaultValidTest("hello", StringRules.endsWithIgnoreCase(""));
+            defaultValidTest("", StringRules.endsWithIgnoreCase(""));
+        }
+
+        @Test
+        void invalid() {
+            defaultInvalidTest("hello", StringRules.endsWithIgnoreCase("XY"), "must.end.with.ignorecase", HashMap.of("suffix", "XY"));
+            defaultInvalidTest("", StringRules.endsWithIgnoreCase("x"), "must.end.with.ignorecase", HashMap.of("suffix", "x"));
+            defaultInvalidTest("hi", StringRules.endsWithIgnoreCase("LONGER"), "must.end.with.ignorecase", HashMap.of("suffix", "LONGER"));
+        }
+    }
+
+    @Nested
+    class NotIn {
+
+        @Test
+        void valid() {
+            defaultValidTest("hello", StringRules.notIn(HashSet.of("nope", "forbidden")));
+            defaultValidTest("", StringRules.notIn(HashSet.of("x")));
+        }
+
+        @Test
+        void invalid() {
+            defaultInvalidTest(
+                    "admin",
+                    StringRules.notIn(HashSet.of("admin", "root")),
+                    "must.not.be.in",
+                    HashMap.of("forbidden", HashSet.of("admin", "root"))
+            );
         }
     }
 
