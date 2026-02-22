@@ -457,4 +457,134 @@ public class ValidationTest {
                     .hasErrorMessages("field[0].error1", "field[0].error2", "field[1].error1", "field[1].error2");
         }
     }
+
+    @Nested
+    class MapN {
+        @Test
+        void mapN_whenBothValid_returnsMappedValue() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("hello");
+            Validation<Integer> v2 = Validation.valid(5);
+
+            // Act
+            Validation<String> result = Validation.mapN(v1, v2, (s, i) -> s + i);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("hello5");
+        }
+
+        @Test
+        void mapN_whenBothInvalid_returnsAllErrors() {
+            // Arrange
+            Validation<String> v1 = Validation.invalid("error1");
+            Validation<Integer> v2 = Validation.invalid("error2");
+
+            // Act
+            Validation<String> result = Validation.mapN(v1, v2, (s, i) -> s + i);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error1", "error2");
+        }
+
+        @Test
+        void mapN3_whenAllValid_returnsMappedValue() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("a");
+            Validation<String> v2 = Validation.valid("b");
+            Validation<String> v3 = Validation.valid("c");
+
+            // Act
+            Validation<String> result = Validation.mapN(v1, v2, v3, (s1, s2, s3) -> s1 + s2 + s3);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("abc");
+        }
+
+        @Test
+        void mapN3_whenAllAreInvalid_returnsAccumulatedErrors() {
+            // Arrange
+            Validation<String> v1 = Validation.invalid("error1");
+            Validation<String> v2 = Validation.invalid("error2");
+            Validation<String> v3 = Validation.invalid("error3");
+
+            // Act
+            Validation<String> result = Validation.mapN(v1, v2, v3, (s1, s2, s3) -> s1 + s2 + s3);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error1", "error2", "error3");
+        }
+    }
+
+    @Nested
+    class FlatMapN {
+        @Test
+        void flatMapN_whenBothValid_returnsMappedValidation() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("hello");
+            Validation<Integer> v2 = Validation.valid(5);
+
+            // Act
+            Validation<String> result = Validation.flatMapN(v1, v2, (s, i) -> Validation.valid(s + i));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("hello5");
+        }
+
+        @Test
+        void flatMapN_whenBothInvalid_returnsAllErrors() {
+            // Arrange
+            Validation<String> v1 = Validation.invalid("error1");
+            Validation<Integer> v2 = Validation.invalid("error2");
+
+            // Act
+            Validation<String> result = Validation.flatMapN(v1, v2, (s, i) -> Validation.valid(s + i));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error1", "error2");
+        }
+
+        @Test
+        void flatMapN3_whenAllValid_returnsMappedValidation() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("a");
+            Validation<String> v2 = Validation.valid("b");
+            Validation<String> v3 = Validation.valid("c");
+
+            // Act
+            Validation<String> result = Validation.flatMapN(v1, v2, v3, (s1, s2, s3) -> Validation.valid(s1 + s2 + s3));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("abc");
+        }
+
+        @Test
+        void flatMapN3_whenAllAreInvalid_returnsAccumulatedErrors() {
+            // Arrange
+            Validation<String> v1 = Validation.invalid("error1");
+            Validation<String> v2 = Validation.invalid("error2");
+            Validation<String> v3 = Validation.invalid("error3");
+
+            // Act
+            Validation<String> result = Validation.flatMapN(v1, v2, v3, (s1, s2, s3) -> Validation.valid(s1 + s2 + s3));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error1", "error2", "error3");
+        }
+    }
 }
