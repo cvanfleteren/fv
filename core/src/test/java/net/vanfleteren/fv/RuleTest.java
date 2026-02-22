@@ -1,15 +1,63 @@
 package net.vanfleteren.fv;
 
+import com.google.testing.compile.JavaFileObjects;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import javax.tools.JavaFileObject;
 import java.math.BigDecimal;
 
+import static com.google.common.truth.Truth.assert_;
+import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 class RuleTest {
+
+    @Nested
+    class CompilationTests {
+
+        @Test
+        void compilation_whenAssigningIncompatibleRuleType_failsToCompile() {
+
+            JavaFileObject source = JavaFileObjects.forSourceLines(
+                    "HelloWorld",
+                    "package test;",
+                    "import net.vanfleteren.fv.Rule;",
+                    "public class HelloWorld {",
+                    "  Rule<String> rule = Rule.of(n -> true, \"msg\");",
+                    "  Rule<Integer> invalid = rule; // This should fail",
+                    "}"
+            );
+
+            assert_().about(javaSource())
+                    .that(source)
+                    .failsToCompile()
+                    .withErrorContaining("incompatible types");
+        }
+
+        @Test
+        void compilationOfOr_whenAssigningIncompatibleRuleType_failsToCompile() {
+
+            JavaFileObject source = JavaFileObjects.forSourceLines(
+                    "HelloWorld",
+                    "package test;",
+                    "import net.vanfleteren.fv.Rule;",
+                    "public class HelloWorld {",
+                    "  Rule<String> rule = Rule.of(n -> true, \"msg\");",
+                    "  Rule<Integer> intRule = Rule.of(n -> true, \"msg\");",
+                    "  Rule<Integer> invalid = rule.or(intRule); // This should fail",
+                    "}"
+            );
+
+            assert_().about(javaSource())
+                    .that(source)
+                    .failsToCompile()
+                    .withErrorContaining("incompatible upper bounds");
+        }
+
+    }
 
     @Nested
     class Narrow {
