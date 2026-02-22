@@ -8,6 +8,16 @@ import java.util.Objects;
 public class API {
 
 
+    /**
+     * Asserts that all provided validations are valid, otherwise throws a ValidationException with all errors.
+     */
+    public static void assertAllValid(Validation<?>... validations) {
+        Iterator<ErrorMessage> it = Iterator.of(validations).flatMap(Validation::errors);
+        if(! it.isEmpty()) {
+            throw new ValidationException(it.toList());
+        }
+    }
+
     public static <T> ValidateAllDSL<T> validateAll(Iterable<T> values) {
         return new ValidateAllDSL<>(values);
     }

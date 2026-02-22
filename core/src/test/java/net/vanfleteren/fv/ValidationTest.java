@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ValidationTest {
 
@@ -1033,6 +1034,53 @@ public class ValidationTest {
                     .isInstanceOf(ValidationException.class)
                     .extracting(ex -> ((ValidationException) ex).errors())
                     .isEqualTo(List.of(e1, e2));
+        }
+    }
+
+    @Nested
+    class From {
+
+        @Test
+        void from_whenSupplierReturnsValue_returnsValidWithThatValue() {
+            // Arrange
+            record Person(String name) {}
+            Person expected = new Person("John");
+
+            // Act
+            Validation<Person> result = Validation.from(() -> expected);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(expected);
+        }
+
+        @Test
+        void from_whenSupplierThrowsValidationException_returnsInvalidWithSameErrors() {
+            // Arrange
+            ErrorMessage e1 = ErrorMessage.of("name.too.short");
+            ErrorMessage e2 = ErrorMessage.of("age.too.young");
+
+            // Act
+            Validation<Object> result = Validation.from(() -> {
+                throw new ValidationException(List.of(e1, e2));
+            });
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("name.too.short", "age.too.young");
+        }
+
+        @Test
+        void from_whenSupplierThrowsOtherException_returnsInvalidWithGenericErrorMessage() {
+            // Arrange
+            RuntimeException boom = new RuntimeException("boom");
+
+            // Act
+            assertThatThrownBy(() -> Validation.from(() -> {
+                throw boom;
+            })).isSameAs(boom);
         }
     }
 }

@@ -2,6 +2,7 @@ package net.vanfleteren.fv;
 
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import lombok.EqualsAndHashCode;
 import lombok.With;
 
 import java.util.Objects;
@@ -10,6 +11,7 @@ import java.util.Objects;
  * Represents an error message with a string message.
  */
 @With
+@EqualsAndHashCode
 public class ErrorMessage {
     private final String message;
     private final List<Path> paths;

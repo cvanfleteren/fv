@@ -13,6 +13,7 @@ import io.vavr.collection.List;
 
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public sealed interface Validation<T> {
 
@@ -337,7 +338,7 @@ public sealed interface Validation<T> {
 
     //endregion
 
-    //region factory methods
+    //region factory methods for know values
 
     /**
      * Creates a successful validation.
@@ -364,6 +365,24 @@ public sealed interface Validation<T> {
     @SuppressWarnings("unchecked")
     static <T> Validation<T> invalid(List<ErrorMessage> errors) {
         return (Validation<T>) new Invalid(errors);
+    }
+    //endregion
+
+    //region factory methods for unknown values
+    /**
+     * Creates a validation from a supplier.
+     * If the supplier throws a {@link ValidationException}, the returned validation will be invalid with the same errors
+     * as the thrown exception.
+     * If the supplier throws any other exception,the exception will be propagated.
+     * This method is meant for interop with code that can throw the ValidationException, for example when you
+     * use the "validate in constructor" pattern.
+     */
+    static <T> Validation<T> from(Supplier<T> supplier) {
+        try {
+            return Validation.valid(supplier.get());
+        } catch(ValidationException e) {
+            return Validation.invalid(e.errors());
+        }
     }
     //endregion
 
