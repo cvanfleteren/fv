@@ -3,6 +3,11 @@ package net.vanfleteren.fv;
 import io.vavr.Function1;
 import io.vavr.Function2;
 import io.vavr.Function3;
+import io.vavr.Function4;
+import io.vavr.Function5;
+import io.vavr.Function6;
+import io.vavr.Function7;
+import io.vavr.Function8;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 
@@ -144,6 +149,166 @@ public sealed interface Validation<T> {
             return mapper.apply(t1, t2, t3);
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors()).flatMap(Function.identity()));
+        }
+    }
+
+    static <R, T1, T2, T3, T4> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Function4<T1, T2, T3, T4, R> mapper) {
+        Objects.requireNonNull(v1, "v1 validation cannot be null");
+        Objects.requireNonNull(v2, "v2 validation cannot be null");
+        Objects.requireNonNull(v3, "v3 validation cannot be null");
+        Objects.requireNonNull(v4, "v4 validation cannot be null");
+        Objects.requireNonNull(mapper, "mapper cannot be null");
+
+        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4)) {
+            return valid(mapper.apply(t1, t2, t3, t4));
+        } else {
+            return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors()).flatMap(Function.identity()));
+        }
+    }
+
+    static <R, T1, T2, T3, T4> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Function4<T1, T2, T3, T4, Validation<R>> mapper) {
+        Objects.requireNonNull(v1, "v1 validation cannot be null");
+        Objects.requireNonNull(v2, "v2 validation cannot be null");
+        Objects.requireNonNull(v3, "v3 validation cannot be null");
+        Objects.requireNonNull(v4, "v4 validation cannot be null");
+        Objects.requireNonNull(mapper, "mapper cannot be null");
+
+        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4)) {
+            return mapper.apply(t1, t2, t3, t4);
+        } else {
+            return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors()).flatMap(Function.identity()));
+        }
+    }
+
+    static <R, T1, T2, T3, T4, T5> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Function5<T1, T2, T3, T4, T5, R> mapper) {
+        Objects.requireNonNull(v1, "v1 validation cannot be null");
+        Objects.requireNonNull(v2, "v2 validation cannot be null");
+        Objects.requireNonNull(v3, "v3 validation cannot be null");
+        Objects.requireNonNull(v4, "v4 validation cannot be null");
+        Objects.requireNonNull(v5, "v5 validation cannot be null");
+        Objects.requireNonNull(mapper, "mapper cannot be null");
+
+        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5)) {
+            return valid(mapper.apply(t1, t2, t3, t4, t5));
+        } else {
+            return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors()).flatMap(Function.identity()));
+        }
+    }
+
+    static <R, T1, T2, T3, T4, T5> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Function5<T1, T2, T3, T4, T5, Validation<R>> mapper) {
+        Objects.requireNonNull(v1, "v1 validation cannot be null");
+        Objects.requireNonNull(v2, "v2 validation cannot be null");
+        Objects.requireNonNull(v3, "v3 validation cannot be null");
+        Objects.requireNonNull(v4, "v4 validation cannot be null");
+        Objects.requireNonNull(v5, "v5 validation cannot be null");
+        Objects.requireNonNull(mapper, "mapper cannot be null");
+
+        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5)) {
+            return mapper.apply(t1, t2, t3, t4, t5);
+        } else {
+            return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors()).flatMap(Function.identity()));
+        }
+    }
+
+    static <R, T1, T2, T3, T4, T5, T6> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Function6<T1, T2, T3, T4, T5, T6, R> mapper) {
+        Objects.requireNonNull(v1, "v1 validation cannot be null");
+        Objects.requireNonNull(v2, "v2 validation cannot be null");
+        Objects.requireNonNull(v3, "v3 validation cannot be null");
+        Objects.requireNonNull(v4, "v4 validation cannot be null");
+        Objects.requireNonNull(v5, "v5 validation cannot be null");
+        Objects.requireNonNull(v6, "v6 validation cannot be null");
+        Objects.requireNonNull(mapper, "mapper cannot be null");
+
+        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5) && v6 instanceof Valid<T6>(var t6)) {
+            return valid(mapper.apply(t1, t2, t3, t4, t5, t6));
+        } else {
+            return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors()).flatMap(Function.identity()));
+        }
+    }
+
+    static <R, T1, T2, T3, T4, T5, T6> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Function6<T1, T2, T3, T4, T5, T6, Validation<R>> mapper) {
+        Objects.requireNonNull(v1, "v1 validation cannot be null");
+        Objects.requireNonNull(v2, "v2 validation cannot be null");
+        Objects.requireNonNull(v3, "v3 validation cannot be null");
+        Objects.requireNonNull(v4, "v4 validation cannot be null");
+        Objects.requireNonNull(v5, "v5 validation cannot be null");
+        Objects.requireNonNull(v6, "v6 validation cannot be null");
+        Objects.requireNonNull(mapper, "mapper cannot be null");
+
+        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5) && v6 instanceof Valid<T6>(var t6)) {
+            return mapper.apply(t1, t2, t3, t4, t5, t6);
+        } else {
+            return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors()).flatMap(Function.identity()));
+        }
+    }
+
+    static <R, T1, T2, T3, T4, T5, T6, T7> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Function7<T1, T2, T3, T4, T5, T6, T7, R> mapper) {
+        Objects.requireNonNull(v1, "v1 validation cannot be null");
+        Objects.requireNonNull(v2, "v2 validation cannot be null");
+        Objects.requireNonNull(v3, "v3 validation cannot be null");
+        Objects.requireNonNull(v4, "v4 validation cannot be null");
+        Objects.requireNonNull(v5, "v5 validation cannot be null");
+        Objects.requireNonNull(v6, "v6 validation cannot be null");
+        Objects.requireNonNull(v7, "v7 validation cannot be null");
+        Objects.requireNonNull(mapper, "mapper cannot be null");
+
+        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5) && v6 instanceof Valid<T6>(var t6) && v7 instanceof Valid<T7>(var t7)) {
+            return valid(mapper.apply(t1, t2, t3, t4, t5, t6, t7));
+        } else {
+            return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors()).flatMap(Function.identity()));
+        }
+    }
+
+    static <R, T1, T2, T3, T4, T5, T6, T7> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Function7<T1, T2, T3, T4, T5, T6, T7, Validation<R>> mapper) {
+        Objects.requireNonNull(v1, "v1 validation cannot be null");
+        Objects.requireNonNull(v2, "v2 validation cannot be null");
+        Objects.requireNonNull(v3, "v3 validation cannot be null");
+        Objects.requireNonNull(v4, "v4 validation cannot be null");
+        Objects.requireNonNull(v5, "v5 validation cannot be null");
+        Objects.requireNonNull(v6, "v6 validation cannot be null");
+        Objects.requireNonNull(v7, "v7 validation cannot be null");
+        Objects.requireNonNull(mapper, "mapper cannot be null");
+
+        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5) && v6 instanceof Valid<T6>(var t6) && v7 instanceof Valid<T7>(var t7)) {
+            return mapper.apply(t1, t2, t3, t4, t5, t6, t7);
+        } else {
+            return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors()).flatMap(Function.identity()));
+        }
+    }
+
+    static <R, T1, T2, T3, T4, T5, T6, T7, T8> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Validation<T8> v8, Function8<T1, T2, T3, T4, T5, T6, T7, T8, R> mapper) {
+        Objects.requireNonNull(v1, "v1 validation cannot be null");
+        Objects.requireNonNull(v2, "v2 validation cannot be null");
+        Objects.requireNonNull(v3, "v3 validation cannot be null");
+        Objects.requireNonNull(v4, "v4 validation cannot be null");
+        Objects.requireNonNull(v5, "v5 validation cannot be null");
+        Objects.requireNonNull(v6, "v6 validation cannot be null");
+        Objects.requireNonNull(v7, "v7 validation cannot be null");
+        Objects.requireNonNull(v8, "v8 validation cannot be null");
+        Objects.requireNonNull(mapper, "mapper cannot be null");
+
+        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5) && v6 instanceof Valid<T6>(var t6) && v7 instanceof Valid<T7>(var t7) && v8 instanceof Valid<T8>(var t8)) {
+            return valid(mapper.apply(t1, t2, t3, t4, t5, t6, t7, t8));
+        } else {
+            return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors(), v8.errors()).flatMap(Function.identity()));
+        }
+    }
+
+    static <R, T1, T2, T3, T4, T5, T6, T7, T8> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Validation<T8> v8, Function8<T1, T2, T3, T4, T5, T6, T7, T8, Validation<R>> mapper) {
+        Objects.requireNonNull(v1, "v1 validation cannot be null");
+        Objects.requireNonNull(v2, "v2 validation cannot be null");
+        Objects.requireNonNull(v3, "v3 validation cannot be null");
+        Objects.requireNonNull(v4, "v4 validation cannot be null");
+        Objects.requireNonNull(v5, "v5 validation cannot be null");
+        Objects.requireNonNull(v6, "v6 validation cannot be null");
+        Objects.requireNonNull(v7, "v7 validation cannot be null");
+        Objects.requireNonNull(v8, "v8 validation cannot be null");
+        Objects.requireNonNull(mapper, "mapper cannot be null");
+
+        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5) && v6 instanceof Valid<T6>(var t6) && v7 instanceof Valid<T7>(var t7) && v8 instanceof Valid<T8>(var t8)) {
+            return mapper.apply(t1, t2, t3, t4, t5, t6, t7, t8);
+        } else {
+            return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors(), v8.errors()).flatMap(Function.identity()));
         }
     }
 

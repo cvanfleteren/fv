@@ -521,6 +521,196 @@ public class ValidationTest {
                     .isInvalid()
                     .hasErrorMessages("error1", "error2", "error3");
         }
+
+        @Test
+        void mapN4_whenAllValid_returnsMappedValue() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("a");
+            Validation<Integer> v2 = Validation.valid(1);
+            Validation<String> v3 = Validation.valid("b");
+            Validation<Integer> v4 = Validation.valid(2);
+
+            // Act
+            Validation<String> result = Validation.mapN(v1, v2, v3, v4, (s1, i1, s2, i2) -> s1 + i1 + s2 + i2);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("a1b2");
+        }
+
+        @Test
+        void mapN4_whenAllAreInvalid_returnsAccumulatedErrors() {
+            // Arrange
+            Validation<String> v1 = Validation.invalid("error1");
+            Validation<String> v2 = Validation.invalid("error2");
+            Validation<String> v3 = Validation.invalid("error3");
+            Validation<String> v4 = Validation.invalid("error4");
+
+            // Act
+            Validation<String> result = Validation.mapN(v1, v2, v3, v4, (s1, s2, s3, s4) -> s1 + s2 + s3 + s4);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error1", "error2", "error3", "error4");
+        }
+
+        @Test
+        void mapN5_whenAllValid_returnsMappedValue() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("a");
+            Validation<Integer> v2 = Validation.valid(1);
+            Validation<String> v3 = Validation.valid("b");
+            Validation<Integer> v4 = Validation.valid(2);
+            Validation<String> v5 = Validation.valid("c");
+
+            // Act
+            Validation<String> result = Validation.mapN(v1, v2, v3, v4, v5, (s1, i1, s2, i2, s3) -> s1 + i1 + s2 + i2 + s3);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("a1b2c");
+        }
+
+        @Test
+        void mapN5_whenAllAreInvalid_returnsAccumulatedErrors() {
+            // Arrange
+            Validation<String> v1 = Validation.invalid("error1");
+            Validation<String> v2 = Validation.invalid("error2");
+            Validation<String> v3 = Validation.invalid("error3");
+            Validation<String> v4 = Validation.invalid("error4");
+            Validation<String> v5 = Validation.invalid("error5");
+
+            // Act
+            Validation<String> result = Validation.mapN(v1, v2, v3, v4, v5, (s1, s2, s3, s4, s5) -> s1 + s2 + s3 + s4 + s5);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error1", "error2", "error3", "error4", "error5");
+        }
+
+        @Test
+        void mapN6_whenAllValid_returnsMappedValue() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("a");
+            Validation<Integer> v2 = Validation.valid(1);
+            Validation<String> v3 = Validation.valid("b");
+            Validation<Integer> v4 = Validation.valid(2);
+            Validation<String> v5 = Validation.valid("c");
+            Validation<Integer> v6 = Validation.valid(3);
+
+            // Act
+            Validation<String> result = Validation.mapN(v1, v2, v3, v4, v5, v6, (s1, i1, s2, i2, s3, i3) -> s1 + i1 + s2 + i2 + s3 + i3);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("a1b2c3");
+        }
+
+        @Test
+        void mapN6_whenAllAreInvalid_returnsAccumulatedErrors() {
+            // Arrange
+            Validation<String> v1 = Validation.invalid("error1");
+            Validation<String> v2 = Validation.invalid("error2");
+            Validation<String> v3 = Validation.invalid("error3");
+            Validation<String> v4 = Validation.invalid("error4");
+            Validation<String> v5 = Validation.invalid("error5");
+            Validation<String> v6 = Validation.invalid("error6");
+
+            // Act
+            Validation<String> result = Validation.mapN(v1, v2, v3, v4, v5, v6, (s1, s2, s3, s4, s5, s6) -> s1 + s2 + s3 + s4 + s5 + s6);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error1", "error2", "error3", "error4", "error5", "error6");
+        }
+
+        @Test
+        void mapN7_whenAllValid_returnsMappedValue() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("a");
+            Validation<Integer> v2 = Validation.valid(1);
+            Validation<String> v3 = Validation.valid("b");
+            Validation<Integer> v4 = Validation.valid(2);
+            Validation<String> v5 = Validation.valid("c");
+            Validation<Integer> v6 = Validation.valid(3);
+            Validation<String> v7 = Validation.valid("d");
+
+            // Act
+            Validation<String> result = Validation.mapN(v1, v2, v3, v4, v5, v6, v7, (s1, i1, s2, i2, s3, i3, s4) -> s1 + i1 + s2 + i2 + s3 + i3 + s4);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("a1b2c3d");
+        }
+
+        @Test
+        void mapN7_whenAllAreInvalid_returnsAccumulatedErrors() {
+            // Arrange
+            Validation<String> v1 = Validation.invalid("error1");
+            Validation<String> v2 = Validation.invalid("error2");
+            Validation<String> v3 = Validation.invalid("error3");
+            Validation<String> v4 = Validation.invalid("error4");
+            Validation<String> v5 = Validation.invalid("error5");
+            Validation<String> v6 = Validation.invalid("error6");
+            Validation<String> v7 = Validation.invalid("error7");
+
+            // Act
+            Validation<String> result = Validation.mapN(v1, v2, v3, v4, v5, v6, v7, (s1, s2, s3, s4, s5, s6, s7) -> s1 + s2 + s3 + s4 + s5 + s6 + s7);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error1", "error2", "error3", "error4", "error5", "error6", "error7");
+        }
+
+        @Test
+        void mapN8_whenAllValid_returnsMappedValue() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("a");
+            Validation<Integer> v2 = Validation.valid(1);
+            Validation<String> v3 = Validation.valid("b");
+            Validation<Integer> v4 = Validation.valid(2);
+            Validation<String> v5 = Validation.valid("c");
+            Validation<Integer> v6 = Validation.valid(3);
+            Validation<String> v7 = Validation.valid("d");
+            Validation<Integer> v8 = Validation.valid(4);
+
+            // Act
+            Validation<String> result = Validation.mapN(v1, v2, v3, v4, v5, v6, v7, v8, (s1, i1, s2, i2, s3, i3, s4, i4) -> s1 + i1 + s2 + i2 + s3 + i3 + s4 + i4);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("a1b2c3d4");
+        }
+
+        @Test
+        void mapN8_whenAllAreInvalid_returnsAccumulatedErrors() {
+            // Arrange
+            Validation<String> v1 = Validation.invalid("error1");
+            Validation<String> v2 = Validation.invalid("error2");
+            Validation<String> v3 = Validation.invalid("error3");
+            Validation<String> v4 = Validation.invalid("error4");
+            Validation<String> v5 = Validation.invalid("error5");
+            Validation<String> v6 = Validation.invalid("error6");
+            Validation<String> v7 = Validation.invalid("error7");
+            Validation<String> v8 = Validation.invalid("error8");
+
+            // Act
+            Validation<String> result = Validation.mapN(v1, v2, v3, v4, v5, v6, v7, v8, (s1, s2, s3, s4, s5, s6, s7, s8) -> s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error1", "error2", "error3", "error4", "error5", "error6", "error7", "error8");
+        }
     }
 
     @Nested
@@ -585,6 +775,196 @@ public class ValidationTest {
             assertThatValidation(result)
                     .isInvalid()
                     .hasErrorMessages("error1", "error2", "error3");
+        }
+
+        @Test
+        void flatMapN4_whenAllValid_returnsMappedValidation() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("a");
+            Validation<Integer> v2 = Validation.valid(1);
+            Validation<String> v3 = Validation.valid("b");
+            Validation<Integer> v4 = Validation.valid(2);
+
+            // Act
+            Validation<String> result = Validation.flatMapN(v1, v2, v3, v4, (s1, i1, s2, i2) -> Validation.valid(s1 + i1 + s2 + i2));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("a1b2");
+        }
+
+        @Test
+        void flatMapN4_whenAllAreInvalid_returnsAccumulatedErrors() {
+            // Arrange
+            Validation<String> v1 = Validation.invalid("error1");
+            Validation<String> v2 = Validation.invalid("error2");
+            Validation<String> v3 = Validation.invalid("error3");
+            Validation<String> v4 = Validation.invalid("error4");
+
+            // Act
+            Validation<String> result = Validation.flatMapN(v1, v2, v3, v4, (s1, s2, s3, s4) -> Validation.valid(s1 + s2 + s3 + s4));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error1", "error2", "error3", "error4");
+        }
+
+        @Test
+        void flatMapN5_whenAllValid_returnsMappedValidation() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("a");
+            Validation<Integer> v2 = Validation.valid(1);
+            Validation<String> v3 = Validation.valid("b");
+            Validation<Integer> v4 = Validation.valid(2);
+            Validation<String> v5 = Validation.valid("c");
+
+            // Act
+            Validation<String> result = Validation.flatMapN(v1, v2, v3, v4, v5, (s1, i1, s2, i2, s3) -> Validation.valid(s1 + i1 + s2 + i2 + s3));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("a1b2c");
+        }
+
+        @Test
+        void flatMapN5_whenAllAreInvalid_returnsAccumulatedErrors() {
+            // Arrange
+            Validation<String> v1 = Validation.invalid("error1");
+            Validation<String> v2 = Validation.invalid("error2");
+            Validation<String> v3 = Validation.invalid("error3");
+            Validation<String> v4 = Validation.invalid("error4");
+            Validation<String> v5 = Validation.invalid("error5");
+
+            // Act
+            Validation<String> result = Validation.flatMapN(v1, v2, v3, v4, v5, (s1, s2, s3, s4, s5) -> Validation.valid(s1 + s2 + s3 + s4 + s5));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error1", "error2", "error3", "error4", "error5");
+        }
+
+        @Test
+        void flatMapN6_whenAllValid_returnsMappedValidation() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("a");
+            Validation<Integer> v2 = Validation.valid(1);
+            Validation<String> v3 = Validation.valid("b");
+            Validation<Integer> v4 = Validation.valid(2);
+            Validation<String> v5 = Validation.valid("c");
+            Validation<Integer> v6 = Validation.valid(3);
+
+            // Act
+            Validation<String> result = Validation.flatMapN(v1, v2, v3, v4, v5, v6, (s1, i1, s2, i2, s3, i3) -> Validation.valid(s1 + i1 + s2 + i2 + s3 + i3));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("a1b2c3");
+        }
+
+        @Test
+        void flatMapN6_whenAllAreInvalid_returnsAccumulatedErrors() {
+            // Arrange
+            Validation<String> v1 = Validation.invalid("error1");
+            Validation<String> v2 = Validation.invalid("error2");
+            Validation<String> v3 = Validation.invalid("error3");
+            Validation<String> v4 = Validation.invalid("error4");
+            Validation<String> v5 = Validation.invalid("error5");
+            Validation<String> v6 = Validation.invalid("error6");
+
+            // Act
+            Validation<String> result = Validation.flatMapN(v1, v2, v3, v4, v5, v6, (s1, s2, s3, s4, s5, s6) -> Validation.valid(s1 + s2 + s3 + s4 + s5 + s6));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error1", "error2", "error3", "error4", "error5", "error6");
+        }
+
+        @Test
+        void flatMapN7_whenAllValid_returnsMappedValidation() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("a");
+            Validation<Integer> v2 = Validation.valid(1);
+            Validation<String> v3 = Validation.valid("b");
+            Validation<Integer> v4 = Validation.valid(2);
+            Validation<String> v5 = Validation.valid("c");
+            Validation<Integer> v6 = Validation.valid(3);
+            Validation<String> v7 = Validation.valid("d");
+
+            // Act
+            Validation<String> result = Validation.flatMapN(v1, v2, v3, v4, v5, v6, v7, (s1, i1, s2, i2, s3, i3, s4) -> Validation.valid(s1 + i1 + s2 + i2 + s3 + i3 + s4));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("a1b2c3d");
+        }
+
+        @Test
+        void flatMapN7_whenAllAreInvalid_returnsAccumulatedErrors() {
+            // Arrange
+            Validation<String> v1 = Validation.invalid("error1");
+            Validation<String> v2 = Validation.invalid("error2");
+            Validation<String> v3 = Validation.invalid("error3");
+            Validation<String> v4 = Validation.invalid("error4");
+            Validation<String> v5 = Validation.invalid("error5");
+            Validation<String> v6 = Validation.invalid("error6");
+            Validation<String> v7 = Validation.invalid("error7");
+
+            // Act
+            Validation<String> result = Validation.flatMapN(v1, v2, v3, v4, v5, v6, v7, (s1, s2, s3, s4, s5, s6, s7) -> Validation.valid(s1 + s2 + s3 + s4 + s5 + s6 + s7));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error1", "error2", "error3", "error4", "error5", "error6", "error7");
+        }
+
+        @Test
+        void flatMapN8_whenAllValid_returnsMappedValidation() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("a");
+            Validation<Integer> v2 = Validation.valid(1);
+            Validation<String> v3 = Validation.valid("b");
+            Validation<Integer> v4 = Validation.valid(2);
+            Validation<String> v5 = Validation.valid("c");
+            Validation<Integer> v6 = Validation.valid(3);
+            Validation<String> v7 = Validation.valid("d");
+            Validation<Integer> v8 = Validation.valid(4);
+
+            // Act
+            Validation<String> result = Validation.flatMapN(v1, v2, v3, v4, v5, v6, v7, v8, (s1, i1, s2, i2, s3, i3, s4, i4) -> Validation.valid(s1 + i1 + s2 + i2 + s3 + i3 + s4 + i4));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("a1b2c3d4");
+        }
+
+        @Test
+        void flatMapN8_whenAllAreInvalid_returnsAccumulatedErrors() {
+            // Arrange
+            Validation<String> v1 = Validation.invalid("error1");
+            Validation<String> v2 = Validation.invalid("error2");
+            Validation<String> v3 = Validation.invalid("error3");
+            Validation<String> v4 = Validation.invalid("error4");
+            Validation<String> v5 = Validation.invalid("error5");
+            Validation<String> v6 = Validation.invalid("error6");
+            Validation<String> v7 = Validation.invalid("error7");
+            Validation<String> v8 = Validation.invalid("error8");
+
+            // Act
+            Validation<String> result = Validation.flatMapN(v1, v2, v3, v4, v5, v6, v7, v8, (s1, s2, s3, s4, s5, s6, s7, s8) -> Validation.valid(s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error1", "error2", "error3", "error4", "error5", "error6", "error7", "error8");
         }
     }
 }
