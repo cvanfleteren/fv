@@ -1,7 +1,9 @@
 package net.vanfleteren.fv;
 
 import io.vavr.Function1;
+import io.vavr.collection.List;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -97,6 +99,16 @@ public interface Rule<T> {
         };
     }
 
+    /**
+     * Adapts a Rule so it applies to a List of T instead of a single T.
+     */
+    default Rule<List<T>> adaptToList() {
+        return values -> {
+            List<Validation<T>> validations = values.map(this::test);
+            // Validation.sequence already adds the [index] path segment, so we don't do it here.
+            return Validation.sequence(validations);
+        };
+    }
 
     /**
      * Narrows a {@code Rule<? super T>} to a {@code Rule<T>}.

@@ -3,6 +3,7 @@ package net.vanfleteren.fv;
 import com.google.testing.compile.JavaFileObjects;
 import io.vavr.Function1;
 import io.vavr.collection.HashMap;
+import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -441,6 +442,40 @@ class RuleTest {
             assertThatCode(() -> rule.not((Function1<ErrorMessage,ErrorMessage>)null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("errorMapper cannot be null");
+        }
+    }
+
+    @Nested
+    class AdaptToList {
+
+        @Test
+        void adaptToList_whenAllElementsAreValid_returnsValidList() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<List<String>> listRule = rule.adaptToList();
+
+            // Act
+            Validation<List<String>> result = listRule.test(List.of("hello", "world"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(List.of("hello", "world"));
+        }
+
+        @Test
+        void adaptToList_whenSomeElementsAreInvalid_accumulatesErrorsWithCorrectIndices() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<List<String>> listRule = rule.adaptToList();
+
+            // Act
+            Validation<List<String>> result = listRule.test(List.of("hello", "hi", "yo"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("[1].too.short", "[2].too.short");
         }
     }
 }
