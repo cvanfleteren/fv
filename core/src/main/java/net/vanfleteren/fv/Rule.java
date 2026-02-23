@@ -1,5 +1,7 @@
 package net.vanfleteren.fv;
 
+import io.vavr.Function1;
+
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -79,7 +81,7 @@ public interface Rule<T> {
      * Negates this rule and derives the negated error from the original rule's first error message.
      * Useful if you want conventions like prefixing keys, or to preserve args.
      */
-    default Rule<T> not(java.util.function.Function<ErrorMessage, ErrorMessage> errorMapper) {
+    default Rule<T> not(Function1<ErrorMessage, ErrorMessage> errorMapper) {
         Objects.requireNonNull(errorMapper, "errorMapper cannot be null");
         return value -> {
             Validation<T> original = this.test(value);
