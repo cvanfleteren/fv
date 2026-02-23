@@ -5,7 +5,6 @@ import io.vavr.collection.Set;
 import net.vanfleteren.fv.ErrorMessage;
 import net.vanfleteren.fv.Rule;
 
-import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
