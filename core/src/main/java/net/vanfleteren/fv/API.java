@@ -134,7 +134,11 @@ public class API {
         }
 
         public ValidationDSL(T value, String name) {
-            this.validation = Validation.valid(value);
+            if(value == null) {
+                this.validation = Validation.invalid(ErrorMessage.of("cannot.be.null"));
+            } else {
+                this.validation = Validation.valid(value);
+            }
             this.name = name;
         }
 
