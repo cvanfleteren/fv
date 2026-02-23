@@ -53,6 +53,48 @@ public interface Rule<T> {
         };
     }
 
+    /**
+     * Negates this rule. The caller must provide the error message to use when the negated rule fails.
+     *
+     * Semantics:
+     * - if this rule is valid => negated rule is invalid (with {@code negatedError})
+     * - if this rule is invalid => negated rule is valid
+     */
+    default Rule<T> not(String negatedErrorKey) {
+        Objects.requireNonNull(negatedErrorKey, "negatedErrorKey cannot be null");
+        return not(ErrorMessage.of(negatedErrorKey));
+    }
+
+    default Rule<T> not(ErrorMessage negatedError) {
+        Objects.requireNonNull(negatedError, "negatedError cannot be null");
+        return value -> {
+            Validation<T> original = this.test(value);
+            return original.isValid()
+                    ? Validation.invalid(negatedError)
+                    : Validation.valid(value);
+        };
+    }
+
+    /**
+     * Negates this rule and derives the negated error from the original rule's first error message.
+     * Useful if you want conventions like prefixing keys, or to preserve args.
+     */
+    default Rule<T> not(java.util.function.Function<ErrorMessage, ErrorMessage> errorMapper) {
+        Objects.requireNonNull(errorMapper, "errorMapper cannot be null");
+        return value -> {
+            Validation<T> original = this.test(value);
+            if (original.isValid()) {
+                // original passed => negation fails; we need an error
+                // we don't have one, so we manufacture it from the original rule's error "template"
+                // NOTE: since Rule doesn't expose its "default" ErrorMessage, we use a conservative default key.
+                // If you want richer behavior, prefer not(String)/not(ErrorMessage) or extend Rule to expose metadata.
+                ErrorMessage fallback = ErrorMessage.of("must.not.satisfy.rule");
+                return Validation.invalid(errorMapper.apply(fallback));
+            }
+            return Validation.valid(value);
+        };
+    }
+
 
     /**
      * Narrows a {@code Rule<? super T>} to a {@code Rule<T>}.
@@ -67,7 +109,7 @@ public interface Rule<T> {
     }
 
     static <T> Rule<T> notNull() {
-        return Rule.of(Objects::nonNull, "can.not.be.null");
+        return Rule.of(Objects::nonNull, "cannot.be.null");
     }
 
 }

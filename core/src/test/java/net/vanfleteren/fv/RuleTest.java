@@ -318,4 +318,75 @@ class RuleTest {
                     .hasErrorMessages("must.be.minus.forty.two", "must.be.positive");
         }
     }
+
+    @Nested
+    class Not {
+
+        @Test
+        void not_withErrorKey_whenOriginalRuleMatches_returnsInvalidWithNegatedErrorKey() {
+            // Arrange
+            Rule<String> startsWithH = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> notStartsWithH = startsWithH.not("must.not.start.with.h");
+
+            // Act
+            Validation<String> result = notStartsWithH.test("hello");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("must.not.start.with.h");
+        }
+
+        @Test
+        void not_withErrorKey_whenOriginalRuleFails_returnsValidWithSameValue() {
+            // Arrange
+            Rule<String> startsWithH = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> notStartsWithH = startsWithH.not("must.not.start.with.h");
+
+            // Act
+            Validation<String> result = notStartsWithH.test("apple");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("apple");
+        }
+
+        @Test
+        void not_withErrorMessage_whenOriginalRuleMatches_returnsInvalidWithNegatedErrorMessageKey() {
+            // Arrange
+            Rule<Integer> isEven = Rule.of(i -> i % 2 == 0, "must.be.even");
+            Rule<Integer> isNotEven = isEven.not(ErrorMessage.of("must.not.be.even"));
+
+            // Act
+            Validation<Integer> result = isNotEven.test(2);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("must.not.be.even");
+        }
+
+        @Test
+        void not_whenNegatedErrorKeyIsNull_throwsNullPointerException() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> true, "ok");
+
+            // Act & Assert
+            assertThatCode(() -> rule.not((String) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("negatedErrorKey cannot be null");
+        }
+
+        @Test
+        void not_whenNegatedErrorMessageIsNull_throwsNullPointerException() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> true, "ok");
+
+            // Act & Assert
+            assertThatCode(() -> rule.not((ErrorMessage) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("negatedError cannot be null");
+        }
+    }
 }
