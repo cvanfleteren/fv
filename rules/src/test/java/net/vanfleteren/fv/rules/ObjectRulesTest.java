@@ -2,9 +2,13 @@ package net.vanfleteren.fv.rules;
 
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
+import net.vanfleteren.fv.Rule;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
+import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import static net.vanfleteren.fv.rules.RulesTest.validTest;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -15,14 +19,14 @@ class ObjectRulesTest {
 
         @Test
         void valid() {
-            validTest("hello", ObjectRules.notNull);
-            validTest(123, ObjectRules.notNull);
-            validTest(new Object(), ObjectRules.notNull);
+            validTest("hello", ObjectRules.notNull());
+            validTest(123, ObjectRules.notNull());
+            validTest(new Object(), ObjectRules.notNull());
         }
 
         @Test
         void invalid() {
-            RulesTest.invalidTest(null, ObjectRules.notNull, "cannot.be.null");
+            RulesTest.invalidTest(null, ObjectRules.notNull(), "cannot.be.null");
         }
     }
 
@@ -123,12 +127,11 @@ class ObjectRulesTest {
 
         @Test
         void invalid() {
-            RulesTest.invalidTest(123, ObjectRules.instanceOf(String.class), "must.be.instance",
-                    HashMap.of("of", String.class)
-            );
-            RulesTest.invalidTest("hello", ObjectRules.instanceOf(Integer.class), "must.be.instance",
-                    HashMap.of("of", Integer.class)
-            );
+            Rule<Object> stringRule = ObjectRules.instanceOf(String.class);
+
+            assertThatValidation(stringRule.test(BigDecimal.ZERO))
+                    .isInvalid()
+                    .hasErrorMessages("must.be.instance");
         }
     }
 }
