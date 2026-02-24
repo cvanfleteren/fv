@@ -1,7 +1,10 @@
 package net.vanfleteren.fv;
 
 import io.vavr.Function1;
+import io.vavr.Tuple2;
 import io.vavr.collection.List;
+import io.vavr.collection.Map;
+import io.vavr.collection.Seq;
 import io.vavr.control.Option;
 
 import java.util.Objects;
@@ -59,7 +62,7 @@ public interface Rule<T> {
 
     /**
      * Negates this rule. The caller must provide the error message to use when the negated rule fails.
-     *
+     * <p>
      * Semantics:
      * - if this rule is valid => negated rule is invalid (with {@code negatedError})
      * - if this rule is invalid => negated rule is valid
@@ -112,7 +115,7 @@ public interface Rule<T> {
 
     /**
      * Lifts this Rule so it applies to an Option<T>.
-     *
+     * <p>
      * Semantics:
      * - None => valid(None) (nothing to validate)
      * - Some(x) => validate x, and return valid(Some(x)) or invalid(errors)
@@ -121,6 +124,50 @@ public interface Rule<T> {
         return opt -> opt
                 .map(v -> this.test(v).map(Option::of))
                 .getOrElse(() -> Validation.valid(Option.none()));
+    }
+
+    /**
+     * Lifts this Rule so it applies to a Map<K, T>.
+     * <p>
+     * Be careful, the key value.toString() will be used as part of the path segment.
+     * Make sure to have a key that has a meaningful string representation for this.
+     * If you can't guarantee this, use the versioin of liftToMap that takes a keyExtractor function instead.
+     * <p>
+     * Semantics:
+     * - Each value in the map is validated, and the resulting validations are collected.
+     * - If any validation fails, the entire map is considered invalid.
+     * - If all validations pass, the map is considered valid.
+     */
+    default <K> Rule<Map<K, T>> liftToMap() {
+        return liftToMap(Objects::toString);
+    }
+
+    /**
+     * Lifts this Rule so it applies to a Map<K, T>.
+     * <p>
+     * Behaves the same of liftToMap, but uses the keyExtractor function to generate the path segment.
+     * <p>
+     * Semantics:
+     * - Each value in the map is validated, and the resulting validations are collected.
+     * - If any validation fails, the entire map is considered invalid.
+     * - If all validations pass, the map is considered valid.
+     */
+    default <K> Rule<Map<K, T>> liftToMap(Function1<K, Object> keyExtractor) {
+        return map -> {
+            Seq<Validation<T>> validations = map.map(tuple ->
+                    this.test(tuple._2)
+                            .mapErrors(errors ->
+                                    errors.map(e -> e.atIndex(keyExtractor.apply(tuple._1)))
+                            )
+            );
+
+            var validAndInvalid = validations.partition(Validation::isValid);
+            if (validAndInvalid._2.nonEmpty()) {
+                return Validation.invalid(validAndInvalid._2.flatMap(Validation::errors).toList());
+            } else {
+                return Validation.valid(map);
+            }
+        };
     }
 
     /**

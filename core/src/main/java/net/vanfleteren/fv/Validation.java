@@ -10,6 +10,7 @@ import io.vavr.Function7;
 import io.vavr.Function8;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
+import io.vavr.collection.Seq;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -159,7 +160,7 @@ public sealed interface Validation<T> {
      * Turns a List of Validation<T> into a single Validation<List<T>>.
      * Collects all errors if any validations are invalid.
      */
-    static <T> Validation<List<T>> sequence(List<Validation<T>> validations) {
+    static <T> Validation<List<T>> sequence(Seq<Validation<T>> validations) {
         return validations
                 .zipWithIndex()
                 .foldLeft(

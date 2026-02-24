@@ -46,7 +46,7 @@ public class ErrorMessage {
         }
     }
 
-    public ErrorMessage atIndex(int index) {
+    public ErrorMessage atIndex(Object index) {
         if (paths.isEmpty()) {
             return prepend(new Path("", Option.of(index)));
         } else {
@@ -75,7 +75,7 @@ public class ErrorMessage {
     }
 
     @With
-    public record Path(String text, Option<Integer> index) {
+    public record Path(String text, Option<Object> index) {
 
         public static Path of(String path) {
             return new Path(path, Option.none());

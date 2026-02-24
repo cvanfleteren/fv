@@ -3,6 +3,7 @@ package net.vanfleteren.fv;
 import com.google.testing.compile.JavaFileObjects;
 import io.vavr.Function1;
 import io.vavr.collection.HashMap;
+import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
@@ -543,6 +544,105 @@ class RuleTest {
             assertThatValidation(result)
                     .isInvalid()
                     .hasErrorMessages("too.short");
+        }
+    }
+
+    @Nested
+    class LiftToMap {
+
+        @Test
+        void liftToMap_whenAllValuesAreValid_returnsValidMap() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<Map<String, String>> mapRule = rule.liftToMap();
+
+            Map<String, String> input = LinkedHashMap.of(
+                    "a", "hello",
+                    "b", "world"
+            );
+
+            // Act
+            Validation<Map<String, String>> result = mapRule.test(input);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(input);
+        }
+
+        @Test
+        void liftToMap_whenSomeValuesAreInvalid_addsKeyToPathAndAccumulatesErrors() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<Map<String, String>> mapRule = rule.liftToMap();
+
+            Map<String, String> input = HashMap.of(
+                    "a", "hi",
+                    "b", "yo"
+            );
+
+            // Act
+            Validation<Map<String, String>> result = mapRule.test(input).at("aMap");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("aMap[a].too.short", "aMap[b].too.short");
+        }
+
+        @Test
+        void liftToMap_withKeyExtractor_whenSomeValuesAreInvalid_usesExtractedKeyInPath() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+
+            Rule<Map<Integer, String>> mapRule = rule.liftToMap(k -> "k" + k);
+
+            Map<Integer, String> input = HashMap.of(
+                    10, "hi",
+                    20, "yo"
+            );
+
+            // Act
+            Validation<Map<Integer, String>> result = mapRule.test(input).at("aMap");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("aMap[k10].too.short", "aMap[k20].too.short");
+        }
+
+        @Test
+        void liftToMap_withKeyExtractor_whenAllValuesAreValid_returnsValidMap() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+
+            Rule<Map<Integer, String>> mapRule = rule.liftToMap(k -> "id-" + k);
+
+            Map<Integer, String> input = LinkedHashMap.of(
+                    1, "hello",
+                    2, "world"
+            );
+
+            // Act
+            Validation<Map<Integer, String>> result = mapRule.test(input);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(input);
+        }
+
+        @Test
+        void liftToMap_withKeyExtractor_whenKeyExtractorIsNull_throwsNullPointerExceptionOnTest() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<Map<Integer, String>> mapRule = rule.liftToMap((Function1<Integer, Object>) null);
+
+            Map<Integer, String> input = HashMap.of(1, "hi");
+
+            // Act & Assert
+            assertThatCode(() -> mapRule.test(input))
+                    .isInstanceOf(NullPointerException.class);
         }
     }
 }
