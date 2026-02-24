@@ -8,10 +8,14 @@ This file contains standards and patterns established during the development of 
 - **Assertions**: Use AssertJ `assertThat()` syntax for better readability and failure messages.
 - **Naming**: Use descriptive test names  that follow the method_context_expectation pattern, eg thisMethod_whenGivenInvalidInput_throwsException
 - **Rules**: when testing Rule instances, always use errormessages that are seperated by dots, eg "invalid.input" or "value.cannot.be.null"
-- 
+
 #### 2. Code Style
 - Follow existing patterns for `sealed interface` and `record` hierarchies.
 - Maintain consistent package structures (e.g., `net.vanfleteren.fv.core`).
 - Prefer a functional programming style with immutability and side effect free functions.
-- Prefer Vavr types over standard Java types.
+- Prefer Vavr types over standard Java types (eg io.vavr.collection.* over java.util.*).
 - nulls are generally considered to be invalid values.
+ 
+#### 3. Design constraints
+- Nulls are generally considered to be invalid values.
+- Use static methods for *Rules classes
