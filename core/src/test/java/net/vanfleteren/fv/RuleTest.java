@@ -5,6 +5,7 @@ import io.vavr.Function1;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
+import io.vavr.control.Option;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -446,13 +447,13 @@ class RuleTest {
     }
 
     @Nested
-    class AdaptToList {
+    class LiftToList {
 
         @Test
-        void adaptToList_whenAllElementsAreValid_returnsValidList() {
+        void liftToList_whenAllElementsAreValid_returnsValidList() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<List<String>> listRule = rule.adaptToList();
+            Rule<List<String>> listRule = rule.liftToList();
 
             // Act
             Validation<List<String>> result = listRule.test(List.of("hello", "world"));
@@ -464,10 +465,10 @@ class RuleTest {
         }
 
         @Test
-        void adaptToList_whenSomeElementsAreInvalid_accumulatesErrorsWithCorrectIndices() {
+        void liftToList_whenSomeElementsAreInvalid_accumulatesErrorsWithCorrectIndices() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<List<String>> listRule = rule.adaptToList();
+            Rule<List<String>> listRule = rule.liftToList();
 
             // Act
             Validation<List<String>> result = listRule.test(List.of("hello", "hi", "yo"));
@@ -476,6 +477,72 @@ class RuleTest {
             assertThatValidation(result)
                     .isInvalid()
                     .hasErrorMessages("[1].too.short", "[2].too.short");
+        }
+
+        @Test
+        void liftToList_whenElementHasMultipleErrors_preservesAllErrorsWithSameIndex() {
+            // Arrange
+            Rule<String> rule = s -> s.length() > 3
+                    ? Validation.valid(s)
+                    : Validation.invalid(ErrorMessage.of("too.short"), ErrorMessage.of("must.be.longer"));
+            Rule<List<String>> listRule = rule.liftToList();
+
+            // Act
+            Validation<List<String>> result = listRule.test(List.of("hi", "hello"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("[0].too.short", "[0].must.be.longer");
+        }
+    }
+
+    @Nested
+    class LiftToOption {
+
+        @Test
+        void liftToOption_whenNone_returnsValidNone() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<Option<String>> optionRule = rule.liftToOption();
+
+            // Act
+            Validation<Option<String>> result = optionRule.test(Option.none());
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(Option.none());
+        }
+
+        @Test
+        void liftToOption_whenSomeAndValid_returnsValidSome() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<Option<String>> optionRule = rule.liftToOption();
+
+            // Act
+            Validation<Option<String>> result = optionRule.test(Option.of("hello"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(Option.of("hello"));
+        }
+
+        @Test
+        void liftToOption_whenSomeAndInvalid_returnsInvalidWithSameErrors() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<Option<String>> optionRule = rule.liftToOption();
+
+            // Act
+            Validation<Option<String>> result = optionRule.test(Option.of("hi"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("too.short");
         }
     }
 }

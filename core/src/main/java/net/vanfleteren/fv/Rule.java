@@ -2,8 +2,8 @@ package net.vanfleteren.fv;
 
 import io.vavr.Function1;
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 
-import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -100,14 +100,27 @@ public interface Rule<T> {
     }
 
     /**
-     * Adapts a Rule so it applies to a List of T instead of a single T.
+     * Lifts a Rule so it applies to a List of T instead of a single T.
      */
-    default Rule<List<T>> adaptToList() {
+    default Rule<List<T>> liftToList() {
         return values -> {
             List<Validation<T>> validations = values.map(this::test);
             // Validation.sequence already adds the [index] path segment, so we don't do it here.
             return Validation.sequence(validations);
         };
+    }
+
+    /**
+     * Lifts this Rule so it applies to an Option<T>.
+     *
+     * Semantics:
+     * - None => valid(None) (nothing to validate)
+     * - Some(x) => validate x, and return valid(Some(x)) or invalid(errors)
+     */
+    default Rule<Option<T>> liftToOption() {
+        return opt -> opt
+                .map(v -> this.test(v).map(Option::of))
+                .getOrElse(() -> Validation.valid(Option.none()));
     }
 
     /**
