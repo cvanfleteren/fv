@@ -5,6 +5,7 @@ import io.vavr.collection.HashSet;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static net.vanfleteren.fv.rules.LongRules.longs;
 import static net.vanfleteren.fv.rules.RulesTest.invalidTest;
 import static net.vanfleteren.fv.rules.RulesTest.validTest;
 
@@ -15,14 +16,14 @@ class LongRulesTest {
 
         @Test
         void valid() {
-            validTest(1L, LongRules.positive);
-            validTest(42L, LongRules.positive);
+            validTest(1L, longs.positive());
+            validTest(42L, longs.positive());
         }
 
         @Test
         void invalid() {
-            invalidTest(0L, LongRules.positive, "must.be.positive");
-            invalidTest(-1L, LongRules.positive, "must.be.positive");
+            invalidTest(0L, longs.positive(), "must.be.positive");
+            invalidTest(-1L, longs.positive(), "must.be.positive");
         }
     }
 
@@ -31,15 +32,15 @@ class LongRulesTest {
 
         @Test
         void valid() {
-            validTest(0L, LongRules.nonNegative);
-            validTest(1L, LongRules.nonNegative);
-            validTest(42L, LongRules.nonNegative);
+            validTest(0L, longs.nonNegative());
+            validTest(1L, longs.nonNegative());
+            validTest(42L, longs.nonNegative());
         }
 
         @Test
         void invalid() {
-            invalidTest(-1L, LongRules.nonNegative, "must.be.non.negative");
-            invalidTest(-42L, LongRules.nonNegative, "must.be.non.negative");
+            invalidTest(-1L, longs.nonNegative(), "must.be.non.negative");
+            invalidTest(-42L, longs.nonNegative(), "must.be.non.negative");
         }
     }
 
@@ -48,14 +49,14 @@ class LongRulesTest {
 
         @Test
         void valid() {
-            validTest(-1L, LongRules.negative);
-            validTest(-42L, LongRules.negative);
+            validTest(-1L,longs.negative());
+            validTest(-42L,longs.negative());
         }
 
         @Test
         void invalid() {
-            invalidTest(0L, LongRules.negative, "must.be.negative");
-            invalidTest(1L, LongRules.negative, "must.be.negative");
+            invalidTest(0L,longs.negative(), "must.be.negative");
+            invalidTest(1L,longs.negative(), "must.be.negative");
         }
     }
 
@@ -64,14 +65,14 @@ class LongRulesTest {
 
         @Test
         void valid() {
-            validTest(-1L, LongRules.nonPositive);
-            validTest(0L, LongRules.nonPositive);
+            validTest(-1L,longs.nonPositive());
+            validTest(0L,longs.nonPositive());
         }
 
         @Test
         void invalid() {
-            invalidTest(1L, LongRules.nonPositive, "must.be.non.positive");
-            invalidTest(42L, LongRules.nonPositive, "must.be.non.positive");
+            invalidTest(1L,longs.nonPositive(), "must.be.non.positive");
+            invalidTest(42L,longs.nonPositive(), "must.be.non.positive");
         }
     }
 
@@ -80,13 +81,13 @@ class LongRulesTest {
 
         @Test
         void valid() {
-            validTest(0L, LongRules.zero);
+            validTest(0L,longs.zero());
         }
 
         @Test
         void invalid() {
-            invalidTest(1L, LongRules.zero, "must.be.zero");
-            invalidTest(-1L, LongRules.zero, "must.be.zero");
+            invalidTest(1L,longs.zero(), "must.be.zero");
+            invalidTest(-1L,longs.zero(), "must.be.zero");
         }
     }
 
@@ -95,13 +96,13 @@ class LongRulesTest {
 
         @Test
         void valid() {
-            validTest(1L, LongRules.nonZero);
-            validTest(-1L, LongRules.nonZero);
+            validTest(1L,longs.nonZero());
+            validTest(-1L,longs.nonZero());
         }
 
         @Test
         void invalid() {
-            invalidTest(0L, LongRules.nonZero, "must.not.be.zero");
+            invalidTest(0L,longs.nonZero(), "must.not.be.zero");
         }
     }
 
@@ -110,15 +111,15 @@ class LongRulesTest {
 
         @Test
         void valid() {
-            validTest(0L, LongRules.even);
-            validTest(2L, LongRules.even);
-            validTest(-2L, LongRules.even);
+            validTest(0L,longs.even());
+            validTest(2L,longs.even());
+            validTest(-2L,longs.even());
         }
 
         @Test
         void invalid() {
-            invalidTest(1L, LongRules.even, "must.be.even");
-            invalidTest(-1L, LongRules.even, "must.be.even");
+            invalidTest(1L,longs.even(), "must.be.even");
+            invalidTest(-1L,longs.even(), "must.be.even");
         }
     }
 
@@ -127,15 +128,15 @@ class LongRulesTest {
 
         @Test
         void valid() {
-            validTest(1L, LongRules.odd);
-            validTest(-1L, LongRules.odd);
+            validTest(1L,longs.odd());
+            validTest(-1L,longs.odd());
         }
 
         @Test
         void invalid() {
-            invalidTest(0L, LongRules.odd, "must.be.odd");
-            invalidTest(2L, LongRules.odd, "must.be.odd");
-            invalidTest(-2L, LongRules.odd, "must.be.odd");
+            invalidTest(0L,longs.odd(), "must.be.odd");
+            invalidTest(2L,longs.odd(), "must.be.odd");
+            invalidTest(-2L,longs.odd(), "must.be.odd");
         }
     }
 
@@ -144,14 +145,14 @@ class LongRulesTest {
 
         @Test
         void valid() {
-            validTest(2L, LongRules.min(2));
-            validTest(3L, LongRules.min(2));
+            validTest(2L, longs.min(2L));
+            validTest(3L, longs.min(2L));
         }
 
         @Test
         void invalid() {
-            invalidTest(1L, LongRules.min(2), "min.value", HashMap.of("min", 2L));
-            invalidTest(-100L, LongRules.min(2), "min.value", HashMap.of("min", 2L));
+            invalidTest(1L, longs.min(2L), "min.value", HashMap.of("min", 2L));
+            invalidTest(-100L, longs.min(2L), "min.value", HashMap.of("min", 2L));
         }
     }
 
@@ -160,15 +161,15 @@ class LongRulesTest {
 
         @Test
         void valid() {
-            validTest(2L, LongRules.max(2));
-            validTest(1L, LongRules.max(2));
-            validTest(-100L, LongRules.max(2));
+            validTest(2L, longs.max(2L));
+            validTest(1L, longs.max(2L));
+            validTest(-100L, longs.max(2L));
         }
 
         @Test
         void invalid() {
-            invalidTest(3L, LongRules.max(2), "max.value", HashMap.of("max", 2L));
-            invalidTest(100L, LongRules.max(2), "max.value", HashMap.of("max", 2L));
+            invalidTest(3L, longs.max(2L), "max.value", HashMap.of("max", 2L));
+            invalidTest(100L, longs.max(2L), "max.value", HashMap.of("max", 2L));
         }
     }
 
@@ -177,16 +178,16 @@ class LongRulesTest {
 
         @Test
         void valid() {
-            validTest(1L, LongRules.between(1, 1));
-            validTest(1L, LongRules.between(1, 2));
-            validTest(2L, LongRules.between(1, 2));
-            validTest(0L, LongRules.between(-1, 1));
+            validTest(1L, longs.between(1L, 1L));
+            validTest(1L, longs.between(1L, 2L));
+            validTest(2L, longs.between(1L, 2L));
+            validTest(0L, longs.between(-1L, 1L));
         }
 
         @Test
         void invalid() {
-            invalidTest(0L, LongRules.between(1, 2), "value.between", HashMap.of("min", 1L, "max", 2L));
-            invalidTest(3L, LongRules.between(1, 2), "value.between", HashMap.of("min", 1L, "max", 2L));
+            invalidTest(0L, longs.between(1L, 2L), "value.between", HashMap.of("min", 1L, "max", 2L));
+            invalidTest(3L, longs.between(1L, 2L), "value.between", HashMap.of("min", 1L, "max", 2L));
         }
     }
 
@@ -195,15 +196,15 @@ class LongRulesTest {
 
         @Test
         void valid() {
-            validTest(0L, LongRules.betweenExclusive(-1, 1));
-            validTest(2L, LongRules.betweenExclusive(1, 3));
+            validTest(0L, longs.betweenExclusive(-1L, 1L));
+            validTest(2L, longs.betweenExclusive(1L, 3L));
         }
 
         @Test
         void invalid() {
-            invalidTest(1L, LongRules.betweenExclusive(1, 3), "value.between.exclusive", HashMap.of("min", 1L, "max", 3L));
-            invalidTest(3L, LongRules.betweenExclusive(1, 3), "value.between.exclusive", HashMap.of("min", 1L, "max", 3L));
-            invalidTest(0L, LongRules.betweenExclusive(0, 1), "value.between.exclusive", HashMap.of("min", 0L, "max", 1L));
+            invalidTest(1L, longs.betweenExclusive(1L, 3L), "value.between.exclusive", HashMap.of("min", 1L, "max", 3L));
+            invalidTest(3L, longs.betweenExclusive(1L, 3L), "value.between.exclusive", HashMap.of("min", 1L, "max", 3L));
+            invalidTest(0L, longs.betweenExclusive(0L, 1L), "value.between.exclusive", HashMap.of("min", 0L, "max", 1L));
         }
     }
 
@@ -212,14 +213,14 @@ class LongRulesTest {
 
         @Test
         void valid() {
-            validTest(2L, LongRules.greaterThan(1));
-            validTest(42L, LongRules.greaterThan(1));
+            validTest(2L, longs.greaterThan(1L));
+            validTest(42L, longs.greaterThan(1L));
         }
 
         @Test
         void invalid() {
-            invalidTest(1L, LongRules.greaterThan(1), "must.be.greater.than", HashMap.of("min", 1L));
-            invalidTest(0L, LongRules.greaterThan(1), "must.be.greater.than", HashMap.of("min", 1L));
+            invalidTest(1L, longs.greaterThan(1L), "must.be.greater.than", HashMap.of("min", 1L));
+            invalidTest(0L, longs.greaterThan(1L), "must.be.greater.than", HashMap.of("min", 1L));
         }
     }
 
@@ -228,14 +229,14 @@ class LongRulesTest {
 
         @Test
         void valid() {
-            validTest(1L, LongRules.atLeast(1));
-            validTest(2L, LongRules.atLeast(1));
+            validTest(1L, longs.atLeast(1L));
+            validTest(2L, longs.atLeast(1L));
         }
 
         @Test
         void invalid() {
-            invalidTest(0L, LongRules.atLeast(1), "must.be.at.least", HashMap.of("min", 1L));
-            invalidTest(-1L, LongRules.atLeast(1), "must.be.at.least", HashMap.of("min", 1L));
+            invalidTest(0L, longs.atLeast(1L), "must.be.at.least", HashMap.of("min", 1L));
+            invalidTest(-1L, longs.atLeast(1L), "must.be.at.least", HashMap.of("min", 1L));
         }
     }
 
@@ -244,14 +245,14 @@ class LongRulesTest {
 
         @Test
         void valid() {
-            validTest(0L, LongRules.lessThan(1));
-            validTest(-1L, LongRules.lessThan(1));
+            validTest(0L, longs.lessThan(1L));
+            validTest(-1L, longs.lessThan(1L));
         }
 
         @Test
         void invalid() {
-            invalidTest(1L, LongRules.lessThan(1), "must.be.less.than", HashMap.of("max", 1L));
-            invalidTest(2L, LongRules.lessThan(1), "must.be.less.than", HashMap.of("max", 1L));
+            invalidTest(1L, longs.lessThan(1L), "must.be.less.than", HashMap.of("max", 1L));
+            invalidTest(2L, longs.lessThan(1L), "must.be.less.than", HashMap.of("max", 1L));
         }
     }
 
@@ -260,54 +261,54 @@ class LongRulesTest {
 
         @Test
         void valid() {
-            validTest(1L, LongRules.atMost(1));
-            validTest(0L, LongRules.atMost(1));
-            validTest(-1L, LongRules.atMost(1));
+            validTest(1L, longs.atMost(1L));
+            validTest(0L, longs.atMost(1L));
+            validTest(-1L, longs.atMost(1L));
         }
 
         @Test
         void invalid() {
-            invalidTest(2L, LongRules.atMost(1), "must.be.at.most", HashMap.of("max", 1L));
-            invalidTest(42L, LongRules.atMost(1), "must.be.at.most", HashMap.of("max", 1L));
+            invalidTest(2L, longs.atMost(1L), "must.be.at.most", HashMap.of("max", 1L));
+            invalidTest(42L, longs.atMost(1L), "must.be.at.most", HashMap.of("max", 1L));
         }
     }
 
     @Nested
-    class In {
+    class OneOf {
 
         @Test
         void valid() {
-            validTest(1L, LongRules.in(HashSet.of(1L, 2L, 3L)));
-            validTest(0L, LongRules.in(HashSet.of(0L)));
+            validTest(1L, longs.oneOf(1L, 2L, 3L));
+            validTest(0L, longs.oneOf(0L));
         }
 
         @Test
         void invalid() {
             invalidTest(
                     4L,
-                    LongRules.in(HashSet.of(1L, 2L, 3L)),
-                    "must.be.in",
-                    HashMap.of("allowed", HashSet.of(1L, 2L, 3L))
+                    longs.oneOf(1L, 2L, 3L),
+                    "must.be.one.of",
+                    HashMap.of("values", HashSet.of(1L, 2L, 3L))
             );
         }
     }
 
     @Nested
-    class NotIn {
+    class NotOneOf {
 
         @Test
         void valid() {
-            validTest(1L, LongRules.notIn(HashSet.of(2L, 3L)));
-            validTest(0L, LongRules.notIn(HashSet.of(1L)));
+            validTest(1L, longs.notOneOf(2L, 3L));
+            validTest(0L, longs.notOneOf(1L));
         }
 
         @Test
         void invalid() {
             invalidTest(
                     2L,
-                    LongRules.notIn(HashSet.of(1L, 2L, 3L)),
-                    "must.not.be.in",
-                    HashMap.of("forbidden", HashSet.of(1L, 2L, 3L))
+                    longs.notOneOf(1L, 2L, 3L),
+                    "must.not.be.one.of",
+                    HashMap.of("values", HashSet.of(1L, 2L, 3L))
             );
         }
     }

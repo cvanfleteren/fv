@@ -8,39 +8,45 @@ import net.vanfleteren.fv.Rule;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-public class StringRules {
+public class StringRules implements ComparableRules<String>, IObjectRules<String> {
+
+    public static final StringRules strings = new StringRules();
+
+    public static StringRules strings() {
+        return strings;
+    }
 
     //region whitespace related
-    public static final Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "not.empty");
+    public Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "not.empty");
 
     /**
      * Fails if the string is empty or contains only whitespace.
      */
-    public static final Rule<String> notBlank = Rule.of(s -> !s.isBlank(), "not.blank");
+    public Rule<String> notBlank = Rule.of(s -> !s.isBlank(), "not.blank");
 
     /**
      * Fails if the string has leading or trailing whitespace.
      */
-    public static final Rule<String> trimmed = Rule.of(s -> s.equals(s.trim()), "must.be.trimmed");
+    public Rule<String> trimmed = Rule.of(s -> s.equals(s.trim()), "must.be.trimmed");
 
     /**
      * Fails if the string contains any whitespace anywhere.
      */
-    public static final Rule<String> noWhitespace = Rule.of(
+    public Rule<String> noWhitespace = Rule.of(
             s -> s.chars().noneMatch(Character::isWhitespace),
             "no.whitespace.allowed"
     );
     //endregion
 
     //region length related
-    public static Rule<String> minLength(int minLength) {
+    public Rule<String> minLength(int minLength) {
         if (minLength < 0) {
             throw new IllegalArgumentException("minLength must be >= 0");
         }
         return Rule.of(s -> s.length() >= minLength, ErrorMessage.of("min.length", "min", minLength));
     }
 
-    public static Rule<String> maxLength(int maxLength) {
+    public Rule<String> maxLength(int maxLength) {
         if (maxLength < 0) {
             throw new IllegalArgumentException("maxLength must be >= 0");
         }
@@ -50,7 +56,7 @@ public class StringRules {
     /**
      * Inclusive bounds.
      */
-    public static Rule<String> lengthBetween(int minLength, int maxLength) {
+    public Rule<String> lengthBetween(int minLength, int maxLength) {
         if (minLength < 0) {
             throw new IllegalArgumentException("minLength must be >= 0");
         }
@@ -66,7 +72,7 @@ public class StringRules {
         );
     }
 
-    public static Rule<String> exactLength(int length) {
+    public Rule<String> exactLength(int length) {
         if (length < 0) {
             throw new IllegalArgumentException("length must be >= 0");
         }
@@ -75,7 +81,7 @@ public class StringRules {
     //endregion
 
     //region contains / starts / ends / matches
-    public static Rule<String> startsWith(String prefix) {
+    public Rule<String> startsWith(String prefix) {
         Objects.requireNonNull(prefix, "prefix cannot be null");
         return Rule.of(
                 s -> s.startsWith(prefix),
@@ -83,7 +89,7 @@ public class StringRules {
         );
     }
 
-    public static Rule<String> startsWithIgnoreCase(String prefix) {
+    public Rule<String> startsWithIgnoreCase(String prefix) {
         Objects.requireNonNull(prefix, "prefix cannot be null");
         return Rule.of(
                 s -> s.regionMatches(true, 0, prefix, 0, prefix.length()),
@@ -91,7 +97,7 @@ public class StringRules {
         );
     }
 
-    public static Rule<String> endsWith(String suffix) {
+    public Rule<String> endsWith(String suffix) {
         Objects.requireNonNull(suffix, "suffix cannot be null");
         return Rule.of(
                 s -> s.endsWith(suffix),
@@ -99,7 +105,7 @@ public class StringRules {
         );
     }
 
-    public static Rule<String> endsWithIgnoreCase(String suffix) {
+    public Rule<String> endsWithIgnoreCase(String suffix) {
         Objects.requireNonNull(suffix, "suffix cannot be null");
         return Rule.of(
                 s -> s.length() >= suffix.length()
@@ -108,7 +114,7 @@ public class StringRules {
         );
     }
 
-    public static Rule<String> contains(String fragment) {
+    public Rule<String> contains(String fragment) {
         Objects.requireNonNull(fragment, "fragment cannot be null");
         return Rule.of(
                 s -> s.contains(fragment),
@@ -116,7 +122,7 @@ public class StringRules {
         );
     }
 
-    public static Rule<String> containsIgnoreCase(String fragment) {
+    public Rule<String> containsIgnoreCase(String fragment) {
         Objects.requireNonNull(fragment, "fragment cannot be null");
 
         return Rule.of(
@@ -142,7 +148,7 @@ public class StringRules {
         );
     }
 
-    public static Rule<String> notIn(Set<String> forbidden) {
+    public Rule<String> notIn(Set<String> forbidden) {
         Objects.requireNonNull(forbidden, "forbidden cannot be null");
 
         return Rule.of(
@@ -151,7 +157,7 @@ public class StringRules {
         );
     }
 
-    public static Rule<String> matches(String regex) {
+    public Rule<String> matches(String regex) {
         Objects.requireNonNull(regex, "regex cannot be null");
         Pattern pattern = Pattern.compile(regex);
         return Rule.of(
@@ -164,7 +170,7 @@ public class StringRules {
      * Fails if the string contains anything other than letters.
      * Uses {@link Character#isLetter(int)} so it supports unicode letters (not just A-Z).
      */
-    public static final Rule<String> alpha = Rule.of(
+    public Rule<String> alpha = Rule.of(
             s -> s.codePoints().allMatch(Character::isLetter),
             "must.be.alpha"
     );
@@ -173,7 +179,7 @@ public class StringRules {
      * Fails if the string contains anything other than letters or digits.
      * Uses {@link Character#isLetterOrDigit(int)} so it supports unicode letters/digits.
      */
-    public static final Rule<String> alphaNumeric = Rule.of(
+    public Rule<String> alphaNumeric = Rule.of(
             s -> s.codePoints().allMatch(Character::isLetterOrDigit),
             "must.be.alphanumeric"
     );
@@ -183,13 +189,13 @@ public class StringRules {
      * Note: this accepts unicode digits too (e.g. Arabic-Indic digits). If you want ASCII-only digits,
      * use a regex like {@code "^[0-9]+$"} instead.
      */
-    public static final Rule<String> onlyDigits = Rule.of(
+    public Rule<String> onlyUnicodeDigits = Rule.of(
             s -> s.codePoints().allMatch(Character::isDigit),
             "must.be.digits.only"
     );
 
     // Optional ASCII-only variant if you want it strict:
-    public static Rule<String> onlyAsciiDigits() {
+    public Rule<String> onlyDigits() {
         Pattern p = Pattern.compile("[0-9]*");
         return Rule.of(s -> p.matcher(s).matches(), ErrorMessage.of("must.be.ascii.digits.only"));
     }

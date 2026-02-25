@@ -7,23 +7,23 @@ import org.junit.jupiter.api.Test;
 
 import static net.vanfleteren.fv.rules.RulesTest.invalidTest;
 import static net.vanfleteren.fv.rules.RulesTest.validTest;
+import static net.vanfleteren.fv.rules.StringRules.strings;
 
 class StringRulesTest {
-
-
+    
     @Nested
     class NotEmpty {
 
         @Test
         void valid() {
-            validTest("hello", StringRules.notEmpty);
-            validTest(" ", StringRules.notEmpty);
-            validTest("\n", StringRules.notEmpty);
+            validTest("hello", strings.notEmpty);
+            validTest(" ", strings.notEmpty);
+            validTest("\n", strings.notEmpty);
         }
 
         @Test
         void invalid() {
-            invalidTest("", StringRules.notEmpty, "not.empty");
+            invalidTest("", strings.notEmpty, "not.empty");
         }
     }
 
@@ -32,15 +32,15 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("hello", StringRules.notBlank);
-            validTest(" x ", StringRules.notBlank);
+            validTest("hello", strings.notBlank);
+            validTest(" x ", strings.notBlank);
         }
 
         @Test
         void invalid() {
-            invalidTest("", StringRules.notBlank, "not.blank");
-            invalidTest("   ", StringRules.notBlank, "not.blank");
-            invalidTest("\n\t", StringRules.notBlank, "not.blank");
+            invalidTest("", strings.notBlank, "not.blank");
+            invalidTest("   ", strings.notBlank, "not.blank");
+            invalidTest("\n\t", strings.notBlank, "not.blank");
         }
     }
 
@@ -49,16 +49,16 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("hello", StringRules.trimmed);
-            validTest("he llo", StringRules.trimmed);
-            validTest("", StringRules.trimmed);
+            validTest("hello", strings.trimmed);
+            validTest("he llo", strings.trimmed);
+            validTest("", strings.trimmed);
         }
 
         @Test
         void invalid() {
-            invalidTest(" hello", StringRules.trimmed, "must.be.trimmed");
-            invalidTest("hello ", StringRules.trimmed, "must.be.trimmed");
-            invalidTest(" hello ", StringRules.trimmed, "must.be.trimmed");
+            invalidTest(" hello", strings.trimmed, "must.be.trimmed");
+            invalidTest("hello ", strings.trimmed, "must.be.trimmed");
+            invalidTest(" hello ", strings.trimmed, "must.be.trimmed");
         }
     }
 
@@ -67,17 +67,17 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("hello", StringRules.noWhitespace);
-            validTest("", StringRules.noWhitespace);
-            validTest("abc123", StringRules.noWhitespace);
+            validTest("hello", strings.noWhitespace);
+            validTest("", strings.noWhitespace);
+            validTest("abc123", strings.noWhitespace);
         }
 
         @Test
         void invalid() {
-            invalidTest(" ", StringRules.noWhitespace, "no.whitespace.allowed");
-            invalidTest("a b", StringRules.noWhitespace, "no.whitespace.allowed");
-            invalidTest("\n", StringRules.noWhitespace, "no.whitespace.allowed");
-            invalidTest("a\tb", StringRules.noWhitespace, "no.whitespace.allowed");
+            invalidTest(" ", strings.noWhitespace, "no.whitespace.allowed");
+            invalidTest("a b", strings.noWhitespace, "no.whitespace.allowed");
+            invalidTest("\n", strings.noWhitespace, "no.whitespace.allowed");
+            invalidTest("a\tb", strings.noWhitespace, "no.whitespace.allowed");
         }
     }
 
@@ -86,15 +86,15 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("12", StringRules.minLength(2));
-            validTest("  ", StringRules.minLength(2));
-            validTest("123", StringRules.minLength(2));
+            validTest("12", strings.minLength(2));
+            validTest("  ", strings.minLength(2));
+            validTest("123", strings.minLength(2));
         }
 
         @Test
         void invalid() {
-            invalidTest("", StringRules.minLength(2), "min.length", HashMap.of("min", 2));
-            invalidTest("1", StringRules.minLength(2), "min.length", HashMap.of("min", 2));
+            invalidTest("", strings.minLength(2), "min.length", HashMap.of("min", 2));
+            invalidTest("1", strings.minLength(2), "min.length", HashMap.of("min", 2));
         }
     }
 
@@ -103,15 +103,15 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("", StringRules.maxLength(0));
-            validTest("1", StringRules.maxLength(1));
-            validTest("12", StringRules.maxLength(2));
+            validTest("", strings.maxLength(0));
+            validTest("1", strings.maxLength(1));
+            validTest("12", strings.maxLength(2));
         }
 
         @Test
         void invalid() {
-            invalidTest("1", StringRules.maxLength(0), "max.length", HashMap.of("max", 0));
-            invalidTest("123", StringRules.maxLength(2), "max.length", HashMap.of("max", 2));
+            invalidTest("1", strings.maxLength(0), "max.length", HashMap.of("max", 0));
+            invalidTest("123", strings.maxLength(2), "max.length", HashMap.of("max", 2));
         }
     }
 
@@ -120,16 +120,16 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("", StringRules.lengthBetween(0, 0));
-            validTest("1", StringRules.lengthBetween(1, 1));
-            validTest("12", StringRules.lengthBetween(1, 2));
-            validTest("12", StringRules.lengthBetween(2, 3));
+            validTest("", strings.lengthBetween(0, 0));
+            validTest("1", strings.lengthBetween(1, 1));
+            validTest("12", strings.lengthBetween(1, 2));
+            validTest("12", strings.lengthBetween(2, 3));
         }
 
         @Test
         void invalid() {
-            invalidTest("", StringRules.lengthBetween(1, 2), "length.between", HashMap.of("min", 1, "max", 2));
-            invalidTest("123", StringRules.lengthBetween(1, 2), "length.between", HashMap.of("min", 1, "max", 2));
+            invalidTest("", strings.lengthBetween(1, 2), "length.between", HashMap.of("min", 1, "max", 2));
+            invalidTest("123", strings.lengthBetween(1, 2), "length.between", HashMap.of("min", 1, "max", 2));
         }
     }
 
@@ -138,15 +138,15 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("", StringRules.exactLength(0));
-            validTest("1", StringRules.exactLength(1));
-            validTest("12", StringRules.exactLength(2));
+            validTest("", strings.exactLength(0));
+            validTest("1", strings.exactLength(1));
+            validTest("12", strings.exactLength(2));
         }
 
         @Test
         void invalid() {
-            invalidTest("", StringRules.exactLength(1), "length.exact", HashMap.of("len", 1));
-            invalidTest("12", StringRules.exactLength(1), "length.exact", HashMap.of("len", 1));
+            invalidTest("", strings.exactLength(1), "length.exact", HashMap.of("len", 1));
+            invalidTest("12", strings.exactLength(1), "length.exact", HashMap.of("len", 1));
         }
     }
 
@@ -155,15 +155,15 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("hello", StringRules.contains("ell"));
-            validTest("hello", StringRules.contains(""));
-            validTest("", StringRules.contains(""));
+            validTest("hello", strings.contains("ell"));
+            validTest("hello", strings.contains(""));
+            validTest("", strings.contains(""));
         }
 
         @Test
         void invalid() {
-            invalidTest("hello", StringRules.contains("xyz"), "must.contain", HashMap.of("fragment", "xyz"));
-            invalidTest("", StringRules.contains("x"), "must.contain", HashMap.of("fragment", "x"));
+            invalidTest("hello", strings.contains("xyz"), "must.contain", HashMap.of("fragment", "xyz"));
+            invalidTest("", strings.contains("x"), "must.contain", HashMap.of("fragment", "x"));
         }
     }
 
@@ -172,17 +172,17 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("hello", StringRules.containsIgnoreCase("ELL"));
-            validTest("HELLO", StringRules.containsIgnoreCase("ell"));
-            validTest("HeLlO", StringRules.containsIgnoreCase("eLl"));
-            validTest("hello", StringRules.containsIgnoreCase(""));
-            validTest("", StringRules.containsIgnoreCase(""));
+            validTest("hello", strings.containsIgnoreCase("ELL"));
+            validTest("HELLO", strings.containsIgnoreCase("ell"));
+            validTest("HeLlO", strings.containsIgnoreCase("eLl"));
+            validTest("hello", strings.containsIgnoreCase(""));
+            validTest("", strings.containsIgnoreCase(""));
         }
 
         @Test
         void invalid() {
-            invalidTest("hello", StringRules.containsIgnoreCase("XYZ"), "must.contain.ignorecase", HashMap.of("fragment", "XYZ"));
-            invalidTest("", StringRules.containsIgnoreCase("x"), "must.contain.ignorecase", HashMap.of("fragment", "x"));
+            invalidTest("hello", strings.containsIgnoreCase("XYZ"), "must.contain.ignorecase", HashMap.of("fragment", "XYZ"));
+            invalidTest("", strings.containsIgnoreCase("x"), "must.contain.ignorecase", HashMap.of("fragment", "x"));
         }
     }
 
@@ -191,15 +191,15 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("hello", StringRules.startsWith("he"));
-            validTest("hello", StringRules.startsWith(""));
-            validTest("", StringRules.startsWith(""));
+            validTest("hello", strings.startsWith("he"));
+            validTest("hello", strings.startsWith(""));
+            validTest("", strings.startsWith(""));
         }
 
         @Test
         void invalid() {
-            invalidTest("hello", StringRules.startsWith("xy"), "must.start.with", HashMap.of("prefix", "xy"));
-            invalidTest("", StringRules.startsWith("x"), "must.start.with", HashMap.of("prefix", "x"));
+            invalidTest("hello", strings.startsWith("xy"), "must.start.with", HashMap.of("prefix", "xy"));
+            invalidTest("", strings.startsWith("x"), "must.start.with", HashMap.of("prefix", "x"));
         }
     }
 
@@ -208,17 +208,17 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("hello", StringRules.startsWithIgnoreCase("HE"));
-            validTest("HELLO", StringRules.startsWithIgnoreCase("he"));
-            validTest("HeLlO", StringRules.startsWithIgnoreCase("hEl"));
-            validTest("hello", StringRules.startsWithIgnoreCase(""));
-            validTest("", StringRules.startsWithIgnoreCase(""));
+            validTest("hello", strings.startsWithIgnoreCase("HE"));
+            validTest("HELLO", strings.startsWithIgnoreCase("he"));
+            validTest("HeLlO", strings.startsWithIgnoreCase("hEl"));
+            validTest("hello", strings.startsWithIgnoreCase(""));
+            validTest("", strings.startsWithIgnoreCase(""));
         }
 
         @Test
         void invalid() {
-            invalidTest("hello", StringRules.startsWithIgnoreCase("XY"), "must.start.with.ignorecase", HashMap.of("prefix", "XY"));
-            invalidTest("", StringRules.startsWithIgnoreCase("x"), "must.start.with.ignorecase", HashMap.of("prefix", "x"));
+            invalidTest("hello", strings.startsWithIgnoreCase("XY"), "must.start.with.ignorecase", HashMap.of("prefix", "XY"));
+            invalidTest("", strings.startsWithIgnoreCase("x"), "must.start.with.ignorecase", HashMap.of("prefix", "x"));
         }
     }
 
@@ -227,15 +227,15 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("hello", StringRules.endsWith("lo"));
-            validTest("hello", StringRules.endsWith(""));
-            validTest("", StringRules.endsWith(""));
+            validTest("hello", strings.endsWith("lo"));
+            validTest("hello", strings.endsWith(""));
+            validTest("", strings.endsWith(""));
         }
 
         @Test
         void invalid() {
-            invalidTest("hello", StringRules.endsWith("xy"), "must.end.with", HashMap.of("suffix", "xy"));
-            invalidTest("", StringRules.endsWith("x"), "must.end.with", HashMap.of("suffix", "x"));
+            invalidTest("hello", strings.endsWith("xy"), "must.end.with", HashMap.of("suffix", "xy"));
+            invalidTest("", strings.endsWith("x"), "must.end.with", HashMap.of("suffix", "x"));
         }
     }
 
@@ -244,18 +244,18 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("hello", StringRules.endsWithIgnoreCase("LO"));
-            validTest("HELLO", StringRules.endsWithIgnoreCase("lo"));
-            validTest("HeLlO", StringRules.endsWithIgnoreCase("LlO"));
-            validTest("hello", StringRules.endsWithIgnoreCase(""));
-            validTest("", StringRules.endsWithIgnoreCase(""));
+            validTest("hello", strings.endsWithIgnoreCase("LO"));
+            validTest("HELLO", strings.endsWithIgnoreCase("lo"));
+            validTest("HeLlO", strings.endsWithIgnoreCase("LlO"));
+            validTest("hello", strings.endsWithIgnoreCase(""));
+            validTest("", strings.endsWithIgnoreCase(""));
         }
 
         @Test
         void invalid() {
-            invalidTest("hello", StringRules.endsWithIgnoreCase("XY"), "must.end.with.ignorecase", HashMap.of("suffix", "XY"));
-            invalidTest("", StringRules.endsWithIgnoreCase("x"), "must.end.with.ignorecase", HashMap.of("suffix", "x"));
-            invalidTest("hi", StringRules.endsWithIgnoreCase("LONGER"), "must.end.with.ignorecase", HashMap.of("suffix", "LONGER"));
+            invalidTest("hello", strings.endsWithIgnoreCase("XY"), "must.end.with.ignorecase", HashMap.of("suffix", "XY"));
+            invalidTest("", strings.endsWithIgnoreCase("x"), "must.end.with.ignorecase", HashMap.of("suffix", "x"));
+            invalidTest("hi", strings.endsWithIgnoreCase("LONGER"), "must.end.with.ignorecase", HashMap.of("suffix", "LONGER"));
         }
     }
 
@@ -264,15 +264,15 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("hello", StringRules.notIn(HashSet.of("nope", "forbidden")));
-            validTest("", StringRules.notIn(HashSet.of("x")));
+            validTest("hello", strings.notIn(HashSet.of("nope", "forbidden")));
+            validTest("", strings.notIn(HashSet.of("x")));
         }
 
         @Test
         void invalid() {
             invalidTest(
                     "admin",
-                    StringRules.notIn(HashSet.of("admin", "root")),
+                    strings.notIn(HashSet.of("admin", "root")),
                     "must.not.be.in",
                     HashMap.of("forbidden", HashSet.of("admin", "root"))
             );
@@ -284,14 +284,14 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("12345", StringRules.matches("\\d+"));
-            validTest("ab12", StringRules.matches("[a-z]{2}\\d{2}"));
+            validTest("12345", strings.matches("\\d+"));
+            validTest("ab12", strings.matches("[a-z]{2}\\d{2}"));
         }
 
         @Test
         void invalid() {
-            invalidTest("12a", StringRules.matches("\\d+"), "must.match.regex", HashMap.of("regex", "\\d+"));
-            invalidTest("ab123", StringRules.matches("[a-z]{2}\\d{2}"), "must.match.regex", HashMap.of("regex", "[a-z]{2}\\d{2}"));
+            invalidTest("12a", strings.matches("\\d+"), "must.match.regex", HashMap.of("regex", "\\d+"));
+            invalidTest("ab123", strings.matches("[a-z]{2}\\d{2}"), "must.match.regex", HashMap.of("regex", "[a-z]{2}\\d{2}"));
         }
     }
 
@@ -300,16 +300,16 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("", StringRules.alpha);          // empty is ok; combine with notEmpty if you need non-empty
-            validTest("abc", StringRules.alpha);
-            validTest("Åß", StringRules.alpha);        // unicode letters are allowed
+            validTest("", strings.alpha);          // empty is ok; combine with notEmpty if you need non-empty
+            validTest("abc", strings.alpha);
+            validTest("Åß", strings.alpha);        // unicode letters are allowed
         }
 
         @Test
         void invalid() {
-            invalidTest("abc1", StringRules.alpha, "must.be.alpha");
-            invalidTest("a b", StringRules.alpha, "must.be.alpha");
-            invalidTest("-", StringRules.alpha, "must.be.alpha");
+            invalidTest("abc1", strings.alpha, "must.be.alpha");
+            invalidTest("a b", strings.alpha, "must.be.alpha");
+            invalidTest("-", strings.alpha, "must.be.alpha");
         }
     }
 
@@ -318,17 +318,17 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("", StringRules.alphaNumeric);
-            validTest("abc", StringRules.alphaNumeric);
-            validTest("abc123", StringRules.alphaNumeric);
-            validTest("Åß١٢3", StringRules.alphaNumeric); // letters + digits (unicode digits too)
+            validTest("", strings.alphaNumeric);
+            validTest("abc", strings.alphaNumeric);
+            validTest("abc123", strings.alphaNumeric);
+            validTest("Åß١٢3", strings.alphaNumeric); // letters + digits (unicode digits too)
         }
 
         @Test
         void invalid() {
-            invalidTest("a_b", StringRules.alphaNumeric, "must.be.alphanumeric");
-            invalidTest("a b", StringRules.alphaNumeric, "must.be.alphanumeric");
-            invalidTest("!", StringRules.alphaNumeric, "must.be.alphanumeric");
+            invalidTest("a_b", strings.alphaNumeric, "must.be.alphanumeric");
+            invalidTest("a b", strings.alphaNumeric, "must.be.alphanumeric");
+            invalidTest("!", strings.alphaNumeric, "must.be.alphanumeric");
         }
     }
 
@@ -337,16 +337,16 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("", StringRules.onlyDigits);
-            validTest("0123", StringRules.onlyDigits);
-            validTest("١٢٣", StringRules.onlyDigits); // unicode digits are allowed by Character.isDigit
+            validTest("", strings.onlyUnicodeDigits);
+            validTest("0123", strings.onlyUnicodeDigits);
+            validTest("١٢٣", strings.onlyUnicodeDigits); // unicode digits are allowed by Character.isDigit
         }
 
         @Test
         void invalid() {
-            invalidTest("12a", StringRules.onlyDigits, "must.be.digits.only");
-            invalidTest("12 3", StringRules.onlyDigits, "must.be.digits.only");
-            invalidTest("-", StringRules.onlyDigits, "must.be.digits.only");
+            invalidTest("12a", strings.onlyUnicodeDigits, "must.be.digits.only");
+            invalidTest("12 3", strings.onlyUnicodeDigits, "must.be.digits.only");
+            invalidTest("-", strings.onlyUnicodeDigits, "must.be.digits.only");
         }
     }
 
@@ -355,14 +355,14 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("", StringRules.onlyAsciiDigits());
-            validTest("0123", StringRules.onlyAsciiDigits());
+            validTest("", strings.onlyDigits());
+            validTest("0123", strings.onlyDigits());
         }
 
         @Test
         void invalid() {
-            invalidTest("١٢٣", StringRules.onlyAsciiDigits(), "must.be.ascii.digits.only");
-            invalidTest("12a", StringRules.onlyAsciiDigits(), "must.be.ascii.digits.only");
+            invalidTest("١٢٣", strings.onlyDigits(), "must.be.ascii.digits.only");
+            invalidTest("12a", strings.onlyDigits(), "must.be.ascii.digits.only");
         }
     }
 }

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
+import static net.vanfleteren.fv.rules.ObjectRules.objects;
 import static net.vanfleteren.fv.rules.RulesTest.validTest;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -35,19 +36,19 @@ class ObjectRulesTest {
 
         @Test
         void valid() {
-            validTest("a", ObjectRules.equalTo("a"));
-            validTest(123, ObjectRules.equalTo(123));
+            validTest("a", objects.equalTo("a"));
+            validTest(123, objects.equalTo(123));
         }
 
         @Test
         void invalid() {
-            RulesTest.invalidTest("a", ObjectRules.equalTo("b"), "must.be.equal");
-            RulesTest.invalidTest(123, ObjectRules.equalTo(456), "must.be.equal");
+            RulesTest.invalidTest("a", objects.equalTo("b"), "must.be.equal");
+            RulesTest.invalidTest(123, objects.equalTo(456), "must.be.equal");
         }
 
         @Test
         void requiresNonNullValue() {
-            assertThatThrownBy(() -> ObjectRules.equalTo(null))
+            assertThatThrownBy(() -> objects.equalTo(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("value cannot be null");
         }
@@ -58,19 +59,19 @@ class ObjectRulesTest {
 
         @Test
         void valid() {
-            validTest("a", ObjectRules.notEqualTo("b"));
-            validTest(123, ObjectRules.notEqualTo(456));
+            validTest("a", objects.notEqualTo("b"));
+            validTest(123, objects.notEqualTo(456));
         }
 
         @Test
         void invalid() {
-            RulesTest.invalidTest("a", ObjectRules.notEqualTo("a"), "must.not.be.equal");
-            RulesTest.invalidTest(123, ObjectRules.notEqualTo(123), "must.not.be.equal");
+            RulesTest.invalidTest("a", objects.notEqualTo("a"), "must.not.be.equal");
+            RulesTest.invalidTest(123, objects.notEqualTo(123), "must.not.be.equal");
         }
 
         @Test
         void requiresNonNullValue() {
-            assertThatThrownBy(() -> ObjectRules.notEqualTo(null))
+            assertThatThrownBy(() -> objects.notEqualTo(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("value cannot be null");
         }
@@ -81,16 +82,16 @@ class ObjectRulesTest {
 
         @Test
         void valid() {
-            validTest("a", ObjectRules.oneOf("a", "b"));
-            validTest(1, ObjectRules.oneOf(1, 2, 3));
+            validTest("a", objects.oneOf("a", "b"));
+            validTest(1, objects.oneOf(1, 2, 3));
         }
 
         @Test
         void invalid() {
-            RulesTest.invalidTest("c", ObjectRules.oneOf("a", "b"), "must.be.one.of",
+            RulesTest.invalidTest("c", objects.oneOf("a", "b"), "must.be.one.of",
                     HashMap.of("values", HashSet.of("a", "b"))
             );
-            RulesTest.invalidTest(4, ObjectRules.oneOf(1, 2, 3), "must.be.one.of",
+            RulesTest.invalidTest(4, objects.oneOf(1, 2, 3), "must.be.one.of",
                     HashMap.of("values", HashSet.of(1, 2, 3))
             );
         }
@@ -101,16 +102,16 @@ class ObjectRulesTest {
 
         @Test
         void valid() {
-            validTest("c", ObjectRules.notOneOf("a", "b"));
-            validTest(4, ObjectRules.notOneOf(1, 2, 3));
+            validTest("c", objects.notOneOf("a", "b"));
+            validTest(4, objects.notOneOf(1, 2, 3));
         }
 
         @Test
         void invalid() {
-            RulesTest.invalidTest("a", ObjectRules.notOneOf("a", "b"), "must.not.be.one.of",
+            RulesTest.invalidTest("a", objects.notOneOf("a", "b"), "must.not.be.one.of",
                     HashMap.of("values", HashSet.of("a", "b"))
             );
-            RulesTest.invalidTest(2, ObjectRules.notOneOf(1, 2, 3), "must.not.be.one.of",
+            RulesTest.invalidTest(2, objects.notOneOf(1, 2, 3), "must.not.be.one.of",
                     HashMap.of("values", HashSet.of(1, 2, 3))
             );
         }
@@ -121,13 +122,13 @@ class ObjectRulesTest {
 
         @Test
         void valid() {
-            validTest("hello", ObjectRules.instanceOf(String.class));
-            validTest(123, ObjectRules.instanceOf(Integer.class));
+            validTest("hello", objects.instanceOf(String.class));
+            validTest(123, objects.instanceOf(Integer.class));
         }
 
         @Test
         void invalid() {
-            Rule<Object> stringRule = ObjectRules.instanceOf(String.class);
+            Rule<Object> stringRule = objects.instanceOf(String.class);
 
             assertThatValidation(stringRule.test(BigDecimal.ZERO))
                     .isInvalid()

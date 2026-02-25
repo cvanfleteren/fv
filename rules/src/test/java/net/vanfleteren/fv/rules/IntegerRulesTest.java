@@ -5,6 +5,7 @@ import io.vavr.collection.HashSet;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static net.vanfleteren.fv.rules.IntegerRules.ints;
 import static net.vanfleteren.fv.rules.RulesTest.invalidTest;
 import static net.vanfleteren.fv.rules.RulesTest.validTest;
 
@@ -15,14 +16,14 @@ class IntegerRulesTest {
 
         @Test
         void valid() {
-            validTest(1, IntegerRules.positive);
-            validTest(42, IntegerRules.positive);
+            validTest(1, ints().positive());
+            validTest(42, ints().positive());
         }
 
         @Test
         void invalid() {
-            invalidTest(0, IntegerRules.positive, "must.be.positive");
-            invalidTest(-1, IntegerRules.positive, "must.be.positive");
+            invalidTest(0, ints().positive(), "must.be.positive");
+            invalidTest(-1, ints().positive(), "must.be.positive");
         }
     }
 
@@ -31,15 +32,15 @@ class IntegerRulesTest {
 
         @Test
         void valid() {
-            validTest(0, IntegerRules.nonNegative);
-            validTest(1, IntegerRules.nonNegative);
-            validTest(42, IntegerRules.nonNegative);
+            validTest(0, ints().nonNegative());
+            validTest(1, ints().nonNegative());
+            validTest(42, ints().nonNegative());
         }
 
         @Test
         void invalid() {
-            invalidTest(-1, IntegerRules.nonNegative, "must.be.non.negative");
-            invalidTest(-42, IntegerRules.nonNegative, "must.be.non.negative");
+            invalidTest(-1, ints().nonNegative(), "must.be.non.negative");
+            invalidTest(-42, ints().nonNegative(), "must.be.non.negative");
         }
     }
 
@@ -48,14 +49,14 @@ class IntegerRulesTest {
 
         @Test
         void valid() {
-            validTest(-1, IntegerRules.negative);
-            validTest(-42, IntegerRules.negative);
+            validTest(-1,ints().negative());
+            validTest(-42,ints().negative());
         }
 
         @Test
         void invalid() {
-            invalidTest(0, IntegerRules.negative, "must.be.negative");
-            invalidTest(1, IntegerRules.negative, "must.be.negative");
+            invalidTest(0,ints().negative(), "must.be.negative");
+            invalidTest(1,ints().negative(), "must.be.negative");
         }
     }
 
@@ -64,14 +65,14 @@ class IntegerRulesTest {
 
         @Test
         void valid() {
-            validTest(-1, IntegerRules.nonPositive);
-            validTest(0, IntegerRules.nonPositive);
+            validTest(-1,ints().nonPositive());
+            validTest(0,ints().nonPositive());
         }
 
         @Test
         void invalid() {
-            invalidTest(1, IntegerRules.nonPositive, "must.be.non.positive");
-            invalidTest(42, IntegerRules.nonPositive, "must.be.non.positive");
+            invalidTest(1,ints().nonPositive(), "must.be.non.positive");
+            invalidTest(42,ints().nonPositive(), "must.be.non.positive");
         }
     }
 
@@ -80,13 +81,13 @@ class IntegerRulesTest {
 
         @Test
         void valid() {
-            validTest(0, IntegerRules.zero);
+            validTest(0,ints().zero());
         }
 
         @Test
         void invalid() {
-            invalidTest(1, IntegerRules.zero, "must.be.zero");
-            invalidTest(-1, IntegerRules.zero, "must.be.zero");
+            invalidTest(1,ints().zero(), "must.be.zero");
+            invalidTest(-1,ints().zero(), "must.be.zero");
         }
     }
 
@@ -95,13 +96,13 @@ class IntegerRulesTest {
 
         @Test
         void valid() {
-            validTest(1, IntegerRules.nonZero);
-            validTest(-1, IntegerRules.nonZero);
+            validTest(1,ints().nonZero());
+            validTest(-1,ints().nonZero());
         }
 
         @Test
         void invalid() {
-            invalidTest(0, IntegerRules.nonZero, "must.not.be.zero");
+            invalidTest(0,ints().nonZero(), "must.not.be.zero");
         }
     }
 
@@ -110,15 +111,15 @@ class IntegerRulesTest {
 
         @Test
         void valid() {
-            validTest(0, IntegerRules.even);
-            validTest(2, IntegerRules.even);
-            validTest(-2, IntegerRules.even);
+            validTest(0,ints().even());
+            validTest(2,ints().even());
+            validTest(-2,ints().even());
         }
 
         @Test
         void invalid() {
-            invalidTest(1, IntegerRules.even, "must.be.even");
-            invalidTest(-1, IntegerRules.even, "must.be.even");
+            invalidTest(1,ints().even(), "must.be.even");
+            invalidTest(-1,ints().even(), "must.be.even");
         }
     }
 
@@ -127,15 +128,15 @@ class IntegerRulesTest {
 
         @Test
         void valid() {
-            validTest(1, IntegerRules.odd);
-            validTest(-1, IntegerRules.odd);
+            validTest(1,ints().odd());
+            validTest(-1,ints().odd());
         }
 
         @Test
         void invalid() {
-            invalidTest(0, IntegerRules.odd, "must.be.odd");
-            invalidTest(2, IntegerRules.odd, "must.be.odd");
-            invalidTest(-2, IntegerRules.odd, "must.be.odd");
+            invalidTest(0,ints().odd(), "must.be.odd");
+            invalidTest(2,ints().odd(), "must.be.odd");
+            invalidTest(-2,ints().odd(), "must.be.odd");
         }
     }
 
@@ -144,14 +145,14 @@ class IntegerRulesTest {
 
         @Test
         void valid() {
-            validTest(2, IntegerRules.min(2));
-            validTest(3, IntegerRules.min(2));
+            validTest(2, ints().min(2));
+            validTest(3, ints().min(2));
         }
 
         @Test
         void invalid() {
-            invalidTest(1, IntegerRules.min(2), "min.value", HashMap.of("min", 2));
-            invalidTest(-100, IntegerRules.min(2), "min.value", HashMap.of("min", 2));
+            invalidTest(1, ints().min(2), "min.value", HashMap.of("min", 2));
+            invalidTest(-100, ints().min(2), "min.value", HashMap.of("min", 2));
         }
     }
 
@@ -160,15 +161,15 @@ class IntegerRulesTest {
 
         @Test
         void valid() {
-            validTest(2, IntegerRules.max(2));
-            validTest(1, IntegerRules.max(2));
-            validTest(-100, IntegerRules.max(2));
+            validTest(2, ints().max(2));
+            validTest(1, ints().max(2));
+            validTest(-100, ints().max(2));
         }
 
         @Test
         void invalid() {
-            invalidTest(3, IntegerRules.max(2), "max.value", HashMap.of("max", 2));
-            invalidTest(100, IntegerRules.max(2), "max.value", HashMap.of("max", 2));
+            invalidTest(3, ints().max(2), "max.value", HashMap.of("max", 2));
+            invalidTest(100, ints().max(2), "max.value", HashMap.of("max", 2));
         }
     }
 
@@ -177,16 +178,16 @@ class IntegerRulesTest {
 
         @Test
         void valid() {
-            validTest(1, IntegerRules.between(1, 1));
-            validTest(1, IntegerRules.between(1, 2));
-            validTest(2, IntegerRules.between(1, 2));
-            validTest(0, IntegerRules.between(-1, 1));
+            validTest(1, ints().between(1, 1));
+            validTest(1, ints().between(1, 2));
+            validTest(2, ints().between(1, 2));
+            validTest(0, ints().between(-1, 1));
         }
 
         @Test
         void invalid() {
-            invalidTest(0, IntegerRules.between(1, 2), "value.between", HashMap.of("min", 1, "max", 2));
-            invalidTest(3, IntegerRules.between(1, 2), "value.between", HashMap.of("min", 1, "max", 2));
+            invalidTest(0, ints().between(1, 2), "value.between", HashMap.of("min", 1, "max", 2));
+            invalidTest(3, ints().between(1, 2), "value.between", HashMap.of("min", 1, "max", 2));
         }
     }
 
@@ -195,15 +196,15 @@ class IntegerRulesTest {
 
         @Test
         void valid() {
-            validTest(0, IntegerRules.betweenExclusive(-1, 1));
-            validTest(2, IntegerRules.betweenExclusive(1, 3));
+            validTest(0, ints().betweenExclusive(-1, 1));
+            validTest(2, ints().betweenExclusive(1, 3));
         }
 
         @Test
         void invalid() {
-            invalidTest(1, IntegerRules.betweenExclusive(1, 3), "value.between.exclusive", HashMap.of("min", 1, "max", 3));
-            invalidTest(3, IntegerRules.betweenExclusive(1, 3), "value.between.exclusive", HashMap.of("min", 1, "max", 3));
-            invalidTest(0, IntegerRules.betweenExclusive(0, 1), "value.between.exclusive", HashMap.of("min", 0, "max", 1));
+            invalidTest(1, ints().betweenExclusive(1, 3), "value.between.exclusive", HashMap.of("min", 1, "max", 3));
+            invalidTest(3, ints().betweenExclusive(1, 3), "value.between.exclusive", HashMap.of("min", 1, "max", 3));
+            invalidTest(0, ints().betweenExclusive(0, 1), "value.between.exclusive", HashMap.of("min", 0, "max", 1));
         }
     }
 
@@ -212,14 +213,14 @@ class IntegerRulesTest {
 
         @Test
         void valid() {
-            validTest(2, IntegerRules.greaterThan(1));
-            validTest(42, IntegerRules.greaterThan(1));
+            validTest(2, ints().greaterThan(1));
+            validTest(42, ints().greaterThan(1));
         }
 
         @Test
         void invalid() {
-            invalidTest(1, IntegerRules.greaterThan(1), "must.be.greater.than", HashMap.of("min", 1));
-            invalidTest(0, IntegerRules.greaterThan(1), "must.be.greater.than", HashMap.of("min", 1));
+            invalidTest(1, ints().greaterThan(1), "must.be.greater.than", HashMap.of("min", 1));
+            invalidTest(0, ints().greaterThan(1), "must.be.greater.than", HashMap.of("min", 1));
         }
     }
 
@@ -228,14 +229,14 @@ class IntegerRulesTest {
 
         @Test
         void valid() {
-            validTest(1, IntegerRules.atLeast(1));
-            validTest(2, IntegerRules.atLeast(1));
+            validTest(1, ints().atLeast(1));
+            validTest(2, ints().atLeast(1));
         }
 
         @Test
         void invalid() {
-            invalidTest(0, IntegerRules.atLeast(1), "must.be.at.least", HashMap.of("min", 1));
-            invalidTest(-1, IntegerRules.atLeast(1), "must.be.at.least", HashMap.of("min", 1));
+            invalidTest(0, ints().atLeast(1), "must.be.at.least", HashMap.of("min", 1));
+            invalidTest(-1, ints().atLeast(1), "must.be.at.least", HashMap.of("min", 1));
         }
     }
 
@@ -244,14 +245,14 @@ class IntegerRulesTest {
 
         @Test
         void valid() {
-            validTest(0, IntegerRules.lessThan(1));
-            validTest(-1, IntegerRules.lessThan(1));
+            validTest(0, ints().lessThan(1));
+            validTest(-1, ints().lessThan(1));
         }
 
         @Test
         void invalid() {
-            invalidTest(1, IntegerRules.lessThan(1), "must.be.less.than", HashMap.of("max", 1));
-            invalidTest(2, IntegerRules.lessThan(1), "must.be.less.than", HashMap.of("max", 1));
+            invalidTest(1, ints().lessThan(1), "must.be.less.than", HashMap.of("max", 1));
+            invalidTest(2, ints().lessThan(1), "must.be.less.than", HashMap.of("max", 1));
         }
     }
 
@@ -260,54 +261,54 @@ class IntegerRulesTest {
 
         @Test
         void valid() {
-            validTest(1, IntegerRules.atMost(1));
-            validTest(0, IntegerRules.atMost(1));
-            validTest(-1, IntegerRules.atMost(1));
+            validTest(1, ints().atMost(1));
+            validTest(0, ints().atMost(1));
+            validTest(-1, ints().atMost(1));
         }
 
         @Test
         void invalid() {
-            invalidTest(2, IntegerRules.atMost(1), "must.be.at.most", HashMap.of("max", 1));
-            invalidTest(42, IntegerRules.atMost(1), "must.be.at.most", HashMap.of("max", 1));
+            invalidTest(2, ints().atMost(1), "must.be.at.most", HashMap.of("max", 1));
+            invalidTest(42, ints().atMost(1), "must.be.at.most", HashMap.of("max", 1));
         }
     }
 
     @Nested
-    class In {
+    class OneOf {
 
         @Test
         void valid() {
-            validTest(1, IntegerRules.in(HashSet.of(1, 2, 3)));
-            validTest(0, IntegerRules.in(HashSet.of(0)));
+            validTest(1, ints().oneOf(1, 2, 3));
+            validTest(0, ints().oneOf(0));
         }
 
         @Test
         void invalid() {
             invalidTest(
                     4,
-                    IntegerRules.in(HashSet.of(1, 2, 3)),
-                    "must.be.in",
-                    HashMap.of("allowed", HashSet.of(1, 2, 3))
+                    ints().oneOf(1, 2, 3),
+                    "must.be.one.of",
+                    HashMap.of("values", HashSet.of(1, 2, 3))
             );
         }
     }
 
     @Nested
-    class NotIn {
+    class NotOneOf {
 
         @Test
         void valid() {
-            validTest(1, IntegerRules.notIn(HashSet.of(2, 3)));
-            validTest(0, IntegerRules.notIn(HashSet.of(1)));
+            validTest(1, ints().notOneOf(2, 3));
+            validTest(0, ints().notOneOf(1));
         }
 
         @Test
         void invalid() {
             invalidTest(
                     2,
-                    IntegerRules.notIn(HashSet.of(1, 2, 3)),
-                    "must.not.be.in",
-                    HashMap.of("forbidden", HashSet.of(1, 2, 3))
+                    ints().notOneOf(1, 2, 3),
+                    "must.not.be.one.of",
+                    HashMap.of("values", HashSet.of(1, 2, 3))
             );
         }
     }
