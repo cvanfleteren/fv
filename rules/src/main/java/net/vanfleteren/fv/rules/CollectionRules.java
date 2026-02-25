@@ -218,4 +218,17 @@ public class CollectionRules {
         };
     }
 
+    /**
+     * Creates a rule that validates that all values in a list satisfy a given rule.
+     * The invidiual ErrorMessages are passed to the final Validation.
+     */
+    public static <T> Rule<List<T>> validateValuesWith(Rule<? super T> rule) {
+        return list -> {
+            Rule<T> castedRule = (Rule<T>) rule;
+            Rule<List<T>> rule2 =  castedRule.liftToList();
+            return rule2.test(list);
+        };
+    }
+
+
 }

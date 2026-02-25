@@ -91,13 +91,13 @@ class MapRulesTest {
     }
 
     @Nested
-    class AllValuesMatch {
+    class ValidateValuesWith {
 
         @Test
-        void allValuesMatch_whenSomeValuesFail_accumulatesErrorsAndAddsKeyToPath() {
+        void validateValuesWith_whenSomeValuesFail_accumulatesErrorsAndAddsKeyToPath() {
             // Arrange: validate string length >= 3 for each map value
             Rule<Number> rule = Rule.of(b -> b.doubleValue() > 0, "must.be.positive");
-            Rule<Map<String, BigDecimal>> mapRule = MapRules.allValuesMatch(rule);
+            Rule<Map<String, BigDecimal>> mapRule = MapRules.validateValuesWith(rule);
 
             Map<String,BigDecimal> input = HashMap.of(
                     "a", BigDecimal.valueOf(-1),

@@ -426,4 +426,25 @@ class CollectionRulesTest {
             );
         }
     }
+
+    @Nested
+    class ValidateValuesWith {
+
+        @Test
+        void validateValuesWith_whenSomeValuesFail_accumulatesErrorsAndAddsIndexToPath() {
+            // Arrange
+            Rule<Number> rule = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
+            Rule<List<Integer>> listRule = CollectionRules.validateValuesWith(rule);
+
+            List<Integer> input = List.of(-1, 10, 0);
+
+            // Act
+            var result = validateThat(input, "value").is(listRule);
+
+            // Assert: failures are attributed to their indices in the path
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("value[0].must.be.positive", "value[2].must.be.positive");
+        }
+    }
 }
