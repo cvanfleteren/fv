@@ -103,6 +103,13 @@ public interface Rule<T> {
     }
 
     /**
+     * Turns this rule (back) into a Predicate.
+     */
+    default <S extends T> Predicate<S> toPredicate() {
+        return value -> test(value).isValid();
+    }
+
+    /**
      * Lifts a Rule so it applies to a List of T instead of a single T.
      */
     default Rule<List<T>> liftToList() {

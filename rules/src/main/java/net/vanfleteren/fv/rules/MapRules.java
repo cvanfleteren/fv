@@ -27,4 +27,13 @@ public class MapRules {
         };
     }
 
+    //TODO do similar thing for Collections?
+    public static <K,V> Rule<Map<K,V>> allValuesMatch(Rule<? super V> rule) {
+        return map -> {
+            Rule<V> castedRule = (Rule<V>) rule;
+            Rule<Map<K, V>> rule2 =  castedRule.liftToMap();
+            return rule2.test(map);
+        };
+    }
+
 }

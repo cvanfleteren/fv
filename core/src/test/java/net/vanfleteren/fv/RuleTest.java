@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.tools.JavaFileObject;
 import java.math.BigDecimal;
+import java.util.function.Predicate;
 
 import static com.google.common.truth.Truth.assert_;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
@@ -643,6 +644,52 @@ class RuleTest {
             // Act & Assert
             assertThatCode(() -> mapRule.test(input))
                     .isInstanceOf(NullPointerException.class);
+        }
+    }
+
+    @Nested
+    class ToPredicate {
+
+        @Test
+        void toPredicate_whenRuleValid_returnsTrue() {
+            // Arrange
+            Rule<Number> rule = Rule.of(s -> s.doubleValue() > 0, "must.be.positive");
+            Predicate<BigDecimal> p = rule.toPredicate();
+
+            // Act + Assert
+            assertThat(p.test(BigDecimal.ONE)).isTrue();
+        }
+
+        @Test
+        void toPredicate_whenRuleInvalid_returnsFalse() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Predicate<? super String> p = rule.toPredicate();
+
+            // Act + Assert
+            assertThat(p.test("hi")).isFalse();
+        }
+
+        @Test
+        void toPredicate_delegatesToRuleTest_everyTime() {
+            // Arrange
+            final int[] calls = {0};
+            Rule<Integer> countingRule = value -> {
+                calls[0]++;
+                return value > 0
+                        ? Validation.valid(value)
+                        : Validation.invalid("must.be.positive");
+            };
+
+            Predicate<? super Integer> p = countingRule.toPredicate();
+
+            // Act
+            p.test(1);
+            p.test(-1);
+            p.test(2);
+
+            // Assert
+            assertThat(calls[0]).isEqualTo(3);
         }
     }
 }

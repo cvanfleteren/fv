@@ -2,9 +2,16 @@ package net.vanfleteren.fv.rules;
 
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
+import io.vavr.collection.Map;
+import net.vanfleteren.fv.Rule;
+import net.vanfleteren.fv.Validation;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
+import static net.vanfleteren.fv.API.validateThat;
+import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import static net.vanfleteren.fv.rules.MapRules.*;
 import static net.vanfleteren.fv.rules.RulesTest.invalidTest;
 import static net.vanfleteren.fv.rules.RulesTest.validTest;
@@ -80,6 +87,31 @@ class MapRulesTest {
                     "must.not.contain.null.values",
                     HashMap.of("keys", HashSet.of("b", "c"))
             );
+        }
+    }
+
+    @Nested
+    class AllValuesMatch {
+
+        @Test
+        void allValuesMatch_whenSomeValuesFail_accumulatesErrorsAndAddsKeyToPath() {
+            // Arrange: validate string length >= 3 for each map value
+            Rule<Number> rule = Rule.of(b -> b.doubleValue() > 0, "must.be.positive");
+            Rule<Map<String, BigDecimal>> mapRule = MapRules.allValuesMatch(rule);
+
+            Map<String,BigDecimal> input = HashMap.of(
+                    "a", BigDecimal.valueOf(-1),
+                    "b", BigDecimal.TEN,
+                    "c", BigDecimal.ZERO
+            );
+
+            // Act
+            Validation<Map<String, BigDecimal>> result = validateThat(input, "value").is(mapRule);
+
+            // Assert: failures are attributed to their keys in the path
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("value[a].must.be.positive", "value[c].must.be.positive");
         }
     }
 
