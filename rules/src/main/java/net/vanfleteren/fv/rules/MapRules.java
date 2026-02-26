@@ -1,5 +1,6 @@
 package net.vanfleteren.fv.rules;
 
+import io.vavr.collection.HashSet;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 import net.vanfleteren.fv.ErrorMessage;
@@ -14,6 +15,11 @@ public class MapRules {
 
     public static <K,V> Rule<Map<K,V>> containsKey(K key) {
         return Rule.of(map -> map.containsKey(key), ErrorMessage.of("must.contain.key", "key", key));
+    }
+
+    public static <K,V> Rule<Map<K,V>> containsKeys(K... keys) {
+        Set<K> keySet = HashSet.of(keys);
+        return Rule.of(map -> map.keySet().containsAll(keySet), ErrorMessage.of("must.contain.keys", "keys", keySet));
     }
 
     public static <K,V> Rule<Map<K,V>> valuesNotNull() {

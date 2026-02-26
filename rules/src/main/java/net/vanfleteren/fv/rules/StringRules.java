@@ -186,19 +186,29 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
 
     /**
      * Fails if the string contains anything other than digits.
-     * Note: this accepts unicode digits too (e.g. Arabic-Indic digits). If you want ASCII-only digits,
-     * use a regex like {@code "^[0-9]+$"} instead.
+     * Note: this accepts unicode digits too (e.g. Arabic-Indic digits).
      */
     public Rule<String> onlyUnicodeDigits = Rule.of(
             s -> s.codePoints().allMatch(Character::isDigit),
             "must.be.digits.only"
     );
 
-    // Optional ASCII-only variant if you want it strict:
+    /**
+     * Fails if the string contains anything other than digits.
+     * Note: this doesn't accept unicode digits, only 0-9.
+     */
     public Rule<String> onlyDigits() {
         Pattern p = Pattern.compile("[0-9]*");
         return Rule.of(s -> p.matcher(s).matches(), ErrorMessage.of("must.be.ascii.digits.only"));
     }
+
+    public Rule<String> hexadecimal() {
+        Pattern p = Pattern.compile("[0-9a-f]*", Pattern.CASE_INSENSITIVE);
+        return Rule.of(s -> p.matcher(s).matches(), ErrorMessage.of("must.be.hexadecimal"));
+    }
+
+
+
     //endregion
 
 

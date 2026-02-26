@@ -10,7 +10,7 @@ import static net.vanfleteren.fv.rules.RulesTest.validTest;
 import static net.vanfleteren.fv.rules.StringRules.strings;
 
 class StringRulesTest {
-    
+
     @Nested
     class NotEmpty {
 
@@ -333,7 +333,7 @@ class StringRulesTest {
     }
 
     @Nested
-    class OnlyDigits {
+    class OnlyUnicodeDigits {
 
         @Test
         void valid() {
@@ -351,7 +351,7 @@ class StringRulesTest {
     }
 
     @Nested
-    class OnlyAsciiDigits {
+    class OnlyDigits {
 
         @Test
         void valid() {
@@ -363,6 +363,29 @@ class StringRulesTest {
         void invalid() {
             invalidTest("١٢٣", strings.onlyDigits(), "must.be.ascii.digits.only");
             invalidTest("12a", strings.onlyDigits(), "must.be.ascii.digits.only");
+        }
+    }
+
+    @Nested
+    class Hexadecimal {
+
+        @Test
+        void valid() {
+            validTest("", strings.hexadecimal());              // empty is ok
+            validTest("0", strings.hexadecimal());
+            validTest("F", strings.hexadecimal());             // uppercase
+            validTest("a", strings.hexadecimal());             // lowercase
+            validTest("123456789ABCDEF", strings.hexadecimal()); // uppercase
+            validTest("abcdef", strings.hexadecimal());        // lowercase
+            validTest("deadBEEF", strings.hexadecimal());      // mixed case
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("g", strings.hexadecimal(), "must.be.hexadecimal");
+            invalidTest("xyz", strings.hexadecimal(), "must.be.hexadecimal");
+            invalidTest("0x123", strings.hexadecimal(), "must.be.hexadecimal"); // no prefix allowed
+            invalidTest("12 34", strings.hexadecimal(), "must.be.hexadecimal"); // no spaces
         }
     }
 }

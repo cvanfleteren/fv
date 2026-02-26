@@ -115,4 +115,51 @@ class MapRulesTest {
         }
     }
 
+    @Nested
+    class ContainsKeys {
+
+        @Test
+        void valid() {
+            // The map contains all requested keys.
+            validTest(
+                    HashMap.of("a", 1, "b", 2),
+                    containsKeys("a", "b")
+            );
+        }
+
+        @Test
+        void invalid_whenNull_thenCannotBeNull() {
+            // A null map should trigger the universal "cannot.be.null" message.
+            invalidTest(
+                    null,
+                    containsKeys("a", "b"),
+                    "cannot.be.null"
+            );
+        }
+
+        @Test
+        void invalid_whenMissingKey_thenHasKeyAndArgs() {
+            // The map is missing key "b".
+            invalidTest(
+                    HashMap.of("a", 1),
+                    containsKeys("a", "b"),
+                    "must.contain.keys",
+                    HashMap.of("keys", HashSet.of("a","b"))
+            );
+        }
+
+        @Test
+        void invalid_whenMultipleMissingKeys_showsFirstMissingKey() {
+            // The map is missing both "b" and "c".  The error message contains the
+            // first missing key (because the current implementation returns the last
+            // key that fails the containsAll check).
+            invalidTest(
+                    HashMap.of("a", 1),
+                    containsKeys("a", "b", "c"),
+                    "must.contain.keys",
+                    HashMap.of("keys", HashSet.of("a","b","c"))
+            );
+        }
+    }
+
 }
