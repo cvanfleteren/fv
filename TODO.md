@@ -1,0 +1,2 @@
+- better support for Rule negation (not(rule) vs rule.not)
+- big example for validating large object graph
