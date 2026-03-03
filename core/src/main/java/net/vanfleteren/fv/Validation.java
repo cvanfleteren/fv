@@ -11,6 +11,7 @@ import io.vavr.Function8;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 import io.vavr.collection.Seq;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 
 import java.util.Objects;
@@ -467,6 +468,36 @@ public sealed interface Validation<T> {
             e -> Validation.invalid(e.getMessage()),
             Validation::valid
         );
+    }
+
+    /**
+     * Create a Validation from Option.
+     * If the Option is defined, the returned validation will be valid with the value.
+     * If the Option is empty, the returned validation will be invalid with the error message.
+     */
+    static <T> Validation<T> from(Option<T> option, ErrorMessage errorMessage) {
+        return option.fold(
+                () -> Validation.invalid(errorMessage),
+                Validation::valid
+        );
+    }
+
+    /**
+     * Create a Validation from Option.
+     * If the Option is defined, the returned validation will be valid with the value.
+     * If the Option is empty, the returned validation will be invalid with the error message.
+     */
+    static <T> Validation<T> from(Option<T> option, String errorMessage) {
+        return from(option, ErrorMessage.of(errorMessage));
+    }
+
+    /**
+     * Create a Validation from Option.
+     * If the Option is defined, the returned validation will be valid with the value.
+     * If the Option is empty, the returned validation will be invalid with the default error message "value.is.none".
+     */
+    static <T> Validation<T> from(Option<T> option) {
+        return from(option, "value.is.none");
     }
     //endregion
 

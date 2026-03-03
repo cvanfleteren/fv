@@ -1,6 +1,7 @@
 package net.vanfleteren.fv;
 
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -1339,6 +1340,82 @@ public class ValidationTest {
             assertThatValidation(v)
                     .isInvalid()
                     .hasErrorMessages("foo");
+        }
+    }
+
+    @Nested
+    class FromOption {
+
+        @Test
+        void from_whenOptionIsSome_returnsValidValidation() {
+            // Arrange
+            Option<String> option = Option.of("hello");
+
+            // Act
+            Validation<String> result = Validation.from(option);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("hello");
+        }
+
+        @Test
+        void from_whenOptionIsNone_returnsInvalidWithDefaultMessage() {
+            // Arrange
+            Option<String> option = Option.none();
+
+            // Act
+            Validation<String> result = Validation.from(option);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("value.is.none");
+        }
+
+        @Test
+        void fromWithErrorMessage_whenOptionIsSome_returnsValidValidation() {
+            // Arrange
+            Option<String> option = Option.of("hello");
+            ErrorMessage error = ErrorMessage.of("custom.error");
+
+            // Act
+            Validation<String> result = Validation.from(option, error);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("hello");
+        }
+
+        @Test
+        void fromWithErrorMessage_whenOptionIsNone_returnsInvalidWithCustomError() {
+            // Arrange
+            Option<String> option = Option.none();
+            ErrorMessage error = ErrorMessage.of("custom.error");
+
+            // Act
+            Validation<String> result = Validation.from(option, error);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("custom.error");
+        }
+
+        @Test
+        void fromWithString_whenOptionIsNone_returnsInvalidWithCustomError() {
+            // Arrange
+            Option<String> option = Option.none();
+
+            // Act
+            Validation<String> result = Validation.from(option, "string.error");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("string.error");
         }
     }
 }
