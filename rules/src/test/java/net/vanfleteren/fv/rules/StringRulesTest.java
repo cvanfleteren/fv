@@ -319,16 +319,36 @@ class StringRulesTest {
         @Test
         void valid() {
             validTest("", strings.alphaNumeric);
-            validTest("abc", strings.alphaNumeric);
-            validTest("abc123", strings.alphaNumeric);
-            validTest("Åß١٢3", strings.alphaNumeric); // letters + digits (unicode digits too)
+            validTest("abcz", strings.alphaNumeric);
+            validTest("abc12390", strings.alphaNumeric);
         }
 
         @Test
         void invalid() {
             invalidTest("a_b", strings.alphaNumeric, "must.be.alphanumeric");
             invalidTest("a b", strings.alphaNumeric, "must.be.alphanumeric");
+            invalidTest("ë", strings.alphaNumeric, "must.be.alphanumeric");
             invalidTest("!", strings.alphaNumeric, "must.be.alphanumeric");
+            invalidTest("Åß١٢3", strings.alphaNumeric, "must.be.alphanumeric");
+        }
+    }
+
+    @Nested
+    class AlphaNumericUnicode {
+
+        @Test
+        void valid() {
+            validTest("", strings.alphaNumericUnicode);
+            validTest("abc", strings.alphaNumericUnicode);
+            validTest("abc123", strings.alphaNumericUnicode);
+            validTest("Åß١٢3", strings.alphaNumericUnicode); // letters + digits (unicode digits too)
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("a_b", strings.alphaNumericUnicode, "must.be.unicode.alphanumeric");
+            invalidTest("a b", strings.alphaNumericUnicode, "must.be.unicode.alphanumeric");
+            invalidTest("!", strings.alphaNumericUnicode, "must.be.unicode.alphanumeric");
         }
     }
 
@@ -344,9 +364,9 @@ class StringRulesTest {
 
         @Test
         void invalid() {
-            invalidTest("12a", strings.onlyUnicodeDigits, "must.be.digits.only");
-            invalidTest("12 3", strings.onlyUnicodeDigits, "must.be.digits.only");
-            invalidTest("-", strings.onlyUnicodeDigits, "must.be.digits.only");
+            invalidTest("12a", strings.onlyUnicodeDigits, "must.be.unicode.digits.only");
+            invalidTest("12 3", strings.onlyUnicodeDigits, "must.be.unicode.digits.only");
+            invalidTest("-", strings.onlyUnicodeDigits, "must.be.unicode.digits.only");
         }
     }
 
@@ -361,8 +381,8 @@ class StringRulesTest {
 
         @Test
         void invalid() {
-            invalidTest("١٢٣", strings.onlyDigits(), "must.be.ascii.digits.only");
-            invalidTest("12a", strings.onlyDigits(), "must.be.ascii.digits.only");
+            invalidTest("١٢٣", strings.onlyDigits(), "must.be.digits.only");
+            invalidTest("12a", strings.onlyDigits(), "must.be.digits.only");
         }
     }
 
@@ -386,6 +406,34 @@ class StringRulesTest {
             invalidTest("xyz", strings.hexadecimal(), "must.be.hexadecimal");
             invalidTest("0x123", strings.hexadecimal(), "must.be.hexadecimal"); // no prefix allowed
             invalidTest("12 34", strings.hexadecimal(), "must.be.hexadecimal"); // no spaces
+        }
+    }
+
+
+    @Nested
+    class LooksLikeEmailAddress {
+
+        @Test
+        void valid() {
+            // Basic RFC‑822‑style addresses – keep it simple for our use‑case
+            validTest("user@example.com", strings.looksLikeEmailAddress);
+            validTest("first.last+tag@sub.domain.org", strings.looksLikeEmailAddress);
+            validTest("test@localhost", strings.looksLikeEmailAddress); // host only
+            validTest("name@123.456.789.012", strings.looksLikeEmailAddress); // numeric host
+        }
+
+        @Test
+        void invalid() {
+            // Empty string
+            invalidTest("", strings.looksLikeEmailAddress, "must.be.email");
+            // No @ symbol
+            invalidTest("plainaddress", strings.looksLikeEmailAddress, "must.be.email");
+            // Missing domain part
+            invalidTest("foo@", strings.looksLikeEmailAddress, "must.be.email");
+            // Domain starts with a dot
+            invalidTest("foo@.com", strings.looksLikeEmailAddress, "must.be.email");
+            // No local part
+            invalidTest("@example.com", strings.looksLikeEmailAddress, "must.be.email");
         }
     }
 }

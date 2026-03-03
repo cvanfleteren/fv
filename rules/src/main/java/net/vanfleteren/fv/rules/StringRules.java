@@ -168,7 +168,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
 
     /**
      * Fails if the string contains anything other than letters.
-     * Uses {@link Character#isLetter(int)} so it supports unicode letters (not just A-Z).
+     * Uses {@link Character#isLetter(int)} so it supports Unicode letters (not just A-Z).
      */
     public Rule<String> alpha = Rule.of(
             s -> s.codePoints().allMatch(Character::isLetter),
@@ -177,37 +177,78 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
 
     /**
      * Fails if the string contains anything other than letters or digits.
-     * Uses {@link Character#isLetterOrDigit(int)} so it supports unicode letters/digits.
+     * Uses {@link Character#isLetterOrDigit(int)} so it supports Unicode letters/digits.
      */
     public Rule<String> alphaNumeric = Rule.of(
-            s -> s.codePoints().allMatch(Character::isLetterOrDigit),
+            s ->  s.codePoints().allMatch(c ->
+                    // ‘0–9’
+                    (c >= 48 && c <= 57) ||
+                            // ‘A–Z’
+                            (c >= 65 && c <= 90) ||
+                            // ‘a–z’
+                            (c >= 97 && c <= 122)
+            ),
             "must.be.alphanumeric"
     );
 
     /**
-     * Fails if the string contains anything other than digits.
-     * Note: this accepts unicode digits too (e.g. Arabic-Indic digits).
+     * Fails if the string contains anything other than letters or digits.
+     * Uses {@link Character#isLetterOrDigit(int)} so it supports unicode letters/digits.
      */
-    public Rule<String> onlyUnicodeDigits = Rule.of(
-            s -> s.codePoints().allMatch(Character::isDigit),
-            "must.be.digits.only"
+    public Rule<String> alphaNumericUnicode = Rule.of(
+            s -> s.codePoints().allMatch(Character::isLetterOrDigit),
+            "must.be.unicode.alphanumeric"
     );
 
     /**
      * Fails if the string contains anything other than digits.
-     * Note: this doesn't accept unicode digits, only 0-9.
+     * Note: this accepts Unicode digits too (e.g. Arabic-Indic digits).
+     */
+    public Rule<String> onlyUnicodeDigits = Rule.of(
+            s -> s.codePoints().allMatch(Character::isDigit),
+            "must.be.unicode.digits.only"
+    );
+
+    /**
+     * Fails if the string contains anything other than digits.
+     * Note: this doesn't accept Unicode digits, only 0-9.
      */
     public Rule<String> onlyDigits() {
-        Pattern p = Pattern.compile("[0-9]*");
-        return Rule.of(s -> p.matcher(s).matches(), ErrorMessage.of("must.be.ascii.digits.only"));
+        return Rule.of(  s ->  s.codePoints().allMatch(c ->
+                // ‘0–9’
+                (c >= 48 && c <= 57)
+                ),
+                "must.be.digits.only"
+        );
     }
 
+    /**
+     * Fails if the string contains anything other than hexadecimal characters.
+     */
     public Rule<String> hexadecimal() {
         Pattern p = Pattern.compile("[0-9a-f]*", Pattern.CASE_INSENSITIVE);
         return Rule.of(s -> p.matcher(s).matches(), ErrorMessage.of("must.be.hexadecimal"));
     }
 
 
+    private static final Pattern isEmailPattern = Pattern.compile(
+            // local part
+            "^[A-Za-z0-9+_.-]+@" +
+            // domain part = either:
+            //   (1) a standard domain with at least one dot
+            //   or
+            //   (2) a single label that starts with a letter/digit
+            "([A-Za-z0-9-]+\\.[A-Za-z0-9.-]*|[A-Za-z0-9][A-Za-z0-9-]*)$"
+    );
+
+    /**
+     * Simplified rule to check if a string looks like an email address. Don't use this for full email validation.
+     * The only valid email address is one you've received a confirmation from.
+     */
+    public static final Rule<String> looksLikeEmailAddress = Rule.of(
+            s -> isEmailPattern.matcher(s).matches(),
+            "must.be.email"
+    );
 
     //endregion
 
