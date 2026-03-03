@@ -1,6 +1,7 @@
 package net.vanfleteren.fv;
 
 import io.vavr.collection.List;
+import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.junit.jupiter.api.Nested;
@@ -1261,17 +1262,13 @@ public class ValidationTest {
 
         @Test
         void from_whenSupplierReturnsValue_returnsValidWithThatValue() {
-            // Arrange
-            record Person(String name) {}
-            Person expected = new Person("John");
-
             // Act
-            Validation<Person> result = Validation.from(() -> expected);
+            Validation<String> result = Validation.from(() -> "expected");
 
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(expected);
+                    .hasValue("expected");
         }
 
         @Test
@@ -1311,7 +1308,7 @@ public class ValidationTest {
 
         @Test
         void from_whenTrySucceeds_returnsValidValidation() {
-            var tryVal = success("hello");
+            Try<String> tryVal = success("hello");
             Validation<String> v = Validation.from(tryVal, ErrorMessage.of("oops"));
 
             assertThatValidation(v)
@@ -1321,7 +1318,7 @@ public class ValidationTest {
 
         @Test
         void from_whenTryFails_returnsInvalidValidationWithProvidedMessages() {
-            var tryVal = failure(new IllegalStateException());
+            Try<String> tryVal = failure(new IllegalStateException());
             ErrorMessage e1 = ErrorMessage.of("first.fault");
 
             Validation<Object> v = Validation.from(tryVal, e1);
@@ -1416,6 +1413,38 @@ public class ValidationTest {
             assertThatValidation(result)
                     .isInvalid()
                     .hasErrorMessages("string.error");
+        }
+    }
+
+    @Nested
+    class FromEither {
+
+        @Test
+        void from_whenEitherIsRight_returnsValidValidation() {
+            // Arrange
+            Either<String, Integer> either = Either.right(42);
+
+            // Act
+            Validation<Integer> result = Validation.from(either, ErrorMessage::of);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(42);
+        }
+
+        @Test
+        void from_whenEitherIsLeft_returnsInvalidValidationUsingMapper() {
+            // Arrange
+            Either<String, Integer> either = Either.left("fail");
+
+            // Act
+            Validation<Integer> result = Validation.from(either, ErrorMessage::of);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("fail");
         }
     }
 }

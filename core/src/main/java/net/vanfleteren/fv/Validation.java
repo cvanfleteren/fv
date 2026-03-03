@@ -11,6 +11,7 @@ import io.vavr.Function8;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 import io.vavr.collection.Seq;
+import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 
@@ -451,7 +452,7 @@ public sealed interface Validation<T> {
      * If the Try is successful, the returned validation will be valid with the value.
      * If the Try is failed, the returned validation will be invalid with the error message.
      */
-    static <T> Validation<T> from(Try<T> _try, ErrorMessage errorMessage) {
+    static <T> Validation<T> from(Try<? extends T> _try, ErrorMessage errorMessage) {
         return _try.fold(
             ignored -> Validation.invalid(errorMessage),
             Validation::valid
@@ -475,7 +476,7 @@ public sealed interface Validation<T> {
      * If the Option is defined, the returned validation will be valid with the value.
      * If the Option is empty, the returned validation will be invalid with the error message.
      */
-    static <T> Validation<T> from(Option<T> option, ErrorMessage errorMessage) {
+    static <T> Validation<T> from(Option<? extends T> option, ErrorMessage errorMessage) {
         return option.fold(
                 () -> Validation.invalid(errorMessage),
                 Validation::valid
@@ -487,7 +488,7 @@ public sealed interface Validation<T> {
      * If the Option is defined, the returned validation will be valid with the value.
      * If the Option is empty, the returned validation will be invalid with the error message.
      */
-    static <T> Validation<T> from(Option<T> option, String errorMessage) {
+    static <T> Validation<T> from(Option<? extends T> option, String errorMessage) {
         return from(option, ErrorMessage.of(errorMessage));
     }
 
@@ -496,9 +497,22 @@ public sealed interface Validation<T> {
      * If the Option is defined, the returned validation will be valid with the value.
      * If the Option is empty, the returned validation will be invalid with the default error message "value.is.none".
      */
-    static <T> Validation<T> from(Option<T> option) {
+    static <T> Validation<T> from(Option<? extends T> option) {
         return from(option, "value.is.none");
     }
+
+    /**
+     * Create a Validation from Either.
+     * If the Either is left, the returned validation will be invalid with the error message.
+     * If the Either is right, the returned validation will be valid with the value.
+     */
+    static <L, R> Validation<R> from(Either<L, ? extends R> either, Function1<? super L, ErrorMessage> errorMapper) {
+        return either.fold(
+                l -> Validation.invalid(errorMapper.apply(l)),
+                Validation::valid
+        );
+    }
+
     //endregion
 
     //region casting
