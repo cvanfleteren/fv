@@ -16,6 +16,7 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -50,6 +51,15 @@ public sealed interface Validation<T> {
             case Valid(var value) -> value;
             case Invalid(var errors) -> throw new ValidationException(errors);
         };
+    }
+    //endregion
+
+    default java.util.Optional<T> toOptional() {
+        return isValid() ? java.util.Optional.of(((Valid<T>) this).value()) : java.util.Optional.empty();
+    }
+
+    default java.util.List<ErrorMessage> javaErrors() {
+        return errors().asJava();
     }
     //endregion
 
@@ -184,6 +194,15 @@ public sealed interface Validation<T> {
                     }
                 }
         );
+    }
+
+    /**
+     * Turns a Collection of Validation<T> into a single Validation<java.util.List<T>>.
+     * Collects all errors if any validations are invalid.
+     */
+    static <T> Validation<java.util.List<T>> sequence(java.util.Collection<Validation<T>> validations) {
+        return sequence(io.vavr.collection.List.ofAll(validations))
+                .map(io.vavr.collection.List::asJava);
     }
     //endregion
 
@@ -511,6 +530,27 @@ public sealed interface Validation<T> {
                 l -> Validation.invalid(errorMapper.apply(l)),
                 Validation::valid
         );
+    }
+
+    /**
+     * Create a Validation from java.util.Optional.
+     */
+    static <T> Validation<T> from(Optional<T> optional) {
+        return from(Option.ofOptional(optional));
+    }
+
+    /**
+     * Create a Validation from java.util.Optional.
+     */
+    static <T> Validation<T> from(Optional<T> optional, String errorMessage) {
+        return from(Option.ofOptional(optional), errorMessage);
+    }
+
+    /**
+     * Create a Validation from java.util.Optional.
+     */
+    static <T> Validation<T> from(Optional<T> optional, ErrorMessage errorMessage) {
+        return from(Option.ofOptional(optional), errorMessage);
     }
 
     //endregion

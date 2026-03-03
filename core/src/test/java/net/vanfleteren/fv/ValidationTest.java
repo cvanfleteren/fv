@@ -7,6 +7,8 @@ import io.vavr.control.Try;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
+
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import static org.assertj.core.api.Assertions.*;
 
@@ -1445,6 +1447,179 @@ public class ValidationTest {
             assertThatValidation(result)
                     .isInvalid()
                     .hasErrorMessages("fail");
+        }
+    }
+
+    @Nested
+    class ToOptional {
+
+        @Test
+        void toOptional_whenValid_returnsOptionalWithValue() {
+            // Arrange
+            Validation<String> valid = Validation.valid("hello");
+
+            // Act
+            Optional<String> result = valid.toOptional();
+
+            // Assert
+            assertThat(result).contains("hello");
+        }
+
+        @Test
+        void toOptional_whenInvalid_returnsEmptyOptional() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("error");
+
+            // Act
+            Optional<String> result = invalid.toOptional();
+
+            // Assert
+            assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    class JavaErrors {
+
+        @Test
+        void javaErrors_whenValid_returnsEmptyList() {
+            // Arrange
+            Validation<String> valid = Validation.valid("hello");
+
+            // Act
+            java.util.List<ErrorMessage> result = valid.javaErrors();
+
+            // Assert
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        void javaErrors_whenInvalid_returnsListOfErrors() {
+            // Arrange
+            ErrorMessage e1 = ErrorMessage.of("error1");
+            ErrorMessage e2 = ErrorMessage.of("error2");
+            Validation<String> invalid = Validation.invalid(e1, e2);
+
+            // Act
+            java.util.List<ErrorMessage> result = invalid.javaErrors();
+
+            // Assert
+            assertThat(result).containsExactly(e1, e2);
+        }
+    }
+
+    @Nested
+    class FromOptional {
+
+        @Test
+        void from_whenOptionalIsPresent_returnsValidValidation() {
+            // Arrange
+            Optional<String> optional = Optional.of("hello");
+
+            // Act
+            Validation<String> result = Validation.from(optional);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("hello");
+        }
+
+        @Test
+        void from_whenOptionalIsEmpty_returnsInvalidWithDefaultMessage() {
+            // Arrange
+            Optional<String> optional = Optional.empty();
+
+            // Act
+            Validation<String> result = Validation.from(optional);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("value.is.none");
+        }
+
+        @Test
+        void fromWithErrorMessage_whenOptionalIsPresent_returnsValidValidation() {
+            // Arrange
+            Optional<String> optional = Optional.of("hello");
+            ErrorMessage error = ErrorMessage.of("custom.error");
+
+            // Act
+            Validation<String> result = Validation.from(optional, error);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("hello");
+        }
+
+        @Test
+        void fromWithErrorMessage_whenOptionalIsEmpty_returnsInvalidWithCustomError() {
+            // Arrange
+            Optional<String> optional = Optional.empty();
+            ErrorMessage error = ErrorMessage.of("custom.error");
+
+            // Act
+            Validation<String> result = Validation.from(optional, error);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("custom.error");
+        }
+
+        @Test
+        void fromWithString_whenOptionalIsEmpty_returnsInvalidWithCustomError() {
+            // Arrange
+            Optional<String> optional = Optional.empty();
+
+            // Act
+            Validation<String> result = Validation.from(optional, "string.error");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("string.error");
+        }
+    }
+
+    @Nested
+    class SequenceJavaCollection {
+
+        @Test
+        void sequence_whenAllAreValid_returnsValidWithListOfValues() {
+            // Arrange
+            java.util.List<Validation<String>> validations = java.util.List.of(
+                    Validation.valid("a"),
+                    Validation.valid("b")
+            );
+
+            // Act
+            Validation<java.util.List<String>> result = Validation.sequence(validations);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(java.util.List.of("a", "b"));
+        }
+
+        @Test
+        void sequence_whenSomeAreInvalid_returnsInvalidWithAllErrors() {
+            // Arrange
+            java.util.List<Validation<String>> validations = java.util.List.of(
+                    Validation.valid("a"),
+                    Validation.invalid("error1"),
+                    Validation.invalid("error2")
+            );
+
+            // Act
+            Validation<java.util.List<String>> result = Validation.sequence(validations);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("[1].error1", "[2].error2");
         }
     }
 }
