@@ -11,6 +11,7 @@ import io.vavr.Function8;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 import io.vavr.collection.Seq;
+import io.vavr.control.Try;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -436,12 +437,36 @@ public sealed interface Validation<T> {
      * This method is meant for interop with code that can throw the ValidationException, for example when you
      * use the "validate in constructor" pattern.
      */
-    static <T> Validation<T> from(Supplier<T> supplier) {
+    static <T> Validation<T> from(Supplier<? extends T> supplier) {
         try {
             return Validation.valid(supplier.get());
         } catch(ValidationException e) {
             return Validation.invalid(e.errors());
         }
+    }
+
+    /**
+     * Create a validation from a Try.
+     * If the Try is successful, the returned validation will be valid with the value.
+     * If the Try is failed, the returned validation will be invalid with the error message.
+     */
+    static <T> Validation<T> from(Try<T> _try, ErrorMessage errorMessage) {
+        return _try.fold(
+            ignored -> Validation.invalid(errorMessage),
+            Validation::valid
+        );
+    }
+
+    /**
+     * Create a Validation from Try
+     * If the Try is successful, the returned validation will be valid with the value.
+     * If the Try is failed, the returned validation will be invalid with message of the thrown Exception
+     */
+    static <T> Validation<T> from(Try<? extends T> _try) {
+        return _try.fold(
+            e -> Validation.invalid(e.getMessage()),
+            Validation::valid
+        );
     }
     //endregion
 

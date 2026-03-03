@@ -1,12 +1,12 @@
 package net.vanfleteren.fv;
 
 import io.vavr.collection.List;
+import io.vavr.control.Try;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import static org.assertj.core.api.Assertions.*;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ValidationTest {
 
@@ -1256,7 +1256,7 @@ public class ValidationTest {
     }
 
     @Nested
-    class From {
+    class FromSupplier {
 
         @Test
         void from_whenSupplierReturnsValue_returnsValidWithThatValue() {
@@ -1299,6 +1299,46 @@ public class ValidationTest {
             assertThatThrownBy(() -> Validation.from(() -> {
                 throw boom;
             })).isSameAs(boom);
+        }
+    }
+
+    @Nested
+    class FromTry {
+
+        private <T> Try<T> success(T value) { return Try.success(value); }
+        private <T> Try<T> failure(Throwable t) { return Try.failure(t); }
+
+        @Test
+        void from_whenTrySucceeds_returnsValidValidation() {
+            var tryVal = success("hello");
+            Validation<String> v = Validation.from(tryVal, ErrorMessage.of("oops"));
+
+            assertThatValidation(v)
+                    .isValid()
+                    .hasValue("hello");
+        }
+
+        @Test
+        void from_whenTryFails_returnsInvalidValidationWithProvidedMessages() {
+            var tryVal = failure(new IllegalStateException());
+            ErrorMessage e1 = ErrorMessage.of("first.fault");
+
+            Validation<Object> v = Validation.from(tryVal, e1);
+
+            assertThatValidation(v)
+                    .isInvalid()
+                    .hasErrorMessages("first.fault");
+        }
+
+        @Test
+        void from_whenTryFails_andNoMessages_presentedErrorListIsEmpty() {
+            Try<String> tryVal = failure(new IllegalStateException("foo"));
+
+            Validation<Object> v = Validation.from(tryVal);
+
+            assertThatValidation(v)
+                    .isInvalid()
+                    .hasErrorMessages("foo");
         }
     }
 }
