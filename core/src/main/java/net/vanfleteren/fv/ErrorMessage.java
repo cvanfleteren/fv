@@ -10,7 +10,8 @@ import lombok.With;
 import java.util.Objects;
 
 /**
- * Represents an error message with a string message.
+ * Represents an error message with a unique key, paths, and optional arguments.
+ * It is immutable and provides methods to build structured error paths and include dynamic parameters.
  */
 @With
 @EqualsAndHashCode
@@ -19,24 +20,58 @@ public class ErrorMessage {
     private final List<Path> paths;
     private final Map<String,Object> args;
 
+    /**
+     * Creates a new {@link ErrorMessage}.
+     *
+     * @param errorKey the unique key for the error message (e.g., "invalid.input").
+     * @param paths    the list of {@link Path} segments leading to the erroneous value.
+     * @param args     a map of dynamic arguments for the error message.
+     */
     public ErrorMessage(String errorKey, List<Path> paths, Map<String,Object> args) {
         this.errorKey = Objects.requireNonNull(errorKey, "Message cannot be null");
         this.paths = Objects.requireNonNull(paths, "Paths cannot be null");
         this.args = Objects.requireNonNull(args, "Args cannot be null");
     }
 
+    /**
+     * Creates an {@link ErrorMessage} with the given key.
+     *
+     * @param message the error message key.
+     * @return a new {@link ErrorMessage} instance.
+     */
     public static ErrorMessage of(String message) {
         return new ErrorMessage(message, List.of(), HashMap.empty());
     }
 
+    /**
+     * Creates an {@link ErrorMessage} with the given key and arguments.
+     *
+     * @param message the error message key.
+     * @param args    the dynamic arguments.
+     * @return a new {@link ErrorMessage} instance.
+     */
     public static ErrorMessage of(String message, Map<String,Object> args) {
         return new ErrorMessage(message, List.of(), args);
     }
 
+    /**
+     * Creates an {@link ErrorMessage} with the given key and a single argument.
+     *
+     * @param message the error message key.
+     * @param key     the argument name.
+     * @param value   the argument value.
+     * @return a new {@link ErrorMessage} instance.
+     */
     public static ErrorMessage of(String message, String key, Object value) {
         return of(message, HashMap.of(key, value));
     }
 
+    /**
+     * Prepends a {@link Path} segment to this error message.
+     *
+     * @param path the path segment to prepend.
+     * @return a new {@link ErrorMessage} with the prepended path.
+     */
     public ErrorMessage prepend(Path path) {
         if(!paths.isEmpty() && paths.head().index.isDefined() && paths.head().text.isEmpty() && path.index.isEmpty()) {
             // previous path was just an index, an this one hasn't got one, combine them
@@ -46,6 +81,13 @@ public class ErrorMessage {
         }
     }
 
+    /**
+     * Associates an index with the current head path segment.
+     * If no paths exist, a new empty path segment with the given index is prepended.
+     *
+     * @param index the index (e.g., collection index or map key).
+     * @return a new {@link ErrorMessage} with the index applied.
+     */
     public ErrorMessage atIndex(Object index) {
         if (paths.isEmpty()) {
             return prepend(new Path("", Option.of(index)));
@@ -54,18 +96,47 @@ public class ErrorMessage {
         }
     }
 
+    /**
+     * Returns the dynamic arguments for this error message.
+     *
+     * @return a {@link Map} of arguments.
+     */
     public Map<String,Object> args() {
         return args;
     }
 
+    /**
+     * Returns the full error message string, including all path segments and the key.
+     *
+     * @return the formatted error message.
+     */
     public String message() {
         return paths.map(Path::formatted).append(errorKey).mkString(".");
     }
 
+    /**
+     * Returns the error key.
+     *
+     * @return the error key string.
+     */
     public String key() {
         return errorKey;
     }
 
+    /**
+     * Returns a string representation of the error message including its arguments.
+     *
+     * <p>Example:
+     * <pre>{@code
+     * ErrorMessage error = ErrorMessage.of("min.length", "min", 3);
+     * String formatted = error.formatted(); // "min.length:{min:3}"
+     *
+     * // depending on the path and index, you could end up with a formatted string like
+     * String s = "root.items.field[1].error.key:{val:foo}";
+     * }</pre>
+     *
+     * @return the formatted error message with arguments.
+     */
     public String formatted() {
         if(args.isEmpty()) {
             return message();
@@ -74,13 +145,31 @@ public class ErrorMessage {
         }
     }
 
+    /**
+     * Represents a single segment in an error path, optionally including an index.
+     * The index would usually be used for array or list indices, or map keys.
+     *
+     * @param text  the name of the path segment (e.g., field name).
+     * @param index an optional index or key within that segment.
+     */
     @With
     public record Path(String text, Option<Object> index) {
 
+        /**
+         * Creates a {@link Path} segment with the given text and no index.
+         *
+         * @param path the path segment name.
+         * @return a new {@link Path} instance.
+         */
         public static Path of(String path) {
             return new Path(path, Option.none());
         }
 
+        /**
+         * Returns the formatted string for this path segment.
+         *
+         * @return the formatted path segment.
+         */
         public String formatted() {
             // no specific name was given
             if ("".equals(text)) {

@@ -1,7 +1,6 @@
 package net.vanfleteren.fv;
 
 import io.vavr.Function1;
-import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Seq;
@@ -12,6 +11,33 @@ import java.util.function.Predicate;
 
 /**
  * Represents a validation rule that can be applied to a value.
+ *
+ * <p>A Rule is essentially a {@link java.util.function.Predicate} that returns a {@link Validation}
+ * object containing either the valid value or a structured {@link ErrorMessage}.
+ *
+ * <h3>Example: Defining and using a simple rule</h3>
+ * <pre>{@code
+ * // 1. Define a rule using a predicate and an error message key
+ * Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "string.cannot.be.empty");
+ *
+ * // 2. Use the rule to validate a value
+ * Validation<String> result = notEmpty.test("hello");
+ *
+ * // 3. Handle the result (functional approach with pattern matching)
+ * String message = switch (result) {
+ *     case Validation.Valid(var value) -> "Success: " + value;
+ *     case Validation.Invalid(var errors) -> "Errors: " + errors.map(ErrorMessage::message).mkString(", ");
+ * };
+ *
+ * // 4. Handle the result (classical approach)
+ * if (result.isValid()) {
+ *     System.out.println("Valid value: " + result.getOrElseThrow());
+ * } else {
+ *     result.errors().forEach(err -> System.err.println("Error: " + err.message()));
+ * }
+ *
+ * System.out.println(message);
+ * }</pre>
  *
  * @param <T> The type of the value to be validated.
  */
@@ -26,22 +52,56 @@ public interface Rule<T> {
      */
     Validation<T> test(T value);
 
+    /**
+     * Creates a {@link Rule} from the given predicate and error message key.
+     *
+     * @param predicate    the predicate to test values against.
+     * @param errorMessage the error message key to use if the predicate returns {@code false}.
+     * @param <T>          the type of the value to be validated.
+     * @return a new {@link Rule} instance.
+     */
     static <T> Rule<T> of(Predicate<T> predicate, String errorMessage) {
         return of(predicate, ErrorMessage.of(errorMessage));
     }
 
+    /**
+     * Creates a {@link Rule} from the given predicate and {@link ErrorMessage}.
+     *
+     * @param predicate    the predicate to test values against.
+     * @param errorMessage the error message to use if the predicate returns {@code false}.
+     * @param <T>          the type of the value to be validated.
+     * @return a new {@link Rule} instance.
+     */
     static <T> Rule<T> of(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return value -> predicate.test(value) ? Validation.valid(value) : Validation.invalid(errorMessage);
     }
 
+    /**
+     * Composes this rule with another rule using "and" logic.
+     * The combined rule is successful only if both this and the other rule are successful.
+     * If both rules fail, the errors are NOT combined (the first failure stops the evaluation).
+     *
+     * @param other the other rule.
+     * @param <S>   the target type.
+     * @return a new {@link Rule} instance.
+     */
     @SuppressWarnings("unchecked")
     default <S extends T> Rule<S> and(Rule<? super S> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return value -> test(value).flatMap(v -> other.test(value).map(o -> (S) v));
     }
 
+    /**
+     * Composes this rule with another rule using "or" logic.
+     * The combined rule is successful if either this or the other rule is successful.
+     * If both rules fail, the error messages are combined.
+     *
+     * @param other the other rule.
+     * @param <S>   the target type.
+     * @return a new {@link Rule} instance.
+     */
     @SuppressWarnings("unchecked")
     default <S extends T> Rule<S> or(Rule<? super S> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
@@ -61,17 +121,30 @@ public interface Rule<T> {
     }
 
     /**
-     * Negates this rule. The caller must provide the error message to use when the negated rule fails.
+     * Negates this rule. The caller must provide the error message key to use when the negated rule fails.
      * <p>
      * Semantics:
-     * - if this rule is valid => negated rule is invalid (with {@code negatedError})
-     * - if this rule is invalid => negated rule is valid
+     * - if this rule is valid =&gt; negated rule is invalid (with {@code negatedErrorKey})
+     * - if this rule is invalid =&gt; negated rule is valid
+     *
+     * @param negatedErrorKey the error message key to use if negation fails.
+     * @return a negated {@link Rule}.
      */
     default Rule<T> not(String negatedErrorKey) {
         Objects.requireNonNull(negatedErrorKey, "negatedErrorKey cannot be null");
         return not(ErrorMessage.of(negatedErrorKey));
     }
 
+    /**
+     * Negates this rule. The caller must provide the {@link ErrorMessage} to use when the negated rule fails.
+     * <p>
+     * Semantics:
+     * - if this rule is valid =&gt; negated rule is invalid (with {@code negatedError})
+     * - if this rule is invalid =&gt; negated rule is valid
+     *
+     * @param negatedError the error message to use if negation fails.
+     * @return a negated {@link Rule}.
+     */
     default Rule<T> not(ErrorMessage negatedError) {
         Objects.requireNonNull(negatedError, "negatedError cannot be null");
         return value -> {
@@ -85,6 +158,9 @@ public interface Rule<T> {
     /**
      * Negates this rule and derives the negated error from the original rule's first error message.
      * Useful if you want conventions like prefixing keys, or to preserve args.
+     *
+     * @param errorMapper the mapper function to transform the fallback error message.
+     * @return a negated {@link Rule}.
      */
     default Rule<T> not(Function1<ErrorMessage, ErrorMessage> errorMapper) {
         Objects.requireNonNull(errorMapper, "errorMapper cannot be null");
@@ -103,14 +179,19 @@ public interface Rule<T> {
     }
 
     /**
-     * Turns this rule (back) into a Predicate.
+     * Turns this rule (back) into a {@link Predicate}.
+     *
+     * @param <S> the target type.
+     * @return a {@link Predicate} instance.
      */
     default <S extends T> Predicate<S> toPredicate() {
         return value -> test(value).isValid();
     }
 
     /**
-     * Lifts a Rule so it applies to a List of T instead of a single T.
+     * Lifts a {@link Rule} so it applies to a {@link List} of T instead of a single T.
+     *
+     * @return a new {@link Rule} instance.
      */
     default Rule<List<T>> liftToList() {
         return values -> {
@@ -121,11 +202,13 @@ public interface Rule<T> {
     }
 
     /**
-     * Lifts this Rule so it applies to an Option<T>.
+     * Lifts this {@link Rule} so it applies to an {@link Option} of T.
      * <p>
      * Semantics:
-     * - None => valid(None) (nothing to validate)
-     * - Some(x) => validate x, and return valid(Some(x)) or invalid(errors)
+     * - None =&gt; {@code valid(None)} (nothing to validate)
+     * - Some(x) =&gt; validate x, and return {@code valid(Some(x))} or {@code invalid(errors)}
+     *
+     * @return a new {@link Rule} instance.
      */
     default Rule<Option<T>> liftToOption() {
         return opt -> opt
@@ -134,30 +217,37 @@ public interface Rule<T> {
     }
 
     /**
-     * Lifts this Rule so it applies to a Map<K, T>.
+     * Lifts this {@link Rule} so it applies to a {@link Map} of K to T.
      * <p>
-     * Be careful, the key value.toString() will be used as part of the path segment.
+     * Be careful, the key {@code value.toString()} will be used as part of the path segment.
      * Make sure to have a key that has a meaningful string representation for this.
-     * If you can't guarantee this, use the versioin of liftToMap that takes a keyExtractor function instead.
+     * If you can't guarantee this, use the version of {@link #liftToMap(Function1)} that takes a keyExtractor function instead.
      * <p>
      * Semantics:
      * - Each value in the map is validated, and the resulting validations are collected.
      * - If any validation fails, the entire map is considered invalid.
      * - If all validations pass, the map is considered valid.
+     *
+     * @param <K> the key type.
+     * @return a new {@link Rule} instance.
      */
     default <K> Rule<Map<K, T>> liftToMap() {
         return liftToMap(Objects::toString);
     }
 
     /**
-     * Lifts this Rule so it applies to a Map<K, T>.
+     * Lifts this {@link Rule} so it applies to a {@link Map} of K to T.
      * <p>
-     * Behaves the same of liftToMap, but uses the keyExtractor function to generate the path segment.
+     * Behaves the same as {@link #liftToMap()}, but uses the keyExtractor function to generate the path segment.
      * <p>
      * Semantics:
      * - Each value in the map is validated, and the resulting validations are collected.
      * - If any validation fails, the entire map is considered invalid.
      * - If all validations pass, the map is considered valid.
+     *
+     * @param keyExtractor the function to extract a path segment from the key.
+     * @param <K>          the key type.
+     * @return a new {@link Rule} instance.
      */
     default <K> Rule<Map<K, T>> liftToMap(Function1<K, Object> keyExtractor) {
         return map -> {
@@ -189,6 +279,12 @@ public interface Rule<T> {
         return (Rule<T>) rule;
     }
 
+    /**
+     * Creates a {@link Rule} that checks if a value is not {@code null}.
+     *
+     * @param <T> the type of the value to be validated.
+     * @return a new {@link Rule} instance.
+     */
     static <T> Rule<T> notNull() {
         return Rule.of(Objects::nonNull, "cannot.be.null");
     }

@@ -1,5 +1,6 @@
 package net.vanfleteren.fv;
 
+import io.vavr.Function2;
 import io.vavr.collection.List;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
@@ -7,6 +8,7 @@ import io.vavr.control.Try;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
@@ -486,9 +488,9 @@ public class ValidationTest {
             Validation<String> valid = Validation.valid("Success");
 
             // Act
-            String result = valid.fold(
+            CharSequence result = valid.fold(
                     errors -> "Invalid: " + errors.size(),
-                    value -> "Valid: " + value
+                    (CharSequence value) -> (CharSequence)("Valid: " + value)
             );
 
             // Assert
@@ -688,8 +690,26 @@ public class ValidationTest {
             Validation<String> v1 = Validation.valid("hello");
             Validation<Integer> v2 = Validation.valid(5);
 
+
             // Act
             Validation<String> result = Validation.mapN(v1, v2, (s, i) -> s + i);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("hello5");
+        }
+
+        @Test
+        void mapN_whenBothValid_returnsMappedValueWithVariance() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("hello");
+            Validation<Integer> v2 = Validation.valid(5);
+
+            Function2<Object, Number, String> mapper = (o, n) -> o.toString() + n.intValue();
+
+            // Act
+            Validation<CharSequence> result = Validation.mapN(v1, v2, mapper);
 
             // Assert
             assertThatValidation(result)

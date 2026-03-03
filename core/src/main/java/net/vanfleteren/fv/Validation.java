@@ -20,15 +20,61 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * A container representing the result of a validation process.
+ *
+ * <p>A {@code Validation} can be either:
+ * <ul>
+ *     <li>{@link Valid}: representing a successful validation and containing the valid value.</li>
+ *     <li>{@link Invalid}: representing a failed validation and containing one or more {@link ErrorMessage} objects.</li>
+ * </ul>
+ *
+ * <h3>Example: Basic usage and result handling</h3>
+ * <pre>{@code
+ * // 1. Create a validation (e.g., from a rule or a factory)
+ * Validation<String> result = Validation.valid("Hello World");
+ *
+ * // 2. Transform the result if it is valid
+ * Validation<Integer> lengthV = result.map(String::length);
+ *
+ * // 3. Handle the outcome with pattern matching
+ * String outcome = switch (lengthV) {
+ *     case Validation.Valid(var value) -> "Length is: " + value;
+ *     case Validation.Invalid(var errors) -> "Validation failed with " + errors.size() + " errors";
+ * };
+ *
+ * System.out.println(outcome);
+ * }</pre>
+ *
+ * <h3>Example: Accumulating errors from multiple validations</h3>
+ * <pre>{@code
+ * Validation<String> v1 = Validation.valid("foo");
+ * Validation<Integer> v2 = Validation.invalid("must.be.positive");
+ *
+ * // mapN combines results if all are valid, otherwise accumulates all errors
+ * Validation<String> combined = Validation.mapN(v1, v2, (s, i) -> s + ":" + i);
+ *
+ * if (combined instanceof Validation.Invalid(var errors)) {
+ *     // errors will contain "must.be.positive"
+ * }
+ * }</pre>
+ *
+ * @param <T> the type of the value being validated.
+ */
 public sealed interface Validation<T> {
 
     /**
      * Indicates whether the validation is successful.
      *
-     * @return true if validation is successful, false otherwise.
+     * @return {@code true} if validation is successful, {@code false} otherwise.
      */
     boolean isValid();
 
+    /**
+     * Returns the error messages associated with this validation.
+     *
+     * @return a {@link List} of {@link ErrorMessage} objects.
+     */
     List<ErrorMessage> errors();
 
     //region value retrieval
@@ -54,17 +100,37 @@ public sealed interface Validation<T> {
     }
     //endregion
 
+    /**
+     * Converts this validation to a standard Java {@link Optional}.
+     * If this validation is valid, the optional will contain the value.
+     * If this validation is invalid, the optional will be empty.
+     *
+     * @return a standard Java {@link Optional} containing the value if valid, or empty otherwise.
+     */
     default java.util.Optional<T> toOptional() {
         return isValid() ? java.util.Optional.of(((Valid<T>) this).value()) : java.util.Optional.empty();
     }
 
+    /**
+     * Returns the error messages as a standard Java {@link java.util.List}.
+     *
+     * @return a standard Java {@link java.util.List} of {@link ErrorMessage} objects.
+     */
     default java.util.List<ErrorMessage> javaErrors() {
         return errors().asJava();
     }
     //endregion
 
     //region common functional operations on single validations
-    default <R> Validation<R> map(Function1<T, R> mapper) {
+    /**
+     * Maps the value of a valid validation using the provided mapper function.
+     * If this validation is invalid, the mapper is not applied and the invalid validation is returned.
+     *
+     * @param mapper the function to apply to the valid value.
+     * @param <R>    the type of the result of the mapper function.
+     * @return a new {@link Validation} containing the mapped value if valid, or the original errors if invalid.
+     */
+    default <R> Validation<R> map(Function1<? super T, ? extends R> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
         return switch (this) {
             case Valid(var value) -> new Valid<>(mapper.apply(value));
@@ -76,7 +142,7 @@ public sealed interface Validation<T> {
      * Like {@link #map(Function1)} but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
      * ValidationExceptions that are thrown are handled cleanly, accumulating the errors present.
      */
-    default <R> Validation<R> mapCatching(Function1<T, R> mapper) {
+    default <R> Validation<R> mapCatching(Function1<? super T, ? extends R> mapper) {
         return mapCatching(mapper, "could.not.be.mapped");
     }
 
@@ -84,7 +150,7 @@ public sealed interface Validation<T> {
      * Like {@link #map(Function1)} but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
      * ValidationExceptions that are thrown are handled cleanly, accumulating the errors present.
      */
-    default <R> Validation<R> mapCatching(Function1<T, R> mapper, String errorMessage) {
+    default <R> Validation<R> mapCatching(Function1<? super T, ? extends R> mapper, String errorMessage) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return switch (this) {
@@ -101,10 +167,18 @@ public sealed interface Validation<T> {
         };
     }
 
-    default <R> Validation<R> flatMap(Function1<T, Validation<R>> flatMapper) {
+    /**
+     * Maps the value of a valid validation to a new validation using the provided flatMapper function.
+     * If this validation is invalid, the flatMapper is not applied and the invalid validation is returned.
+     *
+     * @param flatMapper the function to apply to the valid value.
+     * @param <R>        the type of the result of the flatMapper function.
+     * @return the result of applying the flatMapper to the valid value, or the original errors if invalid.
+     */
+    default <R> Validation<R> flatMap(Function1<? super T, Validation<? extends R>> flatMapper) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
         return switch (this) {
-            case Valid(var value) -> flatMapper.apply(value);
+            case Valid(var value) -> Validation.narrow(flatMapper.apply(value));
             default -> (Validation<R>) this;
         };
     }
@@ -113,7 +187,7 @@ public sealed interface Validation<T> {
      * Like {@link #flatMap(Function1)} (Function1)} but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
      * ValidationExceptions that are thrown are handled cleanly, accumulating the errors present.
      */
-    default <R> Validation<R> flatMapCatching(Function1<T, Validation<R>> flatMapper) {
+    default <R> Validation<R> flatMapCatching(Function1<? super T, Validation<? extends R>> flatMapper) {
         return flatMapCatching(flatMapper, "could.not.be.mapped");
     }
 
@@ -121,13 +195,13 @@ public sealed interface Validation<T> {
      * Like {@link #flatMap(Function1)} (Function1)} but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
      * ValidationExceptions that are thrown are handled cleanly, accumulating the errors present.
      */
-    default <R> Validation<R> flatMapCatching(Function1<T, Validation<R>> flatMapper, String errorMessage) {
+    default <R> Validation<R> flatMapCatching(Function1<? super T, Validation<? extends R>> flatMapper, String errorMessage) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return switch (this) {
             case Valid(var value) -> {
                 try {
-                    yield flatMapper.apply(value);
+                    yield Validation.narrow(flatMapper.apply(value));
                 } catch (ValidationException e) {
                     yield Validation.invalid(e.errors());
                 } catch (RuntimeException e) {
@@ -138,7 +212,15 @@ public sealed interface Validation<T> {
         };
     }
 
-    default <R> R fold(Function1<List<ErrorMessage>, R> whenInvalid, Function1<T, R> whenValid) {
+    /**
+     * Folds this validation into a single value by applying one of two functions.
+     *
+     * @param whenInvalid the function to apply if this validation is invalid.
+     * @param whenValid   the function to apply if this validation is valid.
+     * @param <R>         the type of the result.
+     * @return the result of applying the appropriate function.
+     */
+    default <R> R fold(Function1<List<ErrorMessage>, ? extends R> whenInvalid, Function1<? super T, ? extends R> whenValid) {
         Objects.requireNonNull(whenInvalid, "validMapper cannot be null");
         Objects.requireNonNull(whenValid, "invalidMapper cannot be null");
         return switch (this) {
@@ -149,6 +231,13 @@ public sealed interface Validation<T> {
     //endregion
 
     //regionError handling
+    /**
+     * Maps the error messages of an invalid validation using the provided mapper function.
+     * If this validation is valid, the mapper is not applied.
+     *
+     * @param mapper the function to apply to the list of error messages.
+     * @return a new {@link Validation} containing the mapped errors if invalid, or the original valid value.
+     */
     default Validation<T> mapErrors(Function1<List<ErrorMessage>, List<ErrorMessage>> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
         return switch (this) {
@@ -180,17 +269,17 @@ public sealed interface Validation<T> {
                 Validation.valid(List.empty()),
                 (acc, validationWithIndex) -> {
                     if (acc instanceof Valid<List<T>>(var list)) {
-                        if (validationWithIndex._1 instanceof Valid<T>(var value)) {
-                            return Validation.valid(list.append(value));
-                        } else {
-                            return Validation.invalid(validationWithIndex._1.errors().map(error -> error.atIndex(validationWithIndex._2)));
-                        }
+                        Validation<T> v = Validation.narrow(validationWithIndex._1);
+                        return switch(v) {
+                            case Valid<T>(var value) -> Validation.valid(list.append(value));
+                            case Invalid(var errors) -> Validation.invalid(errors.map(error -> error.atIndex(validationWithIndex._2)));
+                        };
                     } else {
-                        if (validationWithIndex._1 instanceof Valid<T>) {
-                            return acc;
-                        } else {
-                            return Validation.invalid(acc.errors().appendAll(validationWithIndex._1.errors().map(error -> error.atIndex(validationWithIndex._2))));
-                        }
+                        Validation<T> v = Validation.narrow(validationWithIndex._1);
+                        return switch(v) {
+                            case Valid<T>(var value) -> acc;
+                            case Invalid(var errors) -> Validation.invalid(acc.errors().appendAll(errors.map(error -> error.atIndex(validationWithIndex._2))));
+                        };
                     }
                 }
         );
@@ -207,7 +296,20 @@ public sealed interface Validation<T> {
     //endregion
 
     //region mapN / flatMapN
-    static <R, T1, T2> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Function2<T1, T2, R> mapper) {
+    /**
+     * Maps two validations using the provided mapper function.
+     * If all validations are valid, the result is a valid validation containing the mapped value.
+     * If any validations are invalid, the result is an invalid validation containing all error messages.
+     *
+     * @param v1     the first validation.
+     * @param v2     the second validation.
+     * @param mapper the mapper function.
+     * @param <R>    the result type.
+     * @param <T1>   the type of the first validation.
+     * @param <T2>   the type of the second validation.
+     * @return a new {@link Validation} instance.
+     */
+    static <R, T1, T2> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Function2<? super T1, ? super T2, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
@@ -219,19 +321,47 @@ public sealed interface Validation<T> {
         }
     }
 
-    static <R, T1, T2> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Function2<T1, T2, Validation<R>> mapper) {
+    /**
+     * Maps two validations to a new validation using the provided flatMapper function.
+     * If all validations are valid, the result is the result of the flatMapper.
+     * If any validations are invalid, the result is an invalid validation containing all error messages.
+     *
+     * @param v1     the first validation.
+     * @param v2     the second validation.
+     * @param mapper the flatMapper function.
+     * @param <R>    the result type.
+     * @param <T1>   the type of the first validation.
+     * @param <T2>   the type of the second validation.
+     * @return a new {@link Validation} instance.
+     */
+    static <R, T1, T2> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Function2<? super T1, ? super T2, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
         if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2)) {
-            return mapper.apply(t1, t2);
+            return Validation.narrow(mapper.apply(t1, t2));
         } else {
             return invalid(Iterator.of(v1.errors(), v2.errors()).flatMap(Function.identity()).toList());
         }
     }
 
-    static <R, T1, T2, T3> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Function3<T1, T2, T3, R> mapper) {
+    /**
+     * Maps three validations using the provided mapper function.
+     * If all validations are valid, the result is a valid validation containing the mapped value.
+     * If any validations are invalid, the result is an invalid validation containing all error messages.
+     *
+     * @param v1     the first validation.
+     * @param v2     the second validation.
+     * @param v3     the third validation.
+     * @param mapper the mapper function.
+     * @param <R>    the result type.
+     * @param <T1>   the type of the first validation.
+     * @param <T2>   the type of the second validation.
+     * @param <T3>   the type of the third validation.
+     * @return a new {@link Validation} instance.
+     */
+    static <R, T1, T2, T3> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Function3<? super T1, ? super T2, ? super T3, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -244,20 +374,52 @@ public sealed interface Validation<T> {
         }
     }
 
-    static <R, T1, T2, T3> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Function3<T1, T2, T3, Validation<R>> mapper) {
+    /**
+     * Maps three validations to a new validation using the provided flatMapper function.
+     * If all validations are valid, the result is the result of the flatMapper.
+     * If any validations are invalid, the result is an invalid validation containing all error messages.
+     *
+     * @param v1     the first validation.
+     * @param v2     the second validation.
+     * @param v3     the third validation.
+     * @param mapper the flatMapper function.
+     * @param <R>    the result type.
+     * @param <T1>   the type of the first validation.
+     * @param <T2>   the type of the second validation.
+     * @param <T3>   the type of the third validation.
+     * @return a new {@link Validation} instance.
+     */
+    static <R, T1, T2, T3> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Function3<? super T1, ? super T2, ? super T3, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
         if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3)) {
-            return mapper.apply(t1, t2, t3);
+            return Validation.narrow(mapper.apply(t1, t2, t3));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors()).flatMap(Function.identity()));
         }
     }
 
-    static <R, T1, T2, T3, T4> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Function4<T1, T2, T3, T4, R> mapper) {
+    /**
+     * Maps four validations using the provided mapper function.
+     * If all validations are valid, the result is a valid validation containing the mapped value.
+     * If any validations are invalid, the result is an invalid validation containing all error messages.
+     *
+     * @param v1     the first validation.
+     * @param v2     the second validation.
+     * @param v3     the third validation.
+     * @param v4     the fourth validation.
+     * @param mapper the mapper function.
+     * @param <R>    the result type.
+     * @param <T1>   the type of the first validation.
+     * @param <T2>   the type of the second validation.
+     * @param <T3>   the type of the third validation.
+     * @param <T4>   the type of the fourth validation.
+     * @return a new {@link Validation} instance.
+     */
+    static <R, T1, T2, T3, T4> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Function4<? super T1, ? super T2, ? super T3, ? super T4, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -271,7 +433,24 @@ public sealed interface Validation<T> {
         }
     }
 
-    static <R, T1, T2, T3, T4> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Function4<T1, T2, T3, T4, Validation<R>> mapper) {
+    /**
+     * Maps four validations to a new validation using the provided flatMapper function.
+     * If all validations are valid, the result is the result of the flatMapper.
+     * If any validations are invalid, the result is an invalid validation containing all error messages.
+     *
+     * @param v1     the first validation.
+     * @param v2     the second validation.
+     * @param v3     the third validation.
+     * @param v4     the fourth validation.
+     * @param mapper the flatMapper function.
+     * @param <R>    the result type.
+     * @param <T1>   the type of the first validation.
+     * @param <T2>   the type of the second validation.
+     * @param <T3>   the type of the third validation.
+     * @param <T4>   the type of the fourth validation.
+     * @return a new {@link Validation} instance.
+     */
+    static <R, T1, T2, T3, T4> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Function4<? super T1, ? super T2, ? super T3, ? super T4, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -279,13 +458,32 @@ public sealed interface Validation<T> {
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
         if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4)) {
-            return mapper.apply(t1, t2, t3, t4);
+            return Validation.narrow(mapper.apply(t1, t2, t3, t4));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors()).flatMap(Function.identity()));
         }
     }
 
-    static <R, T1, T2, T3, T4, T5> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Function5<T1, T2, T3, T4, T5, R> mapper) {
+    /**
+     * Maps five validations using the provided mapper function.
+     * If all validations are valid, the result is a valid validation containing the mapped value.
+     * If any validations are invalid, the result is an invalid validation containing all error messages.
+     *
+     * @param v1     the first validation.
+     * @param v2     the second validation.
+     * @param v3     the third validation.
+     * @param v4     the fourth validation.
+     * @param v5     the fifth validation.
+     * @param mapper the mapper function.
+     * @param <R>    the result type.
+     * @param <T1>   the type of the first validation.
+     * @param <T2>   the type of the second validation.
+     * @param <T3>   the type of the third validation.
+     * @param <T4>   the type of the fourth validation.
+     * @param <T5>   the type of the fifth validation.
+     * @return a new {@link Validation} instance.
+     */
+    static <R, T1, T2, T3, T4, T5> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -300,7 +498,26 @@ public sealed interface Validation<T> {
         }
     }
 
-    static <R, T1, T2, T3, T4, T5> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Function5<T1, T2, T3, T4, T5, Validation<R>> mapper) {
+    /**
+     * Maps five validations to a new validation using the provided flatMapper function.
+     * If all validations are valid, the result is the result of the flatMapper.
+     * If any validations are invalid, the result is an invalid validation containing all error messages.
+     *
+     * @param v1     the first validation.
+     * @param v2     the second validation.
+     * @param v3     the third validation.
+     * @param v4     the fourth validation.
+     * @param v5     the fifth validation.
+     * @param mapper the flatMapper function.
+     * @param <R>    the result type.
+     * @param <T1>   the type of the first validation.
+     * @param <T2>   the type of the second validation.
+     * @param <T3>   the type of the third validation.
+     * @param <T4>   the type of the fourth validation.
+     * @param <T5>   the type of the fifth validation.
+     * @return a new {@link Validation} instance.
+     */
+    static <R, T1, T2, T3, T4, T5> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -309,13 +526,34 @@ public sealed interface Validation<T> {
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
         if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5)) {
-            return mapper.apply(t1, t2, t3, t4, t5);
+            return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors()).flatMap(Function.identity()));
         }
     }
 
-    static <R, T1, T2, T3, T4, T5, T6> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Function6<T1, T2, T3, T4, T5, T6, R> mapper) {
+    /**
+     * Maps six validations using the provided mapper function.
+     * If all validations are valid, the result is a valid validation containing the mapped value.
+     * If any validations are invalid, the result is an invalid validation containing all error messages.
+     *
+     * @param v1     the first validation.
+     * @param v2     the second validation.
+     * @param v3     the third validation.
+     * @param v4     the fourth validation.
+     * @param v5     the fifth validation.
+     * @param v6     the sixth validation.
+     * @param mapper the mapper function.
+     * @param <R>    the result type.
+     * @param <T1>   the type of the first validation.
+     * @param <T2>   the type of the second validation.
+     * @param <T3>   the type of the third validation.
+     * @param <T4>   the type of the fourth validation.
+     * @param <T5>   the type of the fifth validation.
+     * @param <T6>   the type of the sixth validation.
+     * @return a new {@link Validation} instance.
+     */
+    static <R, T1, T2, T3, T4, T5, T6> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Function6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -331,7 +569,28 @@ public sealed interface Validation<T> {
         }
     }
 
-    static <R, T1, T2, T3, T4, T5, T6> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Function6<T1, T2, T3, T4, T5, T6, Validation<R>> mapper) {
+    /**
+     * Maps six validations to a new validation using the provided flatMapper function.
+     * If all validations are valid, the result is the result of the flatMapper.
+     * If any validations are invalid, the result is an invalid validation containing all error messages.
+     *
+     * @param v1     the first validation.
+     * @param v2     the second validation.
+     * @param v3     the third validation.
+     * @param v4     the fourth validation.
+     * @param v5     the fifth validation.
+     * @param v6     the sixth validation.
+     * @param mapper the flatMapper function.
+     * @param <R>    the result type.
+     * @param <T1>   the type of the first validation.
+     * @param <T2>   the type of the second validation.
+     * @param <T3>   the type of the third validation.
+     * @param <T4>   the type of the fourth validation.
+     * @param <T5>   the type of the fifth validation.
+     * @param <T6>   the type of the sixth validation.
+     * @return a new {@link Validation} instance.
+     */
+    static <R, T1, T2, T3, T4, T5, T6> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Function6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -341,13 +600,36 @@ public sealed interface Validation<T> {
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
         if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5) && v6 instanceof Valid<T6>(var t6)) {
-            return mapper.apply(t1, t2, t3, t4, t5, t6);
+            return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5, t6));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors()).flatMap(Function.identity()));
         }
     }
 
-    static <R, T1, T2, T3, T4, T5, T6, T7> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Function7<T1, T2, T3, T4, T5, T6, T7, R> mapper) {
+    /**
+     * Maps seven validations using the provided mapper function.
+     * If all validations are valid, the result is a valid validation containing the mapped value.
+     * If any validations are invalid, the result is an invalid validation containing all error messages.
+     *
+     * @param v1     the first validation.
+     * @param v2     the second validation.
+     * @param v3     the third validation.
+     * @param v4     the fourth validation.
+     * @param v5     the fifth validation.
+     * @param v6     the sixth validation.
+     * @param v7     the seventh validation.
+     * @param mapper the mapper function.
+     * @param <R>    the result type.
+     * @param <T1>   the type of the first validation.
+     * @param <T2>   the type of the second validation.
+     * @param <T3>   the type of the third validation.
+     * @param <T4>   the type of the fourth validation.
+     * @param <T5>   the type of the fifth validation.
+     * @param <T6>   the type of the sixth validation.
+     * @param <T7>   the type of the seventh validation.
+     * @return a new {@link Validation} instance.
+     */
+    static <R, T1, T2, T3, T4, T5, T6, T7> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Function7<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -364,7 +646,30 @@ public sealed interface Validation<T> {
         }
     }
 
-    static <R, T1, T2, T3, T4, T5, T6, T7> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Function7<T1, T2, T3, T4, T5, T6, T7, Validation<R>> mapper) {
+    /**
+     * Maps seven validations to a new validation using the provided flatMapper function.
+     * If all validations are valid, the result is the result of the flatMapper.
+     * If any validations are invalid, the result is an invalid validation containing all error messages.
+     *
+     * @param v1     the first validation.
+     * @param v2     the second validation.
+     * @param v3     the third validation.
+     * @param v4     the fourth validation.
+     * @param v5     the fifth validation.
+     * @param v6     the sixth validation.
+     * @param v7     the seventh validation.
+     * @param mapper the flatMapper function.
+     * @param <R>    the result type.
+     * @param <T1>   the type of the first validation.
+     * @param <T2>   the type of the second validation.
+     * @param <T3>   the type of the third validation.
+     * @param <T4>   the type of the fourth validation.
+     * @param <T5>   the type of the fifth validation.
+     * @param <T6>   the type of the sixth validation.
+     * @param <T7>   the type of the seventh validation.
+     * @return a new {@link Validation} instance.
+     */
+    static <R, T1, T2, T3, T4, T5, T6, T7> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Function7<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -375,13 +680,38 @@ public sealed interface Validation<T> {
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
         if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5) && v6 instanceof Valid<T6>(var t6) && v7 instanceof Valid<T7>(var t7)) {
-            return mapper.apply(t1, t2, t3, t4, t5, t6, t7);
+            return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5, t6, t7));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors()).flatMap(Function.identity()));
         }
     }
 
-    static <R, T1, T2, T3, T4, T5, T6, T7, T8> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Validation<T8> v8, Function8<T1, T2, T3, T4, T5, T6, T7, T8, R> mapper) {
+    /**
+     * Maps eight validations using the provided mapper function.
+     * If all validations are valid, the result is a valid validation containing the mapped value.
+     * If any validations are invalid, the result is an invalid validation containing all error messages.
+     *
+     * @param v1     the first validation.
+     * @param v2     the second validation.
+     * @param v3     the third validation.
+     * @param v4     the fourth validation.
+     * @param v5     the fifth validation.
+     * @param v6     the sixth validation.
+     * @param v7     the seventh validation.
+     * @param v8     the eighth validation.
+     * @param mapper the mapper function.
+     * @param <R>    the result type.
+     * @param <T1>   the type of the first validation.
+     * @param <T2>   the type of the second validation.
+     * @param <T3>   the type of the third validation.
+     * @param <T4>   the type of the fourth validation.
+     * @param <T5>   the type of the fifth validation.
+     * @param <T6>   the type of the sixth validation.
+     * @param <T7>   the type of the seventh validation.
+     * @param <T8>   the type of the eighth validation.
+     * @return a new {@link Validation} instance.
+     */
+    static <R, T1, T2, T3, T4, T5, T6, T7, T8> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Validation<T8> v8, Function8<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? super T8, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -399,7 +729,32 @@ public sealed interface Validation<T> {
         }
     }
 
-    static <R, T1, T2, T3, T4, T5, T6, T7, T8> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Validation<T8> v8, Function8<T1, T2, T3, T4, T5, T6, T7, T8, Validation<R>> mapper) {
+    /**
+     * Maps eight validations to a new validation using the provided flatMapper function.
+     * If all validations are valid, the result is the result of the flatMapper.
+     * If any validations are invalid, the result is an invalid validation containing all error messages.
+     *
+     * @param v1     the first validation.
+     * @param v2     the second validation.
+     * @param v3     the third validation.
+     * @param v4     the fourth validation.
+     * @param v5     the fifth validation.
+     * @param v6     the sixth validation.
+     * @param v7     the seventh validation.
+     * @param v8     the eighth validation.
+     * @param mapper the flatMapper function.
+     * @param <R>    the result type.
+     * @param <T1>   the type of the first validation.
+     * @param <T2>   the type of the second validation.
+     * @param <T3>   the type of the third validation.
+     * @param <T4>   the type of the fourth validation.
+     * @param <T5>   the type of the fifth validation.
+     * @param <T6>   the type of the sixth validation.
+     * @param <T7>   the type of the seventh validation.
+     * @param <T8>   the type of the eighth validation.
+     * @return a new {@link Validation} instance.
+     */
+    static <R, T1, T2, T3, T4, T5, T6, T7, T8> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Validation<T8> v8, Function8<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? super T8, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -411,7 +766,7 @@ public sealed interface Validation<T> {
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
         if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5) && v6 instanceof Valid<T6>(var t6) && v7 instanceof Valid<T7>(var t7) && v8 instanceof Valid<T8>(var t8)) {
-            return mapper.apply(t1, t2, t3, t4, t5, t6, t7, t8);
+            return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5, t6, t7, t8));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors(), v8.errors()).flatMap(Function.identity()));
         }
@@ -422,26 +777,45 @@ public sealed interface Validation<T> {
     //region factory methods for know values
 
     /**
-     * Creates a successful validation.
+     * Creates a successful validation containing the provided value.
+     *
+     * @param value the value.
+     * @param <T>   the value type.
+     * @return a valid {@link Validation} instance.
      */
     static <T> Validation<T> valid(T value) {
         return new Valid<>(value);
     }
 
     /**
-     * Creates an invalid validation.
+     * Creates an invalid validation with the provided error messages.
+     *
+     * @param errors the error messages.
+     * @param <T>    the result type.
+     * @return an invalid {@link Validation} instance.
      */
     @SuppressWarnings("unchecked")
     static <T> Validation<T> invalid(ErrorMessage... errors) {
         return (Validation<T>) new Invalid(List.of(errors));
     }
 
+    /**
+     * Creates an invalid validation with a single error message key.
+     *
+     * @param errorMessage the error message key.
+     * @param <T>          the result type.
+     * @return an invalid {@link Validation} instance.
+     */
     static <T> Validation<T> invalid(String errorMessage) {
         return (Validation<T>) new Invalid(List.of(ErrorMessage.of(errorMessage)));
     }
 
     /**
-     * Creates an invalid validation.
+     * Creates an invalid validation with the provided list of error messages.
+     *
+     * @param errors the list of error messages.
+     * @param <T>    the result type.
+     * @return an invalid {@link Validation} instance.
      */
     @SuppressWarnings("unchecked")
     static <T> Validation<T> invalid(List<ErrorMessage> errors) {
@@ -454,9 +828,13 @@ public sealed interface Validation<T> {
      * Creates a validation from a supplier.
      * If the supplier throws a {@link ValidationException}, the returned validation will be invalid with the same errors
      * as the thrown exception.
-     * If the supplier throws any other exception,the exception will be propagated.
+     * If the supplier throws any other exception, the exception will be propagated.
      * This method is meant for interop with code that can throw the ValidationException, for example when you
      * use the "validate in constructor" pattern.
+     *
+     * @param supplier the supplier of the value.
+     * @param <T>      the value type.
+     * @return a {@link Validation} instance.
      */
     static <T> Validation<T> from(Supplier<? extends T> supplier) {
         try {
@@ -467,9 +845,14 @@ public sealed interface Validation<T> {
     }
 
     /**
-     * Create a validation from a Try.
-     * If the Try is successful, the returned validation will be valid with the value.
-     * If the Try is failed, the returned validation will be invalid with the error message.
+     * Creates a validation from a {@link Try}.
+     * If the {@link Try} is successful, the returned validation will be valid with the value.
+     * If the {@link Try} is failed, the returned validation will be invalid with the provided error message.
+     *
+     * @param _try         the try instance.
+     * @param errorMessage the error message to use if failed.
+     * @param <T>          the value type.
+     * @return a {@link Validation} instance.
      */
     static <T> Validation<T> from(Try<? extends T> _try, ErrorMessage errorMessage) {
         return _try.fold(
@@ -479,9 +862,13 @@ public sealed interface Validation<T> {
     }
 
     /**
-     * Create a Validation from Try
-     * If the Try is successful, the returned validation will be valid with the value.
-     * If the Try is failed, the returned validation will be invalid with message of the thrown Exception
+     * Creates a validation from a {@link Try}.
+     * If the {@link Try} is successful, the returned validation will be valid with the value.
+     * If the {@link Try} is failed, the returned validation will be invalid with the message of the thrown exception.
+     *
+     * @param _try the try instance.
+     * @param <T>   the value type.
+     * @return a {@link Validation} instance.
      */
     static <T> Validation<T> from(Try<? extends T> _try) {
         return _try.fold(
@@ -491,9 +878,14 @@ public sealed interface Validation<T> {
     }
 
     /**
-     * Create a Validation from Option.
-     * If the Option is defined, the returned validation will be valid with the value.
-     * If the Option is empty, the returned validation will be invalid with the error message.
+     * Creates a validation from an {@link Option}.
+     * If the {@link Option} is defined, the returned validation will be valid with the value.
+     * If the {@link Option} is empty, the returned validation will be invalid with the provided error message.
+     *
+     * @param option       the option instance.
+     * @param errorMessage the error message to use if empty.
+     * @param <T>          the value type.
+     * @return a {@link Validation} instance.
      */
     static <T> Validation<T> from(Option<? extends T> option, ErrorMessage errorMessage) {
         return option.fold(
@@ -503,27 +895,42 @@ public sealed interface Validation<T> {
     }
 
     /**
-     * Create a Validation from Option.
-     * If the Option is defined, the returned validation will be valid with the value.
-     * If the Option is empty, the returned validation will be invalid with the error message.
+     * Creates a validation from an {@link Option}.
+     * If the {@link Option} is defined, the returned validation will be valid with the value.
+     * If the {@link Option} is empty, the returned validation will be invalid with the provided error message key.
+     *
+     * @param option       the option instance.
+     * @param errorMessage the error message key to use if empty.
+     * @param <T>          the value type.
+     * @return a {@link Validation} instance.
      */
     static <T> Validation<T> from(Option<? extends T> option, String errorMessage) {
         return from(option, ErrorMessage.of(errorMessage));
     }
 
     /**
-     * Create a Validation from Option.
-     * If the Option is defined, the returned validation will be valid with the value.
-     * If the Option is empty, the returned validation will be invalid with the default error message "value.is.none".
+     * Creates a validation from an {@link Option}.
+     * If the {@link Option} is defined, the returned validation will be valid with the value.
+     * If the {@link Option} is empty, the returned validation will be invalid with the default error message {@code "value.is.none"}.
+     *
+     * @param option the option instance.
+     * @param <T>    the value type.
+     * @return a {@link Validation} instance.
      */
     static <T> Validation<T> from(Option<? extends T> option) {
         return from(option, "value.is.none");
     }
 
     /**
-     * Create a Validation from Either.
-     * If the Either is left, the returned validation will be invalid with the error message.
-     * If the Either is right, the returned validation will be valid with the value.
+     * Creates a validation from an {@link Either}.
+     * If the {@link Either} is right, the returned validation will be valid with the value.
+     * If the {@link Either} is left, the returned validation will be invalid with the error message mapped from the left value.
+     *
+     * @param either      the either instance.
+     * @param errorMapper the function to map the left value to an error message.
+     * @param <L>         the left type.
+     * @param <R>         the right type (value type).
+     * @return a {@link Validation} instance.
      */
     static <L, R> Validation<R> from(Either<L, ? extends R> either, Function1<? super L, ErrorMessage> errorMapper) {
         return either.fold(
@@ -533,23 +940,43 @@ public sealed interface Validation<T> {
     }
 
     /**
-     * Create a Validation from java.util.Optional.
+     * Creates a validation from a standard Java {@link java.util.Optional}.
+     * If the optional is present, the returned validation will be valid with the value.
+     * If the optional is empty, the returned validation will be invalid with the default error message {@code "value.is.none"}.
+     *
+     * @param optional the optional instance.
+     * @param <T>      the value type.
+     * @return a {@link Validation} instance.
      */
-    static <T> Validation<T> from(Optional<T> optional) {
+    static <T> Validation<T> from(Optional<? extends T> optional) {
         return from(Option.ofOptional(optional));
     }
 
     /**
-     * Create a Validation from java.util.Optional.
+     * Creates a validation from a standard Java {@link java.util.Optional}.
+     * If the optional is present, the returned validation will be valid with the value.
+     * If the optional is empty, the returned validation will be invalid with the provided error message key.
+     *
+     * @param optional     the optional instance.
+     * @param errorMessage the error message key to use if empty.
+     * @param <T>          the value type.
+     * @return a {@link Validation} instance.
      */
-    static <T> Validation<T> from(Optional<T> optional, String errorMessage) {
+    static <T> Validation<T> from(Optional<? extends T> optional, String errorMessage) {
         return from(Option.ofOptional(optional), errorMessage);
     }
 
     /**
-     * Create a Validation from java.util.Optional.
+     * Creates a validation from a standard Java {@link java.util.Optional}.
+     * If the optional is present, the returned validation will be valid with the value.
+     * If the optional is empty, the returned validation will be invalid with the provided error message.
+     *
+     * @param optional     the optional instance.
+     * @param errorMessage the error message to use if empty.
+     * @param <T>          the value type.
+     * @return a {@link Validation} instance.
      */
-    static <T> Validation<T> from(Optional<T> optional, ErrorMessage errorMessage) {
+    static <T> Validation<T> from(Optional<? extends T> optional, ErrorMessage errorMessage) {
         return from(Option.ofOptional(optional), errorMessage);
     }
 
