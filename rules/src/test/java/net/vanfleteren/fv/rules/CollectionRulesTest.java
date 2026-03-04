@@ -82,8 +82,8 @@ class CollectionRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(List.of(), sizeEquals(1), "equal.size", io.vavr.collection.HashMap.of("equal", 1));
-            invalidTest(List.of("x"), sizeEquals(0), "equal.size", io.vavr.collection.HashMap.of("equal", 0));
+            invalidTest(List.of(), sizeEquals(1), "size.exact", io.vavr.collection.HashMap.of("equal", 1));
+            invalidTest(List.of("x"), sizeEquals(0), "size.exact", io.vavr.collection.HashMap.of("equal", 0));
         }
     }
 
@@ -102,13 +102,13 @@ class CollectionRulesTest {
             invalidTest(
                     List.of(),
                     sizeBetween(1, 2),
-                    "equal.size",
+                    "size.between",
                     io.vavr.collection.HashMap.of("min", 1, "max", 2)
             );
             invalidTest(
                     List.of("a", "b", "c"),
                     sizeBetween(1, 2),
-                    "equal.size",
+                    "size.between",
                     io.vavr.collection.HashMap.of("min", 1, "max", 2)
             );
         }

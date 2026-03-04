@@ -31,9 +31,9 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     /**
      * Fails if the string is empty.
      * <p>
-     * Error key: {@code not.empty}
+     * Error key: {@code cannot.be.empty}
      */
-    public Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "not.empty");
+    public Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "cannot.be.empty");
 
     /**
      * Fails if the string is empty or contains only whitespace.

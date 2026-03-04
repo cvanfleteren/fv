@@ -23,7 +23,7 @@ class StringRulesTest {
 
         @Test
         void invalid() {
-            invalidTest("", strings.notEmpty, "not.empty");
+            invalidTest("", strings.notEmpty, "cannot.be.empty");
         }
     }
 

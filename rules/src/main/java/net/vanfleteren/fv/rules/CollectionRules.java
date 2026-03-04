@@ -60,7 +60,7 @@ public class CollectionRules {
     /**
      * Fails if the collection size is not equal to the specified size.
      * <p>
-     * Error key: {@code equal.size}
+     * Error key: {@code size.exact}
      * <p>
      * Parameters:
      * <ul>
@@ -71,13 +71,13 @@ public class CollectionRules {
      * @return a {@link Rule} checking the exact size.
      */
     public static Rule<Traversable<?>> sizeEquals(int size) {
-        return Rule.of(value -> value.size() == size, ErrorMessage.of("equal.size", "equal", size));
+        return Rule.of(value -> value.size() == size, ErrorMessage.of("size.exact", "equal", size));
     }
 
     /**
      * Fails if the collection size is not between the specified bounds (inclusive).
      * <p>
-     * Error key: {@code equal.size}
+     * Error key: {@code size.between}
      * <p>
      * Parameters:
      * <ul>
@@ -95,7 +95,7 @@ public class CollectionRules {
                     int size = value.size();
                     return size >= min && size <= max;
                 },
-                ErrorMessage.of("equal.size", HashMap.of("min", min, "max", max))
+                ErrorMessage.of("size.between", HashMap.of("min", min, "max", max))
         );
     }
 
