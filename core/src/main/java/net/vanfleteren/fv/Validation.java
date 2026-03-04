@@ -262,7 +262,7 @@ public sealed interface Validation<T> {
      * Turns a List of Validation<T> into a single Validation<List<T>>.
      * Collects all errors if any validations are invalid.
      */
-    static <T> Validation<List<T>> sequence(Seq<Validation<T>> validations) {
+    static <T> Validation<List<T>> sequence(Seq<? extends Validation<? extends T>> validations) {
         return validations
                 .zipWithIndex()
                 .foldLeft(
@@ -309,12 +309,12 @@ public sealed interface Validation<T> {
      * @param <T2>   the type of the second validation.
      * @return a new {@link Validation} instance.
      */
-    static <R, T1, T2> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Function2<? super T1, ? super T2, ? extends R> mapper) {
+    static <R, T1, T2> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Function2<? super T1, ? super T2, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2)) {
             return valid(mapper.apply(t1, t2));
         } else {
             return invalid(Iterator.of(v1.errors(), v2.errors()).flatMap(Function.identity()).toList());
@@ -334,12 +334,12 @@ public sealed interface Validation<T> {
      * @param <T2>   the type of the second validation.
      * @return a new {@link Validation} instance.
      */
-    static <R, T1, T2> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Function2<? super T1, ? super T2, Validation<? extends R>> mapper) {
+    static <R, T1, T2> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Function2<? super T1, ? super T2, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2)) {
             return Validation.narrow(mapper.apply(t1, t2));
         } else {
             return invalid(Iterator.of(v1.errors(), v2.errors()).flatMap(Function.identity()).toList());
@@ -361,13 +361,13 @@ public sealed interface Validation<T> {
      * @param <T3>   the type of the third validation.
      * @return a new {@link Validation} instance.
      */
-    static <R, T1, T2, T3> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Function3<? super T1, ? super T2, ? super T3, ? extends R> mapper) {
+    static <R, T1, T2, T3> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Function3<? super T1, ? super T2, ? super T3, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3)) {
             return valid(mapper.apply(t1, t2, t3));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors()).flatMap(Function.identity()));
@@ -389,13 +389,13 @@ public sealed interface Validation<T> {
      * @param <T3>   the type of the third validation.
      * @return a new {@link Validation} instance.
      */
-    static <R, T1, T2, T3> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Function3<? super T1, ? super T2, ? super T3, Validation<? extends R>> mapper) {
+    static <R, T1, T2, T3> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Function3<? super T1, ? super T2, ? super T3, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3)) {
             return Validation.narrow(mapper.apply(t1, t2, t3));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors()).flatMap(Function.identity()));
@@ -419,14 +419,14 @@ public sealed interface Validation<T> {
      * @param <T4>   the type of the fourth validation.
      * @return a new {@link Validation} instance.
      */
-    static <R, T1, T2, T3, T4> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Function4<? super T1, ? super T2, ? super T3, ? super T4, ? extends R> mapper) {
+    static <R, T1, T2, T3, T4> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Function4<? super T1, ? super T2, ? super T3, ? super T4, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
         Objects.requireNonNull(v4, "v4 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4)) {
             return valid(mapper.apply(t1, t2, t3, t4));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors()).flatMap(Function.identity()));
@@ -450,14 +450,14 @@ public sealed interface Validation<T> {
      * @param <T4>   the type of the fourth validation.
      * @return a new {@link Validation} instance.
      */
-    static <R, T1, T2, T3, T4> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Function4<? super T1, ? super T2, ? super T3, ? super T4, Validation<? extends R>> mapper) {
+    static <R, T1, T2, T3, T4> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Function4<? super T1, ? super T2, ? super T3, ? super T4, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
         Objects.requireNonNull(v4, "v4 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4)) {
             return Validation.narrow(mapper.apply(t1, t2, t3, t4));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors()).flatMap(Function.identity()));
@@ -483,7 +483,7 @@ public sealed interface Validation<T> {
      * @param <T5>   the type of the fifth validation.
      * @return a new {@link Validation} instance.
      */
-    static <R, T1, T2, T3, T4, T5> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? extends R> mapper) {
+    static <R, T1, T2, T3, T4, T5> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -491,7 +491,7 @@ public sealed interface Validation<T> {
         Objects.requireNonNull(v5, "v5 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5)) {
             return valid(mapper.apply(t1, t2, t3, t4, t5));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors()).flatMap(Function.identity()));
@@ -517,7 +517,7 @@ public sealed interface Validation<T> {
      * @param <T5>   the type of the fifth validation.
      * @return a new {@link Validation} instance.
      */
-    static <R, T1, T2, T3, T4, T5> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, Validation<? extends R>> mapper) {
+    static <R, T1, T2, T3, T4, T5> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -525,7 +525,7 @@ public sealed interface Validation<T> {
         Objects.requireNonNull(v5, "v5 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5)) {
             return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors()).flatMap(Function.identity()));
@@ -553,7 +553,7 @@ public sealed interface Validation<T> {
      * @param <T6>   the type of the sixth validation.
      * @return a new {@link Validation} instance.
      */
-    static <R, T1, T2, T3, T4, T5, T6> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Function6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? extends R> mapper) {
+    static <R, T1, T2, T3, T4, T5, T6> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Function6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -562,7 +562,7 @@ public sealed interface Validation<T> {
         Objects.requireNonNull(v6, "v6 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5) && v6 instanceof Valid<T6>(var t6)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6)) {
             return valid(mapper.apply(t1, t2, t3, t4, t5, t6));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors()).flatMap(Function.identity()));
@@ -590,7 +590,7 @@ public sealed interface Validation<T> {
      * @param <T6>   the type of the sixth validation.
      * @return a new {@link Validation} instance.
      */
-    static <R, T1, T2, T3, T4, T5, T6> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Function6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, Validation<? extends R>> mapper) {
+    static <R, T1, T2, T3, T4, T5, T6> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Function6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -599,7 +599,7 @@ public sealed interface Validation<T> {
         Objects.requireNonNull(v6, "v6 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5) && v6 instanceof Valid<T6>(var t6)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6)) {
             return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5, t6));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors()).flatMap(Function.identity()));
@@ -629,7 +629,7 @@ public sealed interface Validation<T> {
      * @param <T7>   the type of the seventh validation.
      * @return a new {@link Validation} instance.
      */
-    static <R, T1, T2, T3, T4, T5, T6, T7> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Function7<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? extends R> mapper) {
+    static <R, T1, T2, T3, T4, T5, T6, T7> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Function7<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -639,7 +639,7 @@ public sealed interface Validation<T> {
         Objects.requireNonNull(v7, "v7 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5) && v6 instanceof Valid<T6>(var t6) && v7 instanceof Valid<T7>(var t7)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6) && v7 instanceof Valid(var t7)) {
             return valid(mapper.apply(t1, t2, t3, t4, t5, t6, t7));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors()).flatMap(Function.identity()));
@@ -669,7 +669,7 @@ public sealed interface Validation<T> {
      * @param <T7>   the type of the seventh validation.
      * @return a new {@link Validation} instance.
      */
-    static <R, T1, T2, T3, T4, T5, T6, T7> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Function7<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, Validation<? extends R>> mapper) {
+    static <R, T1, T2, T3, T4, T5, T6, T7> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Function7<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -679,7 +679,7 @@ public sealed interface Validation<T> {
         Objects.requireNonNull(v7, "v7 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5) && v6 instanceof Valid<T6>(var t6) && v7 instanceof Valid<T7>(var t7)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6) && v7 instanceof Valid(var t7)) {
             return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5, t6, t7));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors()).flatMap(Function.identity()));
@@ -711,7 +711,7 @@ public sealed interface Validation<T> {
      * @param <T8>   the type of the eighth validation.
      * @return a new {@link Validation} instance.
      */
-    static <R, T1, T2, T3, T4, T5, T6, T7, T8> Validation<R> mapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Validation<T8> v8, Function8<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? super T8, ? extends R> mapper) {
+    static <R, T1, T2, T3, T4, T5, T6, T7, T8> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Validation<? extends T8> v8, Function8<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? super T8, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -722,7 +722,7 @@ public sealed interface Validation<T> {
         Objects.requireNonNull(v8, "v8 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5) && v6 instanceof Valid<T6>(var t6) && v7 instanceof Valid<T7>(var t7) && v8 instanceof Valid<T8>(var t8)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6) && v7 instanceof Valid(var t7) && v8 instanceof Valid(var t8)) {
             return valid(mapper.apply(t1, t2, t3, t4, t5, t6, t7, t8));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors(), v8.errors()).flatMap(Function.identity()));
@@ -754,7 +754,7 @@ public sealed interface Validation<T> {
      * @param <T8>   the type of the eighth validation.
      * @return a new {@link Validation} instance.
      */
-    static <R, T1, T2, T3, T4, T5, T6, T7, T8> Validation<R> flatMapN(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Validation<T8> v8, Function8<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? super T8, Validation<? extends R>> mapper) {
+    static <R, T1, T2, T3, T4, T5, T6, T7, T8> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Validation<? extends T8> v8, Function8<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? super T8, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -765,7 +765,7 @@ public sealed interface Validation<T> {
         Objects.requireNonNull(v8, "v8 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid<T1>(var t1) && v2 instanceof Valid<T2>(var t2) && v3 instanceof Valid<T3>(var t3) && v4 instanceof Valid<T4>(var t4) && v5 instanceof Valid<T5>(var t5) && v6 instanceof Valid<T6>(var t6) && v7 instanceof Valid<T7>(var t7) && v8 instanceof Valid<T8>(var t8)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6) && v7 instanceof Valid(var t7) && v8 instanceof Valid(var t8)) {
             return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5, t6, t7, t8));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors(), v8.errors()).flatMap(Function.identity()));

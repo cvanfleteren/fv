@@ -605,6 +605,21 @@ public class ValidationTest {
                     .isValid()
                     .hasValue(List.empty());
         }
+
+
+        @Test
+        void sequence_variance() {
+            // Arrange
+            Validation<Integer> intV = Validation.valid(1);
+
+            // Act
+            Validation<List<Number>> result = Validation.sequence(List.of(intV));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(List.of(1));
+        }
     }
 
     @Nested
@@ -746,6 +761,22 @@ public class ValidationTest {
             assertThatValidation(result)
                     .isValid()
                     .hasValue("abc");
+        }
+
+        @Test
+        void mapN3_whenAllValid_returnsMappedValueWithVariance() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("a");
+            Validation<Integer> v2 = Validation.valid(1);
+            Validation<String> v3 = Validation.valid("b");
+
+            // Act
+            Validation<String> result = Validation.mapN(v1, v2, v3, (Object o1, Number n1, Object o2) -> o1.toString() + n1.intValue() + o2.toString());
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("a1b");
         }
 
         @Test
