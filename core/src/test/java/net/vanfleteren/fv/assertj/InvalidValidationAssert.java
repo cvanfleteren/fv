@@ -21,7 +21,7 @@ public class InvalidValidationAssert<SELF extends InvalidValidationAssert<SELF, 
 
     public SELF hasErrorMessage(String errorKey, Map<String, Object> args) {
         assertThat(actual.errors()).map(ErrorMessage::key).contains(errorKey);
-        assertThat(actual.errors().filter(e -> e.key().equals(errorKey)).head().args()).isEqualTo(args);
+        assertThat(actual.errors().filter(e -> e.key().equals(errorKey)).head().parameters()).isEqualTo(args);
         return (SELF) this;
     }
 

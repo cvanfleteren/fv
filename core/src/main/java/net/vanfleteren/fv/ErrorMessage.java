@@ -18,19 +18,19 @@ import java.util.Objects;
 public class ErrorMessage {
     private final String errorKey;
     private final List<Path> paths;
-    private final Map<String,Object> args;
+    private final Map<String,Object> parameters;
 
     /**
      * Creates a new {@link ErrorMessage}.
      *
-     * @param errorKey the unique key for the error message (e.g., "invalid.input").
-     * @param paths    the list of {@link Path} segments leading to the erroneous value.
-     * @param args     a map of dynamic arguments for the error message.
+     * @param errorKey     the unique key for the error message (e.g., "invalid.input").
+     * @param paths        the list of {@link Path} segments leading to the erroneous value.
+     * @param parameters a map of dynamic arguments for the error message.
      */
-    public ErrorMessage(String errorKey, List<Path> paths, Map<String,Object> args) {
+    public ErrorMessage(String errorKey, List<Path> paths, Map<String,Object> parameters) {
         this.errorKey = Objects.requireNonNull(errorKey, "Message cannot be null");
         this.paths = Objects.requireNonNull(paths, "Paths cannot be null");
-        this.args = Objects.requireNonNull(args, "Args cannot be null");
+        this.parameters = Objects.requireNonNull(parameters, "Args cannot be null");
     }
 
     /**
@@ -97,12 +97,12 @@ public class ErrorMessage {
     }
 
     /**
-     * Returns the dynamic arguments for this error message.
+     * Returns the dynamic parameters for this error message.
      *
-     * @return a {@link Map} of arguments.
+     * @return a {@link Map} of parameters.
      */
-    public Map<String,Object> args() {
-        return args;
+    public Map<String,Object> parameters() {
+        return parameters;
     }
 
     /**
@@ -138,10 +138,10 @@ public class ErrorMessage {
      * @return the formatted error message with arguments.
      */
     public String formatted() {
-        if(args.isEmpty()) {
+        if(parameters.isEmpty()) {
             return message();
         } else {
-            return message()+":"+args.map(tuple  -> tuple._1+":"+tuple._2).mkString("{",",","}");
+            return message()+":"+ parameters.map(tuple  -> tuple._1+":"+tuple._2).mkString("{",",","}");
         }
     }
 

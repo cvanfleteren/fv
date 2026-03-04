@@ -424,7 +424,7 @@ class RuleTest {
             Map<String, Object> expectedArgs = HashMap.of("original.key", "must.not.satisfy.rule");
 
             Rule<String> notStartsWithH = startsWithH.not(err ->
-                    ErrorMessage.of("must.not.start.with.h", err.args().put("original.key", err.key()))
+                    ErrorMessage.of("must.not.start.with.h", err.parameters().put("original.key", err.key()))
             );
 
             // Act
