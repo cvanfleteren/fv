@@ -9,7 +9,7 @@ import net.vanfleteren.fv.Rule;
  *
  * @param <T> the type of comparable values.
  */
-public interface ComparableRules<T extends Comparable<T>> {
+public interface ComparableRules<T extends Comparable<? super T>> {
 
     /**
      * Fails if the value is not between the specified bounds (inclusive).

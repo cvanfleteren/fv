@@ -1,0 +1,105 @@
+package net.vanfleteren.fv.rules;
+
+import net.vanfleteren.fv.ErrorMessage;
+import net.vanfleteren.fv.Rule;
+
+import java.time.Clock;
+import java.time.LocalTime;
+
+/**
+ * Validation rules for {@link LocalTime} values.
+ */
+public class LocalTimeRules implements ComparableRules<LocalTime>, IObjectRules<LocalTime> {
+
+    private final Clock clock;
+
+    LocalTimeRules(Clock clock) {
+        this.clock = clock;
+    }
+
+    /**
+     * Singleton instance of {@link LocalTimeRules}.
+     */
+    public static final LocalTimeRules localTimes = new LocalTimeRules(Clock.systemDefaultZone());
+
+    /**
+     * Returns the singleton instance of {@link LocalTimeRules}.
+     *
+     * @return the {@link LocalTimeRules} instance.
+     */
+    public static LocalTimeRules localTimes() {
+        return localTimes;
+    }
+
+    /**
+     * Returns an instance of {@link LocalTimeRules} that uses the passed {@link java.time.Clock} for determining the current time.
+     *
+     * @return the {@link LocalTimeRules} instance.
+     */
+    public static LocalTimeRules localTimes(Clock clock) {
+        return new LocalTimeRules(clock);
+    }
+
+    /**
+     * Fails if the time is not before the specified limit.
+     * <p>
+     * Error key: {@code must.be.before}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code limit}: the limit ({@link LocalTime})</li>
+     * </ul>
+     *
+     * @param limit the limit.
+     * @return a {@link Rule} checking if the time is before the limit.
+     */
+    public Rule<LocalTime> isBefore(LocalTime limit) {
+        return Rule.of(
+                t -> t.isBefore(limit),
+                ErrorMessage.of("must.be.before", "limit", limit)
+        );
+    }
+
+    /**
+     * Fails if the time is not after the specified limit.
+     * <p>
+     * Error key: {@code must.be.after}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code limit}: the limit ({@link LocalTime})</li>
+     * </ul>
+     *
+     * @param limit the limit.
+     * @return a {@link Rule} checking if the time is after the limit.
+     */
+    public Rule<LocalTime> isAfter(LocalTime limit) {
+        return Rule.of(
+                t -> t.isAfter(limit),
+                ErrorMessage.of("must.be.after", "limit", limit)
+        );
+    }
+
+    /**
+     * Fails if the time is not in the AM (before noon).
+     * <p>
+     * Error key: {@code must.be.am}
+     *
+     * @return a {@link Rule} checking if the time is in the AM.
+     */
+    public Rule<LocalTime> isAm() {
+        return Rule.of(t -> t.isBefore(LocalTime.NOON), "must.be.am");
+    }
+
+    /**
+     * Fails if the time is not in the PM (noon or later).
+     * <p>
+     * Error key: {@code must.be.pm}
+     *
+     * @return a {@link Rule} checking if the time is in the PM.
+     */
+    public Rule<LocalTime> isPm() {
+        return Rule.of(t -> !t.isBefore(LocalTime.NOON), "must.be.pm");
+    }
+
+}
