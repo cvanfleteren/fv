@@ -8,29 +8,51 @@ import net.vanfleteren.fv.Rule;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+/**
+ * Validation rules for {@link String} values.
+ */
 public class StringRules implements ComparableRules<String>, IObjectRules<String> {
 
+    /**
+     * Singleton instance of {@link StringRules}.
+     */
     public static final StringRules strings = new StringRules();
 
+    /**
+     * Returns the singleton instance of {@link StringRules}.
+     *
+     * @return the {@link StringRules} instance.
+     */
     public static StringRules strings() {
         return strings;
     }
 
     //region whitespace related
+    /**
+     * Fails if the string is empty.
+     * <p>
+     * Error key: {@code not.empty}
+     */
     public Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "not.empty");
 
     /**
      * Fails if the string is empty or contains only whitespace.
+     * <p>
+     * Error key: {@code not.blank}
      */
     public Rule<String> notBlank = Rule.of(s -> !s.isBlank(), "not.blank");
 
     /**
      * Fails if the string has leading or trailing whitespace.
+     * <p>
+     * Error key: {@code must.be.trimmed}
      */
     public Rule<String> trimmed = Rule.of(s -> s.equals(s.trim()), "must.be.trimmed");
 
     /**
      * Fails if the string contains any whitespace anywhere.
+     * <p>
+     * Error key: {@code no.whitespace.allowed}
      */
     public Rule<String> noWhitespace = Rule.of(
             s -> s.chars().noneMatch(Character::isWhitespace),
@@ -39,6 +61,19 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     //endregion
 
     //region length related
+    /**
+     * Fails if the string length is less than the specified minimum.
+     * <p>
+     * Error key: {@code min.length}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code min}: the minimum allowed length ({@code int})</li>
+     * </ul>
+     *
+     * @param minLength the minimum allowed length.
+     * @return a {@link Rule} checking the minimum length.
+     */
     public Rule<String> minLength(int minLength) {
         if (minLength < 0) {
             throw new IllegalArgumentException("minLength must be >= 0");
@@ -46,6 +81,19 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         return Rule.of(s -> s.length() >= minLength, ErrorMessage.of("min.length", "min", minLength));
     }
 
+    /**
+     * Fails if the string length is greater than the specified maximum.
+     * <p>
+     * Error key: {@code max.length}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code max}: the maximum allowed length ({@code int})</li>
+     * </ul>
+     *
+     * @param maxLength the maximum allowed length.
+     * @return a {@link Rule} checking the maximum length.
+     */
     public Rule<String> maxLength(int maxLength) {
         if (maxLength < 0) {
             throw new IllegalArgumentException("maxLength must be >= 0");
@@ -54,7 +102,19 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     }
 
     /**
-     * Inclusive bounds.
+     * Fails if the string length is not between the specified bounds (inclusive).
+     * <p>
+     * Error key: {@code length.between}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code min}: the minimum allowed length ({@code int})</li>
+     *     <li>{@code max}: the maximum allowed length ({@code int})</li>
+     * </ul>
+     *
+     * @param minLength the minimum allowed length (inclusive).
+     * @param maxLength the maximum allowed length (inclusive).
+     * @return a {@link Rule} checking the length range.
      */
     public Rule<String> lengthBetween(int minLength, int maxLength) {
         if (minLength < 0) {
@@ -72,6 +132,19 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         );
     }
 
+    /**
+     * Fails if the string length is not equal to the specified length.
+     * <p>
+     * Error key: {@code length.exact}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code len}: the required length ({@code int})</li>
+     * </ul>
+     *
+     * @param length the required length.
+     * @return a {@link Rule} checking the exact length.
+     */
     public Rule<String> exactLength(int length) {
         if (length < 0) {
             throw new IllegalArgumentException("length must be >= 0");
@@ -81,6 +154,19 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     //endregion
 
     //region contains / starts / ends / matches
+    /**
+     * Fails if the string does not start with the specified prefix.
+     * <p>
+     * Error key: {@code must.start.with}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code prefix}: the required prefix ({@link String})</li>
+     * </ul>
+     *
+     * @param prefix the required prefix.
+     * @return a {@link Rule} checking the prefix.
+     */
     public Rule<String> startsWith(String prefix) {
         Objects.requireNonNull(prefix, "prefix cannot be null");
         return Rule.of(
@@ -89,6 +175,19 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         );
     }
 
+    /**
+     * Fails if the string does not start with the specified prefix (ignoring case).
+     * <p>
+     * Error key: {@code must.start.with.ignorecase}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code prefix}: the required prefix ({@link String})</li>
+     * </ul>
+     *
+     * @param prefix the required prefix.
+     * @return a {@link Rule} checking the prefix (ignoring case).
+     */
     public Rule<String> startsWithIgnoreCase(String prefix) {
         Objects.requireNonNull(prefix, "prefix cannot be null");
         return Rule.of(
@@ -97,6 +196,19 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         );
     }
 
+    /**
+     * Fails if the string does not end with the specified suffix.
+     * <p>
+     * Error key: {@code must.end.with}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code suffix}: the required suffix ({@link String})</li>
+     * </ul>
+     *
+     * @param suffix the required suffix.
+     * @return a {@link Rule} checking the suffix.
+     */
     public Rule<String> endsWith(String suffix) {
         Objects.requireNonNull(suffix, "suffix cannot be null");
         return Rule.of(
@@ -105,6 +217,19 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         );
     }
 
+    /**
+     * Fails if the string does not end with the specified suffix (ignoring case).
+     * <p>
+     * Error key: {@code must.end.with.ignorecase}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code suffix}: the required suffix ({@link String})</li>
+     * </ul>
+     *
+     * @param suffix the required suffix.
+     * @return a {@link Rule} checking the suffix (ignoring case).
+     */
     public Rule<String> endsWithIgnoreCase(String suffix) {
         Objects.requireNonNull(suffix, "suffix cannot be null");
         return Rule.of(
@@ -114,6 +239,19 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         );
     }
 
+    /**
+     * Fails if the string does not contain the specified fragment.
+     * <p>
+     * Error key: {@code must.contain}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code fragment}: the required fragment ({@link String})</li>
+     * </ul>
+     *
+     * @param fragment the required fragment.
+     * @return a {@link Rule} checking if the fragment is present.
+     */
     public Rule<String> contains(String fragment) {
         Objects.requireNonNull(fragment, "fragment cannot be null");
         return Rule.of(
@@ -122,6 +260,19 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         );
     }
 
+    /**
+     * Fails if the string does not contain the specified fragment (ignoring case).
+     * <p>
+     * Error key: {@code must.contain.ignorecase}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code fragment}: the required fragment ({@link String})</li>
+     * </ul>
+     *
+     * @param fragment the required fragment.
+     * @return a {@link Rule} checking if the fragment is present (ignoring case).
+     */
     public Rule<String> containsIgnoreCase(String fragment) {
         Objects.requireNonNull(fragment, "fragment cannot be null");
 
@@ -148,6 +299,19 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         );
     }
 
+    /**
+     * Fails if the string is in the specified set of forbidden values.
+     * <p>
+     * Error key: {@code must.not.be.in}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code forbidden}: the set of forbidden values ({@link Set})</li>
+     * </ul>
+     *
+     * @param forbidden the set of forbidden values.
+     * @return a {@link Rule} checking if the value is forbidden.
+     */
     public Rule<String> notIn(Set<String> forbidden) {
         Objects.requireNonNull(forbidden, "forbidden cannot be null");
 
@@ -157,6 +321,19 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         );
     }
 
+    /**
+     * Fails if the string does not match the specified regular expression.
+     * <p>
+     * Error key: {@code must.match.regex}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code regex}: the regular expression ({@link String})</li>
+     * </ul>
+     *
+     * @param regex the regular expression.
+     * @return a {@link Rule} checking if the string matches the regex.
+     */
     public Rule<String> matches(String regex) {
         Objects.requireNonNull(regex, "regex cannot be null");
         Pattern pattern = Pattern.compile(regex);
@@ -169,6 +346,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     /**
      * Fails if the string contains anything other than letters.
      * Uses {@link Character#isLetter(int)} so it supports Unicode letters (not just A-Z).
+     * <p>
+     * Error key: {@code must.be.alpha}
      */
     public Rule<String> alpha = Rule.of(
             s -> s.codePoints().allMatch(Character::isLetter),
@@ -176,8 +355,9 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     );
 
     /**
-     * Fails if the string contains anything other than letters or digits.
-     * Uses {@link Character#isLetterOrDigit(int)} so it supports Unicode letters/digits.
+     * Fails if the string contains anything other than letters or digits (ASCII).
+     * <p>
+     * Error key: {@code must.be.alphanumeric}
      */
     public Rule<String> alphaNumeric = Rule.of(
             s ->  s.codePoints().allMatch(c ->
@@ -192,8 +372,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     );
 
     /**
-     * Fails if the string contains anything other than letters or digits.
+     * Fails if the string contains anything other than letters or digits (Unicode).
      * Uses {@link Character#isLetterOrDigit(int)} so it supports unicode letters/digits.
+     * <p>
+     * Error key: {@code must.be.unicode.alphanumeric}
      */
     public Rule<String> alphaNumericUnicode = Rule.of(
             s -> s.codePoints().allMatch(Character::isLetterOrDigit),
@@ -201,8 +383,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     );
 
     /**
-     * Fails if the string contains anything other than digits.
+     * Fails if the string contains anything other than digits (Unicode).
      * Note: this accepts Unicode digits too (e.g. Arabic-Indic digits).
+     * <p>
+     * Error key: {@code must.be.unicode.digits.only}
      */
     public Rule<String> onlyUnicodeDigits = Rule.of(
             s -> s.codePoints().allMatch(Character::isDigit),
@@ -210,8 +394,11 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     );
 
     /**
-     * Fails if the string contains anything other than digits.
-     * Note: this doesn't accept Unicode digits, only 0-9.
+     * Fails if the string contains anything other than digits (0-9).
+     * <p>
+     * Error key: {@code must.be.digits.only}
+     *
+     * @return a {@link Rule} checking if the string contains only digits.
      */
     public Rule<String> onlyDigits() {
         return Rule.of(  s ->  s.codePoints().allMatch(c ->
@@ -224,6 +411,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
 
     /**
      * Fails if the string contains anything other than hexadecimal characters.
+     * <p>
+     * Error key: {@code must.be.hexadecimal}
+     *
+     * @return a {@link Rule} checking if the string is hexadecimal.
      */
     public Rule<String> hexadecimal() {
         Pattern p = Pattern.compile("[0-9a-f]*", Pattern.CASE_INSENSITIVE);
@@ -244,6 +435,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     /**
      * Simplified rule to check if a string looks like an email address. Don't use this for full email validation.
      * The only valid email address is one you've received a confirmation from.
+     * <p>
+     * Error key: {@code must.be.email}
      */
     public static final Rule<String> looksLikeEmailAddress = Rule.of(
             s -> isEmailPattern.matcher(s).matches(),

@@ -7,21 +7,77 @@ import net.vanfleteren.fv.ErrorMessage;
 import net.vanfleteren.fv.Rule;
 import net.vanfleteren.fv.Validation;
 
+/**
+ * Validation rules for {@link Map} values.
+ */
 public class MapRules {
 
+    /**
+     * Fails if the map is {@code null} or empty.
+     * <p>
+     * Error key: {@code cannot.be.empty}
+     *
+     * @param <K> the type of keys in the map.
+     * @param <V> the type of values in the map.
+     * @return a {@link Rule} checking if the map is not empty.
+     */
     public static <K,V> Rule<Map<K,V>> notEmpty() {
         return Rule.of(map -> map != null && !map.isEmpty(),"cannot.be.empty");
     }
 
+    /**
+     * Fails if the map does not contain the specified key.
+     * <p>
+     * Error key: {@code must.contain.key}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code key}: the required key ({@code K})</li>
+     * </ul>
+     *
+     * @param <K> the type of keys in the map.
+     * @param <V> the type of values in the map.
+     * @param key the required key.
+     * @return a {@link Rule} checking for the presence of the key.
+     */
     public static <K,V> Rule<Map<K,V>> containsKey(K key) {
         return Rule.of(map -> map.containsKey(key), ErrorMessage.of("must.contain.key", "key", key));
     }
 
+    /**
+     * Fails if the map does not contain all the specified keys.
+     * <p>
+     * Error key: {@code must.contain.keys}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code keys}: the set of required keys ({@link Set})</li>
+     * </ul>
+     *
+     * @param <K> the type of keys in the map.
+     * @param <V> the type of values in the map.
+     * @param keys the required keys.
+     * @return a {@link Rule} checking for the presence of all specified keys.
+     */
     public static <K,V> Rule<Map<K,V>> containsKeys(K... keys) {
         Set<K> keySet = HashSet.of(keys);
         return Rule.of(map -> map.keySet().containsAll(keySet), ErrorMessage.of("must.contain.keys", "keys", keySet));
     }
 
+    /**
+     * Fails if the map contains any {@code null} values.
+     * <p>
+     * Error key: {@code must.not.contain.null.values}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code keys}: the set of keys that have {@code null} values ({@link Set})</li>
+     * </ul>
+     *
+     * @param <K> the type of keys in the map.
+     * @param <V> the type of values in the map.
+     * @return a {@link Rule} checking that all values in the map are non-null.
+     */
     public static <K,V> Rule<Map<K,V>> valuesNotNull() {
         return map -> {
             Set<K> keysWithNulls = map.filter((key, value) -> value == null).keySet();
@@ -33,7 +89,17 @@ public class MapRules {
         };
     }
 
-    //TODO do similar thing for Collections?
+    /**
+     * Validates all values in the map using the specified rule.
+     * <p>
+     * If any value fails the rule, the resulting validation will contain errors with paths 
+     * corresponding to the keys of the failing values.
+     *
+     * @param <K> the type of keys in the map.
+     * @param <V> the type of values in the map.
+     * @param rule the rule to apply to each value.
+     * @return a {@link Rule} that validates all map values.
+     */
     public static <K,V> Rule<Map<K,V>> validateValuesWith(Rule<? super V> rule) {
         return map -> {
             Rule<V> castedRule = (Rule<V>) rule;

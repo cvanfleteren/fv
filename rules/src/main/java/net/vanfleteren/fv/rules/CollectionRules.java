@@ -11,22 +11,84 @@ import net.vanfleteren.fv.Validation;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+/**
+ * Validation rules for {@link Traversable} and {@link Iterable} collections.
+ */
 public class CollectionRules {
 
+    /**
+     * Fails if the collection is empty.
+     * <p>
+     * Error key: {@code cannot.be.empty}
+     */
     public static Rule<Iterable<?>> notEmpty = Rule.of(value -> value.iterator().hasNext(), "cannot.be.empty");
 
+    /**
+     * Fails if the collection size is less than the specified minimum.
+     * <p>
+     * Error key: {@code min.size}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code min}: the minimum allowed size ({@code int})</li>
+     * </ul>
+     *
+     * @param size the minimum allowed size.
+     * @return a {@link Rule} checking the minimum size.
+     */
     public static Rule<Traversable<?>> minSize(int size) {
         return Rule.of(value -> value.size() >= size, ErrorMessage.of("min.size", "min", size));
     }
 
+    /**
+     * Fails if the collection size is greater than the specified maximum.
+     * <p>
+     * Error key: {@code max.size}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code max}: the maximum allowed size ({@code int})</li>
+     * </ul>
+     *
+     * @param size the maximum allowed size.
+     * @return a {@link Rule} checking the maximum size.
+     */
     public static Rule<Traversable<?>> maxSize(int size) {
         return Rule.of(value -> value.size() <= size, ErrorMessage.of("max.size", "max", size));
     }
 
+    /**
+     * Fails if the collection size is not equal to the specified size.
+     * <p>
+     * Error key: {@code equal.size}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code equal}: the required size ({@code int})</li>
+     * </ul>
+     *
+     * @param size the required size.
+     * @return a {@link Rule} checking the exact size.
+     */
     public static Rule<Traversable<?>> sizeEquals(int size) {
         return Rule.of(value -> value.size() == size, ErrorMessage.of("equal.size", "equal", size));
     }
 
+    /**
+     * Fails if the collection size is not between the specified bounds (inclusive).
+     * <p>
+     * Error key: {@code equal.size}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code min}: the minimum allowed size ({@code int})</li>
+     *     <li>{@code max}: the maximum allowed size ({@code int})</li>
+     * </ul>
+     *
+     * @param min the minimum allowed size (inclusive).
+     * @param max the maximum allowed size (inclusive).
+     * @return a {@link Rule} checking the size range.
+     */
     public static Rule<Traversable<?>> sizeBetween(int min, int max) {
         return Rule.of(
                 value -> {
@@ -39,7 +101,11 @@ public class CollectionRules {
 
     /**
      * Checks if the collection contains no null elements.
-     * @return A rule that validates if the collection has no null elements.
+     * <p>
+     * Error key: {@code value.cannot.be.null} (applied to elements)
+     *
+     * @param <T> the type of elements in the collection.
+     * @return a {@link Rule} that validates if the collection has no null elements.
      */
     public static <T> Rule<List<T>> noNullElements() {
         Rule<T> notNull = ObjectRules.notNull();
@@ -48,8 +114,12 @@ public class CollectionRules {
 
     /**
      * Checks if all elements in the collection match the given predicate.
-     * @param predicate The predicate to test each element against.
-     * @return A rule that validates if all elements match the predicate.
+     * <p>
+     * Error key: {@code all.should.match}
+     *
+     * @param <T> the type of elements in the collection.
+     * @param predicate the predicate to test each element against.
+     * @return a {@link Rule} that validates if all elements match the predicate.
      */
     public static <T> Rule<List<T>> allMatch(Predicate<T> predicate) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
@@ -58,9 +128,11 @@ public class CollectionRules {
 
     /**
      * Checks if all elements in the collection match the given predicate.
-     * @param predicate The predicate to test each element against.
-     * @param errorMessage The error message to use if validation fails.
-     * @return A rule that validates if all elements match the predicate.
+     *
+     * @param <T> the type of elements in the collection.
+     * @param predicate the predicate to test each element against.
+     * @param errorMessage the error message to use if validation fails.
+     * @return a {@link Rule} that validates if all elements match the predicate.
      */
     public static <T> Rule<List<T>> allMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
@@ -69,8 +141,12 @@ public class CollectionRules {
 
     /**
      * Checks if none of the elements in the collection match the given predicate.
-     * @param predicate The predicate to test each element against.
-     * @return A rule that validates if none of the elements match the predicate.
+     * <p>
+     * Error key: {@code none.should.match}
+     *
+     * @param <T> the type of elements in the collection.
+     * @param predicate the predicate to test each element against.
+     * @return a {@link Rule} that validates if none of the elements match the predicate.
      */
     public static <T> Rule<List<T>> noneMatch(Predicate<T> predicate) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
@@ -78,10 +154,12 @@ public class CollectionRules {
     }
 
     /**
-     * Checks if  none of the elements in the collection match the given predicate.
-     * @param predicate The predicate to test each element against.
-     * @param errorMessage The error message to use if validation fails.
-     * @return A rule that validates if none of the elements match the predicate.
+     * Checks if none of the elements in the collection match the given predicate.
+     *
+     * @param <T> the type of elements in the collection.
+     * @param predicate the predicate to test each element against.
+     * @param errorMessage the error message to use if validation fails.
+     * @return a {@link Rule} that validates if none of the elements match the predicate.
      */
     public static <T> Rule<List<T>> noneMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
@@ -90,8 +168,12 @@ public class CollectionRules {
 
     /**
      * Checks if at least one of the elements in the collection match the given predicate.
-     * @param predicate The predicate to test each element against.
-     * @return A rule that validates if none of the elements match the predicate.
+     * <p>
+     * Error key: {@code atleast.one.should.match}
+     *
+     * @param <T> the type of elements in the collection.
+     * @param predicate the predicate to test each element against.
+     * @return a {@link Rule} that validates if at least one of the elements match the predicate.
      */
     public static <T> Rule<List<T>> anyMatch(Predicate<T> predicate) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
@@ -100,9 +182,11 @@ public class CollectionRules {
 
     /**
      * Checks if at least one of the elements in the collection match the given predicate.
-     * @param predicate The predicate to test each element against.
-     * @param errorMessage The error message to use if validation fails.
-     * @return A rule that validates if at least one of the elements match the predicate.
+     *
+     * @param <T> the type of elements in the collection.
+     * @param predicate the predicate to test each element against.
+     * @param errorMessage the error message to use if validation fails.
+     * @return a {@link Rule} that validates if at least one of the elements match the predicate.
      */
     public static <T> Rule<List<T>> anyMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
@@ -111,9 +195,17 @@ public class CollectionRules {
 
     /**
      * Checks if the collection contains the given element.
-     * @param element The element to check for.
-     * @return A rule that validates if the collection contains the element.
-     * @param <T> The type of elements in the collection.
+     * <p>
+     * Error key: {@code must.contain}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code element}: the required element ({@code T})</li>
+     * </ul>
+     *
+     * @param <T> the type of elements in the collection.
+     * @param element the element to check for.
+     * @return a {@link Rule} that validates if the collection contains the element.
      */
     public static <T> Rule<Iterable<T>> contains(T element) {
         return Rule.of(
@@ -125,6 +217,17 @@ public class CollectionRules {
     /**
      * Semantics: every element from {@code required} must appear at least once in {@code values}.
      * Note: duplicates in {@code required} are ignored (treated as a set).
+     * <p>
+     * Error key: {@code must.contain.all}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code required}: the set of required elements ({@link Set})</li>
+     * </ul>
+     *
+     * @param <T> the type of elements in the collection.
+     * @param required the elements that must be present.
+     * @return a {@link Rule} checking for all required elements.
      */
     public static <T> Rule<Iterable<T>> containsAll(Iterable<? extends T> required) {
         Objects.requireNonNull(required, "required cannot be null");
@@ -140,6 +243,17 @@ public class CollectionRules {
     /**
      * Semantics: at least one element from {@code candidates} must appear in {@code values}.
      * If {@code candidates} is empty, the rule fails (there is no acceptable element to match).
+     * <p>
+     * Error key: {@code must.contain.any.of}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code candidates}: the set of candidate elements ({@link Set})</li>
+     * </ul>
+     *
+     * @param <T> the type of elements in the collection.
+     * @param candidates the candidate elements.
+     * @return a {@link Rule} checking for any of the candidate elements.
      */
     public static <T> Rule<Iterable<T>> containsAnyOf(Iterable<? extends T> candidates) {
         Objects.requireNonNull(candidates, "candidates cannot be null");
@@ -159,12 +273,22 @@ public class CollectionRules {
 
     /**
      * Ensures the extracted key is unique within the iterable.
-     *
+     * <p>
      * Accumulates duplicates and includes the duplicate keys in the error args.
+     * <p>
+     * Error key: {@code must.be.unique.by.key}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code key}: the key label ({@link String})</li>
+     *     <li>{@code duplicates}: the duplicate keys and their indices ({@link Map})</li>
+     * </ul>
      *
-     * Error args shape:
-     * - "key": {@code key} parameter (a label, e.g. "email")
-     * - "duplicates": Map<K, List<Integer>> where each key maps to the indices where it occurred (size >= 2)
+     * @param <T> the type of elements in the collection.
+     * @param <K> the type of the extracted key.
+     * @param keyExtractor the function to extract the unique key.
+     * @param key the label for the key (e.g., "email").
+     * @return a {@link Rule} checking for uniqueness by key.
      */
     public static <T, K> Rule<Iterable<T>> uniqueBy(Function1<T, K> keyExtractor, String key) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
@@ -220,7 +344,11 @@ public class CollectionRules {
 
     /**
      * Creates a rule that validates that all values in a list satisfy a given rule.
-     * The invidiual ErrorMessages are passed to the final Validation.
+     * The individual {@link ErrorMessage}s are passed to the final Validation.
+     *
+     * @param <T> the type of elements in the collection.
+     * @param rule the rule to apply to each element.
+     * @return a {@link Rule} that applies the given rule to all elements in the list.
      */
     public static <T> Rule<List<T>> validateValuesWith(Rule<? super T> rule) {
         return list -> {
@@ -229,6 +357,5 @@ public class CollectionRules {
             return rule2.test(list);
         };
     }
-
 
 }
