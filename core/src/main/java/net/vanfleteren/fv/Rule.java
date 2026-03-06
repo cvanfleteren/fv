@@ -303,6 +303,31 @@ public interface Rule<T> {
     }
 
     /**
+     * Composes multiple rules using "non short circuiting and" logic.
+     * The combined rule is successful only if all rules are successful.
+     * If multiple rules fail, all errors are combined.
+     *
+     * @param rules the rules to combine.
+     * @param <T>   the type of the value to be validated.
+     * @return a new {@link Rule} instance.
+     */
+    @SafeVarargs
+    static <T> Rule<T> all(Rule<? super T>... rules) {
+        Objects.requireNonNull(rules, "rules cannot be null");
+        List<Rule<? super T>> ruleList = List.of(rules);
+        return value -> {
+            List<Validation<T>> validations = ruleList.map(rule -> Rule.<T>narrow(rule).test(value));
+            List<ErrorMessage> errors = validations
+                    .filter(v -> !v.isValid())
+                    .flatMap(Validation::errors);
+
+            return errors.isEmpty()
+                    ? Validation.valid(value)
+                    : Validation.invalid(errors);
+        };
+    }
+
+    /**
      * Narrows a {@code Rule<? super T>} to a {@code Rule<T>}.
      *
      * @param rule The rule to narrow.
