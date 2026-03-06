@@ -17,6 +17,20 @@ import java.util.function.Predicate;
 public class CollectionRules {
 
     /**
+     * Singleton instance of {@link CollectionRules}.
+     */
+    public static final CollectionRules collections = new CollectionRules();
+
+    /**
+     * Returns the singleton instance of {@link CollectionRules}.
+     *
+     * @return the {@link CollectionRules} instance.
+     */
+    public static CollectionRules collections() {
+        return collections;
+    }
+
+    /**
      * Fails if the collection is empty.
      * <p>
      * Error key: {@code cannot.be.empty}

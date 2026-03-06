@@ -16,6 +16,20 @@ import java.util.stream.Collectors;
 public class JMapRules {
 
     /**
+     * Singleton instance of {@link JMapRules}.
+     */
+    public static final JMapRules jMaps = new JMapRules();
+
+    /**
+     * Returns the singleton instance of {@link JMapRules}.
+     *
+     * @return the {@link JMapRules} instance.
+     */
+    public static JMapRules jMaps() {
+        return jMaps;
+    }
+
+    /**
      * Fails if the map is {@code null} or empty.
      * <p>
      * Error key: {@code cannot.be.empty}

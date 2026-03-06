@@ -21,6 +21,20 @@ import java.util.stream.IntStream;
 public class JCollectionRules {
 
     /**
+     * Singleton instance of {@link JCollectionRules}.
+     */
+    public static final JCollectionRules jCollections = new JCollectionRules();
+
+    /**
+     * Returns the singleton instance of {@link JCollectionRules}.
+     *
+     * @return the {@link JCollectionRules} instance.
+     */
+    public static JCollectionRules jCollections() {
+        return jCollections;
+    }
+
+    /**
      * Fails if the collection is null or empty.
      * <p>
      * Error key: {@code cannot.be.empty}

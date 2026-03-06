@@ -13,6 +13,20 @@ import net.vanfleteren.fv.Validation;
 public class MapRules {
 
     /**
+     * Singleton instance of {@link MapRules}.
+     */
+    public static final MapRules maps = new MapRules();
+
+    /**
+     * Returns the singleton instance of {@link MapRules}.
+     *
+     * @return the {@link MapRules} instance.
+     */
+    public static MapRules maps() {
+        return maps;
+    }
+
+    /**
      * Fails if the map is {@code null} or empty.
      * <p>
      * Error key: {@code cannot.be.empty}
