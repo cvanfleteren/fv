@@ -145,6 +145,53 @@ class RuleTest {
     @Nested
     class And {
 
+        @Test
+        void both_static_whenBothRulesFail_returnsInvalidWithBothErrors() {
+            // Arrange
+            Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> combined = Rule.both(rule1, rule2);
+
+            // Act
+            Validation<String> result = combined.test("a");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("too.short", "must.start.with.h");
+        }
+
+        @Test
+        void both_whenBothRulesFail_returnsInvalidWithBothErrors() {
+            // Arrange
+            Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> combined = rule1.both(rule2);
+
+            // Act
+            Validation<String> result = combined.test("a");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("too.short", "must.start.with.h");
+        }
+
+        @Test
+        void andAlso_whenBothRulesFail_returnsInvalidWithBothErrors() {
+            // Arrange
+            Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> combined = rule1.andAlso(rule2);
+
+            // Act
+            Validation<String> result = combined.test("a");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("too.short", "must.start.with.h");
+        }
 
         @Test
         void and_whenCombinedWithSuperRule_orderDoesntMatter() {

@@ -82,6 +82,8 @@ public interface Rule<T> {
      * Composes this rule with another rule using "and" logic.
      * The combined rule is successful only if both this and the other rule are successful.
      * If both rules fail, the errors are NOT combined (the first failure stops the evaluation).
+     * <p>
+     * If you want to combine Rules and have them both checked independently, use the {@link #andAlso(Rule)} method.
      *
      * @param other the other rule.
      * @param <S>   the target type.
@@ -91,6 +93,23 @@ public interface Rule<T> {
     default <S extends T> Rule<S> and(Rule<? super S> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return value -> test(value).flatMap(v -> other.test(value).map(o -> (S) v));
+    }
+
+    /**
+     * Composes this rule with another rule using "non-short circuiting and" logic.
+     * The combined rule is successful only if both this and the other rule are successful.
+     * If both rules fail, the errors are combined (the first failure does not stop the evaluation).
+     * <p>
+     * If you want to combine Rules and have the second Rule only checked when the first Rule passes, use the {@link #and(Rule)} method.
+     *
+     * @param other the other rule.
+     * @param <S>   the target type.
+     * @return a new {@link Rule} instance.
+     */
+    @SuppressWarnings("unchecked")
+    default <S extends T> Rule<S> andAlso(Rule<? super S> other) {
+        Objects.requireNonNull(other, "other rule cannot be null");
+        return value -> Validation.mapN(test(value), other.test(value), (v, o) -> (S) v);
     }
 
     /**
@@ -265,6 +284,22 @@ public interface Rule<T> {
                 return Validation.valid(map);
             }
         };
+    }
+
+    /**
+     * Composes two rules using "non short circuiting and" logic.
+     * The combined rule is successful only if both rules are successful.
+     * If both rules fail, the errors are combined.
+     *
+     * @param first  the first rule.
+     * @param second the second rule.
+     * @param <T>    the type of the value to be validated.
+     * @return a new {@link Rule} instance.
+     */
+    static <T> Rule<T> both(Rule<? super T> first, Rule<? super T> second) {
+        Objects.requireNonNull(first, "first rule cannot be null");
+        Objects.requireNonNull(second, "second rule cannot be null");
+        return Rule.narrow(first).andAlso(second);
     }
 
     /**
