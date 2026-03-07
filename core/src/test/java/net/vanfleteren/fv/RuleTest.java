@@ -217,6 +217,59 @@ class RuleTest {
     }
 
     @Nested
+    class AtLeastOneOf {
+
+        @Test
+        void atLeastOneOf_whenOneRulePasses_returnsValid() {
+            // Arrange
+            Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> rule3 = Rule.of(s -> s.contains("!"), "must.contain.exclamation");
+            Rule<String> combined = Rule.atLeastOneOf(rule1, rule2, rule3);
+
+            // Act
+            Validation<String> result = combined.test("hi!");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("hi!");
+        }
+
+        @Test
+        void atLeastOneOf_whenMultipleRulesPass_returnsValid() {
+            // Arrange
+            Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> combined = Rule.atLeastOneOf(rule1, rule2);
+
+            // Act
+            Validation<String> result = combined.test("hello");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("hello");
+        }
+
+        @Test
+        void atLeastOneOf_whenAllRulesFail_returnsInvalidWithAllErrors() {
+            // Arrange
+            Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> combined = Rule.atLeastOneOf(rule1, rule2);
+
+            // Act
+            Validation<String> result = combined.test("a");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("too.short", "must.start.with.h");
+        }
+    }
+
+    @Nested
     class AndAlso {
         @Test
         void andAlso_whenBothRulesFail_returnsInvalidWithBothErrors() {

@@ -328,6 +328,31 @@ public interface Rule<T> {
     }
 
     /**
+     * Composes multiple rules using "at least one of" logic.
+     * The combined rule is successful if at least one of the rules is successful.
+     * If all rules fail, all errors are combined.
+     *
+     * @param rules the rules to combine.
+     * @param <T>   the type of the value to be validated.
+     * @return a new {@link Rule} instance.
+     */
+    @SafeVarargs
+    static <T> Rule<T> atLeastOneOf(Rule<? super T>... rules) {
+        Objects.requireNonNull(rules, "rules cannot be null");
+        List<Rule<? super T>> ruleList = List.of(rules);
+        return value -> {
+            List<Validation<T>> validations = ruleList.map(rule -> Rule.<T>narrow(rule).test(value));
+            Option<Validation<T>> firstValid = validations.find(Validation::isValid);
+
+            if (firstValid.isDefined()) {
+                return firstValid.get();
+            } else {
+                return Validation.invalid(validations.flatMap(Validation::errors));
+            }
+        };
+    }
+
+    /**
      * Narrows a {@code Rule<? super T>} to a {@code Rule<T>}.
      *
      * @param rule The rule to narrow.
