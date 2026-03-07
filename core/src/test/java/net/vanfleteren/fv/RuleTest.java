@@ -853,4 +853,75 @@ class RuleTest {
             assertThat(calls[0]).isEqualTo(3);
         }
     }
+
+    @Nested
+    class When {
+
+        @Test
+        void when_predicate_whenConditionIsMetAndRulePasses_returnsValid() {
+            Rule<String> rule = Rule.of(s -> s.length() > 5, "too.short");
+            Rule<String> conditionalRule = rule.when(s -> s.startsWith("a"));
+
+            assertThatValidation(conditionalRule.test("apple-pie"))
+                    .isValid()
+                    .hasValue("apple-pie");
+        }
+
+        @Test
+        void when_predicate_whenConditionIsMetAndRuleFails_returnsInvalid() {
+            Rule<String> rule = Rule.of(s -> s.length() > 10, "too.short");
+            Rule<String> conditionalRule = rule.when(s -> s.startsWith("a"));
+
+            assertThatValidation(conditionalRule.test("apple"))
+                    .isInvalid()
+                    .hasErrorMessage("too.short");
+        }
+
+        @Test
+        void when_predicate_whenConditionIsNotMet_returnsValid() {
+            Rule<String> rule = Rule.of(s -> s.length() > 10, "too.short");
+            Rule<String> conditionalRule = rule.when(s -> s.startsWith("b"));
+
+            // "apple" does not start with "b", so rule shouldn't run
+            assertThatValidation(conditionalRule.test("apple"))
+                    .isValid()
+                    .hasValue("apple");
+        }
+
+        @Test
+        void when_supplier_whenConditionIsMetAndRuleFails_returnsInvalid() {
+            Rule<String> rule = Rule.of(s -> s.length() > 5, "too.short");
+            Rule<String> conditionalRule = rule.when(() -> true);
+
+            assertThatValidation(conditionalRule.test("abc"))
+                    .isInvalid()
+                    .hasErrorMessage("too.short");
+        }
+
+        @Test
+        void when_supplier_whenConditionIsNotMet_returnsValid() {
+            Rule<String> rule = Rule.of(s -> s.length() > 5, "too.short");
+            Rule<String> conditionalRule = rule.when(() -> false);
+
+            assertThatValidation(conditionalRule.test("abc"))
+                    .isValid()
+                    .hasValue("abc");
+        }
+
+        @Test
+        void when_predicate_whenConditionIsNull_throwsNullPointerException() {
+            Rule<String> rule = Rule.of(s -> true, "ok");
+            assertThatCode(() -> rule.when((Predicate<String>) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("condition cannot be null");
+        }
+
+        @Test
+        void when_supplier_whenConditionIsNull_throwsNullPointerException() {
+            Rule<String> rule = Rule.of(s -> true, "ok");
+            assertThatCode(() -> rule.when((java.util.function.Supplier<Boolean>) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("condition cannot be null");
+        }
+    }
 }

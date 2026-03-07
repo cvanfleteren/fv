@@ -8,6 +8,7 @@ import io.vavr.control.Option;
 
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * Represents a validation rule that can be applied to a value.
@@ -192,6 +193,40 @@ public interface Rule<T> {
                 // If you want richer behavior, prefer not(String)/not(ErrorMessage) or extend Rule to expose metadata.
                 ErrorMessage fallback = ErrorMessage.of("must.not.satisfy.rule");
                 return Validation.invalid(errorMapper.apply(fallback));
+            }
+            return Validation.valid(value);
+        };
+    }
+
+    /**
+     *Applies a conditional rule.
+     *
+     * @param condition the condition to test, must not be null
+     * @return a rule that tests the condition. If the condition is true, the original rule is applied.
+     * If the condition is false, the value is considered valid by default.
+     */
+    default Rule<T> when(Predicate<T> condition) {
+        Objects.requireNonNull(condition, "condition cannot be null");
+        return value -> {
+            if (condition.test(value)) {
+                return this.test(value);
+            }
+            return Validation.valid(value);
+        };
+    }
+
+    /**
+     *Applies a conditional rule.
+     *
+     * @param condition the condition to test, must not be null
+     * @return a rule that tests the condition. If the condition is true, the original rule is applied.
+     * If the condition is false, the value is considered valid by default.
+     */
+    default Rule<T> when(Supplier<Boolean> condition) {
+        Objects.requireNonNull(condition, "condition cannot be null");
+        return value -> {
+            if (condition.get()) {
+                return this.test(value);
             }
             return Validation.valid(value);
         };
