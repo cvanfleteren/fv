@@ -228,6 +228,18 @@ public sealed interface Validation<T> {
             case Invalid(var errors) -> whenInvalid.apply(errors);
         };
     }
+
+    /**
+     * Refines this validation allowing a Rule to test its value.
+     * If the resulting Validation is valid, the original Validation is returned.
+     * If the resulting Validation is invalid, that Validation is returned with the refined error messages.
+     *
+     * @param refinement the rule to apply to the validation.
+     * @return a new {@link Validation} containing the refined result.
+     */
+    default Validation<T> refine(Rule<? super T> refinement) {
+        return narrowSuper(this.flatMap(refinement::test));
+    }
     //endregion
 
     //regionError handling

@@ -623,6 +623,55 @@ public class ValidationTest {
     }
 
     @Nested
+    class Refine {
+
+        @Test
+        void refine_whenValidationIsValidAndRulePasses_returnsValid() {
+            // Arrange
+            Validation<BigDecimal> valid = Validation.valid(BigDecimal.TEN);
+            Rule<BigDecimal> refinement = Rule.of(s -> s.signum() == 1, "not.positive");
+
+            // Act
+            Validation<BigDecimal> result = valid.refine(refinement);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(BigDecimal.TEN);
+        }
+
+        @Test
+        void refine_whenValidationIsValidAndRuleFails_returnsInvalidWithRuleError() {
+            // Arrange
+            Validation<String> valid = Validation.valid("hi");
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+
+            // Act
+            Validation<String> result = valid.refine(rule);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("too.short");
+        }
+
+        @Test
+        void refine_whenValidationIsInvalid_returnsOriginalInvalidWithoutRunningRule() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("original.error");
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+
+            // Act
+            Validation<String> result = invalid.refine(rule);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("original.error");
+        }
+    }
+
+    @Nested
     class At {
 
         @Test
