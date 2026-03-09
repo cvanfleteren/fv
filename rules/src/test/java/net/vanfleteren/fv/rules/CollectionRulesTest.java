@@ -25,14 +25,14 @@ class CollectionRulesTest {
 
         @Test
         void valid() {
-            validTest(List.of("x"), notEmpty);
-            validTest(HashSet.of(1), notEmpty);
+            validTest(List.of("x"), collections().notEmpty());
+            validTest(HashSet.of(1), collections().notEmpty());
         }
 
         @Test
         void invalid() {
-            invalidTest(new ArrayList<>(), notEmpty, "cannot.be.empty");
-            invalidTest(HashSet.of(), notEmpty, "cannot.be.empty");
+            invalidTest(new ArrayList<>(), collections().notEmpty(), "cannot.be.empty");
+            invalidTest(HashSet.of(), collections().notEmpty(), "cannot.be.empty");
         }
     }
 

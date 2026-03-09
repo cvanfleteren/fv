@@ -42,18 +42,19 @@ public class API {
      */
     public static void assertAllValid(Validation<?>... validations) {
         Iterator<ErrorMessage> it = Iterator.of(validations).flatMap(Validation::errors);
-        if(! it.isEmpty()) {
+        if (!it.isEmpty()) {
             throw new ValidationException(it.toList());
         }
     }
 
     //region assertAllValid with Tuples
+
     /**
      * Asserts that two validations are valid and returns their values as a {@link Tuple2}.
      * If any validation is invalid, a {@link ValidationException} is thrown.
      *
-     * @param v1 the first validation.
-     * @param v2 the second validation.
+     * @param v1   the first validation.
+     * @param v2   the second validation.
      * @param <T1> type of the first value.
      * @param <T2> type of the second value.
      * @return a {@link Tuple2} containing the valid values.
@@ -68,9 +69,9 @@ public class API {
     /**
      * Asserts that three validations are valid and returns their values as a {@link Tuple3}.
      *
-     * @param v1 the first validation.
-     * @param v2 the second validation.
-     * @param v3 the third validation.
+     * @param v1   the first validation.
+     * @param v2   the second validation.
+     * @param v3   the third validation.
      * @param <T1> type of the first value.
      * @param <T2> type of the second value.
      * @param <T3> type of the third value.
@@ -89,10 +90,10 @@ public class API {
     /**
      * Asserts that four validations are valid and returns their values as a {@link Tuple4}.
      *
-     * @param v1 the first validation.
-     * @param v2 the second validation.
-     * @param v3 the third validation.
-     * @param v4 the fourth validation.
+     * @param v1   the first validation.
+     * @param v2   the second validation.
+     * @param v3   the third validation.
+     * @param v4   the fourth validation.
      * @param <T1> type of the first value.
      * @param <T2> type of the second value.
      * @param <T3> type of the third value.
@@ -113,11 +114,11 @@ public class API {
     /**
      * Asserts that five validations are valid and returns their values as a {@link Tuple5}.
      *
-     * @param v1 the first validation.
-     * @param v2 the second validation.
-     * @param v3 the third validation.
-     * @param v4 the fourth validation.
-     * @param v5 the fifth validation.
+     * @param v1   the first validation.
+     * @param v2   the second validation.
+     * @param v3   the third validation.
+     * @param v4   the fourth validation.
+     * @param v5   the fifth validation.
      * @param <T1> type of the first value.
      * @param <T2> type of the second value.
      * @param <T3> type of the third value.
@@ -140,12 +141,12 @@ public class API {
     /**
      * Asserts that six validations are valid and returns their values as a {@link Tuple6}.
      *
-     * @param v1 the first validation.
-     * @param v2 the second validation.
-     * @param v3 the third validation.
-     * @param v4 the fourth validation.
-     * @param v5 the fifth validation.
-     * @param v6 the sixth validation.
+     * @param v1   the first validation.
+     * @param v2   the second validation.
+     * @param v3   the third validation.
+     * @param v4   the fourth validation.
+     * @param v5   the fifth validation.
+     * @param v6   the sixth validation.
      * @param <T1> type of the first value.
      * @param <T2> type of the second value.
      * @param <T3> type of the third value.
@@ -171,13 +172,13 @@ public class API {
     /**
      * Asserts that seven validations are valid and returns their values as a {@link Tuple7}.
      *
-     * @param v1 the first validation.
-     * @param v2 the second validation.
-     * @param v3 the third validation.
-     * @param v4 the fourth validation.
-     * @param v5 the fifth validation.
-     * @param v6 the sixth validation.
-     * @param v7 the seventh validation.
+     * @param v1   the first validation.
+     * @param v2   the second validation.
+     * @param v3   the third validation.
+     * @param v4   the fourth validation.
+     * @param v5   the fifth validation.
+     * @param v6   the sixth validation.
+     * @param v7   the seventh validation.
      * @param <T1> type of the first value.
      * @param <T2> type of the second value.
      * @param <T3> type of the third value.
@@ -205,14 +206,14 @@ public class API {
     /**
      * Asserts that eight validations are valid and returns their values as a {@link Tuple8}.
      *
-     * @param v1 the first validation.
-     * @param v2 the second validation.
-     * @param v3 the third validation.
-     * @param v4 the fourth validation.
-     * @param v5 the fifth validation.
-     * @param v6 the sixth validation.
-     * @param v7 the seventh validation.
-     * @param v8 the eighth validation.
+     * @param v1   the first validation.
+     * @param v2   the second validation.
+     * @param v3   the third validation.
+     * @param v4   the fourth validation.
+     * @param v5   the fifth validation.
+     * @param v6   the sixth validation.
+     * @param v7   the seventh validation.
+     * @param v8   the eighth validation.
      * @param <T1> type of the first value.
      * @param <T2> type of the second value.
      * @param <T3> type of the third value.
@@ -239,6 +240,11 @@ public class API {
         return Validation.mapN(v1, v2, v3, v4, v5, v6, v7, v8, Tuple::of).getOrElseThrow();
     }
     //endregion
+
+
+    public static <T> Validation<T> notNull(T value, String name) {
+        return validateThat(value, name).is(Rule.notNull());
+    }
 
     /**
      * Starts a validation process for a collection of values.
@@ -297,7 +303,11 @@ public class API {
      * @return a {@link ValidationDSL} instance.
      */
     public static <T> ValidationDSL<T> validateThat(T value, String name) {
-        return new ValidationDSL<>(value,name);
+        return new ValidationDSL<>(value, name);
+    }
+
+    public static <T> ListValidationDSL<T> validateThatList(List<T> value, String name) {
+        return new ListValidationDSL<>(value, name);
     }
 
     /**
@@ -315,10 +325,10 @@ public class API {
         }
 
         public ValidationDSL(T value, String name) {
-            if(value == null) {
-                this.validation = Validation.invalid(ErrorMessage.of("cannot.be.null"));
+            if (value == null) {
+                this.validation = (Validation<T>) Validation.invalid(ErrorMessage.of("cannot.be.null")).at(name);
             } else {
-                this.validation = Validation.valid(value);
+                this.validation = Validation.valid(value).at(name);
             }
             this.name = name;
         }
@@ -341,6 +351,18 @@ public class API {
         }
 
         /**
+         * Maps the value being validated using the provided mapper function.
+         * If the current validation is already invalid, the mapper is not applied.
+         *
+         * @param mapper the function to apply.
+         * @param <Z>    the result type of the mapping.
+         * @return a new {@link ValidationDSL} with the mapped value.
+         */
+        public <Z> Validation<Z> mapsTo(Function1<T, Z> mapper) {
+            return this.validation.mapCatching(mapper).at(name);
+        }
+
+        /**
          * Validates that the value satisfies the given rule.
          * If the value is {@code null}, an error "cannot.be.null" is automatically added.
          *
@@ -351,6 +373,161 @@ public class API {
             Objects.requireNonNull(rule, "rule cannot be null");
             return validation
                     .flatMap(v -> Validation.narrowSuper(Rule.notNull().and(rule).test(v).at(name)));
+        }
+
+        /**
+         * Validates that the value satisfies the given rule.
+         * If the value is {@code null}, an error "cannot.be.null" is automatically added.
+         *
+         * @param rule the rule to check.
+         * @return a {@link Validation} result.
+         */
+        public ValidationDSL<T> passes(Rule<T> rule) {
+            if (validation.isValid()) {
+                return new ValidationDSL<>(rule.test(validation.getOrElseThrow()).at(this.name), this.name);
+            } else {
+                return this;
+            }
+        }
+    }
+
+    /**
+     * DSL class for validating a single value.
+     *
+     * @param <T> the type of the value.
+     */
+    public static class ListValidationDSL<T> {
+        private final List<T> value;
+        private final Validation<List<T>> validation;
+        private final String name;
+
+        public ListValidationDSL(List<T> value) {
+            this(value, "");
+        }
+
+        public ListValidationDSL(List<T> value, String name) {
+            this.value = value;
+            this.name = name;
+            if (value == null) {
+                this.validation = Validation.<List<T>>invalid(ErrorMessage.of("cannot.be.null")).at(name);
+            } else {
+                this.validation = Validation.valid(value).at(name);
+            }
+        }
+
+        private ListValidationDSL(Validation<List<T>> validation, List<T> value, String name) {
+            this.validation = Objects.requireNonNull(validation, "validation cannot be null");
+            this.value = value;
+            this.name = name;
+        }
+
+        /**
+         * Maps the value being validated using the provided mapper function.
+         * If the current validation is already invalid, the mapper is not applied.
+         *
+         * @param mapper the function to apply.
+         * @param <Z>    the result type of the mapping.
+         * @return a new {@link ListValidationDSL} with the mapped value.
+         */
+        public <Z> ListValidationDSL<Z> map(Function1<? super T, Z> mapper) {
+            return new ListValidationDSL<>(
+                    validation.mapCatching(l -> l.map(mapper)),
+                    value != null ? value.map(mapper) : null,
+                    name
+            );
+        }
+
+        /**
+         * Maps the value being validated using the provided mapper function.
+         * If the current validation is already invalid, the mapper is not applied.
+         *
+         * @param mapper the function to apply.
+         * @param <Z>    the result type of the mapping.
+         * @return a {@link Validation} of the mapped list.
+         */
+        public <Z> Validation<List<Z>> mapsTo(Function1<? super T, Z> mapper) {
+            return this.validation.mapCatching(l -> l.map(mapper));
+        }
+
+        /**
+         * Validates that all elements satisfy the given rule.
+         *
+         * @param rule the rule to apply to each element.
+         * @return a {@link Validation} result.
+         */
+        public Validation<List<T>> is(Rule<? super T> rule) {
+            Objects.requireNonNull(rule, "rule cannot be null");
+            return Validation.narrowSuper(validation
+                    .flatMap(v -> Validation.sequence(v.map(rule::test))));
+        }
+
+        /**
+         * Validates that the list satisfies the given rule and all elements satisfy the element rule.
+         *
+         * @param listRule    the rule for the list itself.
+         * @param elementRule the rule for each element.
+         * @return a {@link Validation} result.
+         */
+        public Validation<List<T>> is(Rule<? super List<T>> listRule, Rule<? super T> elementRule) {
+            return satisfying(listRule).each(elementRule).validation;
+        }
+
+        /**
+         * Validates that the list satisfies the given rule and all elements satisfy the element rule,
+         * then maps each element.
+         *
+         * @param listRule    the rule for the list itself.
+         * @param elementRule the rule for each element.
+         * @param mapper      the function to map each element.
+         * @param <Z>         the target type.
+         * @return a {@link Validation} result.
+         */
+        public <Z> Validation<List<Z>> is(Rule<? super List<T>> listRule, Rule<? super T> elementRule, Function1<? super T, Z> mapper) {
+            return satisfying(listRule).each(elementRule).mapsTo(mapper);
+        }
+
+        /**
+         * Validates that all elements satisfy the given rule.
+         * This method is non-short-circuiting and will collect errors even if the list is already invalid.
+         *
+         * @param rule the rule to apply to each element.
+         * @return a {@link ListValidationDSL} for chaining.
+         */
+        public ListValidationDSL<T> each(Rule<? super T> rule) {
+            if (value == null) {
+                return this;
+            }
+            Validation<List<T>> ruleValidation = Rule.<T>narrow(rule).liftToList().test(value).at(this.name);
+            return new ListValidationDSL<>(combine(validation, ruleValidation), value, this.name);
+        }
+
+        /**
+         * Validates that the list satisfies the given rule.
+         * This method is non-short-circuiting and will collect errors even if the list is already invalid.
+         *
+         * @param rule the rule for the list.
+         * @return a {@link ListValidationDSL} for chaining.
+         */
+        public ListValidationDSL<T> passes(Rule<? super List<T>> rule) {
+            if (value == null) {
+                return this;
+            }
+            Validation<List<T>> ruleValidation = Rule.<List<T>>narrow(rule).test(value).at(this.name);
+            return new ListValidationDSL<>(combine(validation, ruleValidation), value, this.name);
+        }
+
+        /**
+         * Alias for {@link #passes(Rule)}.
+         *
+         * @param rule the rule for the list.
+         * @return a {@link ListValidationDSL} for chaining.
+         */
+        public ListValidationDSL<T> satisfying(Rule<? super List<T>> rule) {
+            return passes(rule);
+        }
+
+        private static <T> Validation<T> combine(Validation<T> v1, Validation<T> v2) {
+            return Validation.mapN(v1, v2, (a, b) -> a);
         }
     }
 

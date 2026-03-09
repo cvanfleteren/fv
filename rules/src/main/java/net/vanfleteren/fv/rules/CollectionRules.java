@@ -35,7 +35,9 @@ public class CollectionRules {
      * <p>
      * Error key: {@code cannot.be.empty}
      */
-    public static Rule<Iterable<?>> notEmpty = Rule.of(value -> value.iterator().hasNext(), "cannot.be.empty");
+    public Rule<? super Iterable<?>> notEmpty() {
+            return Rule.of(value -> value.iterator().hasNext(), "cannot.be.empty");
+    }
 
     /**
      * Fails if the collection size is less than the specified minimum.
