@@ -382,6 +382,19 @@ public class API {
          * @param rule the rule to check.
          * @return a {@link Validation} result.
          */
+        public <R> Validation<R> is(MappingRule<? super T, ? extends R> rule) {
+            Objects.requireNonNull(rule, "rule cannot be null");
+            return validation
+                    .flatMap(v -> Validation.narrowSuper(MappingRule.<T>notNull().andThen(rule).test(v).at(name)));
+        }
+
+        /**
+         * Validates that the value satisfies the given rule.
+         * If the value is {@code null}, an error "cannot.be.null" is automatically added.
+         *
+         * @param rule the rule to check.
+         * @return a {@link Validation} result.
+         */
         public ValidationDSL<T> passes(Rule<T> rule) {
             if (validation.isValid()) {
                 return new ValidationDSL<>(rule.test(validation.getOrElseThrow()).at(this.name), this.name);

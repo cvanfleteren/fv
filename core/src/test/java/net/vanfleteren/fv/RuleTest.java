@@ -98,7 +98,7 @@ class RuleTest {
     class FactoryMethods {
 
         @Test
-        void of_whenPredicateMatches_returnsValidValidation() {
+        void of_whenPredicateMatches_returnsValidResult() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
 
@@ -161,7 +161,7 @@ class RuleTest {
         }
 
         @Test
-        void both_static_whenBothRulesPass_returnsValid() {
+        void both_static_whenBothRulesPass_returnsValidResult() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
@@ -199,7 +199,7 @@ class RuleTest {
         }
 
         @Test
-        void all_whenAllRulesPass_returnsValid() {
+        void all_whenAllRulesPass_returnsValidResult() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
@@ -220,7 +220,7 @@ class RuleTest {
     class AtLeastOneOf {
 
         @Test
-        void atLeastOneOf_whenOneRulePasses_returnsValid() {
+        void atLeastOneOf_whenOneRulePasses_returnsValidResult() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
@@ -237,7 +237,7 @@ class RuleTest {
         }
 
         @Test
-        void atLeastOneOf_whenMultipleRulesPass_returnsValid() {
+        void atLeastOneOf_whenMultipleRulesPass_returnsValidResult() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
@@ -288,7 +288,7 @@ class RuleTest {
         }
 
         @Test
-        void andAlso_whenBothRulesPass_returnsValid() {
+        void andAlso_whenBothRulesPass_returnsValidResult() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
@@ -318,7 +318,7 @@ class RuleTest {
         }
 
         @Test
-        void and_whenBothRulesMatch_returnsValidValidation() {
+        void and_whenBothRulesMatch_returnsValidResult() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
@@ -410,7 +410,7 @@ class RuleTest {
         }
 
         @Test
-        void or_whenFirstRuleMatches_returnsValidValidation() {
+        void or_whenFirstRuleMatches_returnsValidResult() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
@@ -426,7 +426,7 @@ class RuleTest {
         }
 
         @Test
-        void or_whenSecondRuleMatches_returnsValidValidation() {
+        void or_whenSecondRuleMatches_returnsValidResult() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 5, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
@@ -506,7 +506,7 @@ class RuleTest {
         }
 
         @Test
-        void not_withErrorKey_whenOriginalRuleFails_returnsValidWithSameValue() {
+        void not_withErrorKey_whenOriginalRuleFails_returnsValidResult() {
             // Arrange
             Rule<String> startsWithH = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
             Rule<String> notStartsWithH = startsWithH.not("must.not.start.with.h");
@@ -613,7 +613,7 @@ class RuleTest {
     class LiftToList {
 
         @Test
-        void liftToList_whenAllElementsAreValid_returnsValidList() {
+        void liftToList_whenAllElementsAreValid_returnsValidResult() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
             Rule<List<String>> listRule = rule.liftToList();
@@ -664,7 +664,7 @@ class RuleTest {
     class LiftToOption {
 
         @Test
-        void liftToOption_whenNone_returnsValidNone() {
+        void liftToOption_whenNone_returnsValidResult() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
             Rule<Option<String>> optionRule = rule.liftToOption();
@@ -679,7 +679,7 @@ class RuleTest {
         }
 
         @Test
-        void liftToOption_whenSomeAndValid_returnsValidSome() {
+        void liftToOption_whenSomeAndValid_returnsValidResult() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
             Rule<Option<String>> optionRule = rule.liftToOption();
@@ -713,7 +713,7 @@ class RuleTest {
     class LiftToMap {
 
         @Test
-        void liftToMap_whenAllValuesAreValid_returnsValidMap() {
+        void liftToMap_whenAllValuesAreValid_returnsValidResult() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
             Rule<Map<String, String>> mapRule = rule.liftToMap();
@@ -774,7 +774,7 @@ class RuleTest {
         }
 
         @Test
-        void liftToMap_withKeyExtractor_whenAllValuesAreValid_returnsValidMap() {
+        void liftToMap_withKeyExtractor_whenAllValuesAreValid_returnsValidResult() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
 
@@ -858,7 +858,7 @@ class RuleTest {
     class When {
 
         @Test
-        void when_predicate_whenConditionIsMetAndRulePasses_returnsValid() {
+        void when_predicate_whenConditionIsMetAndRulePasses_returnsValidResult() {
             Rule<String> rule = Rule.of(s -> s.length() > 5, "too.short");
             Rule<String> conditionalRule = rule.when(s -> s.startsWith("a"));
 
@@ -878,7 +878,7 @@ class RuleTest {
         }
 
         @Test
-        void when_predicate_whenConditionIsNotMet_returnsValid() {
+        void when_predicate_whenConditionIsNotMet_returnsValidResult() {
             Rule<String> rule = Rule.of(s -> s.length() > 10, "too.short");
             Rule<String> conditionalRule = rule.when(s -> s.startsWith("b"));
 
@@ -899,7 +899,7 @@ class RuleTest {
         }
 
         @Test
-        void when_supplier_whenConditionIsNotMet_returnsValid() {
+        void when_supplier_whenConditionIsNotMet_returnsValidResult() {
             Rule<String> rule = Rule.of(s -> s.length() > 5, "too.short");
             Rule<String> conditionalRule = rule.when(() -> false);
 

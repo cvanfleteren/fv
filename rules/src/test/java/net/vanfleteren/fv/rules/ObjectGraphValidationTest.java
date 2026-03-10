@@ -2,6 +2,7 @@ package net.vanfleteren.fv.rules;
 
 import io.vavr.collection.List;
 import net.vanfleteren.fv.ErrorMessage;
+import net.vanfleteren.fv.MappingRule;
 import net.vanfleteren.fv.Rule;
 import net.vanfleteren.fv.Validation;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,10 @@ class ObjectGraphValidationTest {
 
     // --- The Domain Records (The "Proper" objects) ---
 
-    record User(Username username, String email, Address address, List<Role> roles) {
+    record Email(String value) {
+    }
+
+    record User(Username username, Email email, Address address, List<Role> roles) {
     }
 
     record Address(String street, String city, String zipCode) {
@@ -80,10 +84,11 @@ class ObjectGraphValidationTest {
         static Validation<User> fromDto(UserDTO dto) {
 
             Rule<String> canBeRole = strings.minLength(2);
+            MappingRule<String, Email> canBeEmail = strings.minLength(2).and(strings.contains("@")).andThen(MappingRule.of(Email::new, "must.be.email"));
 
             return Validation.mapN(
                     validateThat(dto.username, "username").mapsTo(Username::new),
-                    validateThat(dto.email, "email").is(strings.contains("@")),
+                    validateThat(dto.email, "email").is(canBeEmail),
                     validateAddress(dto.address).at("address"),
                     validateThatList(dto.roles, "roles").satisfying(collections.notEmpty()).each(canBeRole).mapsTo(Role::new),
                     User::new
@@ -104,6 +109,7 @@ class ObjectGraphValidationTest {
         assertThatValidation(result).isValid();
         User user = result.getOrElseThrow();
         assertThat(user.username().value()).isEqualTo("jdoe");
+        assertThat(user.email().value()).isEqualTo("john.doe@example.com");
         assertThat(user.address().city()).isEqualTo("Brussels");
         assertThat(user.roles()).containsExactly(new Role("USER"), new Role("ADMIN"));
     }
@@ -134,7 +140,7 @@ class ObjectGraphValidationTest {
     void validateUser_whenRolesIsInvalid_collectsAllErrorsWithPaths() {
         // Arrange
         AddressDTO addressDto = new AddressDTO("street", "Brussels", "1021");
-        UserDTO userDto = new UserDTO("jaydee", "foo@bar.com", addressDto, List.of("A","BB"));
+        UserDTO userDto = new UserDTO("jaydee", "foo@bar.com", addressDto, List.of("A", "BB"));
 
         // Act
         Validation<User> result = UserValidator.fromDto(userDto);

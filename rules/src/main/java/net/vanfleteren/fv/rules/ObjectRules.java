@@ -1,5 +1,6 @@
 package net.vanfleteren.fv.rules;
 
+import net.vanfleteren.fv.MappingRule;
 import net.vanfleteren.fv.Rule;
 
 import java.util.Objects;
@@ -32,7 +33,7 @@ public class ObjectRules implements IObjectRules<Object> {
      * @return a {@link Rule} checking for non-null values.
      */
     public <T> Rule<T> notNull() {
-        return Rule.of(Objects::nonNull, "cannot.be.null");
+        return MappingRule.<T>notNull()::test;
     }
 
 }

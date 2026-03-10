@@ -43,7 +43,7 @@ import java.util.function.Supplier;
  * @param <T> The type of the value to be validated.
  */
 @FunctionalInterface
-public interface Rule<T> {
+public interface Rule<T> extends MappingRule<T,T> {
 
     /**
      * Tests the given value against the rule.
@@ -57,12 +57,12 @@ public interface Rule<T> {
      * Creates a {@link Rule} from the given predicate and error message key.
      *
      * @param predicate    the predicate to test values against.
-     * @param errorMessage the error message key to use if the predicate returns {@code false}.
+     * @param errorKey     the error message key to use if the predicate returns {@code false}.
      * @param <T>          the type of the value to be validated.
      * @return a new {@link Rule} instance.
      */
-    static <T> Rule<T> of(Predicate<T> predicate, String errorMessage) {
-        return of(predicate, ErrorMessage.of(errorMessage));
+    static <T> Rule<T> of(Predicate<T> predicate, String errorKey) {
+        return of(predicate, ErrorMessage.of(errorKey));
     }
 
     /**
@@ -233,26 +233,13 @@ public interface Rule<T> {
     }
 
     /**
-     * Turns this rule (back) into a {@link Predicate}.
-     *
-     * @param <S> the target type.
-     * @return a {@link Predicate} instance.
-     */
-    default <S extends T> Predicate<S> toPredicate() {
-        return value -> test(value).isValid();
-    }
-
-    /**
      * Lifts a {@link Rule} so it applies to a {@link List} of T instead of a single T.
      *
      * @return a new {@link Rule} instance.
      */
+    @Override
     default Rule<List<T>> liftToList() {
-        return values -> {
-            List<Validation<T>> validations = values.map(this::test);
-            // Validation.sequence already adds the [index] path segment, so we don't do it here.
-            return Validation.sequence(validations);
-        };
+        return values -> MappingRule.super.liftToList().test(values);
     }
 
     /**
@@ -264,10 +251,9 @@ public interface Rule<T> {
      *
      * @return a new {@link Rule} instance.
      */
+    @Override
     default Rule<Option<T>> liftToOption() {
-        return opt -> opt
-                .map(v -> this.test(v).map(Option::of))
-                .getOrElse(() -> Validation.valid(Option.none()));
+        return value -> MappingRule.super.liftToOption().test(value);
     }
 
     /**
@@ -285,9 +271,11 @@ public interface Rule<T> {
      * @param <K> the key type.
      * @return a new {@link Rule} instance.
      */
+    @Override
     default <K> Rule<Map<K, T>> liftToMap() {
-        return liftToMap(Objects::toString);
+        return value -> MappingRule.super.<K>liftToMap().test(value);
     }
+
 
     /**
      * Lifts this {@link Rule} so it applies to a {@link Map} of K to T.
@@ -303,7 +291,11 @@ public interface Rule<T> {
      * @param <K>          the key type.
      * @return a new {@link Rule} instance.
      */
+    @Override
     default <K> Rule<Map<K, T>> liftToMap(Function1<K, Object> keyExtractor) {
+        // this version can work a bit more efficiently since we know we can return
+        // the original map if all entries are valid
+        // as the values cannot change type in a Rule (as opposed to a MappingRule)
         return map -> {
             Seq<Validation<T>> validations = map.map(tuple ->
                     this.test(tuple._2)
@@ -399,14 +391,15 @@ public interface Rule<T> {
         return (Rule<T>) rule;
     }
 
+
     /**
-     * Creates a {@link Rule} that checks if a value is not {@code null}.
+     * Returns a Rule that validates the input is not null.
      *
-     * @param <T> the type of the value to be validated.
-     * @return a new {@link Rule} instance.
+     * @param <T> the type of input
+     * @return a Rule that returns valid input if it's not null, or an invalid result with error key "cannot.be.null" if null
      */
     static <T> Rule<T> notNull() {
-        return Rule.of(Objects::nonNull, "cannot.be.null");
+        return MappingRule.<T>notNull()::test;
     }
 
 }
