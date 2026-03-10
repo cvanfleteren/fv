@@ -438,10 +438,12 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.email}
      */
-    public static final Rule<String> looksLikeEmailAddress = Rule.of(
-            s -> isEmailPattern.matcher(s).matches(),
-            "must.be.email"
-    );
+    public Rule<String> looksLikeEmailAddress() {
+        return Rule.of(
+                s -> isEmailPattern.matcher(s).matches(),
+                "must.be.email"
+        );
+    }
 
     //endregion
 

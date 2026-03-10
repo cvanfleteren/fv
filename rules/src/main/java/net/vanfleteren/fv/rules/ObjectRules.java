@@ -31,7 +31,7 @@ public class ObjectRules implements IObjectRules<Object> {
      * @param <T> the type of the object.
      * @return a {@link Rule} checking for non-null values.
      */
-    public static <T> Rule<T> notNull() {
+    public <T> Rule<T> notNull() {
         return Rule.of(Objects::nonNull, "cannot.be.null");
     }
 

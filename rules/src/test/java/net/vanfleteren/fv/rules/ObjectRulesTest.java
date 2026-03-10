@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import static net.vanfleteren.fv.rules.ObjectRules.objects;
+import static net.vanfleteren.fv.rules.RulesTest.invalidTest;
 import static net.vanfleteren.fv.rules.RulesTest.validTest;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -20,14 +21,14 @@ class ObjectRulesTest {
 
         @Test
         void valid() {
-            validTest("hello", ObjectRules.notNull());
-            validTest(123, ObjectRules.notNull());
-            validTest(new Object(), ObjectRules.notNull());
+            validTest("hello", objects.notNull());
+            validTest(123, objects.notNull());
+            validTest(new Object(), objects.notNull());
         }
 
         @Test
         void invalid() {
-            RulesTest.invalidTest(null, ObjectRules.notNull(), "cannot.be.null");
+            invalidTest(null, objects.notNull(), "cannot.be.null");
         }
     }
 
@@ -42,8 +43,8 @@ class ObjectRulesTest {
 
         @Test
         void invalid() {
-            RulesTest.invalidTest("a", objects.equalTo("b"), "must.be.equal");
-            RulesTest.invalidTest(123, objects.equalTo(456), "must.be.equal");
+            invalidTest("a", objects.equalTo("b"), "must.be.equal");
+            invalidTest(123, objects.equalTo(456), "must.be.equal");
         }
 
         @Test
@@ -65,8 +66,8 @@ class ObjectRulesTest {
 
         @Test
         void invalid() {
-            RulesTest.invalidTest("a", objects.notEqualTo("a"), "must.not.be.equal");
-            RulesTest.invalidTest(123, objects.notEqualTo(123), "must.not.be.equal");
+            invalidTest("a", objects.notEqualTo("a"), "must.not.be.equal");
+            invalidTest(123, objects.notEqualTo(123), "must.not.be.equal");
         }
 
         @Test
@@ -88,10 +89,10 @@ class ObjectRulesTest {
 
         @Test
         void invalid() {
-            RulesTest.invalidTest("c", objects.oneOf("a", "b"), "must.be.one.of",
+            invalidTest("c", objects.oneOf("a", "b"), "must.be.one.of",
                     HashMap.of("values", HashSet.of("a", "b"))
             );
-            RulesTest.invalidTest(4, objects.oneOf(1, 2, 3), "must.be.one.of",
+            invalidTest(4, objects.oneOf(1, 2, 3), "must.be.one.of",
                     HashMap.of("values", HashSet.of(1, 2, 3))
             );
         }
@@ -108,10 +109,10 @@ class ObjectRulesTest {
 
         @Test
         void invalid() {
-            RulesTest.invalidTest("a", objects.notOneOf("a", "b"), "must.not.be.one.of",
+            invalidTest("a", objects.notOneOf("a", "b"), "must.not.be.one.of",
                     HashMap.of("values", HashSet.of("a", "b"))
             );
-            RulesTest.invalidTest(2, objects.notOneOf(1, 2, 3), "must.not.be.one.of",
+            invalidTest(2, objects.notOneOf(1, 2, 3), "must.not.be.one.of",
                     HashMap.of("values", HashSet.of(1, 2, 3))
             );
         }

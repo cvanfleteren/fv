@@ -416,24 +416,24 @@ class StringRulesTest {
         @Test
         void valid() {
             // Basic RFC‑822‑style addresses – keep it simple for our use‑case
-            validTest("user@example.com", strings.looksLikeEmailAddress);
-            validTest("first.last+tag@sub.domain.org", strings.looksLikeEmailAddress);
-            validTest("test@localhost", strings.looksLikeEmailAddress); // host only
-            validTest("name@123.456.789.012", strings.looksLikeEmailAddress); // numeric host
+            validTest("user@example.com", strings.looksLikeEmailAddress());
+            validTest("first.last+tag@sub.domain.org", strings.looksLikeEmailAddress());
+            validTest("test@localhost", strings.looksLikeEmailAddress()); // host only
+            validTest("name@123.456.789.012", strings.looksLikeEmailAddress()); // numeric host
         }
 
         @Test
         void invalid() {
             // Empty string
-            invalidTest("", strings.looksLikeEmailAddress, "must.be.email");
+            invalidTest("", strings.looksLikeEmailAddress(), "must.be.email");
             // No @ symbol
-            invalidTest("plainaddress", strings.looksLikeEmailAddress, "must.be.email");
+            invalidTest("plainaddress", strings.looksLikeEmailAddress(), "must.be.email");
             // Missing domain part
-            invalidTest("foo@", strings.looksLikeEmailAddress, "must.be.email");
+            invalidTest("foo@", strings.looksLikeEmailAddress(), "must.be.email");
             // Domain starts with a dot
-            invalidTest("foo@.com", strings.looksLikeEmailAddress, "must.be.email");
+            invalidTest("foo@.com", strings.looksLikeEmailAddress(), "must.be.email");
             // No local part
-            invalidTest("@example.com", strings.looksLikeEmailAddress, "must.be.email");
+            invalidTest("@example.com", strings.looksLikeEmailAddress(), "must.be.email");
         }
     }
 }

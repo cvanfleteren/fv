@@ -26,14 +26,14 @@ class JCollectionRulesTest {
 
         @Test
         void valid() {
-            validTest(List.of("x"), notEmpty);
-            validTest(java.util.Set.of(1), notEmpty);
+            validTest(List.of("x"), jCollections.notEmpty);
+            validTest(java.util.Set.of(1), jCollections.notEmpty);
         }
 
         @Test
         void invalid() {
-            invalidTest(new ArrayList<>(), notEmpty, "cannot.be.empty");
-            invalidTest(java.util.Set.of(), notEmpty, "cannot.be.empty");
+            invalidTest(new ArrayList<>(), jCollections.notEmpty, "cannot.be.empty");
+            invalidTest(java.util.Set.of(), jCollections.notEmpty, "cannot.be.empty");
         }
     }
 
@@ -42,15 +42,15 @@ class JCollectionRulesTest {
 
         @Test
         void valid() {
-            validTest(List.of(), minSize(0));
-            validTest(List.of("x"), minSize(1));
-            validTest(List.of("a", "b"), minSize(1));
+            validTest(List.of(), jCollections.minSize(0));
+            validTest(List.of("x"), jCollections.minSize(1));
+            validTest(List.of("a", "b"), jCollections.minSize(1));
         }
 
         @Test
         void invalid() {
-            invalidTest(List.of(), minSize(1), "min.size", HashMap.of("min", 1));
-            invalidTest(List.of("x"), minSize(2), "min.size", HashMap.of("min", 2));
+            invalidTest(List.of(), jCollections.minSize(1), "min.size", HashMap.of("min", 1));
+            invalidTest(List.of("x"), jCollections.minSize(2), "min.size", HashMap.of("min", 2));
         }
     }
 
@@ -59,15 +59,15 @@ class JCollectionRulesTest {
 
         @Test
         void valid() {
-            validTest(List.of(), maxSize(0));
-            validTest(List.of("x"), maxSize(1));
-            validTest(List.of("a", "b"), maxSize(2));
+            validTest(List.of(), jCollections.maxSize(0));
+            validTest(List.of("x"), jCollections.maxSize(1));
+            validTest(List.of("a", "b"), jCollections.maxSize(2));
         }
 
         @Test
         void invalid() {
-            invalidTest(List.of("x"), maxSize(0), "max.size", HashMap.of("max", 0));
-            invalidTest(List.of("a", "b", "c"), maxSize(2), "max.size", HashMap.of("max", 2));
+            invalidTest(List.of("x"), jCollections.maxSize(0), "max.size", HashMap.of("max", 0));
+            invalidTest(List.of("a", "b", "c"), jCollections.maxSize(2), "max.size", HashMap.of("max", 2));
         }
     }
 
@@ -76,15 +76,15 @@ class JCollectionRulesTest {
 
         @Test
         void valid() {
-            validTest(List.of(), sizeEquals(0));
-            validTest(List.of("x"), sizeEquals(1));
-            validTest(List.of("a", "b"), sizeEquals(2));
+            validTest(List.of(), jCollections.sizeEquals(0));
+            validTest(List.of("x"), jCollections.sizeEquals(1));
+            validTest(List.of("a", "b"), jCollections.sizeEquals(2));
         }
 
         @Test
         void invalid() {
-            invalidTest(List.of(), sizeEquals(1), "size.exact", HashMap.of("equal", 1));
-            invalidTest(List.of("x"), sizeEquals(0), "size.exact", HashMap.of("equal", 0));
+            invalidTest(List.of(), jCollections.sizeEquals(1), "size.exact", HashMap.of("equal", 1));
+            invalidTest(List.of("x"), jCollections.sizeEquals(0), "size.exact", HashMap.of("equal", 0));
         }
     }
 
@@ -93,22 +93,22 @@ class JCollectionRulesTest {
 
         @Test
         void valid() {
-            validTest(List.of(), sizeBetween(0, 0));
-            validTest(List.of("x"), sizeBetween(0, 1));
-            validTest(List.of("a", "b"), sizeBetween(1, 2));
+            validTest(List.of(), jCollections.sizeBetween(0, 0));
+            validTest(List.of("x"), jCollections.sizeBetween(0, 1));
+            validTest(List.of("a", "b"), jCollections.sizeBetween(1, 2));
         }
 
         @Test
         void invalid() {
             invalidTest(
                     List.of(),
-                    sizeBetween(1, 2),
+                    jCollections.sizeBetween(1, 2),
                     "size.between",
                     HashMap.of("min", 1, "max", 2)
             );
             invalidTest(
                     List.of("a", "b", "c"),
-                    sizeBetween(1, 2),
+                    jCollections.sizeBetween(1, 2),
                     "size.between",
                     HashMap.of("min", 1, "max", 2)
             );
@@ -120,14 +120,14 @@ class JCollectionRulesTest {
 
         @Test
         void valid() {
-            Rule<List<String>> noNulls = noNullElements();
+            Rule<List<String>> noNulls = jCollections.noNullElements();
             validTest(List.of("a", "b", "c"), noNulls);
-            validTest(List.of(), noNullElements());
+            validTest(List.of(), jCollections.noNullElements());
         }
 
         @Test
         void invalid() {
-            assertThatValidation(validateThat(Arrays.asList("a", null, "c"), "value").is(noNullElements()))
+            assertThatValidation(validateThat(Arrays.asList("a", null, "c"), "value").is(jCollections.noNullElements()))
                     .isInvalid()
                     .hasErrorMessages("value[1].cannot.be.null");
         }
@@ -138,25 +138,25 @@ class JCollectionRulesTest {
 
         @Test
         void valid_whenAllElementsMatch() {
-            Rule<List<Integer>> even = allMatch(n -> n % 2 == 0);
+            Rule<List<Integer>> even = jCollections.allMatch(n -> n % 2 == 0);
             validTest(List.of(2, 4, 6), even);
         }
 
         @Test
         void valid_whenEmptyCollection_vacuouslyTrue() {
-            validTest(List.<Integer>of(), allMatch(n -> n % 2 == 0));
+            validTest(List.<Integer>of(), jCollections.allMatch(n -> n % 2 == 0));
         }
 
         @Test
         void invalid_whenAnyElementDoesNotMatch_usesDefaultErrorKey() {
-            invalidTest(List.of(2, 3, 4), allMatch(n -> n % 2 == 0), "all.should.match");
+            invalidTest(List.of(2, 3, 4), jCollections.allMatch(n -> n % 2 == 0), "all.should.match");
         }
 
         @Test
         void invalid_whenAnyElementDoesNotMatch_usesProvidedErrorMessage() {
             assertThatValidation(
                     validateThat(List.of("a", "bb", "c"), "value")
-                            .is(allMatch((String s) -> s.length() == 1, ErrorMessage.of("len.must.be.one")))
+                            .is(jCollections.allMatch((String s) -> s.length() == 1, ErrorMessage.of("len.must.be.one")))
                     )
                     .isInvalid()
                     .hasErrorMessages("value[1].len.must.be.one");
@@ -166,7 +166,7 @@ class JCollectionRulesTest {
         void invalid_whenAnyElementDoesNotMatch_preservesProvidedErrorArgs() {
             invalidTest(
                     List.of("a", "bb"),
-                    allMatch(s -> s.length() == 1, ErrorMessage.of("len.must.be", "len", 1)),
+                    jCollections.allMatch(s -> s.length() == 1, ErrorMessage.of("len.must.be", "len", 1)),
                     "len.must.be",
                     HashMap.of("len", 1)
             );
@@ -175,7 +175,7 @@ class JCollectionRulesTest {
         @Test
         void throws_whenPredicateIsNull_andRuleIsEvaluated() {
             assertThatThrownBy(() ->
-                    validateThat(List.of(1), "value").is(allMatch(null)).getOrElseThrow()
+                    validateThat(List.of(1), "value").is(jCollections.allMatch(null)).getOrElseThrow()
             ).isInstanceOf(NullPointerException.class);
         }
     }
@@ -185,25 +185,25 @@ class JCollectionRulesTest {
 
         @Test
         void valid_whenNoElementsMatchPredicate() {
-            Rule<List<Integer>> noEvens = noneMatch(n -> n % 2 == 0);
+            Rule<List<Integer>> noEvens = jCollections.noneMatch(n -> n % 2 == 0);
             validTest(List.of(1, 3, 5), noEvens);
         }
 
         @Test
         void valid_whenEmptyCollection_vacuouslyTrue() {
-            validTest(List.<Integer>of(), noneMatch(n -> n % 2 == 0));
+            validTest(List.<Integer>of(), jCollections.noneMatch(n -> n % 2 == 0));
         }
 
         @Test
         void invalid_whenAnyElementMatchesPredicate_usesDefaultErrorKey() {
-            invalidTest(List.of(1, 2, 3), noneMatch(n -> n % 2 == 0), "none.should.match");
+            invalidTest(List.of(1, 2, 3), jCollections.noneMatch(n -> n % 2 == 0), "none.should.match");
         }
 
         @Test
         void invalid_whenAnyElementMatchesPredicate_usesProvidedErrorMessage_andAddsIndexPath() {
             assertThatValidation(
                     validateThat(List.of("a", "bb", "c"), "value")
-                            .is(noneMatch((String s) -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")))
+                            .is(jCollections.noneMatch((String s) -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")))
             )
                     .isInvalid()
                     .hasErrorMessages("value[1].len.must.not.be.two");
@@ -213,7 +213,7 @@ class JCollectionRulesTest {
         void invalid_whenAnyElementMatchesPredicate_preservesProvidedErrorArgs() {
             invalidTest(
                     List.of("a", "bb"),
-                    noneMatch(s -> s.length() == 2, ErrorMessage.of("len.must.not.be", "len", 2)),
+                    jCollections.noneMatch(s -> s.length() == 2, ErrorMessage.of("len.must.not.be", "len", 2)),
                     "len.must.not.be",
                     HashMap.of("len", 2)
             );
@@ -222,7 +222,7 @@ class JCollectionRulesTest {
         @Test
         void throws_whenPredicateIsNull_andRuleIsEvaluated() {
             assertThatThrownBy(() ->
-                    validateThat(List.of(1), "value").is(noneMatch(null)).getOrElseThrow()
+                    validateThat(List.of(1), "value").is(jCollections.noneMatch(null)).getOrElseThrow()
             ).isInstanceOf(NullPointerException.class);
         }
     }
@@ -232,25 +232,25 @@ class JCollectionRulesTest {
 
         @Test
         void valid_whenAtLeastOneElementMatchesPredicate() {
-            Rule<List<Integer>> hasEven = anyMatch(n -> n % 2 == 0);
+            Rule<List<Integer>> hasEven = jCollections.anyMatch(n -> n % 2 == 0);
             validTest(List.of(1, 2, 3), hasEven);
         }
 
         @Test
         void invalid_whenNoElementsMatchPredicate_usesDefaultErrorKey() {
-            invalidTest(List.of(1, 3, 5), anyMatch(n -> n % 2 == 0), "atleast.one.should.match");
+            invalidTest(List.of(1, 3, 5), jCollections.anyMatch(n -> n % 2 == 0), "atleast.one.should.match");
         }
 
         @Test
         void invalid_whenEmptyCollection_usesDefaultErrorKey() {
-            invalidTest(List.<Integer>of(), anyMatch(n -> n % 2 == 0), "atleast.one.should.match");
+            invalidTest(List.<Integer>of(), jCollections.anyMatch(n -> n % 2 == 0), "atleast.one.should.match");
         }
 
         @Test
         void invalid_whenNoElementsMatchPredicate_usesProvidedErrorMessage() {
             invalidTest(
                     List.of("a", "bb", "ccc"),
-                    anyMatch((String s) -> s.length() == 4, ErrorMessage.of("len.must.be.four")),
+                    jCollections.anyMatch((String s) -> s.length() == 4, ErrorMessage.of("len.must.be.four")),
                     "len.must.be.four"
             );
         }
@@ -259,7 +259,7 @@ class JCollectionRulesTest {
         void invalid_whenNoElementsMatchPredicate_preservesProvidedErrorArgs() {
             invalidTest(
                     List.of("a", "bb"),
-                    anyMatch((String s) -> s.length() == 3, ErrorMessage.of("len.must.be", "len", 3)),
+                    jCollections.anyMatch((String s) -> s.length() == 3, ErrorMessage.of("len.must.be", "len", 3)),
                     "len.must.be",
                     HashMap.of("len", 3)
             );
@@ -267,7 +267,7 @@ class JCollectionRulesTest {
 
         @Test
         void throws_whenPredicateIsNull() {
-            assertThatThrownBy(() -> anyMatch(null))
+            assertThatThrownBy(() -> jCollections.anyMatch(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("predicate cannot be null");
         }
@@ -278,14 +278,14 @@ class JCollectionRulesTest {
 
         @Test
         void valid_whenElementIsPresent() {
-            validTest(List.of("a", "b", "c"), contains("b"));
+            validTest(List.of("a", "b", "c"), jCollections.contains("b"));
         }
 
         @Test
         void invalid_whenElementIsNotPresent_includesElementArg() {
             invalidTest(
                     List.of("a", "b", "c"),
-                    contains("x"),
+                    jCollections.contains("x"),
                     "must.contain",
                     HashMap.of("element", "x")
             );
@@ -297,24 +297,24 @@ class JCollectionRulesTest {
 
         @Test
         void valid_whenAllRequiredElementsArePresent() {
-            validTest(List.of("a", "b", "c"), containsAll(List.of("a", "c")));
+            validTest(List.of("a", "b", "c"), jCollections.containsAll(List.of("a", "c")));
         }
 
         @Test
         void valid_whenRequiredIsEmpty() {
-            validTest(List.of("a", "b"), containsAll(List.of()));
+            validTest(List.of("a", "b"), jCollections.containsAll(List.of()));
         }
 
         @Test
         void valid_whenRequiredContainsDuplicates_duplicatesAreIgnored() {
-            validTest(List.of("a", "b", "c"), containsAll(List.of("a", "a", "c")));
+            validTest(List.of("a", "b", "c"), jCollections.containsAll(List.of("a", "a", "c")));
         }
 
         @Test
         void invalid_whenAnyRequiredElementIsMissing_includesRequiredSetArg() {
             invalidTest(
                     List.of("a", "b"),
-                    containsAll(List.of("a", "c")),
+                    jCollections.containsAll(List.of("a", "c")),
                     "must.contain.all",
                     HashMap.of("required", HashSet.of("a", "c"))
             );
@@ -322,7 +322,7 @@ class JCollectionRulesTest {
 
         @Test
         void throws_whenRequiredIsNull() {
-            assertThatThrownBy(() -> containsAll(null))
+            assertThatThrownBy(() -> jCollections.containsAll(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("required cannot be null");
         }
@@ -333,14 +333,14 @@ class JCollectionRulesTest {
 
         @Test
         void valid_whenAtLeastOneCandidateIsPresent() {
-            validTest(List.of("a", "b", "c"), containsAnyOf(List.of("x", "b")));
+            validTest(List.of("a", "b", "c"), jCollections.containsAnyOf(List.of("x", "b")));
         }
 
         @Test
         void invalid_whenNoCandidatesArePresent_includesCandidatesSetArg() {
             invalidTest(
                     List.of("a", "b", "c"),
-                    containsAnyOf(List.of("x", "y")),
+                    jCollections.containsAnyOf(List.of("x", "y")),
                     "must.contain.any.of",
                     HashMap.of("candidates", HashSet.of("x", "y"))
             );
@@ -350,7 +350,7 @@ class JCollectionRulesTest {
         void invalid_whenCandidatesIsEmpty() {
             invalidTest(
                     List.of("a", "b"),
-                    containsAnyOf(List.of()),
+                    jCollections.containsAnyOf(List.of()),
                     "must.contain.any.of",
                     HashMap.of("candidates", HashSet.empty())
             );
@@ -358,7 +358,7 @@ class JCollectionRulesTest {
 
         @Test
         void throws_whenCandidatesIsNull() {
-            assertThatThrownBy(() -> containsAnyOf(null))
+            assertThatThrownBy(() -> jCollections.containsAnyOf(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("candidates cannot be null");
         }
@@ -377,7 +377,7 @@ class JCollectionRulesTest {
                     new Person("c@example.com", "Carol")
             );
 
-            validTest(people, uniqueBy(Person::email, "email"));
+            validTest(people, jCollections.uniqueBy(Person::email, "email"));
         }
 
         @Test
@@ -391,7 +391,7 @@ class JCollectionRulesTest {
 
             invalidTest(
                     people,
-                    uniqueBy(Person::email, "email"),
+                    jCollections.uniqueBy(Person::email, "email"),
                     "must.be.unique.by.key",
                     HashMap.of(
                             "key", "email",
@@ -414,7 +414,7 @@ class JCollectionRulesTest {
 
             invalidTest(
                     people,
-                    uniqueBy(Person::email, "email"),
+                    jCollections.uniqueBy(Person::email, "email"),
                     "must.be.unique.by.key",
                     HashMap.of(
                             "key", "email",
@@ -433,7 +433,7 @@ class JCollectionRulesTest {
         void validateValuesWith_whenSomeValuesFail_accumulatesErrorsAndAddsIndexToPath() {
             // Arrange
             Rule<Number> rule = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
-            Rule<List<Integer>> listRule = JCollectionRules.validateValuesWith(rule);
+            Rule<List<Integer>> listRule = jCollections.validateValuesWith(rule);
 
             List<Integer> input = List.of(-1, 10, 0);
 

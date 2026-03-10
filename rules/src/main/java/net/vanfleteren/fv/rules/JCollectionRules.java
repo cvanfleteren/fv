@@ -15,6 +15,8 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
+import static net.vanfleteren.fv.rules.ObjectRules.objects;
+
 /**
  * Validation rules for {@link Collection} and {@link List} values.
  */
@@ -39,7 +41,7 @@ public class JCollectionRules {
      * <p>
      * Error key: {@code cannot.be.empty}
      */
-    public static Rule<Collection<?>> notEmpty = Rule.of(value -> value != null && !value.isEmpty(), "cannot.be.empty");
+    public Rule<Collection<?>> notEmpty = Rule.of(value -> value != null && !value.isEmpty(), "cannot.be.empty");
 
     /**
      * Fails if the collection size is less than the specified minimum.
@@ -54,7 +56,7 @@ public class JCollectionRules {
      * @param size the minimum allowed size.
      * @return a {@link Rule} checking the minimum size.
      */
-    public static Rule<Collection<?>> minSize(int size) {
+    public Rule<Collection<?>> minSize(int size) {
         return Rule.of(value -> value.size() >= size, ErrorMessage.of("min.size", "min", size));
     }
 
@@ -71,7 +73,7 @@ public class JCollectionRules {
      * @param size the maximum allowed size.
      * @return a {@link Rule} checking the maximum size.
      */
-    public static Rule<Collection<?>> maxSize(int size) {
+    public Rule<Collection<?>> maxSize(int size) {
         return Rule.of(value -> value.size() <= size, ErrorMessage.of("max.size", "max", size));
     }
 
@@ -88,7 +90,7 @@ public class JCollectionRules {
      * @param size the required size.
      * @return a {@link Rule} checking the exact size.
      */
-    public static Rule<Collection<?>> sizeEquals(int size) {
+    public Rule<Collection<?>> sizeEquals(int size) {
         return Rule.of(value -> value.size() == size, ErrorMessage.of("size.exact", "equal", size));
     }
 
@@ -107,7 +109,7 @@ public class JCollectionRules {
      * @param max the maximum allowed size (inclusive).
      * @return a {@link Rule} checking the size range.
      */
-    public static Rule<Collection<?>> sizeBetween(int min, int max) {
+    public Rule<Collection<?>> sizeBetween(int min, int max) {
         return Rule.of(
                 value -> {
                     int size = value.size();
@@ -125,8 +127,8 @@ public class JCollectionRules {
      * @param <T> the type of elements in the collection.
      * @return a {@link Rule} that validates if the collection has no null elements.
      */
-    public static <T> Rule<List<T>> noNullElements() {
-        return validateValuesWith(ObjectRules.notNull());
+    public <T> Rule<List<T>> noNullElements() {
+        return validateValuesWith(objects.notNull());
     }
 
     /**
@@ -138,7 +140,7 @@ public class JCollectionRules {
      * @param predicate the predicate to test each element against.
      * @return a {@link Rule} that validates if all elements match the predicate.
      */
-    public static <T> Rule<List<T>> allMatch(Predicate<T> predicate) {
+    public <T> Rule<List<T>> allMatch(Predicate<T> predicate) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
         return allMatch(predicate, ErrorMessage.of("all.should.match"));
     }
@@ -151,7 +153,7 @@ public class JCollectionRules {
      * @param errorMessage the error message to use if validation fails.
      * @return a {@link Rule} that validates if all elements match the predicate.
      */
-    public static <T> Rule<List<T>> allMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
+    public <T> Rule<List<T>> allMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
         return value -> validateValuesWith(Rule.of(predicate, errorMessage)).test(value);
     }
@@ -165,7 +167,7 @@ public class JCollectionRules {
      * @param predicate the predicate to test each element against.
      * @return a {@link Rule} that validates if none of the elements match the predicate.
      */
-    public static <T> Rule<List<T>> noneMatch(Predicate<T> predicate) {
+    public <T> Rule<List<T>> noneMatch(Predicate<T> predicate) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
         return noneMatch(predicate, ErrorMessage.of("none.should.match"));
     }
@@ -178,7 +180,7 @@ public class JCollectionRules {
      * @param errorMessage the error message to use if validation fails.
      * @return a {@link Rule} that validates if none of the elements match the predicate.
      */
-    public static <T> Rule<List<T>> noneMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
+    public <T> Rule<List<T>> noneMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
         return value -> validateValuesWith(Rule.of(predicate.negate(), errorMessage)).test(value);
     }
@@ -192,7 +194,7 @@ public class JCollectionRules {
      * @param predicate the predicate to test each element against.
      * @return a {@link Rule} that validates if at least one of the elements match the predicate.
      */
-    public static <T> Rule<List<T>> anyMatch(Predicate<T> predicate) {
+    public <T> Rule<List<T>> anyMatch(Predicate<T> predicate) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
         return anyMatch(predicate, ErrorMessage.of("atleast.one.should.match"));
     }
@@ -205,7 +207,7 @@ public class JCollectionRules {
      * @param errorMessage the error message to use if validation fails.
      * @return a {@link Rule} that validates if at least one of the elements match the predicate.
      */
-    public static <T> Rule<List<T>> anyMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
+    public <T> Rule<List<T>> anyMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
         return value -> value.stream().anyMatch(predicate) ? Validation.valid(value) : Validation.invalid(errorMessage);
     }
@@ -224,7 +226,7 @@ public class JCollectionRules {
      * @param element the element to check for.
      * @return a {@link Rule} that validates if the collection contains the element.
      */
-    public static <T> Rule<Collection<T>> contains(T element) {
+    public <T> Rule<Collection<T>> contains(T element) {
         return Rule.of(
                 values -> values.contains(element),
                 ErrorMessage.of("must.contain", HashMap.of("element", element))
@@ -246,7 +248,7 @@ public class JCollectionRules {
      * @param required the elements that must be present.
      * @return a {@link Rule} checking for all required elements.
      */
-    public static <T> Rule<Collection<T>> containsAll(Iterable<? extends T> required) {
+    public <T> Rule<Collection<T>> containsAll(Iterable<? extends T> required) {
         Objects.requireNonNull(required, "required cannot be null");
 
         Set<T> requiredSet = HashSet.ofAll(required);
@@ -272,7 +274,7 @@ public class JCollectionRules {
      * @param candidates the candidate elements.
      * @return a {@link Rule} checking for any of the candidate elements.
      */
-    public static <T> Rule<Collection<T>> containsAnyOf(Iterable<? extends T> candidates) {
+    public <T> Rule<Collection<T>> containsAnyOf(Iterable<? extends T> candidates) {
         Objects.requireNonNull(candidates, "candidates cannot be null");
 
         Set<T> candidateSet = HashSet.ofAll(candidates);
@@ -307,7 +309,7 @@ public class JCollectionRules {
      * @param key the label for the key (e.g., "email").
      * @return a {@link Rule} checking for uniqueness by key.
      */
-    public static <T, K> Rule<Collection<T>> uniqueBy(Function1<T, K> keyExtractor, String key) {
+    public <T, K> Rule<Collection<T>> uniqueBy(Function1<T, K> keyExtractor, String key) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
         Objects.requireNonNull(key, "key cannot be null");
 
@@ -369,7 +371,7 @@ public class JCollectionRules {
      * @param rule the rule to apply to each element.
      * @return a {@link Rule} that applies the given rule to all elements in the list.
      */
-    public static <T> Rule<List<T>> validateValuesWith(Rule<? super T> rule) {
+    public <T> Rule<List<T>> validateValuesWith(Rule<? super T> rule) {
         return list -> {
             var validations = IntStream.range(0, list.size()).mapToObj(idx ->
                     rule.test(list.get(idx))
