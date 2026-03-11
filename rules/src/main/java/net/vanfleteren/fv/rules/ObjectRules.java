@@ -1,7 +1,10 @@
 package net.vanfleteren.fv.rules;
 
+import io.vavr.control.Try;
+import net.vanfleteren.fv.ErrorMessage;
 import net.vanfleteren.fv.MappingRule;
 import net.vanfleteren.fv.Rule;
+import net.vanfleteren.fv.Validation;
 
 import java.util.Objects;
 
@@ -34,6 +37,22 @@ public class ObjectRules implements IObjectRules<Object> {
      */
     public <T> Rule<T> notNull() {
         return MappingRule.<T>notNull()::test;
+    }
+
+    /**
+     * Fails if the input string is not a valid enum value for the given enum class.
+     * <p>
+     * Error key: {@code invalid.enum.value}
+     *
+     * @param <E> the type of the enum.
+     * @return a {@link MappingRule} checking for valid enum values.
+     */
+    public <E extends Enum<E>> MappingRule<String, E> isEnum(Class<E> clazz) {
+        return input -> Try.of(() -> Enum.valueOf(clazz, input))
+                .fold(
+                        f -> Validation.invalid(ErrorMessage.of("invalid.enum.value", "value", input)),
+                        Validation::valid
+                );
     }
 
 }

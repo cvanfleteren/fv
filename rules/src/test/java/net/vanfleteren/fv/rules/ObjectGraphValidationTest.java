@@ -26,8 +26,9 @@ class ObjectGraphValidationTest {
     record Address(String street, String city, String zipCode) {
     }
 
-    record Role(String name) {
-    }
+   enum Role {
+        USER,ADMIN
+   }
 
     record Username(String value) {
         Username {
@@ -90,7 +91,7 @@ class ObjectGraphValidationTest {
                     validateThat(dto.username, "username").mapsTo(Username::new),
                     validateThat(dto.email, "email").is(canBeEmail),
                     validateAddress(dto.address).at("address"),
-                    validateThatList(dto.roles, "roles").satisfying(collections.notEmpty()).each(canBeRole).mapsTo(Role::new),
+                    validateThatList(dto.roles, "roles").satisfying(collections.notEmpty()).each(canBeRole).mapsTo(Role::valueOf),
                     User::new
             );
         }
@@ -111,7 +112,7 @@ class ObjectGraphValidationTest {
         assertThat(user.username().value()).isEqualTo("jdoe");
         assertThat(user.email().value()).isEqualTo("john.doe@example.com");
         assertThat(user.address().city()).isEqualTo("Brussels");
-        assertThat(user.roles()).containsExactly(new Role("USER"), new Role("ADMIN"));
+        assertThat(user.roles()).containsExactly(Role.USER, Role.ADMIN);
     }
 
     @Test
