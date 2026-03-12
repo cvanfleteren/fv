@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import static org.assertj.core.api.Assertions.*;
@@ -1354,14 +1356,65 @@ public class ValidationTest {
         }
 
         @Test
-        void orElse_whenFallbackIsNull_throwsNullPointerException() {
+        void orElseSupplier_whenValid_returnsSameValidationAndDoesNotInvokeSupplier() {
+            // Arrange
+            Validation<String> actual = Validation.valid("actual");
+            AtomicBoolean supplierInvoked = new AtomicBoolean(false);
+            Supplier<Validation<String>> fallbackSupplier = () -> {
+                supplierInvoked.set(true);
+                return Validation.valid("fallback");
+            };
+
+            // Act
+            Validation<String> result = actual.orElse(fallbackSupplier);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("actual");
+            assertThat(supplierInvoked).isFalse();
+        }
+
+        @Test
+        void orElseSupplier_whenInvalid_returnsSupplierResult() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("error");
+            Validation<String> fallback = Validation.valid("fallback");
+
+            // Act
+            Validation<String> result = invalid.orElse(() -> fallback);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("fallback");
+        }
+
+        @Test
+        void orElseSupplier_variance() {
+            // Arrange
+            Validation<Integer> v1 = Validation.valid(1);
+            Supplier<Validation<Double>> v2Supplier = () -> Validation.valid(2.0);
+
+            // Act
+            // Number because that is the first common supertype
+            Validation<Number> result = v1.orElse(v2Supplier);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(1);
+        }
+
+        @Test
+        void orElseSupplier_whenSupplierIsNull_throwsNullPointerException() {
             // Arrange
             Validation<String> valid = Validation.valid("actual");
 
             // Act & Assert
-            assertThatThrownBy(() -> valid.orElse(null))
+            assertThatThrownBy(() -> valid.orElse((Supplier<Validation<String>>) null))
                     .isInstanceOf(NullPointerException.class)
-                    .hasMessage("other validation cannot be null");
+                    .hasMessage("supplier is null");
         }
     }
 
@@ -1611,34 +1664,6 @@ public class ValidationTest {
             assertThatValidation(result)
                     .isInvalid()
                     .hasErrorMessages("fail");
-        }
-    }
-
-    @Nested
-    class ToOptional {
-
-        @Test
-        void toOptional_whenValid_returnsOptionalWithValue() {
-            // Arrange
-            Validation<String> valid = Validation.valid("hello");
-
-            // Act
-            Optional<String> result = valid.toOptional();
-
-            // Assert
-            assertThat(result).contains("hello");
-        }
-
-        @Test
-        void toOptional_whenInvalid_returnsEmptyOptional() {
-            // Arrange
-            Validation<String> invalid = Validation.invalid("error");
-
-            // Act
-            Optional<String> result = invalid.toOptional();
-
-            // Assert
-            assertThat(result).isEmpty();
         }
     }
 

@@ -98,18 +98,21 @@ public sealed interface Validation<T> extends Value<T> {
         return isValid() ? (Validation<U>) this : Validation.narrow(other);
     }
 
-    //endregion
-
     /**
-     * Converts this validation to a standard Java {@link Optional}.
-     * If this validation is valid, the optional will contain the value.
-     * If this validation is invalid, the optional will be empty.
+     * Returns the result of the initial validation if it is valid
+     * the passed Validation v supplied by the Supplier otherwise.
      *
-     * @return a standard Java {@link Optional} containing the value if valid, or empty otherwise.
+     * @param supplier the alternative validation supplier.
+     * @param <U>      the common type.
+     * @return a new {@link Validation} instance.
      */
-    default java.util.Optional<T> toOptional() {
-        return isValid() ? java.util.Optional.of(((Valid<T>) this).value()) : java.util.Optional.empty();
+    @SuppressWarnings("unchecked")
+    default <U> Validation<U> orElse(Supplier<? extends Validation<? extends U>> supplier) {
+        Objects.requireNonNull(supplier, "supplier is null");
+        return isValid() ? (Validation<U>) this : Validation.narrow(supplier.get());
     }
+
+    //endregion
 
     /**
      * Returns the error messages as a standard Java {@link java.util.List}.
