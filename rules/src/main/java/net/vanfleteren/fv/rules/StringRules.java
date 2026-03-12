@@ -9,6 +9,7 @@ import net.vanfleteren.fv.Rule;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
@@ -74,6 +75,17 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public MappingRule<String, BigDecimal> asBigDecimal() {
         return MappingRule.of(BigDecimal::new, "must.be.bigdecimal");
+    }
+
+    /**
+     * Fails if the string is not a valid UUID.
+     *<p>
+     * Error key: {@code must.be.uuid}
+     *
+     * @return a {@link MappingRule} that transforms a String into a UUID.
+     */
+    public MappingRule<String, UUID> asUUID() {
+        return MappingRule.of(UUID::fromString, "must.be.uuid");
     }
 
     //endregion

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.UUID;
 
 import static net.vanfleteren.fv.rules.RulesTest.invalidTest;
 import static net.vanfleteren.fv.rules.RulesTest.validTest;
@@ -464,7 +465,7 @@ class StringRulesTest {
 
         @Test
         void asLong_whenValidLongString_returnsValidLong() {
-            validTest("1234567890123", 1234567890123L, strings.asLong());
+            validTest("-1234567890123", -1234567890123L, strings.asLong());
         }
 
         @Test
@@ -513,6 +514,26 @@ class StringRulesTest {
         @Test
         void asBigDecimal_whenEmptyString_returnsInvalid() {
             invalidTest("", strings.asBigDecimal(), "must.be.bigdecimal");
+        }
+    }
+
+    @Nested
+    class AsUUID {
+
+        @Test
+        void asUUID_whenValidUUIDString_returnsValidUUID() {
+            String uuidStr = "550e8400-e29b-41d4-a716-446655440000";
+            validTest(uuidStr, UUID.fromString(uuidStr), strings.asUUID());
+        }
+
+        @Test
+        void asUUID_whenInvalidUUIDString_returnsInvalid() {
+            invalidTest("not-a-uuid", strings.asUUID(), "must.be.uuid");
+        }
+
+        @Test
+        void asUUID_whenEmptyString_returnsInvalid() {
+            invalidTest("", strings.asUUID(), "must.be.uuid");
         }
     }
 }
