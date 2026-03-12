@@ -59,6 +59,28 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     }
 
     /**
+     * Fails if the string is not a valid double.
+     * <p>
+     * Error key: {@code must.be.double}
+     *
+     * @return a {@link MappingRule} that transforms a String into a Double.
+     */
+    public MappingRule<String, Double> asDouble() {
+        return MappingRule.of(Double::parseDouble, "must.be.double");
+    }
+
+    /**
+     * Fails if the string is not a valid float.
+     * <p>
+     * Error key: {@code must.be.float}
+     *
+     * @return a {@link MappingRule} that transforms a String into a Float.
+     */
+    public MappingRule<String, Float> asFloat() {
+        return MappingRule.of(Float::parseFloat, "must.be.float");
+    }
+
+    /**
      * Fails if the string is not a valid BigInteger.
      * <p>
      * Error key: {@code must.be.biginteger}

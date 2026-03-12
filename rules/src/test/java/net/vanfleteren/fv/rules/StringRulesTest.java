@@ -483,6 +483,44 @@ class StringRulesTest {
     }
 
     @Nested
+    class AsDouble {
+
+        @Test
+        void asDouble_whenValidDoubleString_returnsValidDouble() {
+            validTest("123.45", 123.45, strings.asDouble());
+        }
+
+        @Test
+        void asDouble_whenInvalidDoubleString_returnsInvalid() {
+            invalidTest("abc", strings.asDouble(), "must.be.double");
+        }
+
+        @Test
+        void asDouble_whenEmptyString_returnsInvalid() {
+            invalidTest("", strings.asDouble(), "must.be.double");
+        }
+    }
+
+    @Nested
+    class AsFloat {
+
+        @Test
+        void asFloat_whenValidFloatString_returnsValidFloat() {
+            validTest("12.3", 12.3f, strings.asFloat());
+        }
+
+        @Test
+        void asFloat_whenInvalidFloatString_returnsInvalid() {
+            invalidTest("abc", strings.asFloat(), "must.be.float");
+        }
+
+        @Test
+        void asFloat_whenEmptyString_returnsInvalid() {
+            invalidTest("", strings.asFloat(), "must.be.float");
+        }
+    }
+
+    @Nested
     class AsBigInteger {
 
         @Test
