@@ -1316,17 +1316,6 @@ public class ValidationTest {
             // Assert
             assertThat(result).isEqualTo("fallback");
         }
-
-        @Test
-        void getOrElse_whenFallbackIsNull_throwsNullPointerException() {
-            // Arrange
-            Validation<String> invalid = Validation.invalid("some.error");
-
-            // Act & Assert
-            assertThatCode(() -> invalid.getOrElse(null))
-                    .isInstanceOf(NullPointerException.class)
-                    .hasMessage("fallback cannot be null");
-        }
     }
 
     @Nested
