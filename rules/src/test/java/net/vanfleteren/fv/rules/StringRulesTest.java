@@ -10,6 +10,7 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static net.vanfleteren.fv.rules.RulesTest.invalidTest;
@@ -595,6 +596,26 @@ class StringRulesTest {
         @Test
         void asURL_whenEmptyString_returnsInvalid() {
             invalidTest("", strings.asURL(), "must.be.url");
+        }
+    }
+
+    @Nested
+    class AsLocalDateTime {
+
+        @Test
+        void asLocalDateTime_whenValidLocalDateTimeString_returnsValidLocalDateTime() {
+            String ldtStr = "2023-10-27T10:15:30";
+            validTest(ldtStr, LocalDateTime.parse(ldtStr), strings.asLocalDateTime());
+        }
+
+        @Test
+        void asLocalDateTime_whenInvalidLocalDateTimeString_returnsInvalid() {
+            invalidTest("not-a-date-time", strings.asLocalDateTime(), "must.be.localdatetime");
+        }
+
+        @Test
+        void asLocalDateTime_whenEmptyString_returnsInvalid() {
+            invalidTest("", strings.asLocalDateTime(), "must.be.localdatetime");
         }
     }
 }

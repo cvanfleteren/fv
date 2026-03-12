@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -103,11 +104,9 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     }
 
 
-
-
     /**
      * Fails if the string is not a valid UUID.
-     *<p>
+     * <p>
      * Error key: {@code must.be.uuid}
      *
      * @return a {@link MappingRule} that transforms a String into a UUID.
@@ -118,12 +117,27 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
 
     /**
      * Fails if the strings is not a valid URL.
-     *<p>
+     * <p>
      * Error key: {@code must.be.url}
+     *
      * @return a {@link MappingRule} that transforms a String into a URL.
      */
     public MappingRule<String, URL> asURL() {
         return MappingRule.ofTry(s -> Try.of(() -> URI.create(s).toURL()), "must.be.url");
+    }
+
+    /**
+     * Fails if the string is not a valid LocalDateTime in ISO format ( eg. 2011-12-03T10:15:30)
+     *
+     * <p>
+     * Error key: {@code must.be.localdatetime}
+     *
+     * @return a {@link MappingRule} that transforms a String into a LocalDateTime.
+     * @see java.time.format.DateTimeFormatter#ISO_LOCAL_DATE_TIME
+     * @see LocalDateTime#parse(CharSequence)
+     */
+    public MappingRule<String, LocalDateTime> asLocalDateTime() {
+        return MappingRule.of(LocalDateTime::parse, "must.be.localdatetime");
     }
 
     //endregion
@@ -162,6 +176,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     //endregion
 
     //region length related
+
     /**
      * Fails if the string length is less than the specified minimum.
      * <p>
@@ -255,6 +270,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     //endregion
 
     //region contains / starts / ends / matches
+
     /**
      * Fails if the string does not start with the specified prefix.
      * <p>
@@ -461,7 +477,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Error key: {@code must.be.alphanumeric}
      */
     public Rule<String> alphaNumeric = Rule.of(
-            s ->  s.codePoints().allMatch(c ->
+            s -> s.codePoints().allMatch(c ->
                     // ‘0–9’
                     (c >= 48 && c <= 57) ||
                             // ‘A–Z’
@@ -502,9 +518,9 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link Rule} checking if the string contains only digits.
      */
     public Rule<String> onlyDigits() {
-        return Rule.of(  s ->  s.codePoints().allMatch(c ->
-                // ‘0–9’
-                (c >= 48 && c <= 57)
+        return Rule.of(s -> s.codePoints().allMatch(c ->
+                        // ‘0–9’
+                        (c >= 48 && c <= 57)
                 ),
                 "must.be.digits.only"
         );
@@ -526,11 +542,11 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     private static final Pattern isEmailPattern = Pattern.compile(
             // local part
             "^[A-Za-z0-9+_.-]+@" +
-            // domain part = either:
-            //   (1) a standard domain with at least one dot
-            //   or
-            //   (2) a single label that starts with a letter/digit
-            "([A-Za-z0-9-]+\\.[A-Za-z0-9.-]*|[A-Za-z0-9][A-Za-z0-9-]*)$"
+                    // domain part = either:
+                    //   (1) a standard domain with at least one dot
+                    //   or
+                    //   (2) a single label that starts with a letter/digit
+                    "([A-Za-z0-9-]+\\.[A-Za-z0-9.-]*|[A-Za-z0-9][A-Za-z0-9-]*)$"
     );
 
     /**
@@ -547,7 +563,6 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     }
 
     //endregion
-
 
 
 }
