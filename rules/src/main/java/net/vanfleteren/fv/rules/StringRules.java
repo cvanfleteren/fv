@@ -6,6 +6,8 @@ import net.vanfleteren.fv.ErrorMessage;
 import net.vanfleteren.fv.MappingRule;
 import net.vanfleteren.fv.Rule;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -50,6 +52,28 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public MappingRule<String, Long> asLong() {
         return MappingRule.of(Long::parseLong, "must.be.long");
+    }
+
+    /**
+     * Fails if the string is not a valid BigInteger.
+     * <p>
+     * Error key: {@code must.be.biginteger}
+     *
+     * @return a {@link MappingRule} that transforms a String into a BigInteger.
+     */
+    public MappingRule<String, BigInteger> asBigInteger() {
+        return MappingRule.of(BigInteger::new, "must.be.biginteger");
+    }
+
+    /**
+     * Fails if the string is not a valid BigDecimal.
+     * <p>
+     * Error key: {@code must.be.bigdecimal}
+     *
+     * @return a {@link MappingRule} that transforms a String into a BigDecimal.
+     */
+    public MappingRule<String, BigDecimal> asBigDecimal() {
+        return MappingRule.of(BigDecimal::new, "must.be.bigdecimal");
     }
 
     //endregion

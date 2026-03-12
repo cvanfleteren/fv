@@ -5,7 +5,9 @@ import io.vavr.collection.HashSet;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import static net.vanfleteren.fv.rules.RulesTest.invalidTest;
 import static net.vanfleteren.fv.rules.RulesTest.validTest;
 import static net.vanfleteren.fv.rules.StringRules.strings;
@@ -443,23 +445,17 @@ class StringRulesTest {
 
         @Test
         void asInteger_whenValidIntegerString_returnsValidInteger() {
-            assertThatValidation(strings.asInteger().test("123"))
-                    .isValid()
-                    .hasValue(123);
+            validTest("123", 123, strings.asInteger());
         }
 
         @Test
         void asInteger_whenInvalidIntegerString_returnsInvalid() {
-            assertThatValidation(strings.asInteger().test("abc"))
-                    .isInvalid()
-                    .hasErrorKeys("must.be.integer");
+            invalidTest("abc", strings.asInteger(), "must.be.integer");
         }
 
         @Test
         void asInteger_whenEmptyString_returnsInvalid() {
-            assertThatValidation(strings.asInteger().test(""))
-                    .isInvalid()
-                    .hasErrorKeys("must.be.integer");
+            invalidTest("", strings.asInteger(), "must.be.integer");
         }
     }
 
@@ -468,24 +464,55 @@ class StringRulesTest {
 
         @Test
         void asLong_whenValidLongString_returnsValidLong() {
-            assertThatValidation(strings.asLong().test("1234567890123"))
-                    .isValid()
-                    .hasValue(1234567890123L);
+            validTest("1234567890123", 1234567890123L, strings.asLong());
         }
 
         @Test
         void asLong_whenInvalidLongString_returnsInvalid() {
-            assertThatValidation(strings.asLong().test("not-a-long"))
-                    .isInvalid()
-                    .hasErrorKeys("must.be.long");
+            invalidTest("not-a-long", strings.asLong(), "must.be.long");
         }
 
         @Test
         void asLong_whenValueTooLargeForLong_returnsInvalid() {
-            // A value larger than Long.MAX_VALUE
-            assertThatValidation(strings.asLong().test("9223372036854775808"))
-                    .isInvalid()
-                    .hasErrorKeys("must.be.long");
+            invalidTest("9223372036854775808", strings.asLong(), "must.be.long");
+        }
+    }
+
+    @Nested
+    class AsBigInteger {
+
+        @Test
+        void asBigInteger_whenValidBigIntegerString_returnsValidBigInteger() {
+            validTest("12345678901234567890", new BigInteger("12345678901234567890"), strings.asBigInteger());
+        }
+
+        @Test
+        void asBigInteger_whenInvalidBigIntegerString_returnsInvalid() {
+            invalidTest("abc", strings.asBigInteger(), "must.be.biginteger");
+        }
+
+        @Test
+        void asBigInteger_whenEmptyString_returnsInvalid() {
+            invalidTest("", strings.asBigInteger(), "must.be.biginteger");
+        }
+    }
+
+    @Nested
+    class AsBigDecimal {
+
+        @Test
+        void asBigDecimal_whenValidBigDecimalString_returnsValidBigDecimal() {
+            validTest("123.45", new BigDecimal("123.45"), strings.asBigDecimal());
+        }
+
+        @Test
+        void asBigDecimal_whenInvalidBigDecimalString_returnsInvalid() {
+            invalidTest("not-a-decimal", strings.asBigDecimal(), "must.be.bigdecimal");
+        }
+
+        @Test
+        void asBigDecimal_whenEmptyString_returnsInvalid() {
+            invalidTest("", strings.asBigDecimal(), "must.be.bigdecimal");
         }
     }
 }
