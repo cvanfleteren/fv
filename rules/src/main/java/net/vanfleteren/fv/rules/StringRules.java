@@ -2,12 +2,15 @@ package net.vanfleteren.fv.rules;
 
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Set;
+import io.vavr.control.Try;
 import net.vanfleteren.fv.ErrorMessage;
 import net.vanfleteren.fv.MappingRule;
 import net.vanfleteren.fv.Rule;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URL;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -77,6 +80,9 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         return MappingRule.of(BigDecimal::new, "must.be.bigdecimal");
     }
 
+
+
+
     /**
      * Fails if the string is not a valid UUID.
      *<p>
@@ -86,6 +92,16 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public MappingRule<String, UUID> asUUID() {
         return MappingRule.of(UUID::fromString, "must.be.uuid");
+    }
+
+    /**
+     * Fails if the strings is not a valid URL.
+     *<p>
+     * Error key: {@code must.be.url}
+     * @return a {@link MappingRule} that transforms a String into a URL.
+     */
+    public MappingRule<String, URL> asURL() {
+        return MappingRule.ofTry(s -> Try.of(() -> URI.create(s).toURL()), "must.be.url");
     }
 
     //endregion

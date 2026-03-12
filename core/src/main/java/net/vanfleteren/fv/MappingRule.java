@@ -7,6 +7,7 @@ import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Seq;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -45,6 +46,25 @@ public interface MappingRule<T, R> {
        return of(mapper, ErrorMessage.of(errorKey));
     }
 
+    /**
+     * Creates a new MappingRule that applies the given mapper function to the input.
+     * If the mapper throws an exception, the rule will fail with the specified error key.
+     *
+     * @param <T>      the type of input to be mapped
+     * @param <R>      the type of output after mapping
+     * @param mapper   the function that maps T to R
+     * @param errorKey the errorKey to use if the mapping fails.
+     * @return a new {@link MappingRule} that applies the mapper and validates the result
+     */
+    static <T, R> MappingRule<T, R> ofTry(Function1<T, Try<R>> mapper, String errorKey) {
+        return input -> {
+            Try<R> _try = mapper.apply(input);
+            return _try.fold(
+                    t -> Validation.invalid(ErrorMessage.of(errorKey)),
+                    Validation::valid
+            );
+        };
+    }
     /**
      * Creates a new MappingRule that applies the given mapper function to the input.
      * If the mapper throws an exception, the rule will fail with the specified error key.

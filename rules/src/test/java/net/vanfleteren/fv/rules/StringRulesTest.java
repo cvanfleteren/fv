@@ -7,6 +7,9 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.UUID;
 
 import static net.vanfleteren.fv.rules.RulesTest.invalidTest;
@@ -534,6 +537,26 @@ class StringRulesTest {
         @Test
         void asUUID_whenEmptyString_returnsInvalid() {
             invalidTest("", strings.asUUID(), "must.be.uuid");
+        }
+    }
+
+    @Nested
+    class AsURL {
+
+        @Test
+        void asURL_whenValidURLString_returnsValidURL() throws MalformedURLException {
+            String urlStr = "https://www.example.com";
+            validTest(urlStr, URI.create(urlStr).toURL(), strings.asURL());
+        }
+
+        @Test
+        void asURL_whenInvalidURLString_returnsInvalid() {
+            invalidTest("not-a-url", strings.asURL(), "must.be.url");
+        }
+
+        @Test
+        void asURL_whenEmptyString_returnsInvalid() {
+            invalidTest("", strings.asURL(), "must.be.url");
         }
     }
 }
