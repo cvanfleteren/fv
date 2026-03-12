@@ -5,6 +5,7 @@ import io.vavr.collection.HashSet;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import static net.vanfleteren.fv.rules.RulesTest.invalidTest;
 import static net.vanfleteren.fv.rules.RulesTest.validTest;
 import static net.vanfleteren.fv.rules.StringRules.strings;
@@ -434,6 +435,57 @@ class StringRulesTest {
             invalidTest("foo@.com", strings.looksLikeEmailAddress(), "must.be.email");
             // No local part
             invalidTest("@example.com", strings.looksLikeEmailAddress(), "must.be.email");
+        }
+    }
+
+    @Nested
+    class AsInteger {
+
+        @Test
+        void asInteger_whenValidIntegerString_returnsValidInteger() {
+            assertThatValidation(strings.asInteger().test("123"))
+                    .isValid()
+                    .hasValue(123);
+        }
+
+        @Test
+        void asInteger_whenInvalidIntegerString_returnsInvalid() {
+            assertThatValidation(strings.asInteger().test("abc"))
+                    .isInvalid()
+                    .hasErrorKeys("must.be.integer");
+        }
+
+        @Test
+        void asInteger_whenEmptyString_returnsInvalid() {
+            assertThatValidation(strings.asInteger().test(""))
+                    .isInvalid()
+                    .hasErrorKeys("must.be.integer");
+        }
+    }
+
+    @Nested
+    class AsLong {
+
+        @Test
+        void asLong_whenValidLongString_returnsValidLong() {
+            assertThatValidation(strings.asLong().test("1234567890123"))
+                    .isValid()
+                    .hasValue(1234567890123L);
+        }
+
+        @Test
+        void asLong_whenInvalidLongString_returnsInvalid() {
+            assertThatValidation(strings.asLong().test("not-a-long"))
+                    .isInvalid()
+                    .hasErrorKeys("must.be.long");
+        }
+
+        @Test
+        void asLong_whenValueTooLargeForLong_returnsInvalid() {
+            // A value larger than Long.MAX_VALUE
+            assertThatValidation(strings.asLong().test("9223372036854775808"))
+                    .isInvalid()
+                    .hasErrorKeys("must.be.long");
         }
     }
 }

@@ -3,6 +3,7 @@ package net.vanfleteren.fv.rules;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Set;
 import net.vanfleteren.fv.ErrorMessage;
+import net.vanfleteren.fv.MappingRule;
 import net.vanfleteren.fv.Rule;
 
 import java.util.Objects;
@@ -26,6 +27,32 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     public static StringRules strings() {
         return strings;
     }
+
+    //region conversions
+
+    /**
+     * Fails if the string is not a valid integer.
+     * <p>
+     * Error key: {@code must.be.integer}
+     *
+     * @return a {@link MappingRule} that transforms a String into an Integer.
+     */
+    public MappingRule<String, Integer> asInteger() {
+        return MappingRule.of(Integer::parseInt, "must.be.integer");
+    }
+
+    /**
+     * Fails if the string is not a valid long.
+     * <p>
+     * Error key: {@code must.be.long}
+     *
+     * @return a {@link MappingRule} that transforms a String into an Long.
+     */
+    public MappingRule<String, Long> asLong() {
+        return MappingRule.of(Long::parseLong, "must.be.long");
+    }
+
+    //endregion
 
     //region whitespace related
     /**
