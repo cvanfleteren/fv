@@ -84,6 +84,20 @@ public sealed interface Validation<T> extends Value<T> {
             case Invalid(var errors) -> throw new ValidationException(errors);
         };
     }
+
+    /**
+     * Returns the result of the initial validation if it is valid, the passed Validation v otherwise.
+     *
+     * @param other the alternative validation.
+     * @param <U>   the common type.
+     * @return a new {@link Validation} instance.
+     */
+    @SuppressWarnings("unchecked")
+    default <U> Validation<U> orElse(Validation<? extends U> other) {
+        Objects.requireNonNull(other, "other validation cannot be null");
+        return isValid() ? (Validation<U>) this : Validation.narrow(other);
+    }
+
     //endregion
 
     /**

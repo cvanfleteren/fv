@@ -1291,8 +1291,83 @@ public class ValidationTest {
     }
 
     @Nested
-    class GetOrElse {
+    class OrElse {
 
+        @Test
+        void orElse_whenValid_returnsSameValidation() {
+            // Arrange
+            Validation<String> actual = Validation.valid("actual");
+            Validation<String> fallback = Validation.valid("fallback");
+
+            // Act
+            Validation<String> result = actual.orElse(fallback);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("actual");
+        }
+
+        @Test
+        void orElse_whenInvalid_returnsFallback() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("error");
+            Validation<String> fallback = Validation.valid("fallback");
+
+            // Act
+            Validation<String> result = invalid.orElse(fallback);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("fallback");
+        }
+
+        @Test
+        void orElse_whenBothInvalid_returnsFallbackInvalid() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("error1");
+            Validation<String> fallback = Validation.invalid("error2");
+
+            // Act
+            Validation<String> result = invalid.orElse(fallback);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error2");
+        }
+
+        @Test
+        void orElse_variance() {
+            // Arrange
+            Validation<Integer> v1 = Validation.valid(1);
+            Validation<Double> v2 = Validation.valid(2.0);
+
+            // Act
+            Validation<Number> result = v1.orElse(v2);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(1);
+        }
+
+        @Test
+        void orElse_whenFallbackIsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("actual");
+
+            // Act & Assert
+            assertThatThrownBy(() -> valid.orElse(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("other validation cannot be null");
+        }
+    }
+
+    @Nested
+    class GetOrElse {
+    
         @Test
         void getOrElse_whenValid_returnsValueIgnoringFallback() {
             // Arrange
