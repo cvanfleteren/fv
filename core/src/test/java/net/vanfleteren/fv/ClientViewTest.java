@@ -1,10 +1,10 @@
 package net.vanfleteren.fv;
 
-import net.vanfleteren.fv.assertj.ValidationAssert;
 import org.junit.jupiter.api.Test;
 
 import static net.vanfleteren.fv.API.assertAllValid;
 import static net.vanfleteren.fv.API.validateThat;
+import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ClientViewTest {
@@ -28,7 +28,7 @@ public class ClientViewTest {
 
         Validation<Person> personV = Validation.mapN(nameV, ageV, Person::new);
 
-        ValidationAssert.assertThatValidation(personV)
+        assertThatValidation(personV)
                 .isValid()
                 .hasValue(new Person("John", 30));
     }
@@ -79,7 +79,7 @@ public class ClientViewTest {
 
         Validation<Couple> coupleV = Validation.mapN(personAV, personBV, Couple::new);
 
-        ValidationAssert.assertThatValidation(coupleV)
+        assertThatValidation(coupleV)
                 .isInvalid()
                 .hasErrorMessages("a.name.too.short", "b.age.too.young");
     }
