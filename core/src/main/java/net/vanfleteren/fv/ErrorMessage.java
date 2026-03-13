@@ -23,14 +23,15 @@ public class ErrorMessage {
     /**
      * Creates a new {@link ErrorMessage}.
      *
-     * @param errorKey     the unique key for the error message (e.g., "invalid.input").
-     * @param paths        the list of {@link Path} segments leading to the erroneous value.
-     * @param parameters a map of dynamic arguments for the error message.
+     * @param errorKey   the unique key for the error message (e.g., {@code "invalid.input"}).
+     * @param paths      the list of {@link Path} segments leading to the erroneous value.
+     * @param parameters a map of dynamic parameters for the error message.
+     * @throws NullPointerException if any argument is null.
      */
-    public ErrorMessage(String errorKey, List<Path> paths, Map<String,Object> parameters) {
-        this.errorKey = Objects.requireNonNull(errorKey, "Message cannot be null");
-        this.paths = Objects.requireNonNull(paths, "Paths cannot be null");
-        this.parameters = Objects.requireNonNull(parameters, "Args cannot be null");
+    public ErrorMessage(String errorKey, List<Path> paths, Map<String, Object> parameters) {
+        this.errorKey = Objects.requireNonNull(errorKey, "errorKey cannot be null");
+        this.paths = Objects.requireNonNull(paths, "paths cannot be null");
+        this.parameters = Objects.requireNonNull(parameters, "parameters cannot be null");
     }
 
     /**
@@ -38,29 +39,32 @@ public class ErrorMessage {
      *
      * @param message the error message key.
      * @return a new {@link ErrorMessage} instance.
+     * @throws NullPointerException if {@code message} is null.
      */
     public static ErrorMessage of(String message) {
         return new ErrorMessage(message, List.of(), HashMap.empty());
     }
 
     /**
-     * Creates an {@link ErrorMessage} with the given key and arguments.
+     * Creates an {@link ErrorMessage} with the given key and parameters.
      *
-     * @param message the error message key.
-     * @param args    the dynamic arguments.
+     * @param message    the error message key.
+     * @param parameters the dynamic parameters.
      * @return a new {@link ErrorMessage} instance.
+     * @throws NullPointerException if any argument is null.
      */
-    public static ErrorMessage of(String message, Map<String,Object> args) {
-        return new ErrorMessage(message, List.of(), args);
+    public static ErrorMessage of(String message, Map<String, Object> parameters) {
+        return new ErrorMessage(message, List.of(), parameters);
     }
 
     /**
-     * Creates an {@link ErrorMessage} with the given key and a single argument.
+     * Creates an {@link ErrorMessage} with the given key and a single parameter.
      *
      * @param message the error message key.
-     * @param key     the argument name.
-     * @param value   the argument value.
+     * @param key     the parameter name.
+     * @param value   the parameter value.
      * @return a new {@link ErrorMessage} instance.
+     * @throws NullPointerException if {@code message} or {@code key} is null.
      */
     public static ErrorMessage of(String message, String key, Object value) {
         return of(message, HashMap.of(key, value));
@@ -124,7 +128,7 @@ public class ErrorMessage {
     }
 
     /**
-     * Returns a string representation of the error message including its arguments.
+     * Returns a string representation of the error message including its parameters.
      *
      * <p>Example:
      * <pre>{@code
@@ -135,7 +139,7 @@ public class ErrorMessage {
      * String s = "root.items.field[1].error.key:{val:foo}";
      * }</pre>
      *
-     * @return the formatted error message with arguments.
+     * @return the formatted error message with parameters.
      */
     public String formatted() {
         if(parameters.isEmpty()) {

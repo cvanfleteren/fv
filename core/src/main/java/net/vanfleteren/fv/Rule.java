@@ -40,16 +40,16 @@ import java.util.function.Supplier;
  * System.out.println(message);
  * }</pre>
  *
- * @param <T> The type of the value to be validated.
+ * @param <T> the type of the value to be validated.
  */
 @FunctionalInterface
-public interface Rule<T> extends MappingRule<T,T> {
+public interface Rule<T> extends MappingRule<T, T> {
 
     /**
      * Tests the given value against the rule.
      *
-     * @param value The value to be validated.
-     * @return A Validation object indicating the result of the test.
+     * @param value the value to be validated.
+     * @return a {@link Validation} object indicating the result of the test.
      */
     Validation<T> test(T value);
 
@@ -82,13 +82,14 @@ public interface Rule<T> extends MappingRule<T,T> {
     /**
      * Composes this rule with another rule using "and" logic.
      * The combined rule is successful only if both this and the other rule are successful.
-     * If both rules fail, the errors are NOT combined (the first failure stops the evaluation).
+     * If this rule fails, the evaluation stops and the other rule is not evaluated.
      * <p>
-     * If you want to combine Rules and have them both checked independently, use the {@link #andAlso(Rule)} method.
+     * If you want to evaluate both rules and accumulate their errors, use {@link #andAlso(Rule)}.
      *
-     * @param other the other rule.
+     * @param other the other rule to compose with.
      * @param <S>   the target type.
      * @return a new {@link Rule} instance.
+     * @throws NullPointerException if {@code other} is null.
      */
     @SuppressWarnings("unchecked")
     default <S extends T> Rule<S> and(Rule<? super S> other) {
@@ -97,15 +98,16 @@ public interface Rule<T> extends MappingRule<T,T> {
     }
 
     /**
-     * Composes this rule with another rule using "non-short circuiting and" logic.
+     * Composes this rule with another rule using "non-short-circuiting and" logic.
      * The combined rule is successful only if both this and the other rule are successful.
-     * If both rules fail, the errors are combined (the first failure does not stop the evaluation).
+     * If both rules fail, their errors are combined.
      * <p>
-     * If you want to combine Rules and have the second Rule only checked when the first Rule passes, use the {@link #and(Rule)} method.
+     * If you want to stop evaluation after the first failure, use {@link #and(Rule)}.
      *
-     * @param other the other rule.
+     * @param other the other rule to compose with.
      * @param <S>   the target type.
      * @return a new {@link Rule} instance.
+     * @throws NullPointerException if {@code other} is null.
      */
     @SuppressWarnings("unchecked")
     default <S extends T> Rule<S> andAlso(Rule<? super S> other) {
@@ -116,11 +118,12 @@ public interface Rule<T> extends MappingRule<T,T> {
     /**
      * Composes this rule with another rule using "or" logic.
      * The combined rule is successful if either this or the other rule is successful.
-     * If both rules fail, the error messages are combined.
+     * If both rules fail, their errors are combined.
      *
-     * @param other the other rule.
+     * @param other the other rule to compose with.
      * @param <S>   the target type.
      * @return a new {@link Rule} instance.
+     * @throws NullPointerException if {@code other} is null.
      */
     @SuppressWarnings("unchecked")
     default <S extends T> Rule<S> or(Rule<? super S> other) {
@@ -142,13 +145,10 @@ public interface Rule<T> extends MappingRule<T,T> {
 
     /**
      * Negates this rule. The caller must provide the error message key to use when the negated rule fails.
-     * <p>
-     * Semantics:
-     * - if this rule is valid =&gt; negated rule is invalid (with {@code negatedErrorKey})
-     * - if this rule is invalid =&gt; negated rule is valid
      *
      * @param negatedErrorKey the error message key to use if negation fails.
      * @return a negated {@link Rule}.
+     * @throws NullPointerException if {@code negatedErrorKey} is null.
      */
     default Rule<T> not(String negatedErrorKey) {
         Objects.requireNonNull(negatedErrorKey, "negatedErrorKey cannot be null");
@@ -157,13 +157,10 @@ public interface Rule<T> extends MappingRule<T,T> {
 
     /**
      * Negates this rule. The caller must provide the {@link ErrorMessage} to use when the negated rule fails.
-     * <p>
-     * Semantics:
-     * - if this rule is valid =&gt; negated rule is invalid (with {@code negatedError})
-     * - if this rule is invalid =&gt; negated rule is valid
      *
      * @param negatedError the error message to use if negation fails.
      * @return a negated {@link Rule}.
+     * @throws NullPointerException if {@code negatedError} is null.
      */
     default Rule<T> not(ErrorMessage negatedError) {
         Objects.requireNonNull(negatedError, "negatedError cannot be null");

@@ -614,7 +614,7 @@ public class ValidationTest {
             // Act & Assert
             assertThatCode(() -> valid.fold(errors -> "invalid", null))
                     .isInstanceOf(NullPointerException.class)
-                    .hasMessage("invalidMapper cannot be null");
+                    .hasMessage("whenValid cannot be null");
         }
 
         @Test
@@ -625,7 +625,7 @@ public class ValidationTest {
             // Act & Assert
             assertThatCode(() -> valid.fold(null, value -> "valid"))
                     .isInstanceOf(NullPointerException.class)
-                    .hasMessage("validMapper cannot be null");
+                    .hasMessage("whenInvalid cannot be null");
         }
     }
 
