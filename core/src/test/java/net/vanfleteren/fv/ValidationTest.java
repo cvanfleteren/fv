@@ -159,6 +159,98 @@ public class ValidationTest {
                     .hasValue(123);
         }
     }
+
+    @Nested
+    class WhenValid {
+
+        @Test
+        void whenValid_whenValid_executesConsumer() {
+            // Arrange
+            Validation<String> valid = Validation.valid("value");
+            AtomicBoolean executed = new AtomicBoolean(false);
+
+            // Act
+            Validation<String> result = valid.whenValid(v -> {
+                assertThat(v).isEqualTo("value");
+                executed.set(true);
+            });
+
+            // Assert
+            assertThat(executed.get()).isTrue();
+            assertThat(result).isSameAs(valid);
+        }
+
+        @Test
+        void whenValid_whenInvalid_doesNotExecuteConsumer() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("error");
+            AtomicBoolean executed = new AtomicBoolean(false);
+
+            // Act
+            Validation<String> result = invalid.whenValid(v -> executed.set(true));
+
+            // Assert
+            assertThat(executed.get()).isFalse();
+            assertThat(result).isSameAs(invalid);
+        }
+
+        @Test
+        void whenValid_whenConsumerIsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("value");
+
+            // Act & Assert
+            assertThatThrownBy(() -> valid.whenValid(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("action is null");
+        }
+    }
+
+    @Nested
+    class WhenInvalid {
+
+        @Test
+        void whenInvalid_whenInvalid_executesConsumer() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("error");
+            AtomicBoolean executed = new AtomicBoolean(false);
+
+            // Act
+            Validation<String> result = invalid.whenInvalid(errors -> {
+                assertThat(errors).hasSize(1);
+                assertThat(errors.get(0).key()).isEqualTo("error");
+                executed.set(true);
+            });
+
+            // Assert
+            assertThat(executed.get()).isTrue();
+            assertThat(result).isSameAs(invalid);
+        }
+
+        @Test
+        void whenInvalid_whenValid_doesNotExecuteConsumer() {
+            // Arrange
+            Validation<String> valid = Validation.valid("value");
+            AtomicBoolean executed = new AtomicBoolean(false);
+
+            // Act
+            Validation<String> result = valid.whenInvalid(errors -> executed.set(true));
+
+            // Assert
+            assertThat(executed.get()).isFalse();
+            assertThat(result).isSameAs(valid);
+        }
+
+        @Test
+        void whenInvalid_whenConsumerIsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("error");
+
+            // Act & Assert
+            assertThatThrownBy(() -> invalid.whenInvalid(null))
+                    .isInstanceOf(NullPointerException.class);
+        }
+    }
     
     @Nested
     class Map {

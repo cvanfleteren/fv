@@ -112,6 +112,36 @@ public sealed interface Validation<T> extends Value<T> {
         return isValid() ? (Validation<U>) this : Validation.narrow(supplier.get());
     }
 
+    /**
+     * Executes the given consumer on the contained value if this {@code Validation} is valid,
+     * otherwise does nothing. Acts the exact same like peek.
+     *
+     * @param consumer a consumer to apply to the contained value
+     * @return this {@code Validation}
+     * @throws NullPointerException if {@code consumer} is null
+     * @see #peek(Consumer) 
+     */
+    default Validation<T> whenValid(Consumer<T> consumer) {
+        return peek(consumer);
+    }
+
+    /**
+     * Executes the given consumer on the contained errors if this {@code Validation} is invalid,
+     * otherwise does nothing.
+     *
+     * @param consumer a consumer to apply to the contained errors
+     * @return this {@code Validation}
+     * @throws NullPointerException if {@code consumer} is null
+     */
+    default Validation<T> whenInvalid(Consumer<List<ErrorMessage>> consumer) {
+        if(!isValid()) {
+            consumer.accept(errors());
+        }
+        return this;
+    }
+
+
+
     //endregion
 
     /**
