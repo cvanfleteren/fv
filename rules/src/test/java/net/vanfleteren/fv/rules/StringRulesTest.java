@@ -9,7 +9,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -616,6 +617,46 @@ class StringRulesTest {
         @Test
         void asLocalDateTime_whenEmptyString_returnsInvalid() {
             invalidTest("", strings.asLocalDateTime(), "must.be.localdatetime");
+        }
+    }
+
+    @Nested
+    class AsLocalDate {
+
+        @Test
+        void asLocalDate_whenValidLocalDateString_returnsValidLocalDate() {
+            String ldStr = "2023-10-27";
+            validTest(ldStr, LocalDate.parse(ldStr), strings.asLocalDate());
+        }
+
+        @Test
+        void asLocalDate_whenInvalidLocalDateString_returnsInvalid() {
+            invalidTest("not-a-date", strings.asLocalDate(), "must.be.localdate");
+        }
+
+        @Test
+        void asLocalDate_whenEmptyString_returnsInvalid() {
+            invalidTest("", strings.asLocalDate(), "must.be.localdate");
+        }
+    }
+
+    @Nested
+    class AsInstant {
+
+        @Test
+        void asInstant_whenValidInstantString_returnsValidInstant() {
+            String instantStr = "2023-10-27T10:15:30Z";
+            validTest(instantStr, Instant.parse(instantStr), strings.asInstant());
+        }
+
+        @Test
+        void asInstant_whenInvalidInstantString_returnsInvalid() {
+            invalidTest("not-an-instant", strings.asInstant(), "must.be.instant");
+        }
+
+        @Test
+        void asInstant_whenEmptyString_returnsInvalid() {
+            invalidTest("", strings.asInstant(), "must.be.instant");
         }
     }
 }

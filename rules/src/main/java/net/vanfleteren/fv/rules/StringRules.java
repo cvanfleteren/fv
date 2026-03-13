@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
@@ -132,13 +134,43 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.localdatetime}
      *
-     * @return a {@link MappingRule} that transforms a String into a LocalDateTime.
+     * @return a {@link MappingRule} that transforms a String into a {@link LocalDateTime}.
      * @see java.time.format.DateTimeFormatter#ISO_LOCAL_DATE_TIME
      * @see LocalDateTime#parse(CharSequence)
      */
     public MappingRule<String, LocalDateTime> asLocalDateTime() {
         return MappingRule.of(LocalDateTime::parse, "must.be.localdatetime");
     }
+
+    /**
+     * Fails if the string is not a valid LocalDate in ISO format ( eg. 2011-12-03)
+     *
+     * <p>
+     * Error key: {@code must.be.localdate}
+     *
+     * @return a {@link MappingRule} that transforms a String into a {@link LocalDate}.
+     * @see java.time.format.DateTimeFormatter#ISO_LOCAL_DATE
+     * @see LocalDateTime#parse(CharSequence)
+     */
+    public MappingRule<String, LocalDate> asLocalDate() {
+        return MappingRule.of(LocalDate::parse, "must.be.localdate");
+    }
+
+    /**
+     * Fails if the string is not a valid Instant in ISO format ( eg. 2011-12-03T10:15:30Z)
+     *
+     * <p>
+     * Error key: {@code must.be.instant}
+     *
+     * @return a {@link MappingRule} that transforms a String into an {@link java.time.Instant}.
+     * @see java.time.format.DateTimeFormatter#ISO_INSTANT
+     * @see LocalDateTime#parse(CharSequence)
+     */
+    public MappingRule<String, Instant> asInstant() {
+        return MappingRule.of(Instant::parse, "must.be.instant");
+    }
+
+
 
     //endregion
 
