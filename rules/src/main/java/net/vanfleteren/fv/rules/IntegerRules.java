@@ -124,7 +124,7 @@ public class IntegerRules implements ComparableRules<Integer>, NumberRules<Integ
     /**
      * Fails if the value is less than the specified minimum.
      * <p>
-     * Error key: {@code min.value}
+     * Error key: {@code must.be.at.least}
      * <p>
      * Parameters:
      * <ul>
@@ -137,14 +137,14 @@ public class IntegerRules implements ComparableRules<Integer>, NumberRules<Integ
     public Rule<Integer> min(int minInclusive) {
         return Rule.of(
                 i -> i >= minInclusive,
-                ErrorMessage.of("min.value", "min", minInclusive)
+                ErrorMessage.of("must.be.at.least", "min", minInclusive)
         );
     }
 
     /**
      * Fails if the value is greater than the specified maximum.
      * <p>
-     * Error key: {@code max.value}
+     * Error key: {@code must.be.at.most}
      * <p>
      * Parameters:
      * <ul>
@@ -157,7 +157,7 @@ public class IntegerRules implements ComparableRules<Integer>, NumberRules<Integ
     public Rule<Integer> max(int maxInclusive) {
         return Rule.of(
                 i -> i <= maxInclusive,
-                ErrorMessage.of("max.value", "max", maxInclusive)
+                ErrorMessage.of("must.be.at.most", "max", maxInclusive)
         );
     }
     //endregion

@@ -30,7 +30,7 @@ public class ObjectRules implements IObjectRules<Object> {
     /**
      * Fails if the object is {@code null}.
      * <p>
-     * Error key: {@code cannot.be.null}
+     * Error key: {@code must.not.be.null}
      *
      * @param <T> the type of the object.
      * @return a {@link Rule} checking for non-null values.
@@ -42,7 +42,7 @@ public class ObjectRules implements IObjectRules<Object> {
     /**
      * Fails if the input string is not a valid enum value for the given enum class.
      * <p>
-     * Error key: {@code invalid.enum.value}
+     * Error key: {@code must.be.valid.enum.value}
      *
      * @param <E> the type of the enum.
      * @return a {@link MappingRule} checking for valid enum values.
@@ -50,7 +50,7 @@ public class ObjectRules implements IObjectRules<Object> {
     public <E extends Enum<E>> MappingRule<String, E> isEnum(Class<E> clazz) {
         return input -> Try.of(() -> Enum.valueOf(clazz, input))
                 .fold(
-                        f -> Validation.invalid(ErrorMessage.of("invalid.enum.value", "value", input)),
+                        f -> Validation.invalid(ErrorMessage.of("must.be.valid.enum.value", "value", input)),
                         Validation::valid
                 );
     }

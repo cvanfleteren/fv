@@ -35,16 +35,16 @@ public class CollectionRules {
     /**
      * Fails if the collection is empty.
      * <p>
-     * Error key: {@code cannot.be.empty}
+     * Error key: {@code must.not.be.empty}
      */
     public Rule<? super Iterable<?>> notEmpty() {
-            return Rule.of(value -> value.iterator().hasNext(), "cannot.be.empty");
+            return Rule.of(value -> value.iterator().hasNext(), "must.not.be.empty");
     }
 
     /**
      * Fails if the collection size is less than the specified minimum.
      * <p>
-     * Error key: {@code min.size}
+     * Error key: {@code must.have.min.size}
      * <p>
      * Parameters:
      * <ul>
@@ -55,13 +55,13 @@ public class CollectionRules {
      * @return a {@link Rule} checking the minimum size.
      */
     public Rule<Traversable<?>> minSize(int size) {
-        return Rule.of(value -> value.size() >= size, ErrorMessage.of("min.size", "min", size));
+        return Rule.of(value -> value.size() >= size, ErrorMessage.of("must.have.min.size", "min", size));
     }
 
     /**
      * Fails if the collection size is greater than the specified maximum.
      * <p>
-     * Error key: {@code max.size}
+     * Error key: {@code must.have.max.size}
      * <p>
      * Parameters:
      * <ul>
@@ -72,13 +72,13 @@ public class CollectionRules {
      * @return a {@link Rule} checking the maximum size.
      */
     public Rule<Traversable<?>> maxSize(int size) {
-        return Rule.of(value -> value.size() <= size, ErrorMessage.of("max.size", "max", size));
+        return Rule.of(value -> value.size() <= size, ErrorMessage.of("must.have.max.size", "max", size));
     }
 
     /**
      * Fails if the collection size is not equal to the specified size.
      * <p>
-     * Error key: {@code size.exact}
+     * Error key: {@code must.have.exact.size}
      * <p>
      * Parameters:
      * <ul>
@@ -89,13 +89,13 @@ public class CollectionRules {
      * @return a {@link Rule} checking the exact size.
      */
     public Rule<Traversable<?>> sizeEquals(int size) {
-        return Rule.of(value -> value.size() == size, ErrorMessage.of("size.exact", "equal", size));
+        return Rule.of(value -> value.size() == size, ErrorMessage.of("must.have.exact.size", "equal", size));
     }
 
     /**
      * Fails if the collection size is not between the specified bounds (inclusive).
      * <p>
-     * Error key: {@code size.between}
+     * Error key: {@code must.have.size.between}
      * <p>
      * Parameters:
      * <ul>
@@ -113,14 +113,14 @@ public class CollectionRules {
                     int size = value.size();
                     return size >= min && size <= max;
                 },
-                ErrorMessage.of("size.between", HashMap.of("min", min, "max", max))
+                ErrorMessage.of("must.have.size.between", HashMap.of("min", min, "max", max))
         );
     }
 
     /**
      * Checks if the collection contains no null elements.
      * <p>
-     * Error key: {@code value.cannot.be.null} (applied to elements)
+     * Error key: {@code must.not.be.null} (applied to elements)
      *
      * @param <T> the type of elements in the collection.
      * @return a {@link Rule} that validates if the collection has no null elements.
@@ -133,7 +133,7 @@ public class CollectionRules {
     /**
      * Checks if all elements in the collection match the given predicate.
      * <p>
-     * Error key: {@code all.should.match}
+     * Error key: {@code must.all.match}
      *
      * @param <T> the type of elements in the collection.
      * @param predicate the predicate to test each element against.
@@ -141,7 +141,7 @@ public class CollectionRules {
      */
     public <T> Rule<List<T>> allMatch(Predicate<T> predicate) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
-        return allMatch(predicate, ErrorMessage.of("all.should.match"));
+        return allMatch(predicate, ErrorMessage.of("must.all.match"));
     }
 
     /**
@@ -160,7 +160,7 @@ public class CollectionRules {
     /**
      * Checks if none of the elements in the collection match the given predicate.
      * <p>
-     * Error key: {@code none.should.match}
+     * Error key: {@code must.none.match}
      *
      * @param <T> the type of elements in the collection.
      * @param predicate the predicate to test each element against.
@@ -168,7 +168,7 @@ public class CollectionRules {
      */
     public <T> Rule<List<T>> noneMatch(Predicate<T> predicate) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
-        return noneMatch(predicate, ErrorMessage.of("none.should.match"));
+        return noneMatch(predicate, ErrorMessage.of("must.none.match"));
     }
 
     /**
@@ -187,7 +187,7 @@ public class CollectionRules {
     /**
      * Checks if at least one of the elements in the collection match the given predicate.
      * <p>
-     * Error key: {@code atleast.one.should.match}
+     * Error key: {@code must.at.least.one.match}
      *
      * @param <T> the type of elements in the collection.
      * @param predicate the predicate to test each element against.
@@ -195,7 +195,7 @@ public class CollectionRules {
      */
     public <T> Rule<List<T>> anyMatch(Predicate<T> predicate) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
-        return anyMatch(predicate, ErrorMessage.of("atleast.one.should.match"));
+        return anyMatch(predicate, ErrorMessage.of("must.at.least.one.match"));
     }
 
     /**

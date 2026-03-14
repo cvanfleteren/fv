@@ -129,11 +129,11 @@ class ObjectGraphValidationTest {
         assertThatValidation(result)
                 .isInvalid()
                 .hasErrorMessages(
-                        "username.value.min.length",
+                        "username.value.must.have.min.length",
                         "email.must.contain",
-                        "address.street.min.length",
-                        "address.zipCode.min.length",
-                        "roles.cannot.be.empty"
+                        "address.street.must.have.min.length",
+                        "address.zipCode.must.have.min.length",
+                        "roles.must.not.be.empty"
                 );
     }
 
@@ -150,7 +150,7 @@ class ObjectGraphValidationTest {
         assertThatValidation(result)
                 .isInvalid()
                 .hasErrorMessages(
-                        "roles[0].min.length"
+                        "roles[0].must.have.min.length"
                 );
     }
 

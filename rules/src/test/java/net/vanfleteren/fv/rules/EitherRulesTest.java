@@ -68,7 +68,7 @@ class EitherRulesTest {
             Rule<Either<String, Integer>> rule = EitherRules.<String, Integer>eithers().isLeft(StringRules.strings.notEmpty);
             assertThatValidation(validateThat(Either.<String, Integer>left(""), "value").is(rule))
                     .isInvalid()
-                    .hasErrorMessages("value.cannot.be.empty");
+                    .hasErrorMessages("value.must.not.be.empty");
         }
 
         @Test
@@ -95,7 +95,7 @@ class EitherRulesTest {
             Rule<Either<String, Integer>> rule = EitherRules.<String, Integer>eithers().validateLeftWith(StringRules.strings.notEmpty);
             assertThatValidation(validateThat(Either.<String, Integer>left(""), "value").is(rule))
                     .isInvalid()
-                    .hasErrorMessages("value.cannot.be.empty");
+                    .hasErrorMessages("value.must.not.be.empty");
         }
     }
 

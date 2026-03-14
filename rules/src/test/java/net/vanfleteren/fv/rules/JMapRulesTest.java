@@ -34,7 +34,7 @@ class JMapRulesTest {
 
         @Test
         void invalid_whenEmpty_thenCannotBeEmpty() {
-            invalidTest(Map.of(), notEmpty(), "cannot.be.empty");
+            invalidTest(Map.of(), notEmpty(), "must.not.be.empty");
         }
     }
 

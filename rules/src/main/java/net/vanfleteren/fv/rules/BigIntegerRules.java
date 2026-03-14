@@ -126,7 +126,7 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
     /**
      * Fails if the value is less than the specified minimum.
      * <p>
-     * Error key: {@code min.value}
+     * Error key: {@code must.be.at.least}
      * <p>
      * Parameters:
      * <ul>
@@ -139,14 +139,14 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
     public Rule<BigInteger> min(BigInteger minInclusive) {
         return Rule.of(
                 b -> b.compareTo(minInclusive) >= 0,
-                ErrorMessage.of("min.value", "min", minInclusive)
+                ErrorMessage.of("must.be.at.least", "min", minInclusive)
         );
     }
 
     /**
      * Fails if the value is greater than the specified maximum.
      * <p>
-     * Error key: {@code max.value}
+     * Error key: {@code must.be.at.most}
      * <p>
      * Parameters:
      * <ul>
@@ -159,7 +159,7 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
     public Rule<BigInteger> max(BigInteger maxInclusive) {
         return Rule.of(
                 b -> b.compareTo(maxInclusive) <= 0,
-                ErrorMessage.of("max.value", "max", maxInclusive)
+                ErrorMessage.of("must.be.at.most", "max", maxInclusive)
         );
     }
     //endregion

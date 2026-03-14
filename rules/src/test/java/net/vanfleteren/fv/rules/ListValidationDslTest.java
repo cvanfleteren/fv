@@ -27,8 +27,8 @@ public class ListValidationDslTest {
         assertThatValidation(result)
                 .isInvalid()
                 .hasErrorMessages(
-                        "roles.min.size",
-                        "roles[0].min.length"
+                        "roles.must.have.min.size",
+                        "roles[0].must.have.min.length"
                 );
     }
 
@@ -45,8 +45,8 @@ public class ListValidationDslTest {
         assertThatValidation(result)
                 .isInvalid()
                 .hasErrorMessages(
-                        "roles.min.size",
-                        "roles[0].min.length"
+                        "roles.must.have.min.size",
+                        "roles[0].must.have.min.length"
                 );
     }
 

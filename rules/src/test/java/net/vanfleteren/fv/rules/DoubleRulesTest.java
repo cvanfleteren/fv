@@ -61,7 +61,7 @@ class DoubleRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(1.0, doubles().min(2.0), "min.value", HashMap.of("min", 2.0));
+            invalidTest(1.0, doubles().min(2.0), "must.be.at.least", HashMap.of("min", 2.0));
         }
     }
 }

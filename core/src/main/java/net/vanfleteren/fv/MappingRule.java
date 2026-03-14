@@ -192,9 +192,9 @@ public interface MappingRule<T, R> {
      * Returns a MappingRule that validates the input is not null.
      *
      * @param <T> the type of input and output
-     * @return a MappingRule that returns valid input if it's not null, or an invalid result with error key "cannot.be.null" if null
+     * @return a MappingRule that returns valid input if it's not null, or an invalid result with error key "must.not.be.null" if null
      */
     static <T> MappingRule<T, T> notNull() {
-        return input -> input == null ? Validation.invalid("cannot.be.null") : Validation.valid(input);
+        return input -> input == null ? Validation.invalid("must.not.be.null") : Validation.valid(input);
     }
 }

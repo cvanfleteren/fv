@@ -178,16 +178,16 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     /**
      * Fails if the string is empty.
      * <p>
-     * Error key: {@code cannot.be.empty}
+     * Error key: {@code must.not.be.empty}
      */
-    public Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "cannot.be.empty");
+    public Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
 
     /**
      * Fails if the string is empty or contains only whitespace.
      * <p>
-     * Error key: {@code not.blank}
+     * Error key: {@code must.not.be.blank}
      */
-    public Rule<String> notBlank = Rule.of(s -> !s.isBlank(), "not.blank");
+    public Rule<String> notBlank = Rule.of(s -> !s.isBlank(), "must.not.be.blank");
 
     /**
      * Fails if the string has leading or trailing whitespace.
@@ -199,11 +199,11 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     /**
      * Fails if the string contains any whitespace anywhere.
      * <p>
-     * Error key: {@code no.whitespace.allowed}
+     * Error key: {@code must.not.contain.whitespace}
      */
     public Rule<String> noWhitespace = Rule.of(
             s -> s.chars().noneMatch(Character::isWhitespace),
-            "no.whitespace.allowed"
+            "must.not.contain.whitespace"
     );
     //endregion
 
@@ -212,7 +212,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     /**
      * Fails if the string length is less than the specified minimum.
      * <p>
-     * Error key: {@code min.length}
+     * Error key: {@code must.have.min.length}
      * <p>
      * Parameters:
      * <ul>
@@ -226,13 +226,13 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         if (minLength < 0) {
             throw new IllegalArgumentException("minLength must be >= 0");
         }
-        return Rule.of(s -> s.length() >= minLength, ErrorMessage.of("min.length", "min", minLength));
+        return Rule.of(s -> s.length() >= minLength, ErrorMessage.of("must.have.min.length", "min", minLength));
     }
 
     /**
      * Fails if the string length is greater than the specified maximum.
      * <p>
-     * Error key: {@code max.length}
+     * Error key: {@code must.have.max.length}
      * <p>
      * Parameters:
      * <ul>
@@ -246,13 +246,13 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         if (maxLength < 0) {
             throw new IllegalArgumentException("maxLength must be >= 0");
         }
-        return Rule.of(s -> s.length() <= maxLength, ErrorMessage.of("max.length", "max", maxLength));
+        return Rule.of(s -> s.length() <= maxLength, ErrorMessage.of("must.have.max.length", "max", maxLength));
     }
 
     /**
      * Fails if the string length is not between the specified bounds (inclusive).
      * <p>
-     * Error key: {@code length.between}
+     * Error key: {@code must.have.length.between}
      * <p>
      * Parameters:
      * <ul>
@@ -276,14 +276,14 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         }
         return Rule.of(
                 s -> s.length() >= minLength && s.length() <= maxLength,
-                ErrorMessage.of("length.between", HashMap.of("min", minLength, "max", maxLength))
+                ErrorMessage.of("must.have.length.between", HashMap.of("min", minLength, "max", maxLength))
         );
     }
 
     /**
      * Fails if the string length is not equal to the specified length.
      * <p>
-     * Error key: {@code length.exact}
+     * Error key: {@code must.have.exact.length}
      * <p>
      * Parameters:
      * <ul>
@@ -297,7 +297,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         if (length < 0) {
             throw new IllegalArgumentException("length must be >= 0");
         }
-        return Rule.of(s -> s.length() == length, ErrorMessage.of("length.exact", "len", length));
+        return Rule.of(s -> s.length() == length, ErrorMessage.of("must.have.exact.length", "len", length));
     }
     //endregion
 

@@ -14,7 +14,7 @@ public interface ComparableRules<T extends Comparable<? super T>> {
     /**
      * Fails if the value is not between the specified bounds (inclusive).
      * <p>
-     * Error key: {@code value.between}
+     * Error key: {@code must.be.between}
      * <p>
      * Parameters:
      * <ul>
@@ -32,14 +32,14 @@ public interface ComparableRules<T extends Comparable<? super T>> {
         }
         return Rule.of(
                 i -> i.compareTo(minInclusive) >= 0 && i.compareTo(maxInclusive) <= 0,
-                ErrorMessage.of("value.between", HashMap.of("min", minInclusive, "max", maxInclusive))
+                ErrorMessage.of("must.be.between", HashMap.of("min", minInclusive, "max", maxInclusive))
         );
     }
 
     /**
      * Fails if the value is not between the specified bounds (exclusive).
      * <p>
-     * Error key: {@code value.between.exclusive}
+     * Error key: {@code must.be.between.exclusive}
      * <p>
      * Parameters:
      * <ul>
@@ -57,7 +57,7 @@ public interface ComparableRules<T extends Comparable<? super T>> {
         }
         return Rule.of(
                 i -> i.compareTo(minExclusive) > 0 && i.compareTo(maxExclusive) < 0,
-                ErrorMessage.of("value.between.exclusive", HashMap.of("min", minExclusive, "max", maxExclusive))
+                ErrorMessage.of("must.be.between.exclusive", HashMap.of("min", minExclusive, "max", maxExclusive))
         );
     }
 

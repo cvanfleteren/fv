@@ -120,8 +120,8 @@ class BigDecimalRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(new BigDecimal("1"), bigDecimals.min(new BigDecimal("2")), "min.value", HashMap.of("min", new BigDecimal("2")));
-            invalidTest(new BigDecimal("-100"), bigDecimals.min(new BigDecimal("2")), "min.value", HashMap.of("min", new BigDecimal("2")));
+            invalidTest(new BigDecimal("1"), bigDecimals.min(new BigDecimal("2")), "must.be.at.least", HashMap.of("min", new BigDecimal("2")));
+            invalidTest(new BigDecimal("-100"), bigDecimals.min(new BigDecimal("2")), "must.be.at.least", HashMap.of("min", new BigDecimal("2")));
         }
     }
 
@@ -137,8 +137,8 @@ class BigDecimalRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(new BigDecimal("3"), bigDecimals.max(new BigDecimal("2")), "max.value", HashMap.of("max", new BigDecimal("2")));
-            invalidTest(new BigDecimal("100"), bigDecimals.max(new BigDecimal("2")), "max.value", HashMap.of("max", new BigDecimal("2")));
+            invalidTest(new BigDecimal("3"), bigDecimals.max(new BigDecimal("2")), "must.be.at.most", HashMap.of("max", new BigDecimal("2")));
+            invalidTest(new BigDecimal("100"), bigDecimals.max(new BigDecimal("2")), "must.be.at.most", HashMap.of("max", new BigDecimal("2")));
         }
     }
 
@@ -155,8 +155,8 @@ class BigDecimalRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(BigDecimal.ZERO, bigDecimals.between(BigDecimal.ONE, new BigDecimal("2")), "value.between", HashMap.of("min", BigDecimal.ONE, "max", new BigDecimal("2")));
-            invalidTest(new BigDecimal("3"), bigDecimals.between(BigDecimal.ONE, new BigDecimal("2")), "value.between", HashMap.of("min", BigDecimal.ONE, "max", new BigDecimal("2")));
+            invalidTest(BigDecimal.ZERO, bigDecimals.between(BigDecimal.ONE, new BigDecimal("2")), "must.be.between", HashMap.of("min", BigDecimal.ONE, "max", new BigDecimal("2")));
+            invalidTest(new BigDecimal("3"), bigDecimals.between(BigDecimal.ONE, new BigDecimal("2")), "must.be.between", HashMap.of("min", BigDecimal.ONE, "max", new BigDecimal("2")));
         }
     }
 
@@ -171,9 +171,9 @@ class BigDecimalRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(BigDecimal.ONE, bigDecimals.betweenExclusive(BigDecimal.ONE, new BigDecimal("3")), "value.between.exclusive", HashMap.of("min", BigDecimal.ONE, "max", new BigDecimal("3")));
-            invalidTest(new BigDecimal("3"), bigDecimals.betweenExclusive(BigDecimal.ONE, new BigDecimal("3")), "value.between.exclusive", HashMap.of("min", BigDecimal.ONE, "max", new BigDecimal("3")));
-            invalidTest(BigDecimal.ZERO, bigDecimals.betweenExclusive(BigDecimal.ZERO, BigDecimal.ONE), "value.between.exclusive", HashMap.of("min", BigDecimal.ZERO, "max", BigDecimal.ONE));
+            invalidTest(BigDecimal.ONE, bigDecimals.betweenExclusive(BigDecimal.ONE, new BigDecimal("3")), "must.be.between.exclusive", HashMap.of("min", BigDecimal.ONE, "max", new BigDecimal("3")));
+            invalidTest(new BigDecimal("3"), bigDecimals.betweenExclusive(BigDecimal.ONE, new BigDecimal("3")), "must.be.between.exclusive", HashMap.of("min", BigDecimal.ONE, "max", new BigDecimal("3")));
+            invalidTest(BigDecimal.ZERO, bigDecimals.betweenExclusive(BigDecimal.ZERO, BigDecimal.ONE), "must.be.between.exclusive", HashMap.of("min", BigDecimal.ZERO, "max", BigDecimal.ONE));
         }
     }
 

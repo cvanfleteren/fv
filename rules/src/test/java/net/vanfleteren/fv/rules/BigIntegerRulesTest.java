@@ -138,7 +138,7 @@ class BigIntegerRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(BigInteger.ONE, bigInts().min(new BigInteger("2")), "min.value", HashMap.of("min", new BigInteger("2")));
+            invalidTest(BigInteger.ONE, bigInts().min(new BigInteger("2")), "must.be.at.least", HashMap.of("min", new BigInteger("2")));
         }
     }
 
@@ -152,7 +152,7 @@ class BigIntegerRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(new BigInteger("3"), bigInts().max(new BigInteger("2")), "max.value", HashMap.of("max", new BigInteger("2")));
+            invalidTest(new BigInteger("3"), bigInts().max(new BigInteger("2")), "must.be.at.most", HashMap.of("max", new BigInteger("2")));
         }
     }
 
@@ -165,7 +165,7 @@ class BigIntegerRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(BigInteger.ZERO, bigInts().between(BigInteger.ONE, new BigInteger("3")), "value.between", HashMap.of("min", BigInteger.ONE, "max", new BigInteger("3")));
+            invalidTest(BigInteger.ZERO, bigInts().between(BigInteger.ONE, new BigInteger("3")), "must.be.between", HashMap.of("min", BigInteger.ONE, "max", new BigInteger("3")));
         }
     }
 }

@@ -79,7 +79,7 @@ public interface NumberRules<T extends Number> {
     /**
      * Fails if the number is less than the specified minimum.
      * <p>
-     * Error key: {@code min.value}
+     * Error key: {@code must.be.at.least}
      * <p>
      * Parameters:
      * <ul>
@@ -92,14 +92,14 @@ public interface NumberRules<T extends Number> {
     default Rule<T> min(T minInclusive) {
         return Rule.of(
                 i -> i.doubleValue() >= minInclusive.doubleValue(),
-                ErrorMessage.of("min.value", "min", minInclusive)
+                ErrorMessage.of("must.be.at.least", "min", minInclusive)
         );
     }
 
     /**
      * Fails if the number is greater than the specified maximum.
      * <p>
-     * Error key: {@code max.value}
+     * Error key: {@code must.be.at.most}
      * <p>
      * Parameters:
      * <ul>
@@ -112,7 +112,7 @@ public interface NumberRules<T extends Number> {
     default Rule<T> max(T maxInclusive) {
         return Rule.of(
                 i -> i.doubleValue() <= maxInclusive.doubleValue(),
-                ErrorMessage.of("max.value", "max", maxInclusive)
+                ErrorMessage.of("must.be.at.most", "max", maxInclusive)
         );
     }
 }

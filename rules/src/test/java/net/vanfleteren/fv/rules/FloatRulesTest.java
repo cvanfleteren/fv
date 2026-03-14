@@ -61,7 +61,7 @@ class FloatRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(1.0f, floats().min(2.0f), "min.value", HashMap.of("min", 2.0f));
+            invalidTest(1.0f, floats().min(2.0f), "must.be.at.least", HashMap.of("min", 2.0f));
         }
     }
 }

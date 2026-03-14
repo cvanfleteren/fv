@@ -32,8 +32,8 @@ class JCollectionRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(new ArrayList<>(), jCollections.notEmpty, "cannot.be.empty");
-            invalidTest(java.util.Set.of(), jCollections.notEmpty, "cannot.be.empty");
+            invalidTest(new ArrayList<>(), jCollections.notEmpty, "must.not.be.empty");
+            invalidTest(java.util.Set.of(), jCollections.notEmpty, "must.not.be.empty");
         }
     }
 
@@ -49,8 +49,8 @@ class JCollectionRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(List.of(), jCollections.minSize(1), "min.size", HashMap.of("min", 1));
-            invalidTest(List.of("x"), jCollections.minSize(2), "min.size", HashMap.of("min", 2));
+            invalidTest(List.of(), jCollections.minSize(1), "must.have.min.size", HashMap.of("min", 1));
+            invalidTest(List.of("x"), jCollections.minSize(2), "must.have.min.size", HashMap.of("min", 2));
         }
     }
 
@@ -66,8 +66,8 @@ class JCollectionRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(List.of("x"), jCollections.maxSize(0), "max.size", HashMap.of("max", 0));
-            invalidTest(List.of("a", "b", "c"), jCollections.maxSize(2), "max.size", HashMap.of("max", 2));
+            invalidTest(List.of("x"), jCollections.maxSize(0), "must.have.max.size", HashMap.of("max", 0));
+            invalidTest(List.of("a", "b", "c"), jCollections.maxSize(2), "must.have.max.size", HashMap.of("max", 2));
         }
     }
 
@@ -83,8 +83,8 @@ class JCollectionRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(List.of(), jCollections.sizeEquals(1), "size.exact", HashMap.of("equal", 1));
-            invalidTest(List.of("x"), jCollections.sizeEquals(0), "size.exact", HashMap.of("equal", 0));
+            invalidTest(List.of(), jCollections.sizeEquals(1), "must.have.exact.size", HashMap.of("equal", 1));
+            invalidTest(List.of("x"), jCollections.sizeEquals(0), "must.have.exact.size", HashMap.of("equal", 0));
         }
     }
 
@@ -103,13 +103,13 @@ class JCollectionRulesTest {
             invalidTest(
                     List.of(),
                     jCollections.sizeBetween(1, 2),
-                    "size.between",
+                    "must.have.size.between",
                     HashMap.of("min", 1, "max", 2)
             );
             invalidTest(
                     List.of("a", "b", "c"),
                     jCollections.sizeBetween(1, 2),
-                    "size.between",
+                    "must.have.size.between",
                     HashMap.of("min", 1, "max", 2)
             );
         }
@@ -129,7 +129,7 @@ class JCollectionRulesTest {
         void invalid() {
             assertThatValidation(validateThat(Arrays.asList("a", null, "c"), "value").is(jCollections.noNullElements()))
                     .isInvalid()
-                    .hasErrorMessages("value[1].cannot.be.null");
+                    .hasErrorMessages("value[1].must.not.be.null");
         }
     }
 
@@ -149,7 +149,7 @@ class JCollectionRulesTest {
 
         @Test
         void invalid_whenAnyElementDoesNotMatch_usesDefaultErrorKey() {
-            invalidTest(List.of(2, 3, 4), jCollections.allMatch(n -> n % 2 == 0), "all.should.match");
+            invalidTest(List.of(2, 3, 4), jCollections.allMatch(n -> n % 2 == 0), "must.all.match");
         }
 
         @Test
@@ -196,7 +196,7 @@ class JCollectionRulesTest {
 
         @Test
         void invalid_whenAnyElementMatchesPredicate_usesDefaultErrorKey() {
-            invalidTest(List.of(1, 2, 3), jCollections.noneMatch(n -> n % 2 == 0), "none.should.match");
+            invalidTest(List.of(1, 2, 3), jCollections.noneMatch(n -> n % 2 == 0), "must.none.match");
         }
 
         @Test
@@ -238,12 +238,12 @@ class JCollectionRulesTest {
 
         @Test
         void invalid_whenNoElementsMatchPredicate_usesDefaultErrorKey() {
-            invalidTest(List.of(1, 3, 5), jCollections.anyMatch(n -> n % 2 == 0), "atleast.one.should.match");
+            invalidTest(List.of(1, 3, 5), jCollections.anyMatch(n -> n % 2 == 0), "must.at.least.one.match");
         }
 
         @Test
         void invalid_whenEmptyCollection_usesDefaultErrorKey() {
-            invalidTest(List.<Integer>of(), jCollections.anyMatch(n -> n % 2 == 0), "atleast.one.should.match");
+            invalidTest(List.<Integer>of(), jCollections.anyMatch(n -> n % 2 == 0), "must.at.least.one.match");
         }
 
         @Test

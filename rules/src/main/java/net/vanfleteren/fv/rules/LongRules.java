@@ -124,7 +124,7 @@ public class LongRules implements ComparableRules<Long>, NumberRules<Long>, IObj
     /**
      * Fails if the value is less than the specified minimum.
      * <p>
-     * Error key: {@code min.value}
+     * Error key: {@code must.be.at.least}
      * <p>
      * Parameters:
      * <ul>
@@ -137,14 +137,14 @@ public class LongRules implements ComparableRules<Long>, NumberRules<Long>, IObj
     public Rule<Long> min(long minInclusive) {
         return Rule.of(
                 l -> l >= minInclusive,
-                ErrorMessage.of("min.value", "min", minInclusive)
+                ErrorMessage.of("must.be.at.least", "min", minInclusive)
         );
     }
 
     /**
      * Fails if the value is greater than the specified maximum.
      * <p>
-     * Error key: {@code max.value}
+     * Error key: {@code must.be.at.most}
      * <p>
      * Parameters:
      * <ul>
@@ -157,7 +157,7 @@ public class LongRules implements ComparableRules<Long>, NumberRules<Long>, IObj
     public Rule<Long> max(long maxInclusive) {
         return Rule.of(
                 l -> l <= maxInclusive,
-                ErrorMessage.of("max.value", "max", maxInclusive)
+                ErrorMessage.of("must.be.at.most", "max", maxInclusive)
         );
     }
     //endregion

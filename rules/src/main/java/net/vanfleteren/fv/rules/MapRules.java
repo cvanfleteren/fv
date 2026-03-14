@@ -29,14 +29,18 @@ public class MapRules {
     /**
      * Fails if the map is {@code null} or empty.
      * <p>
-     * Error key: {@code cannot.be.empty}
+     * Error key: {@code must.not.be.empty}
      *
      * @param <K> the type of keys in the map.
      * @param <V> the type of values in the map.
      * @return a {@link Rule} checking if the map is not empty.
      */
     public static <K,V> Rule<Map<K,V>> notEmpty() {
-        return Rule.of(map -> map != null && !map.isEmpty(),"cannot.be.empty");
+        return map -> {
+            if (map == null) return Validation.invalid(ErrorMessage.of("must.not.be.null"));
+            if (map.isEmpty()) return Validation.invalid(ErrorMessage.of("must.not.be.empty"));
+            return Validation.valid(map);
+        };
     }
 
     /**
@@ -55,7 +59,11 @@ public class MapRules {
      * @return a {@link Rule} checking for the presence of the key.
      */
     public static <K,V> Rule<Map<K,V>> containsKey(K key) {
-        return Rule.of(map -> map.containsKey(key), ErrorMessage.of("must.contain.key", "key", key));
+        return map -> {
+            if (map == null) return Validation.invalid(ErrorMessage.of("must.not.be.null"));
+            if (map.containsKey(key)) return Validation.valid(map);
+            return Validation.invalid(ErrorMessage.of("must.contain.key", "key", key));
+        };
     }
 
     /**
@@ -75,7 +83,11 @@ public class MapRules {
      */
     public static <K,V> Rule<Map<K,V>> containsKeys(K... keys) {
         Set<K> keySet = HashSet.of(keys);
-        return Rule.of(map -> map.keySet().containsAll(keySet), ErrorMessage.of("must.contain.keys", "keys", keySet));
+        return map -> {
+            if (map == null) return Validation.invalid(ErrorMessage.of("must.not.be.null"));
+            if (map.keySet().containsAll(keySet)) return Validation.valid(map);
+            return Validation.invalid(ErrorMessage.of("must.contain.keys", "keys", keySet));
+        };
     }
 
     /**
@@ -94,6 +106,7 @@ public class MapRules {
      */
     public static <K,V> Rule<Map<K,V>> valuesNotNull() {
         return map -> {
+            if (map == null) return Validation.invalid(ErrorMessage.of("must.not.be.null"));
             Set<K> keysWithNulls = map.filter((key, value) -> value == null).keySet();
             if(keysWithNulls.nonEmpty()) {
                 return Validation.invalid(ErrorMessage.of("must.not.contain.null.values", "keys", keysWithNulls));

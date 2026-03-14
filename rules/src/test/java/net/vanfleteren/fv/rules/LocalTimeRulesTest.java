@@ -103,8 +103,8 @@ class LocalTimeRulesTest {
         void invalid() {
             LocalTime min = LocalTime.of(9, 0);
             LocalTime max = LocalTime.of(17, 0);
-            invalidTest(LocalTime.of(8, 59), localTimes.between(min, max), "value.between", HashMap.of("min", min, "max", max));
-            invalidTest(LocalTime.of(17, 1), localTimes.between(min, max), "value.between", HashMap.of("min", min, "max", max));
+            invalidTest(LocalTime.of(8, 59), localTimes.between(min, max), "must.be.between", HashMap.of("min", min, "max", max));
+            invalidTest(LocalTime.of(17, 1), localTimes.between(min, max), "must.be.between", HashMap.of("min", min, "max", max));
         }
     }
 }

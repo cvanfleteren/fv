@@ -393,7 +393,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Returns a Rule that validates the input is not null.
      *
      * @param <T> the type of input
-     * @return a Rule that returns valid input if it's not null, or an invalid result with error key "cannot.be.null" if null
+     * @return a Rule that returns valid input if it's not null, or an invalid result with error key "must.not.be.null" if null
      */
     static <T> Rule<T> notNull() {
         return MappingRule.<T>notNull()::test;

@@ -155,7 +155,7 @@ class ObjectRulesTest {
         void isEnum_whenInvalidEnumValue_returnsInvalid() {
             assertThatValidation(objects.isEnum(TestEnum.class).test("C"))
                     .isInvalid()
-                    .hasErrorMessage("invalid.enum.value", HashMap.of("value", "C"));
+                    .hasErrorMessage("must.be.valid.enum.value", HashMap.of("value", "C"));
         }
     }
 }

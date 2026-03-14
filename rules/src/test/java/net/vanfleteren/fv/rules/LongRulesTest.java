@@ -151,8 +151,8 @@ class LongRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(1L, longs.min(2L), "min.value", HashMap.of("min", 2L));
-            invalidTest(-100L, longs.min(2L), "min.value", HashMap.of("min", 2L));
+            invalidTest(1L, longs.min(2L), "must.be.at.least", HashMap.of("min", 2L));
+            invalidTest(-100L, longs.min(2L), "must.be.at.least", HashMap.of("min", 2L));
         }
     }
 
@@ -168,8 +168,8 @@ class LongRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(3L, longs.max(2L), "max.value", HashMap.of("max", 2L));
-            invalidTest(100L, longs.max(2L), "max.value", HashMap.of("max", 2L));
+            invalidTest(3L, longs.max(2L), "must.be.at.most", HashMap.of("max", 2L));
+            invalidTest(100L, longs.max(2L), "must.be.at.most", HashMap.of("max", 2L));
         }
     }
 
@@ -186,8 +186,8 @@ class LongRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(0L, longs.between(1L, 2L), "value.between", HashMap.of("min", 1L, "max", 2L));
-            invalidTest(3L, longs.between(1L, 2L), "value.between", HashMap.of("min", 1L, "max", 2L));
+            invalidTest(0L, longs.between(1L, 2L), "must.be.between", HashMap.of("min", 1L, "max", 2L));
+            invalidTest(3L, longs.between(1L, 2L), "must.be.between", HashMap.of("min", 1L, "max", 2L));
         }
     }
 
@@ -202,9 +202,9 @@ class LongRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(1L, longs.betweenExclusive(1L, 3L), "value.between.exclusive", HashMap.of("min", 1L, "max", 3L));
-            invalidTest(3L, longs.betweenExclusive(1L, 3L), "value.between.exclusive", HashMap.of("min", 1L, "max", 3L));
-            invalidTest(0L, longs.betweenExclusive(0L, 1L), "value.between.exclusive", HashMap.of("min", 0L, "max", 1L));
+            invalidTest(1L, longs.betweenExclusive(1L, 3L), "must.be.between.exclusive", HashMap.of("min", 1L, "max", 3L));
+            invalidTest(3L, longs.betweenExclusive(1L, 3L), "must.be.between.exclusive", HashMap.of("min", 1L, "max", 3L));
+            invalidTest(0L, longs.betweenExclusive(0L, 1L), "must.be.between.exclusive", HashMap.of("min", 0L, "max", 1L));
         }
     }
 

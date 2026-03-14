@@ -116,8 +116,8 @@ class LocalDateRulesTest {
         void invalid() {
             LocalDate min = LocalDate.of(2023, 1, 1);
             LocalDate max = LocalDate.of(2023, 12, 31);
-            invalidTest(LocalDate.of(2022, 12, 31), localDates.between(min, max), "value.between", HashMap.of("min", min, "max", max));
-            invalidTest(LocalDate.of(2024, 1, 1), localDates.between(min, max), "value.between", HashMap.of("min", min, "max", max));
+            invalidTest(LocalDate.of(2022, 12, 31), localDates.between(min, max), "must.be.between", HashMap.of("min", min, "max", max));
+            invalidTest(LocalDate.of(2024, 1, 1), localDates.between(min, max), "must.be.between", HashMap.of("min", min, "max", max));
         }
     }
 }

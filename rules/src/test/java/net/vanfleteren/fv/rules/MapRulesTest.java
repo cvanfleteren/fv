@@ -33,7 +33,7 @@ class MapRulesTest {
 
         @Test
         void invalid_whenEmpty_thenCannotBeEmpty() {
-            invalidTest(HashMap.empty(), notEmpty(), "cannot.be.empty");
+            invalidTest(HashMap.empty(), notEmpty(), "must.not.be.empty");
         }
     }
 

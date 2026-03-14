@@ -135,7 +135,7 @@ public class FloatRules implements ComparableRules<Float>, NumberRules<Float>, I
     /**
      * Fails if the value is less than the specified minimum.
      * <p>
-     * Error key: {@code min.value}
+     * Error key: {@code must.be.at.least}
      * <p>
      * Parameters:
      * <ul>
@@ -148,14 +148,14 @@ public class FloatRules implements ComparableRules<Float>, NumberRules<Float>, I
     public Rule<Float> min(float minInclusive) {
         return Rule.of(
                 f -> f >= minInclusive,
-                ErrorMessage.of("min.value", "min", minInclusive)
+                ErrorMessage.of("must.be.at.least", "min", minInclusive)
         );
     }
 
     /**
      * Fails if the value is greater than the specified maximum.
      * <p>
-     * Error key: {@code max.value}
+     * Error key: {@code must.be.at.most}
      * <p>
      * Parameters:
      * <ul>
@@ -168,7 +168,7 @@ public class FloatRules implements ComparableRules<Float>, NumberRules<Float>, I
     public Rule<Float> max(float maxInclusive) {
         return Rule.of(
                 f -> f <= maxInclusive,
-                ErrorMessage.of("max.value", "max", maxInclusive)
+                ErrorMessage.of("must.be.at.most", "max", maxInclusive)
         );
     }
     //endregion

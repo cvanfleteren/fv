@@ -32,7 +32,7 @@ class StringRulesTest {
 
         @Test
         void invalid() {
-            invalidTest("", strings.notEmpty, "cannot.be.empty");
+            invalidTest("", strings().notEmpty, "must.not.be.empty");
         }
     }
 
@@ -47,9 +47,9 @@ class StringRulesTest {
 
         @Test
         void invalid() {
-            invalidTest("", strings.notBlank, "not.blank");
-            invalidTest("   ", strings.notBlank, "not.blank");
-            invalidTest("\n\t", strings.notBlank, "not.blank");
+            invalidTest("", strings.notBlank, "must.not.be.blank");
+            invalidTest("   ", strings.notBlank, "must.not.be.blank");
+            invalidTest("\n\t", strings.notBlank, "must.not.be.blank");
         }
     }
 
@@ -83,10 +83,10 @@ class StringRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(" ", strings.noWhitespace, "no.whitespace.allowed");
-            invalidTest("a b", strings.noWhitespace, "no.whitespace.allowed");
-            invalidTest("\n", strings.noWhitespace, "no.whitespace.allowed");
-            invalidTest("a\tb", strings.noWhitespace, "no.whitespace.allowed");
+            invalidTest(" ", strings.noWhitespace, "must.not.contain.whitespace");
+            invalidTest("a b", strings.noWhitespace, "must.not.contain.whitespace");
+            invalidTest("\n", strings.noWhitespace, "must.not.contain.whitespace");
+            invalidTest("a\tb", strings.noWhitespace, "must.not.contain.whitespace");
         }
     }
 
@@ -102,8 +102,8 @@ class StringRulesTest {
 
         @Test
         void invalid() {
-            invalidTest("", strings.minLength(2), "min.length", HashMap.of("min", 2));
-            invalidTest("1", strings.minLength(2), "min.length", HashMap.of("min", 2));
+            invalidTest("", strings.minLength(2), "must.have.min.length", HashMap.of("min", 2));
+            invalidTest("1", strings.minLength(2), "must.have.min.length", HashMap.of("min", 2));
         }
     }
 
@@ -119,8 +119,8 @@ class StringRulesTest {
 
         @Test
         void invalid() {
-            invalidTest("1", strings.maxLength(0), "max.length", HashMap.of("max", 0));
-            invalidTest("123", strings.maxLength(2), "max.length", HashMap.of("max", 2));
+            invalidTest("1", strings.maxLength(0), "must.have.max.length", HashMap.of("max", 0));
+            invalidTest("123", strings.maxLength(2), "must.have.max.length", HashMap.of("max", 2));
         }
     }
 
@@ -137,8 +137,8 @@ class StringRulesTest {
 
         @Test
         void invalid() {
-            invalidTest("", strings.lengthBetween(1, 2), "length.between", HashMap.of("min", 1, "max", 2));
-            invalidTest("123", strings.lengthBetween(1, 2), "length.between", HashMap.of("min", 1, "max", 2));
+            invalidTest("", strings.lengthBetween(1, 2), "must.have.length.between", HashMap.of("min", 1, "max", 2));
+            invalidTest("123", strings.lengthBetween(1, 2), "must.have.length.between", HashMap.of("min", 1, "max", 2));
         }
     }
 
@@ -154,8 +154,8 @@ class StringRulesTest {
 
         @Test
         void invalid() {
-            invalidTest("", strings.exactLength(1), "length.exact", HashMap.of("len", 1));
-            invalidTest("12", strings.exactLength(1), "length.exact", HashMap.of("len", 1));
+            invalidTest("", strings.exactLength(1), "must.have.exact.length", HashMap.of("len", 1));
+            invalidTest("12", strings.exactLength(1), "must.have.exact.length", HashMap.of("len", 1));
         }
     }
 

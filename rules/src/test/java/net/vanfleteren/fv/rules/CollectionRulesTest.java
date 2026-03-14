@@ -31,8 +31,8 @@ class CollectionRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(new ArrayList<>(), collections().notEmpty(), "cannot.be.empty");
-            invalidTest(HashSet.of(), collections().notEmpty(), "cannot.be.empty");
+            invalidTest(new ArrayList<>(), collections().notEmpty(), "must.not.be.empty");
+            invalidTest(HashSet.of(), collections().notEmpty(), "must.not.be.empty");
         }
     }
 
@@ -48,8 +48,8 @@ class CollectionRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(List.of(), collections.minSize(1), "min.size", io.vavr.collection.HashMap.of("min", 1));
-            invalidTest(List.of("x"), collections.minSize(2), "min.size", io.vavr.collection.HashMap.of("min", 2));
+            invalidTest(List.of(), collections.minSize(1), "must.have.min.size", io.vavr.collection.HashMap.of("min", 1));
+            invalidTest(List.of("x"), collections.minSize(2), "must.have.min.size", io.vavr.collection.HashMap.of("min", 2));
         }
     }
 
@@ -65,8 +65,8 @@ class CollectionRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(List.of("x"), collections.maxSize(0), "max.size", io.vavr.collection.HashMap.of("max", 0));
-            invalidTest(List.of("a", "b", "c"), collections.maxSize(2), "max.size", io.vavr.collection.HashMap.of("max", 2));
+            invalidTest(List.of("x"), collections.maxSize(0), "must.have.max.size", io.vavr.collection.HashMap.of("max", 0));
+            invalidTest(List.of("a", "b", "c"), collections.maxSize(2), "must.have.max.size", io.vavr.collection.HashMap.of("max", 2));
         }
     }
 
@@ -82,8 +82,8 @@ class CollectionRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(List.of(), collections.sizeEquals(1), "size.exact", io.vavr.collection.HashMap.of("equal", 1));
-            invalidTest(List.of("x"), collections.sizeEquals(0), "size.exact", io.vavr.collection.HashMap.of("equal", 0));
+            invalidTest(List.of(), collections.sizeEquals(1), "must.have.exact.size", io.vavr.collection.HashMap.of("equal", 1));
+            invalidTest(List.of("x"), collections.sizeEquals(0), "must.have.exact.size", io.vavr.collection.HashMap.of("equal", 0));
         }
     }
 
@@ -102,13 +102,13 @@ class CollectionRulesTest {
             invalidTest(
                     List.of(),
                     collections.sizeBetween(1, 2),
-                    "size.between",
+                    "must.have.size.between",
                     io.vavr.collection.HashMap.of("min", 1, "max", 2)
             );
             invalidTest(
                     List.of("a", "b", "c"),
                     collections.sizeBetween(1, 2),
-                    "size.between",
+                    "must.have.size.between",
                     io.vavr.collection.HashMap.of("min", 1, "max", 2)
             );
         }
@@ -128,7 +128,7 @@ class CollectionRulesTest {
         void invalid() {
             assertThatValidation(validateThat(List.of("a", null, "c"), "value").is(collections.noNullElements()))
                     .isInvalid()
-                    .hasErrorMessages("value[1].cannot.be.null");
+                    .hasErrorMessages("value[1].must.not.be.null");
         }
     }
 
@@ -148,7 +148,7 @@ class CollectionRulesTest {
 
         @Test
         void invalid_whenAnyElementDoesNotMatch_usesDefaultErrorKey() {
-            invalidTest(List.of(2, 3, 4), collections.allMatch(n -> n % 2 == 0), "all.should.match");
+            invalidTest(List.of(2, 3, 4), collections.allMatch(n -> n % 2 == 0), "must.all.match");
         }
 
         @Test
@@ -197,7 +197,7 @@ class CollectionRulesTest {
 
         @Test
         void invalid_whenAnyElementMatchesPredicate_usesDefaultErrorKey() {
-            invalidTest(List.of(1, 2, 3), collections.noneMatch(n -> n % 2 == 0), "none.should.match");
+            invalidTest(List.of(1, 2, 3), collections.noneMatch(n -> n % 2 == 0), "must.none.match");
         }
 
         @Test
@@ -239,12 +239,12 @@ class CollectionRulesTest {
 
         @Test
         void invalid_whenNoElementsMatchPredicate_usesDefaultErrorKey() {
-            invalidTest(List.of(1, 3, 5), collections.anyMatch(n -> n % 2 == 0), "atleast.one.should.match");
+            invalidTest(List.of(1, 3, 5), collections.anyMatch(n -> n % 2 == 0), "must.at.least.one.match");
         }
 
         @Test
         void invalid_whenEmptyCollection_usesDefaultErrorKey() {
-            invalidTest(List.<Integer>of(), collections.anyMatch(n -> n % 2 == 0), "atleast.one.should.match");
+            invalidTest(List.<Integer>of(), collections.anyMatch(n -> n % 2 == 0), "must.at.least.one.match");
         }
 
         @Test

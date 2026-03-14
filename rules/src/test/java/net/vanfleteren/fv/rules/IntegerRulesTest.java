@@ -151,8 +151,8 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(1, ints().min(2), "min.value", HashMap.of("min", 2));
-            invalidTest(-100, ints().min(2), "min.value", HashMap.of("min", 2));
+            invalidTest(1, ints().min(2), "must.be.at.least", HashMap.of("min", 2));
+            invalidTest(-100, ints().min(2), "must.be.at.least", HashMap.of("min", 2));
         }
     }
 
@@ -168,8 +168,8 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(3, ints().max(2), "max.value", HashMap.of("max", 2));
-            invalidTest(100, ints().max(2), "max.value", HashMap.of("max", 2));
+            invalidTest(3, ints().max(2), "must.be.at.most", HashMap.of("max", 2));
+            invalidTest(100, ints().max(2), "must.be.at.most", HashMap.of("max", 2));
         }
     }
 
@@ -186,8 +186,8 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(0, ints().between(1, 2), "value.between", HashMap.of("min", 1, "max", 2));
-            invalidTest(3, ints().between(1, 2), "value.between", HashMap.of("min", 1, "max", 2));
+            invalidTest(0, ints().between(1, 2), "must.be.between", HashMap.of("min", 1, "max", 2));
+            invalidTest(3, ints().between(1, 2), "must.be.between", HashMap.of("min", 1, "max", 2));
         }
     }
 
@@ -202,9 +202,9 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(1, ints().betweenExclusive(1, 3), "value.between.exclusive", HashMap.of("min", 1, "max", 3));
-            invalidTest(3, ints().betweenExclusive(1, 3), "value.between.exclusive", HashMap.of("min", 1, "max", 3));
-            invalidTest(0, ints().betweenExclusive(0, 1), "value.between.exclusive", HashMap.of("min", 0, "max", 1));
+            invalidTest(1, ints().betweenExclusive(1, 3), "must.be.between.exclusive", HashMap.of("min", 1, "max", 3));
+            invalidTest(3, ints().betweenExclusive(1, 3), "must.be.between.exclusive", HashMap.of("min", 1, "max", 3));
+            invalidTest(0, ints().betweenExclusive(0, 1), "must.be.between.exclusive", HashMap.of("min", 0, "max", 1));
         }
     }
 

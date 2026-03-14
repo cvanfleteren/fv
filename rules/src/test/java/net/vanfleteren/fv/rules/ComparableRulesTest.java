@@ -30,13 +30,13 @@ class ComparableRulesTest {
         @Test
         void invalid_whenValueIsBelowLowerBound() {
             Rule<Integer> rule = ints().between(10, 20);
-            invalidTest(5, rule, "value.between", HashMap.of("min", 10, "max", 20));
+            invalidTest(5, rule, "must.be.between", HashMap.of("min", 10, "max", 20));
         }
 
         @Test
         void invalid_whenValueIsAboveUpperBound() {
             Rule<Integer> rule = ints().between(10, 20);
-            invalidTest(25, rule, "value.between", HashMap.of("min", 10, "max", 20));
+            invalidTest(25, rule, "must.be.between", HashMap.of("min", 10, "max", 20));
         }
 
         @Test
@@ -59,13 +59,13 @@ class ComparableRulesTest {
         @Test
         void invalid_whenValueEqualsLowerBound() {
             Rule<Integer> rule = ints().betweenExclusive(10, 20);
-            invalidTest(10, rule, "value.between.exclusive", HashMap.of("min", 10, "max", 20));
+            invalidTest(10, rule, "must.be.between.exclusive", HashMap.of("min", 10, "max", 20));
         }
 
         @Test
         void invalid_whenValueEqualsUpperBound() {
             Rule<Integer> rule = ints().betweenExclusive(10, 20);
-            invalidTest(20, rule, "value.between.exclusive", HashMap.of("min", 10, "max", 20));
+            invalidTest(20, rule, "must.be.between.exclusive", HashMap.of("min", 10, "max", 20));
         }
 
         @Test
