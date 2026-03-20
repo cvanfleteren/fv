@@ -924,4 +924,44 @@ class RuleTest {
                     .hasMessage("condition cannot be null");
         }
     }
+
+    @Nested
+    class RequiredOption {
+
+        @Test
+        void requiredOption_whenOptionIsNone_returnsInvalid() {
+            // Arrange
+            MappingRule<String, String> rule = MappingRule.of(s -> s, "error");
+            MappingRule<Option<String>, String> requiredRule = Rule.requiredOption(rule);
+
+            // Act + Assert
+            assertThatValidation(requiredRule.test(Option.none()))
+                    .isInvalid()
+                    .hasErrorMessage("must.not.be.empty");
+        }
+
+        @Test
+        void requiredOption_whenOptionIsSomeAndValid_returnsValidResult() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "not.a.number");
+            MappingRule<Option<String>, Integer> requiredRule = Rule.requiredOption(rule);
+
+            // Act + Assert
+            assertThatValidation(requiredRule.test(Option.of("123")))
+                    .isValid()
+                    .hasValue(123);
+        }
+
+        @Test
+        void requiredOption_whenOptionIsSomeAndInvalid_returnsInvalidWithRuleErrors() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "not.a.number");
+            MappingRule<Option<String>, Integer> requiredRule = Rule.requiredOption(rule);
+
+            // Act + Assert
+            assertThatValidation(requiredRule.test(Option.of("abc")))
+                    .isInvalid()
+                    .hasErrorMessage("not.a.number");
+        }
+    }
 }

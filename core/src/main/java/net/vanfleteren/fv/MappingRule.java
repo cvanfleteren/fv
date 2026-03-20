@@ -138,6 +138,7 @@ public interface MappingRule<T, R> {
                 .getOrElse(() -> Validation.valid(Option.none()));
     }
 
+
     /**
      * Lifts this {@link MappingRule} so it applies to a {@link Map} of K to T.
      * <p>

@@ -377,6 +377,18 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
+     * Returns a MappingRule that checks if the input option is defined and applies the given rule to its value.
+     *
+     * @param <T> the type of the value inside the option
+     * @param <R> the type of the result of the mapping rule
+     * @param rule the mapping rule to apply to the value inside the option
+     * @return a new MappingRule that validates the option and applies the given rule to its value
+     */
+    static <T, R> MappingRule<Option<T>, R> requiredOption(MappingRule<T, R> rule) {
+        return rule.liftToOption().andThen(opt -> opt.isDefined() ? Validation.valid(opt.get()) : Validation.invalid("must.not.be.empty"));
+    }
+
+    /**
      * Narrows a {@code Rule<? super T>} to a {@code Rule<T>}.
      *
      * @param rule The rule to narrow.
