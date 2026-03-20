@@ -288,7 +288,7 @@ class MappingRuleTest {
             MappingRule<String, String> rule = MappingRule.notNull();
             assertThatValidation(rule.test(null))
                     .isInvalid()
-                    .hasErrorMessages("cannot.be.null");
+                    .hasErrorMessages("must.not.be.null");
         }
     }
 
