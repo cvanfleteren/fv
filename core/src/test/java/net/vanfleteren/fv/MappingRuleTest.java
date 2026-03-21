@@ -191,6 +191,55 @@ class MappingRuleTest {
     }
 
     @Nested
+    class LiftToOptional {
+
+        @Test
+        void liftToOptional_whenEmpty_returnsValidResult() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "must.be.int");
+            MappingRule<java.util.Optional<String>, java.util.Optional<Integer>> optionalRule = rule.liftToOptional();
+
+            // Act
+            Validation<java.util.Optional<Integer>> result = optionalRule.test(java.util.Optional.empty());
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(java.util.Optional.empty());
+        }
+
+        @Test
+        void liftToOptional_whenNotEmptyAndValid_returnsValidResult() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "must.be.int");
+            MappingRule<java.util.Optional<String>, java.util.Optional<Integer>> optionalRule = rule.liftToOptional();
+
+            // Act
+            Validation<java.util.Optional<Integer>> result = optionalRule.test(java.util.Optional.of("123"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(java.util.Optional.of(123));
+        }
+
+        @Test
+        void liftToOptional_whenNotEmptyAndInvalid_returnsInvalidWithSameErrors() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "must.be.int");
+            MappingRule<java.util.Optional<String>, java.util.Optional<Integer>> optionalRule = rule.liftToOptional();
+
+            // Act
+            Validation<java.util.Optional<Integer>> result = optionalRule.test(java.util.Optional.of("a"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("must.be.int");
+        }
+    }
+
+    @Nested
     class LiftToMap {
 
         @Test

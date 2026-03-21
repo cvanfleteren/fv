@@ -10,6 +10,7 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -136,6 +137,21 @@ public interface MappingRule<T, R> {
         return opt -> opt
                 .map(v -> this.test(v).map(Option::of))
                 .getOrElse(() -> Validation.valid(Option.none()));
+    }
+
+    /**
+     * Lifts this {@link MappingRule} so it applies to an {@link java.util.Optional} of T.
+     * <p>
+     * Semantics:
+     * - empty =&gt; {@code valid(Optional.empty)} (nothing to validate)
+     * - not empty =&gt; validate x, and return {@code valid(Optional.of(x))} or {@code invalid(errors)}
+     *
+     * @return a new {@link MappingRule} instance.
+     */
+    default MappingRule<Optional<T>, Optional<R>> liftToOptional() {
+        return opt -> opt
+                .map(v -> this.test(v).map(Optional::of))
+                .orElse(Validation.valid(Optional.empty()));
     }
 
 
