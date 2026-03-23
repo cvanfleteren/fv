@@ -1004,4 +1004,38 @@ class RuleTest {
                     .hasErrorMessage("not.a.number");
         }
     }
+
+    @Nested
+    class With {
+
+        @Test
+        void with_whenRulePasses_returnsValidResult() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<Integer> withRule = Rule.with(Object::toString, rule);
+
+            // Act
+            Validation<Integer> result = withRule.test(1234);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(1234);
+        }
+
+        @Test
+        void with_whenRuleFails_returnsInvalidWithRuleErrors() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<Integer> withRule = Rule.with(Object::toString, rule);
+
+            // Act
+            Validation<Integer> result = withRule.test(12);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("too.short");
+        }
+    }
 }

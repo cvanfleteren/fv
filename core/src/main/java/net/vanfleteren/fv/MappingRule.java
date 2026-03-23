@@ -11,6 +11,7 @@ import io.vavr.control.Try;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -207,11 +208,27 @@ public interface MappingRule<T, R> {
 
     /**
      * Returns a MappingRule that validates the input is not null.
+     *<p>
+     * Error key: "must.not.be.null"
      *
      * @param <T> the type of input and output
-     * @return a MappingRule that returns valid input if it's not null, or an invalid result with error key "must.not.be.null" if null
+     * @return a MappingRule that returns valid input only if it's not null
      */
     static <T> MappingRule<T, T> notNull() {
         return input -> input == null ? Validation.invalid("must.not.be.null") : Validation.valid(input);
+    }
+
+    /**
+     * Applies the specified {@link MappingRule} to the result of applying the selector function to the input. Aka <code>contraMap</code>.
+     *
+     * @param <T> the type of the input to be tested
+     * @param <V> the type of the result produced by the selector function
+     * @param <R> the type of the validation produced by the rule
+     * @param selector a function that extracts a value of type V from an input of type T
+     * @param rule the rule to be applied to the extracted value
+     * @return a new {@link MappingRule} that tests the applied selector and rule combination
+     */
+    static <T, V, R> MappingRule<T, R> with(Function<T,V> selector, MappingRule<V,R> rule) {
+        return input -> rule.test(selector.apply(input));
     }
 }

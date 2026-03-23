@@ -1,6 +1,5 @@
 package net.vanfleteren.fv;
 
-import io.vavr.Function1;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.List;
@@ -404,4 +403,40 @@ class MappingRuleTest {
         }
     }
 
+    @Nested
+    class With {
+
+        record StringHolder(String value){
+        }
+
+        @Test
+        void with_whenRulePasses_returnsMappedValidResult() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "not.a.number");
+            MappingRule<StringHolder, Integer> withRule = MappingRule.with(StringHolder::value, rule);
+
+            // Act
+            Validation<Integer> result = withRule.test(new StringHolder("1234"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(1234);
+        }
+
+        @Test
+        void with_whenRuleFails_returnsInvalidWithRuleErrors() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "not.a.number");
+            MappingRule<StringHolder, Integer> withRule = MappingRule.with(StringHolder::value, rule);
+
+            // Act
+            Validation<Integer> result = withRule.test(new StringHolder("abc"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("not.a.number");
+        }
+    }
 }

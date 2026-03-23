@@ -8,6 +8,7 @@ import io.vavr.control.Option;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -416,13 +417,28 @@ public interface Rule<T> extends MappingRule<T, T> {
 
 
     /**
-     * Returns a Rule that validates the input is not null.
+     * Returns a {@link Rule} that validates the input is not null.
+     * <p>
+     * Error key: "must.not.be.null"
      *
      * @param <T> the type of input
-     * @return a Rule that returns valid input if it's not null, or an invalid result with error key "must.not.be.null" if null
+     * @return a Rule that returns valid input only if it's not null
      */
     static <T> Rule<T> notNull() {
         return MappingRule.<T>notNull()::test;
+    }
+
+    /**
+     * Applies the specified {@link Rule} to the result of applying the selector function to the input. Aka <code>contraMap</code>.
+     *
+     * @param <T> the type of the input to be tested
+     * @param <V> the type of the result produced by the selector function
+     * @param selector a function that extracts a value of type V from an input of type T
+     * @param rule the rule to be applied to the extracted value
+     * @return a new rule that tests the applied selector and rule combination
+     */
+    static <T, V> Rule<T> with(Function<T,V> selector, Rule<V> rule) {
+      return input -> rule.test(selector.apply(input)).map(ignore -> input);
     }
 
 }
