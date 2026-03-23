@@ -493,10 +493,10 @@ class MappingRuleTest {
         void with_whenRulePasses_returnsMappedValidResult() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "not.a.number");
-            MappingRule<StringHolder, Integer> withRule = MappingRule.with(StringHolder::value, rule);
+            MappingRule<StringHolder, Number> withRule = MappingRule.with(StringHolder::value, rule);
 
             // Act
-            Validation<Integer> result = withRule.test(new StringHolder("1234"));
+            Validation<Number> result = withRule.test(new StringHolder("1234"));
 
             // Assert
             assertThatValidation(result)

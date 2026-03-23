@@ -46,7 +46,7 @@ public interface MappingRule<T, R> {
      * @return a new {@link MappingRule} that applies the mapper and validates the result
      */
     static <T, R> MappingRule<T, R> of(Function1<T, R> mapper, String errorKey) {
-       return of(mapper, ErrorMessage.of(errorKey));
+        return of(mapper, ErrorMessage.of(errorKey));
     }
 
     /**
@@ -68,14 +68,15 @@ public interface MappingRule<T, R> {
             );
         };
     }
+
     /**
      * Creates a new MappingRule that applies the given mapper function to the input.
      * If the mapper throws an exception, the rule will fail with the specified error key.
      *
-     * @param <T>      the type of input to be mapped
-     * @param <R>      the type of output after mapping
-     * @param throwingMapper   the function that maps T to R
-     * @param errorMessage the error message to use if the mapping fails.
+     * @param <T>            the type of input to be mapped
+     * @param <R>            the type of output after mapping
+     * @param throwingMapper the function that maps T to R
+     * @param errorMessage   the error message to use if the mapping fails.
      * @return a new {@link MappingRule} that applies the mapper and validates the result
      */
     static <T, R> MappingRule<T, R> of(Function1<T, R> throwingMapper, ErrorMessage errorMessage) {
@@ -210,8 +211,8 @@ public interface MappingRule<T, R> {
     /**
      * Returns a {@link MappingRule} that checks if the input {@link Option} is defined and then applies the given rule to its value.
      *
-     * @param <T> the type of the value inside the {@link Option}
-     * @param <R> the type of the result of the mapping rule
+     * @param <T>  the type of the value inside the {@link Option}
+     * @param <R>  the type of the result of the mapping rule
      * @param rule the mapping rule to apply to the value inside the {@link Option}
      * @return a new {@link MappingRule} that validates the option and applies the given rule to its value
      */
@@ -222,8 +223,8 @@ public interface MappingRule<T, R> {
     /**
      * Returns a MappingRule that checks if the input {@link Optional} is defined and applies the given rule to its value.
      *
-     * @param <T> the type of the value inside the {@link Optional}
-     * @param <R> the type of the result of the mapping rule
+     * @param <T>  the type of the value inside the {@link Optional}
+     * @param <R>  the type of the result of the mapping rule
      * @param rule the mapping rule to apply to the value inside the {@link Optional}
      * @return a new MappingRule that validates the option and applies the given rule to its value
      */
@@ -234,7 +235,7 @@ public interface MappingRule<T, R> {
 
     /**
      * Returns a MappingRule that validates the input is not null.
-     *<p>
+     * <p>
      * Error key: "must.not.be.null"
      *
      * @param <T> the type of input and output
@@ -247,14 +248,14 @@ public interface MappingRule<T, R> {
     /**
      * Applies the specified {@link MappingRule} to the result of applying the selector function to the input. Aka <code>contraMap</code>.
      *
-     * @param <T> the type of the input to be tested
-     * @param <V> the type of the result produced by the selector function
-     * @param <R> the type of the validation produced by the rule
+     * @param <T>      the type of the input to be tested
+     * @param <V>      the type of the result produced by the selector function
+     * @param <R>      the type of the validation produced by the rule
      * @param selector a function that extracts a value of type V from an input of type T
-     * @param rule the rule to be applied to the extracted value
+     * @param rule     the rule to be applied to the extracted value
      * @return a new {@link MappingRule} that tests the applied selector and rule combination
      */
-    static <T, V, R> MappingRule<T, R> with(Function<T,V> selector, MappingRule<V,R> rule) {
-        return input -> rule.test(selector.apply(input));
+    static <T, V, R> MappingRule<T, R> with(Function<T, V> selector, MappingRule<? super V, ? extends R> rule) {
+        return input -> Validation.narrow(rule.test(selector.apply(input)));
     }
 }

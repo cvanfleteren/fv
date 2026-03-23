@@ -2,10 +2,7 @@ package net.vanfleteren.fv;
 
 import com.google.testing.compile.JavaFileObjects;
 import io.vavr.Function1;
-import io.vavr.collection.HashMap;
-import io.vavr.collection.LinkedHashMap;
-import io.vavr.collection.List;
-import io.vavr.collection.Map;
+import io.vavr.collection.*;
 import io.vavr.control.Option;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -928,29 +925,32 @@ class RuleTest {
     @Nested
     class With {
 
+        record StringHolder(String value) {
+        }
+
         @Test
         void with_whenRulePasses_returnsValidResult() {
             // Arrange
-            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<Integer> withRule = Rule.with(Object::toString, rule);
+            Rule<CharSequence> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<StringHolder> withRule = Rule.with(StringHolder::value, rule);
 
             // Act
-            Validation<Integer> result = withRule.test(1234);
+            Validation<StringHolder> result = withRule.test(new StringHolder("1234"));
 
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(1234);
+                    .hasValue(new StringHolder("1234"));
         }
 
         @Test
         void with_whenRuleFails_returnsInvalidWithRuleErrors() {
             // Arrange
-            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<Integer> withRule = Rule.with(Object::toString, rule);
+            Rule<CharSequence> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<StringHolder> withRule = Rule.with(StringHolder::value, rule);
 
             // Act
-            Validation<Integer> result = withRule.test(12);
+            Validation<StringHolder> result = withRule.test(new StringHolder("12"));
 
             // Assert
             assertThatValidation(result)
