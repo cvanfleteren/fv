@@ -147,7 +147,7 @@ class MappingRuleTest {
         void liftToOption_whenNone_returnsValidResult() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "must.be.int");
-            MappingRule<Option<String>,Option<Integer>> optionRule = rule.liftToOption();
+            MappingRule<Option<String>, Option<Integer>> optionRule = rule.liftToOption();
 
             // Act
             Validation<Option<Integer>> result = optionRule.test(Option.none());
@@ -162,7 +162,7 @@ class MappingRuleTest {
         void liftToOption_whenSomeAndValid_returnsValidResult() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "must.be.int");
-            MappingRule<Option<String>,Option<Integer>> optionRule = rule.liftToOption();
+            MappingRule<Option<String>, Option<Integer>> optionRule = rule.liftToOption();
 
             // Act
             Validation<Option<Integer>> result = optionRule.test(Option.of("123"));
@@ -177,7 +177,7 @@ class MappingRuleTest {
         void liftToOption_whenSomeAndInvalid_returnsInvalidWithSameErrors() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "must.be.int");
-            MappingRule<Option<String>,Option<Integer>> optionRule = rule.liftToOption();
+            MappingRule<Option<String>, Option<Integer>> optionRule = rule.liftToOption();
 
             // Act
             Validation<Option<Integer>> result = optionRule.test(Option.of("a"));
@@ -257,7 +257,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(LinkedHashMap.of("a",123,"b",456));
+                    .hasValue(LinkedHashMap.of("a", 123, "b", 456));
         }
 
         @Test
@@ -284,7 +284,7 @@ class MappingRuleTest {
         void liftToMap_withKeyExtractor_whenSomeValuesAreInvalid_usesExtractedKeyInPath() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "must.be.int");
-            MappingRule<Map<Integer, String>, Map<Integer,Integer>> mapRule = rule.liftToMap(k -> "k" + k);
+            MappingRule<Map<Integer, String>, Map<Integer, Integer>> mapRule = rule.liftToMap(k -> "k" + k);
 
             Map<Integer, String> input = HashMap.of(
                     10, "a",
@@ -304,7 +304,7 @@ class MappingRuleTest {
         void liftToMap_withKeyExtractor_whenAllValuesAreValid_returnsValidResult() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "must.be.int");
-            MappingRule<Map<Integer, String>, Map<Integer,Integer>> mapRule = rule.liftToMap(k -> "id-" + k);
+            MappingRule<Map<Integer, String>, Map<Integer, Integer>> mapRule = rule.liftToMap(k -> "id-" + k);
 
             Map<Integer, String> input = LinkedHashMap.of(
                     1, "123",
@@ -317,7 +317,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(HashMap.of(1,123,2,456));
+                    .hasValue(HashMap.of(1, 123, 2, 456));
         }
     }
 
@@ -404,9 +404,89 @@ class MappingRuleTest {
     }
 
     @Nested
+    class RequiredOption {
+
+        @Test
+        void requiredOption_whenOptionIsNone_returnsInvalid() {
+            // Arrange
+            MappingRule<String, String> rule = MappingRule.of(s -> s, "error");
+            MappingRule<Option<String>, String> requiredRule = MappingRule.requiredOption(rule);
+
+            // Act + Assert
+            assertThatValidation(requiredRule.test(Option.none()))
+                    .isInvalid()
+                    .hasErrorMessage("must.not.be.empty");
+        }
+
+        @Test
+        void requiredOption_whenOptionIsSomeAndValid_returnsValidResult() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "not.a.number");
+            MappingRule<Option<String>, Integer> requiredRule = MappingRule.requiredOption(rule);
+
+            // Act + Assert
+            assertThatValidation(requiredRule.test(Option.of("123")))
+                    .isValid()
+                    .hasValue(123);
+        }
+
+        @Test
+        void requiredOption_whenOptionIsSomeAndInvalid_returnsInvalidWithRuleErrors() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "not.a.number");
+            MappingRule<Option<String>, Integer> requiredRule = MappingRule.requiredOption(rule);
+
+            // Act + Assert
+            assertThatValidation(requiredRule.test(Option.of("abc")))
+                    .isInvalid()
+                    .hasErrorMessage("not.a.number");
+        }
+    }
+
+    @Nested
+    class RequiredOptional {
+
+        @Test
+        void requiredOptional_whenOptionalIsEmpty_returnsInvalid() {
+            // Arrange
+            MappingRule<String, String> rule = MappingRule.of(s -> s, "error");
+            MappingRule<java.util.Optional<String>, String> requiredRule = MappingRule.requiredOptional(rule);
+
+            // Act + Assert
+            assertThatValidation(requiredRule.test(java.util.Optional.empty()))
+                    .isInvalid()
+                    .hasErrorMessage("must.not.be.empty");
+        }
+
+        @Test
+        void requiredOptional_whenOptionalIsPresentAndValid_returnsValidResult() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "not.a.number");
+            MappingRule<java.util.Optional<String>, Integer> requiredRule = MappingRule.requiredOptional(rule);
+
+            // Act + Assert
+            assertThatValidation(requiredRule.test(java.util.Optional.of("123")))
+                    .isValid()
+                    .hasValue(123);
+        }
+
+        @Test
+        void requiredOptional_whenOptionalIsPresentAndInvalid_returnsInvalidWithRuleErrors() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "not.a.number");
+            MappingRule<java.util.Optional<String>, Integer> requiredRule = MappingRule.requiredOptional(rule);
+
+            // Act + Assert
+            assertThatValidation(requiredRule.test(java.util.Optional.of("abc")))
+                    .isInvalid()
+                    .hasErrorMessage("not.a.number");
+        }
+    }
+
+    @Nested
     class With {
 
-        record StringHolder(String value){
+        record StringHolder(String value) {
         }
 
         @Test

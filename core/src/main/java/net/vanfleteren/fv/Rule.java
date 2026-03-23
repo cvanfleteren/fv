@@ -7,7 +7,6 @@ import io.vavr.collection.Seq;
 import io.vavr.control.Option;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -379,31 +378,6 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
-     * Returns a {@link MappingRule} that checks if the input {@link Option} is defined and then applies the given rule to its value.
-     *
-     * @param <T> the type of the value inside the {@link Option}
-     * @param <R> the type of the result of the mapping rule
-     * @param rule the mapping rule to apply to the value inside the {@link Option}
-     * @return a new {@link MappingRule} that validates the option and applies the given rule to its value
-     */
-    static <T, R> MappingRule<Option<T>, R> requiredOption(MappingRule<T, R> rule) {
-        return rule.liftToOption().andThen(opt -> opt.fold(() -> Validation.invalid("must.not.be.empty"), Validation::valid));
-    }
-
-
-    /**
-     * Returns a MappingRule that checks if the input {@link java.util.Optional} is defined and applies the given rule to its value.
-     *
-     * @param <T> the type of the value inside the {@link java.util.Optional}
-     * @param <R> the type of the result of the mapping rule
-     * @param rule the mapping rule to apply to the value inside the {@link java.util.Optional}
-     * @return a new MappingRule that validates the option and applies the given rule to its value
-     */
-    static <T, R> MappingRule<Optional<T>, R> requiredOptional(MappingRule<T, R> rule) {
-        return rule.liftToOptional().andThen(opt -> opt.map(Validation::valid).orElseGet(() -> Validation.invalid("must.not.be.empty")));
-    }
-
-    /**
      * Narrows a {@code Rule<? super T>} to a {@code Rule<T>}.
      *
      * @param rule The rule to narrow.
@@ -414,7 +388,6 @@ public interface Rule<T> extends MappingRule<T, T> {
     static <T> Rule<T> narrow(Rule<? super T> rule) {
         return (Rule<T>) rule;
     }
-
 
     /**
      * Returns a {@link Rule} that validates the input is not null.

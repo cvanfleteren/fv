@@ -24,6 +24,7 @@ import java.util.function.Predicate;
  */
 public interface MappingRule<T, R> {
 
+
     /**
      * Tests the given value against the mapping rule.
      *
@@ -205,6 +206,31 @@ public interface MappingRule<T, R> {
             }
         };
     }
+
+    /**
+     * Returns a {@link MappingRule} that checks if the input {@link Option} is defined and then applies the given rule to its value.
+     *
+     * @param <T> the type of the value inside the {@link Option}
+     * @param <R> the type of the result of the mapping rule
+     * @param rule the mapping rule to apply to the value inside the {@link Option}
+     * @return a new {@link MappingRule} that validates the option and applies the given rule to its value
+     */
+    static <T, R> MappingRule<Option<T>, R> requiredOption(MappingRule<T, R> rule) {
+        return rule.liftToOption().andThen(opt -> opt.fold(() -> Validation.invalid("must.not.be.empty"), Validation::valid));
+    }
+
+    /**
+     * Returns a MappingRule that checks if the input {@link Optional} is defined and applies the given rule to its value.
+     *
+     * @param <T> the type of the value inside the {@link Optional}
+     * @param <R> the type of the result of the mapping rule
+     * @param rule the mapping rule to apply to the value inside the {@link Optional}
+     * @return a new MappingRule that validates the option and applies the given rule to its value
+     */
+    static <T, R> MappingRule<Optional<T>, R> requiredOptional(MappingRule<T, R> rule) {
+        return rule.liftToOptional().andThen(opt -> opt.map(Validation::valid).orElseGet(() -> Validation.invalid("must.not.be.empty")));
+    }
+
 
     /**
      * Returns a MappingRule that validates the input is not null.
