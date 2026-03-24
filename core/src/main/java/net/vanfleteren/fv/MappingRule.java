@@ -104,6 +104,56 @@ public interface MappingRule<T, R> {
     }
 
     /**
+     * Applies a mapping function to the result of this {@link MappingRule}.
+     *
+     * @param <Z> the type of the result after applying the mapping function.
+     * @param mapper the function to apply to the result of this rule if the input passes the test.
+     * @return a new {@link MappingRule} that applies the mapping function to the result.
+     */
+    default <Z> MappingRule<T, Z> map(Function<R, Z> mapper){
+        return (T input) -> this.test(input).map(mapper);
+    }
+
+    /**
+     * Maps the result of this rule to a constant value, ignoring the underlying value.
+     *
+     * @param <Z> the type of the mapped value.
+     * @param value the constant value to map to.
+     * @return a new MappingRule that maps the result of this rule to the specified constant value.
+     */
+    default <Z> MappingRule<T, Z> mapTo(Z value){
+        return this.map(ignored -> value);
+    }
+
+    /**
+     * Composes this rule with another rule using "or" logic.
+     * The combined rule is successful if either this or the other rule is successful.
+     * If both rules fail, their errors are combined.
+     *
+     * @param other the other rule to compose with.
+     * @param <S>   the target type.
+     * @return a new {@link MappingRule} instance.
+     * @throws NullPointerException if {@code other} is null.
+     */
+    @SuppressWarnings("unchecked")
+    default <S> MappingRule<T, S> orElse(MappingRule<? super T, ? extends S> other) {
+        Objects.requireNonNull(other, "other rule cannot be null");
+        return input -> {
+            Validation<S> first = (Validation<S>) this.test(input);
+            if (first.isValid()) {
+                return first;
+            }
+
+            Validation<S> second = (Validation<S>) other.test(input);
+            if (second.isValid()) {
+                return second;
+            }
+
+            return Validation.invalid(first.errors().appendAll(second.errors()));
+        };
+    }
+
+    /**
      * Turns this rule (back) into a {@link Predicate}.
      *
      * @param <S> the target type.
@@ -230,7 +280,6 @@ public interface MappingRule<T, R> {
     static <T, R> MappingRule<Optional<T>, R> requiredOptional(MappingRule<T, R> rule) {
         return rule.liftToOptional().andThen(opt -> opt.map(Validation::valid).orElseGet(() -> Validation.invalid("must.not.be.empty")));
     }
-
 
     /**
      * Returns a MappingRule that validates the input is not null.

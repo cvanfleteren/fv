@@ -5,6 +5,7 @@ import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -86,6 +87,40 @@ class MappingRuleTest {
 
             assertThat(result.isValid()).isFalse();
             assertThat(result.errors()).extracting(ErrorMessage::message).containsExactly("length.invalid");
+        }
+    }
+
+    @Nested
+    class MapTo {
+
+        @Test
+        void mapTo_whenRulePasses_returnsConstantValue() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "not.a.number");
+            MappingRule<String, String> mapToRule = rule.mapTo("Success");
+
+            // Act
+            Validation<String> result = mapToRule.test("123");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("Success");
+        }
+
+        @Test
+        void mapTo_whenRuleFails_returnsInvalidWithOriginalErrors() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "not.a.number");
+            MappingRule<String, String> mapToRule = rule.mapTo("Success");
+
+            // Act
+            Validation<String> result = mapToRule.test("abc");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("not.a.number");
         }
     }
 
@@ -355,6 +390,34 @@ class MappingRuleTest {
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("errorMessage cannot be null");
         }
+
+        @Test
+        void ofTry_whenTryIsSuccess_returnsValidResult() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.ofTry(s -> Try.of(() -> Integer.parseInt(s)), "not.a.number");
+
+            // Act
+            Validation<Integer> result = rule.test("123");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(123);
+        }
+
+        @Test
+        void ofTry_whenTryIsFailure_returnsInvalidWithErrorMessage() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.ofTry(s -> Try.of(() -> Integer.parseInt(s)), "not.a.number");
+
+            // Act
+            Validation<Integer> result = rule.test("abc");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("not.a.number");
+        }
     }
 
     @Nested
@@ -480,6 +543,61 @@ class MappingRuleTest {
             assertThatValidation(requiredRule.test(java.util.Optional.of("abc")))
                     .isInvalid()
                     .hasErrorMessage("not.a.number");
+        }
+    }
+
+    @Nested
+    class OrElse {
+
+
+        MappingRule<String, Integer> rule1 = MappingRule.of(Integer::parseInt, "not.a.number");
+        MappingRule<String, Integer> rule2 = s -> Validation.valid(s.length());
+        MappingRule<String, Integer> orRule = rule1.orElse(rule2);
+
+        @Test
+        void orElse_whenFirstRuleIsSuccessful_returnsFirstRuleResult() {
+            // Act
+            Validation<Integer> result = orRule.test("123");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(123);
+        }
+
+        @Test
+        void orElse_whenFirstRuleFailsAndSecondRuleIsSuccessful_returnsSecondRuleResult() {
+            // Act
+            Validation<Integer> result = orRule.test("abc");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(3);
+        }
+
+        @Test
+        void orElse_whenBothRulesFail_returnsCombinedErrors() {
+            // Arrange
+            MappingRule<String, Integer> rule1 = MappingRule.of(Integer::parseInt, "not.a.number");
+            MappingRule<String, Integer> rule2 = MappingRule.of(s -> { throw new RuntimeException(); }, "generic.error");
+            MappingRule<String, Integer> orRule = rule1.orElse(rule2);
+
+            // Act
+            Validation<Integer> result = orRule.test("abc");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("not.a.number", "generic.error");
+        }
+
+        @Test
+        void orElse_whenOtherIsNull_throwsNullPointerException() {
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "not.a.number");
+            assertThatCode(() -> rule.orElse(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("other rule cannot be null");
         }
     }
 
