@@ -154,6 +154,26 @@ public interface MappingRule<T, R> {
     }
 
     /**
+     * Returns a new {@link MappingRule} that first applies this rule, and if the input is invalid, falls back to the other rule.
+     *
+     * @param <S> the type of valid output produced by the other rule
+     * @param other the other rule to use as a fallback if this rule fails
+     * @return a new MappingRule that first applies this rule, and if the input is invalid, falls back to the other rule
+     */
+    default <S> MappingRule<T, S> recover(MappingRule<? super T, ? extends S> other) {
+        Objects.requireNonNull(other, "other rule cannot be null");
+        return input -> {
+            Validation<S> first = (Validation<S>) this.test(input);
+            if (first.isValid()) {
+                return first;
+            }
+
+            return Validation.narrow(other.test(input));
+        };
+    }
+
+
+    /**
      * Turns this rule (back) into a {@link Predicate}.
      *
      * @param <S> the target type.

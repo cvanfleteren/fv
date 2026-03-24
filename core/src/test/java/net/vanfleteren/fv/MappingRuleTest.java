@@ -602,6 +602,68 @@ class MappingRuleTest {
     }
 
     @Nested
+    class Recover {
+
+        @Test
+        void recover_whenFirstRuleIsSuccessful_returnsFirstRuleResult() {
+            // Arrange
+            MappingRule<String, Integer> rule1 = MappingRule.of(Integer::parseInt, "not.a.number");
+            MappingRule<String, Integer> rule2 = s -> Validation.valid(s.length());
+            MappingRule<String, Integer> recoverRule = rule1.recover(rule2);
+
+            // Act
+            Validation<Integer> result = recoverRule.test("123");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(123);
+        }
+
+        @Test
+        void recover_whenFirstRuleFailsAndSecondRuleIsSuccessful_returnsSecondRuleResult() {
+            // Arrange
+            MappingRule<String, Integer> rule1 = MappingRule.of(Integer::parseInt, "not.a.number");
+            MappingRule<String, Integer> rule2 = s -> Validation.valid(s.length());
+            MappingRule<String, Integer> recoverRule = rule1.recover(rule2);
+
+            // Act
+            Validation<Integer> result = recoverRule.test("abc");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(3);
+        }
+
+        @Test
+        void recover_whenBothRulesFail_returnsSecondRuleErrors() {
+            // Arrange
+            MappingRule<String, Integer> rule1 = MappingRule.of(Integer::parseInt, "not.a.number");
+            MappingRule<String, Integer> rule2 = MappingRule.of(s -> {
+                throw new RuntimeException();
+            }, "generic.error");
+            MappingRule<String, Integer> recoverRule = rule1.recover(rule2);
+
+            // Act
+            Validation<Integer> result = recoverRule.test("abc");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("generic.error");
+        }
+
+        @Test
+        void recover_whenOtherIsNull_throwsNullPointerException() {
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "not.a.number");
+            assertThatCode(() -> rule.recover(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("other rule cannot be null");
+        }
+    }
+
+    @Nested
     class With {
 
         record StringHolder(String value) {
