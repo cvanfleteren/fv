@@ -403,14 +403,24 @@ public interface Rule<T> extends MappingRule<T, T> {
 
     /**
      * Applies the specified {@link Rule} to the result of applying the selector function to the input. Aka <code>contraMap</code>.
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * record User(String name) {}
+     * Rule<String> nameRule = Rule.of(s -> s.length() > 3, "too.short");
+     * Rule<User> userRule = Rule.with(User::name, nameRule);
      *
-     * @param <T> the type of the input to be tested
-     * @param <V> the type of the result produced by the selector function
+     * userRule.test(new User("Joe")); // returns Invalid("too.short")
+     * userRule.test(new User("Alice")); // returns Valid(User("Alice"))
+     * }</pre>
+     *
+     * @param <T>      the type of the input to be tested
+     * @param <V>      the type of the result produced by the selector function
      * @param selector a function that extracts a value of type V from an input of type T
-     * @param rule the rule to be applied to the extracted value
+     * @param rule     the rule to be applied to the extracted value
      * @return a new rule that tests the applied selector and rule combination
      */
-    static <T, V> Rule<T> with(Function<T,V> selector, Rule<V> rule) {
+    static <T, V> Rule<T> with(Function<T, V> selector, Rule<V> rule) {
       return input -> rule.test(selector.apply(input)).map(ignore -> input);
     }
 

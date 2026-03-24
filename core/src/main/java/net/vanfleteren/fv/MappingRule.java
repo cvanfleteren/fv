@@ -24,12 +24,11 @@ import java.util.function.Predicate;
  */
 public interface MappingRule<T, R> {
 
-
     /**
      * Tests the given value against the mapping rule.
      *
      * @param value the input to be validated and transformed according to the rule's mapper function
-     * @return a Validation instance representing the result of applying the rule to the value,
+     * @return a {@link Validation} instance representing the result of applying the rule to the value,
      * either containing the successfully transformed output (R) or error details
      * if the mapping failed or the transformed result is invalid
      */
