@@ -25,12 +25,27 @@ class OptionRulesTest {
     }
 
     @Nested
+    class RequiredOption {
+
+        @Test
+        void requiredOption_whenOptionIsSome_returnsValidResult() {
+            Option<String> some = Option.of("value");
+            validTest(some, options().requiredOption());
+        }
+
+        @Test
+        void requiredOption_whenOptionIsNone_returnsInvalidWithErrorMessage() {
+            invalidTest(Option.none(), options().requiredOption(), "must.not.be.empty");
+        }
+    }
+
+    @Nested
     class Empty {
 
         @Test
         void empty_whenOptionIsNone_returnsValidResult() {
             Option<String> none = Option.none();
-            validTest(none, none, options().empty());
+            validTest(none, options().empty());
         }
 
         @Test

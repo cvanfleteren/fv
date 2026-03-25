@@ -5,8 +5,6 @@ import net.vanfleteren.fv.MappingRule;
 import net.vanfleteren.fv.Rule;
 import net.vanfleteren.fv.Validation;
 
-import java.util.function.Function;
-
 public class OptionRules {
 
     /**
@@ -36,6 +34,18 @@ public class OptionRules {
                 () -> Validation.invalid("must.not.be.empty"),
                 Validation::valid
         );
+    }
+
+    /**
+     * Returns a {@link Rule} that expects the input Option to be non-empty.
+     * <p>
+     * Error key: {@code must.not.be.empty}
+     *
+     * @param <T> the type of the value contained in the Option
+     * @return a MappingRule that enforces the non-empty constraint on Option<T>
+     */
+    public <T> Rule<Option<T>> requiredOption() {
+        return input -> input.isEmpty() ? Validation.invalid("must.not.be.empty") : Validation.valid(input);
     }
 
     /**
