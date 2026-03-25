@@ -37,6 +37,22 @@ class CollectionRulesTest {
     }
 
     @Nested
+    class Empty {
+
+        @Test
+        void valid() {
+            validTest(new ArrayList<>(), collections().empty());
+            validTest(HashSet.of(), collections().empty());
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(List.of("x"), collections().empty(), "must.be.empty");
+            invalidTest(HashSet.of(1), collections().empty(), "must.be.empty");
+        }
+    }
+
+    @Nested
     class MinSize {
 
         @Test

@@ -42,6 +42,15 @@ public class CollectionRules {
     }
 
     /**
+     * Fails if the collection is not empty.
+     * <p>
+     * Error key: {@code must.be.empty}
+     */
+    public Rule<? super Iterable<?>> empty() {
+            return Rule.of(value -> !value.iterator().hasNext(), "must.be.empty");
+    }
+
+    /**
      * Fails if the collection size is less than the specified minimum.
      * <p>
      * Error key: {@code must.have.min.size}
