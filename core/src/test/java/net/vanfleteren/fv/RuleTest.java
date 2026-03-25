@@ -137,6 +137,31 @@ class RuleTest {
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("errorMessage cannot be null");
         }
+
+        @Test
+        void ok_whenCalled_returnsValidResult() {
+            // Arrange
+            Rule<String> rule = Rule.ok();
+
+            // Act
+            Validation<String> result = rule.test("any");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("any");
+        }
+
+        @Test
+        void ok_whenCalledWithNull_throwsNullPointerException() {
+            // Arrange
+            Rule<String> rule = Rule.ok();
+
+            // Act & Assert
+            assertThatCode(() -> rule.test(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("Value cannot be null");
+        }
     }
 
     @Nested

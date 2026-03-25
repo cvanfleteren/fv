@@ -402,6 +402,16 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
+     * Creates a new {@link Rule} that always returns a valid result for any input.
+     *
+     * @param <T> the type of object being validated
+     * @return a rule that always returns a valid result
+     */
+    static <T> Rule<T> ok() {
+        return Validation::valid;
+    }
+
+    /**
      * Applies the specified {@link Rule} to the result of applying the selector function to the input. Aka <code>contraMap</code>.
      * <p>
      * Usage example:
