@@ -149,6 +149,15 @@ public class ErrorMessage {
         }
     }
 
+    @Override
+    public String toString() {
+        return "ErrorMessage{" +
+                "errorKey='" + errorKey + '\'' +
+                ", paths=" + paths +
+                ", parameters=" + parameters +
+                '}';
+    }
+
     /**
      * Represents a single segment in an error path, optionally including an index.
      * The index would usually be used for array or list indices, or map keys.
