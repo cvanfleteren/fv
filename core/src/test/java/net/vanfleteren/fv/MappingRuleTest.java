@@ -624,14 +624,14 @@ class MappingRuleTest {
     }
 
     @Nested
-    class Recover {
+    class RecoverWith {
 
         @Test
-        void recover_whenFirstRuleIsSuccessful_returnsFirstRuleResult() {
+        void recoverWith_whenFirstRuleIsSuccessful_returnsFirstRuleResult() {
             // Arrange
             MappingRule<String, Integer> rule1 = MappingRule.of(Integer::parseInt, "not.a.number");
             MappingRule<String, Integer> rule2 = s -> Validation.valid(s.length());
-            MappingRule<String, Integer> recoverRule = rule1.recover(rule2);
+            MappingRule<String, Integer> recoverRule = rule1.recoverWith(rule2);
 
             // Act
             Validation<Integer> result = recoverRule.test("123");
@@ -643,14 +643,14 @@ class MappingRuleTest {
         }
 
         @Test
-        void recover_whenFirstRuleFailsAndSecondRuleIsSuccessful_returnsSecondRuleResult() {
+        void recoverWith_whenFirstRuleFailsAndSecondRuleIsSuccessful_returnsSecondRuleResult() {
             // Arrange
             MappingRule<String, Integer> rule1 = MappingRule.of(Integer::parseInt, "not.a.number");
-            MappingRule<String, Integer> rule2 = s -> Validation.valid(s.length());
-            MappingRule<String, Integer> recoverRule = rule1.recover(rule2);
+            MappingRule<String, Number> rule2 = s -> Validation.valid(s.length());
+            MappingRule<String, Number> recoverRule = rule1.recoverWith(rule2);
 
             // Act
-            Validation<Integer> result = recoverRule.test("abc");
+            Validation<Number> result = recoverRule.test("abc");
 
             // Assert
             assertThatValidation(result)
@@ -659,13 +659,13 @@ class MappingRuleTest {
         }
 
         @Test
-        void recover_whenBothRulesFail_returnsSecondRuleErrors() {
+        void recoverWith_whenBothRulesFail_returnsSecondRuleErrors() {
             // Arrange
             MappingRule<String, Integer> rule1 = MappingRule.of(Integer::parseInt, "not.a.number");
             MappingRule<String, Integer> rule2 = MappingRule.of(s -> {
                 throw new RuntimeException();
             }, "generic.error");
-            MappingRule<String, Integer> recoverRule = rule1.recover(rule2);
+            MappingRule<String, Integer> recoverRule = rule1.recoverWith(rule2);
 
             // Act
             Validation<Integer> result = recoverRule.test("abc");
@@ -677,9 +677,9 @@ class MappingRuleTest {
         }
 
         @Test
-        void recover_whenOtherIsNull_throwsNullPointerException() {
+        void recoverWith_whenOtherIsNull_throwsNullPointerException() {
             MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "not.a.number");
-            assertThatCode(() -> rule.recover(null))
+            assertThatCode(() -> rule.recoverWith(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("other rule cannot be null");
         }

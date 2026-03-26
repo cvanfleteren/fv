@@ -633,6 +633,94 @@ class RuleTest {
     }
 
     @Nested
+    class RecoverWith {
+
+        @Test
+        void recoverWith_whenFirstRulePasses_returnsFirstResultAndDoesNotCallSecond() {
+            // Arrange
+            Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> combined = rule1.recoverWithRule(rule2);
+
+            // Act
+            Validation<String> result = combined.test("apple");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("apple");
+        }
+
+        @Test
+        void recoverWith_whenFirstRuleFailsAndSecondRulePasses_returnsSecondResult() {
+            // Arrange
+            Rule<String> rule1 = Rule.of(s -> s.length() > 5, "too.short");
+            Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> combined = rule1.recoverWithRule(rule2);
+
+            // Act
+            Validation<String> result = combined.test("hi");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("hi");
+        }
+
+        @Test
+        void recoverWith_whenBothRulesFail_returnsOnlySecondRuleErrors() {
+            // Arrange
+            Rule<String> rule1 = Rule.of(s -> s.length() > 5, "too.short");
+            Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> combined = rule1.recoverWithRule(rule2);
+
+            // Act
+            Validation<String> result = combined.test("abc");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("must.start.with.h");
+
+            // Verify that first rule error is NOT present
+            assertThat(result.errors().map(ErrorMessage::message)).doesNotContain("too.short");
+        }
+
+        @Test
+        void recoverWith_whenOtherRuleIsNull_throwsNullPointerException() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> true, "msg");
+
+            // Act & Assert
+            assertThatCode(() -> rule.recoverWith(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("other rule cannot be null");
+        }
+
+        @Test
+        void recoverWith_whenCombiningWithRuleOfSuperType_compilesAndWorks() {
+            // Arrange
+            Rule<Number> isPositive = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
+            Rule<BigDecimal> isMinusFortyTwo = Rule.of(b -> b.compareTo(new BigDecimal("-42")) == 0, "must.be.minus.forty.two");
+
+            // Act
+            Rule<BigDecimal> combined = isMinusFortyTwo.recoverWithRule(isPositive);
+
+            // Assert
+            // 1. First rule matches
+            assertThatValidation(combined.test(new BigDecimal("-42"))).isValid();
+
+            // 2. Second rule matches (recovery)
+            assertThatValidation(combined.test(new BigDecimal("10"))).isValid();
+
+            // 3. Both fail
+            assertThatValidation(combined.test(new BigDecimal("-1")))
+                    .isInvalid()
+                    .hasErrorMessage("must.be.positive");
+        }
+    }
+
+    @Nested
     class LiftToList {
 
         @Test

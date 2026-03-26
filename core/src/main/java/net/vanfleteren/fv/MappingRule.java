@@ -177,12 +177,12 @@ public interface MappingRule<T, R> {
      * @param other the other rule to use as a fallback if this rule fails
      * @return a new MappingRule that first applies this rule, and if the input is invalid, falls back to the other rule
      */
-    default <S> MappingRule<T, S> recover(MappingRule<? super T, ? extends S> other) {
+    default <S> MappingRule<T, S> recoverWith(MappingRule<? super T, S> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input -> {
-            Validation<S> first = (Validation<S>) this.test(input);
+            Validation<R> first = this.test(input);
             if (first.isValid()) {
-                return first;
+                return (Validation<S>) first;
             }
 
             return Validation.narrow(other.test(input));

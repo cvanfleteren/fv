@@ -231,6 +231,24 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
+     * Returns a new {@link Rule} that first applies this rule, and if the input is invalid, falls back to the other rule.
+     *
+     * @param other the other rule to use as a fallback if this rule fails
+     * @return a new {@link Rule} that first applies this rule, and if the input is invalid, falls back to the other rule
+     */
+    default <S extends T> Rule<S> recoverWithRule(Rule<? super S> other) {
+        Objects.requireNonNull(other, "other rule cannot be null");
+        return input -> {
+            Validation<T> first = this.test(input);
+            if (first.isValid()) {
+                return (Validation<S>)first;
+            }
+
+            return Validation.narrowSuper(other.test(input));
+        };
+    }
+
+    /**
      * Lifts a {@link Rule} so it applies to a {@link List} of T instead of a single T.
      *
      * @return a new {@link Rule} instance.
