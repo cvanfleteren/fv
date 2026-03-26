@@ -95,7 +95,7 @@ public interface Rule<T> extends MappingRule<T, T> {
     @SuppressWarnings("unchecked")
     default <S extends T> Rule<S> and(Rule<? super S> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
-        return value -> test(value).flatMap(v -> other.test(value).map(o -> (S) v));
+        return value -> test(value).flatMap(v -> (Validation<S>) other.test(value));
     }
 
     /**
@@ -113,7 +113,7 @@ public interface Rule<T> extends MappingRule<T, T> {
     @SuppressWarnings("unchecked")
     default <S extends T> Rule<S> andAlso(Rule<? super S> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
-        return value -> Validation.mapN(test(value), other.test(value), (v, o) -> (S) v);
+        return value -> Validation.mapN((Validation<S>) test(value), (Validation<S>) other.test(value), (v, o) -> v);
     }
 
     /**
@@ -130,7 +130,7 @@ public interface Rule<T> extends MappingRule<T, T> {
     default <S extends T> Rule<S> or(Rule<? super S> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input -> {
-            Validation<S> first = (Validation<S>) this.test(input);
+            Validation<S> first = (Validation<S>) test(input);
             if (first.isValid()) {
                 return first;
             }

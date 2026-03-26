@@ -22,6 +22,7 @@ import java.util.function.Predicate;
  * @param <T> the type of input to be mapped
  * @param <R> the type of output after successful mapping
  */
+@FunctionalInterface
 public interface MappingRule<T, R> {
 
     /**
