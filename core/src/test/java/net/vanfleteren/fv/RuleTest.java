@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.tools.JavaFileObject;
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import static com.google.common.truth.Truth.assert_;
@@ -732,6 +733,36 @@ class RuleTest {
     }
 
     @Nested
+    class LiftToOptional {
+
+        @Test
+        void liftToOptional_whenEmpty_returnsValidResult() {
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<Optional<String>> lifted = rule.liftToOptional();
+
+            assertThat(lifted.test(Optional.empty())).isEqualTo(Validation.valid(Optional.empty()));
+        }
+
+        @Test
+        void liftToOptional_whenNotEmptyAndValid_returnsValidResult() {
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<Optional<String>> lifted = rule.liftToOptional();
+
+            assertThat(lifted.test(Optional.of("Alice"))).isEqualTo(Validation.valid(Optional.of("Alice")));
+        }
+
+        @Test
+        void liftToOptional_whenNotEmptyAndInvalid_returnsInvalidWithSameErrors() {
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<Optional<String>> lifted = rule.liftToOptional();
+
+            assertThatValidation(lifted.test(Optional.of("Bob")))
+                    .isInvalid()
+                    .hasErrorMessage("too.short");
+        }
+    }
+
+    @Nested
     class LiftToMap {
 
         @Test
@@ -944,6 +975,86 @@ class RuleTest {
             assertThatCode(() -> rule.when((java.util.function.Supplier<Boolean>) null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("condition cannot be null");
+        }
+    }
+
+    @Nested
+    class RequiredOption {
+
+        @Test
+        void requiredOption_whenOptionIsNone_returnsInvalid() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            MappingRule<Option<String>, String> requiredRule = Rule.requiredOption(rule);
+
+            // Act + Assert
+            assertThatValidation(requiredRule.test(Option.none()))
+                    .isInvalid()
+                    .hasErrorMessage("must.not.be.empty");
+        }
+
+        @Test
+        void requiredOption_whenOptionIsSomeAndValid_returnsValidResult() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            MappingRule<Option<String>, String> requiredRule = Rule.requiredOption(rule);
+
+            // Act + Assert
+            assertThatValidation(requiredRule.test(Option.of("Alice")))
+                    .isValid()
+                    .hasValue("Alice");
+        }
+
+        @Test
+        void requiredOption_whenOptionIsSomeAndInvalid_returnsInvalidWithRuleErrors() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            MappingRule<Option<String>, String> requiredRule = Rule.requiredOption(rule);
+
+            // Act + Assert
+            assertThatValidation(requiredRule.test(Option.of("Bob")))
+                    .isInvalid()
+                    .hasErrorMessage("too.short");
+        }
+    }
+
+    @Nested
+    class RequiredOptional {
+
+        @Test
+        void requiredOptional_whenOptionalIsEmpty_returnsInvalid() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            MappingRule<Optional<String>, String> requiredRule = Rule.requiredOptional(rule);
+
+            // Act + Assert
+            assertThatValidation(requiredRule.test(Optional.empty()))
+                    .isInvalid()
+                    .hasErrorMessage("must.not.be.empty");
+        }
+
+        @Test
+        void requiredOptional_whenOptionalIsPresentAndValid_returnsValidResult() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            MappingRule<Optional<String>, String> requiredRule = Rule.requiredOptional(rule);
+
+            // Act + Assert
+            assertThatValidation(requiredRule.test(Optional.of("Alice")))
+                    .isValid()
+                    .hasValue("Alice");
+        }
+
+        @Test
+        void requiredOptional_whenOptionalIsPresentAndInvalid_returnsInvalidWithRuleErrors() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            MappingRule<Optional<String>, String> requiredRule = Rule.requiredOptional(rule);
+
+            // Act + Assert
+            assertThatValidation(requiredRule.test(Optional.of("Bob")))
+                    .isInvalid()
+                    .hasErrorMessage("too.short");
         }
     }
 

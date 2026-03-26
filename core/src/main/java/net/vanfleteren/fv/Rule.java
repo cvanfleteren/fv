@@ -1,12 +1,12 @@
 package net.vanfleteren.fv;
 
-import io.vavr.Function1;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Seq;
 import io.vavr.control.Option;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -180,7 +180,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * @param errorMapper the mapper function to transform the fallback error message.
      * @return a negated {@link Rule}.
      */
-    default Rule<T> not(Function1<ErrorMessage, ErrorMessage> errorMapper) {
+    default Rule<T> not(Function<ErrorMessage, ErrorMessage> errorMapper) {
         Objects.requireNonNull(errorMapper, "errorMapper cannot be null");
         return value -> {
             Validation<T> original = this.test(value);
@@ -255,11 +255,25 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
+     * Lifts this {@link Rule} so it applies to an {@link java.util.Optional} of T.
+     * <p>
+     * Semantics:
+     * - empty =&gt; {@code valid(Optional.empty)} (nothing to validate)
+     * - not empty =&gt; validate x, and return {@code valid(Optional.of(x))} or {@code invalid(errors)}
+     *
+     * @return a new {@link Rule} instance.
+     */
+    @Override
+    default Rule<Optional<T>> liftToOptional() {
+        return value -> MappingRule.super.liftToOptional().test(value);
+    }
+
+    /**
      * Lifts this {@link Rule} so it applies to a {@link Map} of K to T.
      * <p>
      * Be careful, the key {@code value.toString()} will be used as part of the path segment.
      * Make sure to have a key that has a meaningful string representation for this.
-     * If you can't guarantee this, use the version of {@link #liftToMap(Function1)} that takes a keyExtractor function instead.
+     * If you can't guarantee this, use the version of {@link #liftToMap(Function)} that takes a keyExtractor function instead.
      * <p>
      * Semantics:
      * - Each value in the map is validated, and the resulting validations are collected.
@@ -290,7 +304,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * @return a new {@link Rule} instance.
      */
     @Override
-    default <K> Rule<Map<K, T>> liftToMap(Function1<K, Object> keyExtractor) {
+    default <K> Rule<Map<K, T>> liftToMap(Function<K, Object> keyExtractor) {
         // this version can work a bit more efficiently since we know we can return
         // the original map if all entries are valid
         // as the values cannot change type in a Rule (as opposed to a MappingRule)
@@ -409,6 +423,28 @@ public interface Rule<T> extends MappingRule<T, T> {
      */
     static <T> Rule<T> ok() {
         return Validation::valid;
+    }
+
+    /**
+     * Returns a {@link MappingRule} that checks if the input {@link Option} is defined and then applies the given rule to its value.
+     *
+     * @param <T>  the type of the value inside the {@link Option}
+     * @param rule the rule to apply to the value inside the {@link Option}
+     * @return a new {@link MappingRule} that validates the option and applies the given rule to its value
+     */
+    static <T> MappingRule<Option<T>, T> requiredOption(Rule<T> rule) {
+        return MappingRule.requiredOption(rule);
+    }
+
+    /**
+     * Returns a MappingRule that checks if the input {@link Optional} is defined and applies the given rule to its value.
+     *
+     * @param <T>  the type of the value inside the {@link Optional}
+     * @param rule the rule to apply to the value inside the {@link Optional}
+     * @return a new MappingRule that validates the option and applies the given rule to its value
+     */
+    static <T> MappingRule<Optional<T>, T> requiredOptional(Rule<T> rule) {
+        return MappingRule.requiredOptional(rule);
     }
 
     /**

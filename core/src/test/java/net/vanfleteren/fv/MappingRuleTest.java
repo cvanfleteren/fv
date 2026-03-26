@@ -378,6 +378,28 @@ class MappingRuleTest {
     @Nested
     class FactoryMethods {
         @Test
+        void ofTry_withErrorMessage_whenTryIsSuccess_returnsValidResult() {
+            MappingRule<String, Integer> rule = MappingRule.ofTry(s -> Try.success(Integer.parseInt(s)), ErrorMessage.of("error"));
+            assertThat(rule.test("123")).isEqualTo(Validation.valid(123));
+        }
+        @Test
+        void ofTry_withErrorMessage_whenTryIsFailure_returnsInvalidWithErrorMessage() {
+            MappingRule<String, Integer> rule = MappingRule.ofTry(s -> Try.failure(new NumberFormatException()), ErrorMessage.of("invalid.number"));
+            assertThat(rule.test("abc")).isEqualTo(Validation.invalid(ErrorMessage.of("invalid.number")));
+        }
+        @Test
+        void ofTry_withErrorMessage_whenMapperIsNull_throwsNullPointerException() {
+            assertThatCode(() -> MappingRule.ofTry(null, ErrorMessage.of("error")))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("mapper cannot be null");
+        }
+        @Test
+        void ofTry_withErrorMessage_whenErrorMessageIsNull_throwsNullPointerException() {
+            assertThatCode(() -> MappingRule.ofTry(s -> Try.success(1), (ErrorMessage) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("errorMessage cannot be null");
+        }
+        @Test
         void of_whenMapperIsNull_throwsNullPointerException() {
             assertThatCode(() -> MappingRule.of(null, "error"))
                     .isInstanceOf(NullPointerException.class)

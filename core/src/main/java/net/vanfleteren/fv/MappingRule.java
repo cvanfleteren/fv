@@ -45,8 +45,30 @@ public interface MappingRule<T, R> {
      * @param errorKey the errorKey to use if the mapping fails.
      * @return a new {@link MappingRule} that applies the mapper and validates the result
      */
-    static <T, R> MappingRule<T, R> of(Function1<T, R> mapper, String errorKey) {
+    static <T, R> MappingRule<T, R> of(Function<T, R> mapper, String errorKey) {
         return of(mapper, ErrorMessage.of(errorKey));
+    }
+
+    /**
+     * Creates a new MappingRule that applies the given mapper function to the input.
+     * If the mapper throws an exception (wrapped in Try), the rule will fail with the specified error message.
+     *
+     * @param <T>          the type of input to be mapped
+     * @param <R>          the type of output after mapping
+     * @param mapper       the function that maps T to R, returning a Try
+     * @param errorMessage the errorMessage to use if the mapping fails.
+     * @return a new {@link MappingRule} that applies the mapper and validates the result
+     */
+    static <T, R> MappingRule<T, R> ofTry(Function<T, Try<R>> mapper, ErrorMessage errorMessage) {
+        Objects.requireNonNull(mapper, "mapper cannot be null");
+        Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
+        return input -> {
+            Try<R> _try = mapper.apply(input);
+            return _try.fold(
+                    t -> Validation.invalid(errorMessage),
+                    Validation::valid
+            );
+        };
     }
 
     /**
@@ -59,14 +81,8 @@ public interface MappingRule<T, R> {
      * @param errorKey the errorKey to use if the mapping fails.
      * @return a new {@link MappingRule} that applies the mapper and validates the result
      */
-    static <T, R> MappingRule<T, R> ofTry(Function1<T, Try<R>> mapper, String errorKey) {
-        return input -> {
-            Try<R> _try = mapper.apply(input);
-            return _try.fold(
-                    t -> Validation.invalid(ErrorMessage.of(errorKey)),
-                    Validation::valid
-            );
-        };
+    static <T, R> MappingRule<T, R> ofTry(Function<T, Try<R>> mapper, String errorKey) {
+        return ofTry(mapper, ErrorMessage.of(errorKey));
     }
 
     /**
@@ -79,7 +95,7 @@ public interface MappingRule<T, R> {
      * @param errorMessage   the error message to use if the mapping fails.
      * @return a new {@link MappingRule} that applies the mapper and validates the result
      */
-    static <T, R> MappingRule<T, R> of(Function1<T, R> throwingMapper, ErrorMessage errorMessage) {
+    static <T, R> MappingRule<T, R> of(Function<T, R> throwingMapper, ErrorMessage errorMessage) {
         Objects.requireNonNull(throwingMapper, "mapper cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return input -> {
@@ -231,9 +247,9 @@ public interface MappingRule<T, R> {
     /**
      * Lifts this {@link MappingRule} so it applies to a {@link Map} of K to T.
      * <p>
-     * Be careful, the key {@code value.toString()} will be used as part of the path segment.
+     * Be careful, the key {@code key.toString()} will be used as part of the path segment.
      * Make sure to have a key that has a meaningful string representation for this.
-     * If you can't guarantee this, use the version of {@link #liftToMap(Function1)} that takes a keyExtractor function instead.
+     * If you can't guarantee this, use the version of {@link #liftToMap(Function)} that takes a keyExtractor function instead.
      * <p>
      * Semantics:
      * - Each value in the map is validated, and the resulting validations are collected.
@@ -261,7 +277,8 @@ public interface MappingRule<T, R> {
      * @param <K>          the key type.
      * @return a new {@link MappingRule} instance.
      */
-    default <K> MappingRule<Map<K, T>, Map<K, R>> liftToMap(Function1<K, Object> keyExtractor) {
+    default <K> MappingRule<Map<K, T>, Map<K, R>> liftToMap(Function<K, Object> keyExtractor) {
+        Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
         return map -> {
             Seq<Tuple2<K, Validation<R>>> validations = map.map(tuple ->
                     Tuple.of(tuple._1, this.test(tuple._2).mapErrors(errors ->
@@ -287,6 +304,7 @@ public interface MappingRule<T, R> {
      * @return a new {@link MappingRule} that validates the option and applies the given rule to its value
      */
     static <T, R> MappingRule<Option<T>, R> requiredOption(MappingRule<T, R> rule) {
+        Objects.requireNonNull(rule, "rule cannot be null");
         return rule.liftToOption().andThen(opt -> opt.fold(() -> Validation.invalid("must.not.be.empty"), Validation::valid));
     }
 
@@ -299,6 +317,7 @@ public interface MappingRule<T, R> {
      * @return a new MappingRule that validates the option and applies the given rule to its value
      */
     static <T, R> MappingRule<Optional<T>, R> requiredOptional(MappingRule<T, R> rule) {
+        Objects.requireNonNull(rule, "rule cannot be null");
         return rule.liftToOptional().andThen(opt -> opt.map(Validation::valid).orElseGet(() -> Validation.invalid("must.not.be.empty")));
     }
 
