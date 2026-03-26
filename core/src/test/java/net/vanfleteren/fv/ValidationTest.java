@@ -1649,6 +1649,17 @@ public class ValidationTest {
                     .isInvalid()
                     .hasErrorMessages("foo");
         }
+
+        @Test
+        void from_whenTryFails_takesErrorMessagesFromValidationException() {
+            Try<String> tryVal = failure(new ValidationException(List.of(ErrorMessage.of("foo"),ErrorMessage.of("bar"))));
+
+            Validation<Object> v = Validation.from(tryVal);
+
+            assertThatValidation(v)
+                    .isInvalid()
+                    .hasErrorMessages("foo","bar");
+        }
     }
 
     @Nested

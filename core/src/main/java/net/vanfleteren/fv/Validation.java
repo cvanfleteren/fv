@@ -966,7 +966,7 @@ public sealed interface Validation<T> extends Value<T> {
      */
     static <T> Validation<T> from(Try<? extends T> _try) {
         return _try.fold(
-                e -> Validation.invalid(e.getMessage()),
+                e -> (e instanceof ValidationException ve) ? Validation.invalid(ve.errors()) : Validation.invalid(e.getMessage()),
                 Validation::valid
         );
     }
