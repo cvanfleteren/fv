@@ -160,7 +160,7 @@ class RuleTest {
             // Act & Assert
             assertThatCode(() -> rule.test(null))
                     .isInstanceOf(NullPointerException.class)
-                    .hasMessage("Value cannot be null");
+                    .hasMessage("value cannot be null");
         }
     }
 

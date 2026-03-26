@@ -66,7 +66,7 @@ public class ValidationTest {
             // Act & Assert
             assertThatCode(() -> Validation.valid(null))
                     .isInstanceOf(NullPointerException.class)
-                    .hasMessage("Value cannot be null");
+                    .hasMessage("value cannot be null");
         }
 
         @Test
@@ -74,7 +74,7 @@ public class ValidationTest {
             // Act & Assert
             assertThatCode(() -> new Validation.Invalid(null))
                     .isInstanceOf(NullPointerException.class)
-                    .hasMessage("Errors cannot be null");
+                    .hasMessage("errors cannot be null");
         }
 
     }
@@ -202,7 +202,7 @@ public class ValidationTest {
             // Act & Assert
             assertThatThrownBy(() -> valid.whenValid(null))
                     .isInstanceOf(NullPointerException.class)
-                    .hasMessage("action is null");
+                    .hasMessage("action cannot be null");
         }
     }
 
@@ -1506,7 +1506,7 @@ public class ValidationTest {
             // Act & Assert
             assertThatThrownBy(() -> valid.orElse((Supplier<Validation<String>>) null))
                     .isInstanceOf(NullPointerException.class)
-                    .hasMessage("supplier is null");
+                    .hasMessage("supplier cannot be null");
         }
     }
 

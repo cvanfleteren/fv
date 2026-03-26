@@ -111,7 +111,7 @@ public sealed interface Validation<T> extends Value<T> {
      */
     @SuppressWarnings("unchecked")
     default <U> Validation<U> orElse(Supplier<? extends Validation<? extends U>> supplier) {
-        Objects.requireNonNull(supplier, "supplier is null");
+        Objects.requireNonNull(supplier, "supplier cannot be null");
         return isValid() ? (Validation<U>) this : Validation.narrow(supplier.get());
     }
 
@@ -137,13 +137,11 @@ public sealed interface Validation<T> extends Value<T> {
      * @throws NullPointerException if {@code consumer} is null.
      */
     default Validation<T> whenInvalid(Consumer<List<ErrorMessage>> consumer) {
-        if(!isValid()) {
+        if (!isValid()) {
             consumer.accept(errors());
         }
         return this;
     }
-
-
 
     //endregion
 
@@ -297,7 +295,7 @@ public sealed interface Validation<T> extends Value<T> {
     }
     //endregion
 
-    //regionError handling
+    //region Error handling
 
     /**
      * Maps the error messages of an invalid validation using the provided mapper function.
@@ -369,8 +367,8 @@ public sealed interface Validation<T> extends Value<T> {
      * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
      */
     static <T> Validation<java.util.List<T>> sequence(java.util.Collection<Validation<T>> validations) {
-        return sequence(io.vavr.collection.List.ofAll(validations))
-                .map(io.vavr.collection.List::asJava);
+        return sequence(List.ofAll(validations))
+                .map(List::asJava);
     }
     //endregion
 
@@ -398,7 +396,7 @@ public sealed interface Validation<T> extends Value<T> {
         if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2)) {
             return valid(mapper.apply(t1, t2));
         } else {
-            return invalid(Iterator.of(v1.errors(), v2.errors()).flatMap(Function.identity()).toList());
+            return invalid(List.of(v1.errors(), v2.errors()).flatMap(Function.identity()));
         }
     }
 
@@ -424,7 +422,7 @@ public sealed interface Validation<T> extends Value<T> {
         if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2)) {
             return Validation.narrow(mapper.apply(t1, t2));
         } else {
-            return invalid(Iterator.of(v1.errors(), v2.errors()).flatMap(Function.identity()).toList());
+            return invalid(List.of(v1.errors(), v2.errors()).flatMap(Function.identity()));
         }
     }
 
@@ -511,9 +509,7 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v4, "v4 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4)) {
             return valid(mapper.apply(t1, t2, t3, t4));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors()).flatMap(Function.identity()));
@@ -545,9 +541,7 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v4, "v4 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4)) {
             return Validation.narrow(mapper.apply(t1, t2, t3, t4));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors()).flatMap(Function.identity()));
@@ -582,9 +576,7 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v5, "v5 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5)) {
             return valid(mapper.apply(t1, t2, t3, t4, t5));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors()).flatMap(Function.identity()));
@@ -619,9 +611,7 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v5, "v5 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5)) {
             return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors()).flatMap(Function.identity()));
@@ -659,9 +649,7 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v6, "v6 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6)) {
             return valid(mapper.apply(t1, t2, t3, t4, t5, t6));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors()).flatMap(Function.identity()));
@@ -699,9 +687,7 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v6, "v6 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6)) {
             return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5, t6));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors()).flatMap(Function.identity()));
@@ -742,11 +728,7 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v7, "v7 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(
-                var t6
-        ) && v7 instanceof Valid(var t7)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6) && v7 instanceof Valid(var t7)) {
             return valid(mapper.apply(t1, t2, t3, t4, t5, t6, t7));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors()).flatMap(Function.identity()));
@@ -787,11 +769,7 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v7, "v7 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(
-                var t6
-        ) && v7 instanceof Valid(var t7)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6) && v7 instanceof Valid(var t7)) {
             return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5, t6, t7));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors()).flatMap(Function.identity()));
@@ -835,11 +813,7 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v8, "v8 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(
-                var t6
-        ) && v7 instanceof Valid(var t7) && v8 instanceof Valid(var t8)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6) && v7 instanceof Valid(var t7) && v8 instanceof Valid(var t8)) {
             return valid(mapper.apply(t1, t2, t3, t4, t5, t6, t7, t8));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors(), v8.errors()).flatMap(Function.identity()));
@@ -883,11 +857,7 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v8, "v8 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(
-                var t6
-        ) && v7 instanceof Valid(var t7) && v8 instanceof Valid(var t8)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6) && v7 instanceof Valid(var t7) && v8 instanceof Valid(var t8)) {
             return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5, t6, t7, t8));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors(), v8.errors()).flatMap(Function.identity()));
@@ -1145,7 +1115,7 @@ public sealed interface Validation<T> extends Value<T> {
      */
     @Override
     default Validation<T> peek(@NonNull Consumer<? super T> action) {
-        Objects.requireNonNull(action, "action is null");
+        Objects.requireNonNull(action, "action cannot be null");
         if (isValid()) {
             action.accept(get());
         }
@@ -1179,7 +1149,7 @@ public sealed interface Validation<T> extends Value<T> {
      */
     record Valid<T>(T value) implements Validation<T> {
         public Valid {
-            Objects.requireNonNull(value, "Value cannot be null");
+            Objects.requireNonNull(value, "value cannot be null");
         }
 
         @Override
@@ -1216,7 +1186,7 @@ public sealed interface Validation<T> extends Value<T> {
     record Invalid(List<ErrorMessage> errors) implements Validation<Object> {
 
         public Invalid {
-            Objects.requireNonNull(errors, "Errors cannot be null");
+            Objects.requireNonNull(errors, "errors cannot be null");
         }
 
         @Override
