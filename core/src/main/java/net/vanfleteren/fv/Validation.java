@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -65,6 +66,15 @@ public sealed interface Validation<T> extends Value<T> {
      * @return {@code true} if validation is successful, {@code false} otherwise.
      */
     boolean isValid();
+
+    /**
+     * Indicates whether the validation has failed.
+     *
+     * @return {@code true} if validation is invalid, {@code false} otherwise.
+     */
+    default boolean isInvalid() {
+        return !isValid();
+    }
 
     /**
      * Returns the error messages associated with this validation.
@@ -292,6 +302,30 @@ public sealed interface Validation<T> extends Value<T> {
      */
     default Validation<T> refine(Rule<? super T> refinement) {
         return narrowSuper(this.flatMap(refinement::test));
+    }
+
+    /**
+     * Applies a filter to the current validation logic using the specified predicate and error message.
+     * This method refines the validation by adding a rule that checks if the provided predicate passes.
+     *
+     * @param predicate    the condition to be checked against the input
+     * @param errorMessage the error message to be returned if the predicate fails
+     * @return a new Validation instance with the applied filter
+     */
+    default Validation<T> filter(Predicate<? super T> predicate, ErrorMessage errorMessage) {
+        return refine(Rule.of(predicate, errorMessage));
+    }
+
+    /**
+     * Applies a filter to the current validation logic using the specified predicate and error message key.
+     * This method refines the validation by adding a rule that checks if the provided predicate passes.
+     *
+     * @param predicate the condition to be checked against the input
+     * @param errorKey  the error message key to be returned if the predicate fails
+     * @return a new Validation instance with the applied filter
+     */
+    default Validation<T> filter(Predicate<? super T> predicate, String errorKey) {
+        return filter(predicate, ErrorMessage.of(errorKey));
     }
     //endregion
 

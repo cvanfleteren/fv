@@ -32,6 +32,7 @@ public class ValidationTest {
             // Assert
             assertThat(result).isInstanceOf(Validation.Valid.class);
             assertThat(result.isValid()).isTrue();
+            assertThat(result.isInvalid()).isFalse();
             assertThat(((Validation.Valid<String>) result).value()).isEqualTo(value);
         }
 
@@ -47,6 +48,7 @@ public class ValidationTest {
             // Assert
             assertThat(result).isInstanceOf(Validation.Invalid.class);
             assertThat(result.isValid()).isFalse();
+            assertThat(result.isInvalid()).isTrue();
             assertThat(((Validation.Invalid) (Object) result).errors()).containsExactly(error1, error2);
         }
 
@@ -58,6 +60,7 @@ public class ValidationTest {
             // Assert
             assertThat(result).isInstanceOf(Validation.Invalid.class);
             assertThat(result.isValid()).isFalse();
+            assertThat(result.isInvalid()).isTrue();
             assertThat(((Validation.Invalid) (Object) result).errors()).isEmpty();
         }
 
@@ -762,6 +765,118 @@ public class ValidationTest {
             assertThatValidation(result)
                     .isInvalid()
                     .hasErrorMessage("original.error");
+        }
+    }
+
+    @Nested
+    class Filter {
+
+        @Test
+        void filter_whenValidAndPredicatePasses_returnsValid() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Alice");
+
+            // Act
+            Validation<String> result = valid.filter(s -> s.length() > 3, ErrorMessage.of("too.short"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("Alice");
+        }
+
+        @Test
+        void filter_whenValidAndPredicateFails_returnsInvalidWithErrorMessage() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Bob");
+
+            // Act
+            Validation<String> result = valid.filter(s -> s.length() > 3, ErrorMessage.of("too.short"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("too.short");
+        }
+
+        @Test
+        void filterWithString_whenValidAndPredicatePasses_returnsValid() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Alice");
+
+            // Act
+            Validation<String> result = valid.filter(s -> s.length() > 3, "too.short");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("Alice");
+        }
+
+        @Test
+        void filterWithString_whenValidAndPredicateFails_returnsInvalidWithErrorMessage() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Bob");
+
+            // Act
+            Validation<String> result = valid.filter(s -> s.length() > 3, "too.short");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("too.short");
+        }
+
+        @Test
+        void filter_whenInvalid_returnsOriginalInvalidWithoutEvaluatingPredicate() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("original.error");
+            AtomicBoolean predicateCalled = new AtomicBoolean(false);
+
+            // Act
+            Validation<String> result = invalid.filter(s -> {
+                predicateCalled.set(true);
+                return true;
+            }, ErrorMessage.of("filter.error"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("original.error");
+            assertThat(predicateCalled.get()).isFalse();
+        }
+
+        @Test
+        void filter_whenPredicateIsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Alice");
+
+            // Act & Assert
+            assertThatCode(() -> valid.filter(null, ErrorMessage.of("msg")))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("predicate cannot be null");
+        }
+
+        @Test
+        void filter_whenErrorMessageIsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Alice");
+
+            // Act & Assert
+            assertThatCode(() -> valid.filter(s -> true, (ErrorMessage) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("errorMessage cannot be null");
+        }
+
+        @Test
+        void filter_whenErrorKeyIsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Alice");
+
+            // Act & Assert
+            assertThatCode(() -> valid.filter(s -> true, (String) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("errorKey cannot be null");
         }
     }
 
