@@ -579,57 +579,6 @@ class RuleTest {
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("negatedError cannot be null");
         }
-
-        @Test
-        void not_withErrorMapper_whenOriginalRuleMatches_canReturnErrorWithArgsThatArePreserved() {
-            // Arrange
-            Rule<Integer> isEven = Rule.of(i -> i % 2 == 0, "must.be.even");
-
-            Map<String, Object> expectedArgs = HashMap.of("reason", "because.i.said.so", "n", 2);
-
-            Rule<Integer> isNotEven = isEven.not(err ->
-                    ErrorMessage.of("must.not.be.even", expectedArgs)
-            );
-
-            // Act
-            Validation<Integer> result = isNotEven.test(2);
-
-            // Assert
-            assertThatValidation(result)
-                    .isInvalid()
-                    .hasErrorMessage("must.not.be.even", expectedArgs);
-        }
-
-        @Test
-        void not_withErrorMapper_whenOriginalRuleMatches_canKeepArgsFromInputErrorMessage() {
-            // Arrange
-            Rule<String> startsWithH = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-
-            Map<String, Object> expectedArgs = HashMap.of("original.key", "must.not.satisfy.rule");
-
-            Rule<String> notStartsWithH = startsWithH.not(err ->
-                    ErrorMessage.of("must.not.start.with.h", err.parameters().put("original.key", err.key()))
-            );
-
-            // Act
-            Validation<String> result = notStartsWithH.test("hello");
-
-            // Assert
-            assertThatValidation(result)
-                    .isInvalid()
-                    .hasErrorMessage("must.not.start.with.h", expectedArgs);
-        }
-
-        @Test
-        void not_withErrorMapper_whenErrorMapperIsNull_throwsNullPointerException() {
-            // Arrange
-            Rule<String> rule = Rule.of(s -> true, "ok.value");
-
-            // Act & Assert
-            assertThatCode(() -> rule.not((Function1<ErrorMessage,ErrorMessage>)null))
-                    .isInstanceOf(NullPointerException.class)
-                    .hasMessage("errorMapper cannot be null");
-        }
     }
 
     @Nested

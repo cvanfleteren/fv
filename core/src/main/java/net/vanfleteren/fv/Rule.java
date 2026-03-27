@@ -174,29 +174,6 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
-     * Negates this rule and derives the negated error from the original rule's first error message.
-     * Useful if you want conventions like prefixing keys, or to preserve args.
-     *
-     * @param errorMapper the mapper function to transform the fallback error message.
-     * @return a negated {@link Rule}.
-     */
-    default Rule<T> not(Function<ErrorMessage, ErrorMessage> errorMapper) {
-        Objects.requireNonNull(errorMapper, "errorMapper cannot be null");
-        return value -> {
-            Validation<T> original = this.test(value);
-            if (original.isValid()) {
-                // original passed => negation fails; we need an error
-                // we don't have one, so we manufacture it from the original rule's error "template"
-                // NOTE: since Rule doesn't expose its "default" ErrorMessage, we use a conservative default key.
-                // If you want richer behavior, prefer not(String)/not(ErrorMessage) or extend Rule to expose metadata.
-                ErrorMessage fallback = ErrorMessage.of("must.not.satisfy.rule");
-                return Validation.invalid(errorMapper.apply(fallback));
-            }
-            return Validation.valid(value);
-        };
-    }
-
-    /**
      *Applies a conditional rule.
      *
      * @param condition the condition to test, must not be null
@@ -303,7 +280,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      */
     @Override
     default <K> Rule<Map<K, T>> liftToMap() {
-        return value -> MappingRule.super.<K>liftToMap().test(value);
+        return liftToMap(Objects::toString);
     }
 
 
