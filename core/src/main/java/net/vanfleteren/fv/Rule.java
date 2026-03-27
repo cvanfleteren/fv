@@ -207,8 +207,10 @@ public interface Rule<T> extends MappingRule<T, T> {
         };
     }
 
+
     /**
      * Returns a new {@link Rule} that first applies this rule, and if the input is invalid, falls back to the other rule.
+     * Like {@link MappingRule#recoverWith}, but the fallback is a {@link Rule}.
      *
      * @param other the other rule to use as a fallback if this rule fails
      * @return a new {@link Rule} that first applies this rule, and if the input is invalid, falls back to the other rule
@@ -411,7 +413,7 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
-     * Creates a new {@link Rule} that always returns a valid result for any input.
+     * Creates a new {@link Rule} that always returns a valid result for any non-null input.
      *
      * @param <T> the type of object being validated
      * @return a rule that always returns a valid result
