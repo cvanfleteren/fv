@@ -916,13 +916,14 @@ public sealed interface Validation<T> extends Value<T> {
     /**
      * Creates an invalid validation with the provided error messages.
      *
-     * @param errors the error messages.
+     * @param error the first error message.
+     * @param moreErrors additional error messages.
      * @param <T>    the result type.
      * @return an invalid {@link Validation} instance.
      */
     @SuppressWarnings("unchecked")
-    static <T> Validation<T> invalid(ErrorMessage... errors) {
-        return (Validation<T>) new Invalid(List.of(errors));
+    static <T> Validation<T> invalid(ErrorMessage error, ErrorMessage... moreErrors) {
+        return (Validation<T>) new Invalid(List.of(error).appendAll(List.of(moreErrors)));
     }
 
     /**
@@ -1221,6 +1222,9 @@ public sealed interface Validation<T> extends Value<T> {
 
         public Invalid {
             Objects.requireNonNull(errors, "errors cannot be null");
+            if(errors.isEmpty()) {
+                throw new IllegalStateException("errors cannot be empty");
+            }
         }
 
         @Override

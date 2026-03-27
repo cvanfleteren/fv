@@ -49,19 +49,15 @@ public class ValidationTest {
             assertThat(result).isInstanceOf(Validation.Invalid.class);
             assertThat(result.isValid()).isFalse();
             assertThat(result.isInvalid()).isTrue();
-            assertThat(((Validation.Invalid) (Object) result).errors()).containsExactly(error1, error2);
+            assertThat(result.errors()).containsExactly(error1, error2);
         }
 
         @Test
-        void invalid_whenGivenNoErrors_returnsInvalidValidationWithEmptyList() {
-            // Act
-            Validation<String> result = Validation.invalid();
-
-            // Assert
-            assertThat(result).isInstanceOf(Validation.Invalid.class);
-            assertThat(result.isValid()).isFalse();
-            assertThat(result.isInvalid()).isTrue();
-            assertThat(((Validation.Invalid) (Object) result).errors()).isEmpty();
+        void constructor_whenGivenEmptyErrors_throwsIllegalStateException() {
+            // Act & Assert
+            assertThatCode(() -> new Validation.Invalid(List.of()))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("errors cannot be empty");
         }
 
         @Test
