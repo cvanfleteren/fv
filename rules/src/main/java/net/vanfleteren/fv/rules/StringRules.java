@@ -170,11 +170,31 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         return MappingRule.of(Instant::parse, "must.be.instant");
     }
 
-
+    /**
+     * Fails if the string is not a valid URI.
+     * <p>
+     * Error key: {@code must.be.uri}
+     *
+     * @return a {@link MappingRule} that transforms a String into a {@link URI}.
+     */
+    public MappingRule<String, URI> asURI() {
+        return MappingRule.of(URI::create, "must.be.uri");
+    }
 
     //endregion
 
     //region whitespace related
+    private static final Pattern LINE_BREAK = Pattern.compile("\\R");
+
+    /**
+     * Fails if the string contains any line break characters such as({@code \n}, {@code \r}, {{@code \u000B}). Basically any character that matches the \R regex.
+     *
+     * <p>
+     * Error key: {@code must.be.single.line}
+     * @see
+     */
+    public Rule<String> singleLine = Rule.of(s -> !LINE_BREAK.matcher(s).find(), "must.be.single.line");
+
     /**
      * Fails if the string is empty.
      * <p>
@@ -205,6 +225,34 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
             s -> s.chars().noneMatch(Character::isWhitespace),
             "must.not.contain.whitespace"
     );
+    //endregion
+
+    //region case
+
+    /**
+     * Fails if the string contains any lowercase letter.
+     * Uses {@link String#toUpperCase()} for comparison, so locale-sensitive characters are supported.
+     * Empty strings pass.
+     * <p>
+     * Error key: {@code must.be.uppercase}
+     */
+    public Rule<String> uppercase = Rule.of(
+            s -> s.equals(s.toUpperCase()),
+            "must.be.uppercase"
+    );
+
+    /**
+     * Fails if the string contains any uppercase letter.
+     * Uses {@link String#toLowerCase()} for comparison, so locale-sensitive characters are supported.
+     * Empty strings pass.
+     * <p>
+     * Error key: {@code must.be.lowercase}
+     */
+    public Rule<String> lowercase = Rule.of(
+            s -> s.equals(s.toLowerCase()),
+            "must.be.lowercase"
+    );
+
     //endregion
 
     //region length related
@@ -449,6 +497,27 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     }
 
     /**
+     * Fails if the string contains the specified fragment.
+     * <p>
+     * Error key: {@code must.not.contain}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code fragment}: the forbidden fragment ({@link String})</li>
+     * </ul>
+     *
+     * @param fragment the forbidden fragment.
+     * @return a {@link Rule} checking if the fragment is absent.
+     */
+    public Rule<String> doesNotContain(String fragment) {
+        Objects.requireNonNull(fragment, "fragment cannot be null");
+        return Rule.of(
+                s -> !s.contains(fragment),
+                ErrorMessage.of("must.not.contain", "fragment", fragment)
+        );
+    }
+
+    /**
      * Fails if the string is in the specified set of forbidden values.
      * <p>
      * Error key: {@code must.not.be.in}
@@ -467,6 +536,27 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         return Rule.of(
                 s -> !forbidden.contains(s),
                 ErrorMessage.of("must.not.be.in", "forbidden", forbidden)
+        );
+    }
+
+    /**
+     * Fails if the string is not in the specified set of allowed values.
+     * <p>
+     * Error key: {@code must.be.in}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code allowed}: the set of allowed values ({@link Set})</li>
+     * </ul>
+     *
+     * @param allowed the set of allowed values.
+     * @return a {@link Rule} checking if the value is allowed.
+     */
+    public Rule<String> isIn(Set<String> allowed) {
+        Objects.requireNonNull(allowed, "allowed cannot be null");
+        return Rule.of(
+                allowed::contains,
+                ErrorMessage.of("must.be.in", "allowed", allowed)
         );
     }
 

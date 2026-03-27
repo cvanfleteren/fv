@@ -17,6 +17,7 @@ import java.util.UUID;
 import static net.vanfleteren.fv.rules.RulesTest.invalidTest;
 import static net.vanfleteren.fv.rules.RulesTest.validTest;
 import static net.vanfleteren.fv.rules.StringRules.strings;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class StringRulesTest {
 
@@ -657,6 +658,138 @@ class StringRulesTest {
         @Test
         void asInstant_whenEmptyString_returnsInvalid() {
             invalidTest("", strings.asInstant(), "must.be.instant");
+        }
+    }
+
+    @Nested
+    class AsURI {
+
+        @Test
+        void asURI_whenValidURIString_returnsValidURI() {
+            String uriStr = "https://www.example.com/path?q=1#anchor";
+            validTest(uriStr, URI.create(uriStr), strings.asURI());
+        }
+
+        @Test
+        void asURI_whenRelativeURIString_returnsValidURI() {
+            String uriStr = "/relative/path";
+            validTest(uriStr, URI.create(uriStr), strings.asURI());
+        }
+
+        @Test
+        void asURI_whenInvalidURIString_returnsInvalid() {
+            invalidTest("not a valid uri with spaces", strings.asURI(), "must.be.uri");
+        }
+    }
+
+    @Nested
+    class SingleLine {
+
+        @Test
+        void valid() {
+            validTest("hello world", strings.singleLine);
+            validTest("", strings.singleLine);
+            validTest("no line breaks here", strings.singleLine);
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("line1\nline2", strings.singleLine, "must.be.single.line");
+            invalidTest("line1\rline2", strings.singleLine, "must.be.single.line");
+            invalidTest("line1\r\nline2", strings.singleLine, "must.be.single.line");
+            invalidTest("\n", strings.singleLine, "must.be.single.line");
+        }
+    }
+
+    @Nested
+    class Uppercase {
+
+        @Test
+        void valid() {
+            validTest("HELLO", strings.uppercase);
+            validTest("ABC123", strings.uppercase);
+            validTest("", strings.uppercase);
+            validTest("123", strings.uppercase);  // digits have no case
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("Hello", strings.uppercase, "must.be.uppercase");
+            invalidTest("hello", strings.uppercase, "must.be.uppercase");
+            invalidTest("ABCd", strings.uppercase, "must.be.uppercase");
+        }
+    }
+
+    @Nested
+    class Lowercase {
+
+        @Test
+        void valid() {
+            validTest("hello", strings.lowercase);
+            validTest("abc123", strings.lowercase);
+            validTest("", strings.lowercase);
+            validTest("123", strings.lowercase);  // digits have no case
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("Hello", strings.lowercase, "must.be.lowercase");
+            invalidTest("HELLO", strings.lowercase, "must.be.lowercase");
+            invalidTest("abcD", strings.lowercase, "must.be.lowercase");
+        }
+    }
+
+    @Nested
+    class DoesNotContain {
+
+        @Test
+        void valid() {
+            validTest("hello", strings.doesNotContain("xyz"));
+            validTest("", strings.doesNotContain("x"));
+            validTest("hello", strings.doesNotContain("HELLO")); // case-sensitive
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("hello world", strings.doesNotContain("world"), "must.not.contain", HashMap.of("fragment", "world"));
+            invalidTest("hello", strings.doesNotContain("ell"), "must.not.contain", HashMap.of("fragment", "ell"));
+            invalidTest("abc", strings.doesNotContain(""), "must.not.contain", HashMap.of("fragment", ""));
+        }
+
+        @Test
+        void doesNotContain_whenNullFragment_throwsException() {
+            assertThrows(NullPointerException.class, () -> strings.doesNotContain(null));
+        }
+    }
+
+    @Nested
+    class IsIn {
+
+        @Test
+        void valid() {
+            validTest("admin", strings.isIn(HashSet.of("admin", "user", "guest")));
+            validTest("user", strings.isIn(HashSet.of("admin", "user")));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(
+                    "root",
+                    strings.isIn(HashSet.of("admin", "user")),
+                    "must.be.in",
+                    HashMap.of("allowed", HashSet.of("admin", "user"))
+            );
+            invalidTest(
+                    "",
+                    strings.isIn(HashSet.of("admin")),
+                    "must.be.in",
+                    HashMap.of("allowed", HashSet.of("admin"))
+            );
+        }
+
+        @Test
+        void isIn_whenNullAllowed_throwsException() {
+            assertThrows(NullPointerException.class, () -> strings.isIn(null));
         }
     }
 }
