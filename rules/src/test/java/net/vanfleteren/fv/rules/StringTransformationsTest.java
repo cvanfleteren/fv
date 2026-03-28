@@ -192,4 +192,104 @@ class StringTransformationsTest {
             invalidTest(null, stringTransforms().replaceAll("-", ""), "cannot.be.null");
         }
     }
+
+    @Nested
+    class StripDiacritics {
+
+        @Test
+        void stripDiacritics_removesCombiningMarks() {
+            validTest("Café naïve", "Cafe naive", stringTransforms().stripDiacritics());
+        }
+
+        @Test
+        void stripDiacritics_handlesPrecomposedAndCombiningForms() {
+            // "e\u0301" is e + combining acute
+            validTest("Cafe\u0301", "Cafe", stringTransforms().stripDiacritics());
+        }
+
+        @Test
+        void stripDiacritics_multipleCombiningMarks() {
+            // a + combining ring + combining acute
+            validTest("a\u030A\u0301", "a", stringTransforms().stripDiacritics());
+        }
+
+        @Test
+        void stripDiacritics_leavesNonAccentedScriptsUntouched() {
+            validTest("Привет 世界", "Привет 世界", stringTransforms().stripDiacritics());
+        }
+
+        @Test
+        void stripDiacritics_doesNotAffectEmojiOrSymbols() {
+            validTest("Café 😊", "Cafe 😊", stringTransforms().stripDiacritics());
+        }
+
+        @Test
+        void stripDiacritics_stringWithoutDiacriticsUnchanged() {
+            validTest("Simple ASCII", "Simple ASCII", stringTransforms().stripDiacritics());
+        }
+
+        @Test
+        void stripDiacritics_emptyStringUnchanged() {
+            validTest("", "", stringTransforms().stripDiacritics());
+        }
+
+        @Test
+        void stripDiacritics_nullInputReturnsInvalid() {
+            invalidTest(null, stringTransforms().stripDiacritics(), "cannot.be.null");
+        }
+    }
+
+    @Nested
+    class StripControlChars {
+
+        @Test
+        void stripControlChars_removesCcAndZeroWidth() {
+            // contains NUL and ZERO WIDTH SPACE between letters
+            validTest("A\u0000B\u200BC", "ABC", stringTransforms().stripControlChars());
+        }
+
+        @Test
+        void stripControlChars_removesLineBreaksAsControls() {
+            // LF is a control character; it will be removed
+            validTest("hello\nworld", "helloworld", stringTransforms().stripControlChars());
+        }
+
+        @Test
+        void stripControlChars_removesCRLFAndCR() {
+            validTest("a\r\nb\rc\nd", "abcd", stringTransforms().stripControlChars());
+        }
+
+        @Test
+        void stripControlChars_removesTabsFormFeedAndMore() {
+            // includes TAB (\t) and FORM FEED (\f)
+            validTest("X\tY\fZ", "XYZ", stringTransforms().stripControlChars());
+        }
+
+        @Test
+        void stripControlChars_removesZeroWidthJoinersAndBom() {
+            // ZWJ \u200D, ZWNJ \u200C, WORD JOINER \u2060, BOM \uFEFF
+            validTest("ab\u200Dcd\u200Cef\u2060gh\uFEFFij", "abcdefghij", stringTransforms().stripControlChars());
+        }
+
+        @Test
+        void stripControlChars_idempotentOnSecondApplication() {
+            var rule = stringTransforms().stripControlChars();
+            validTest("a\u0000b\u200Bc", "abc", rule.andThen(rule));
+        }
+
+        @Test
+        void stripControlChars_noControlsUnchanged() {
+            validTest("Already clean", "Already clean", stringTransforms().stripControlChars());
+        }
+
+        @Test
+        void stripControlChars_emptyStringUnchanged() {
+            validTest("", "", stringTransforms().stripControlChars());
+        }
+
+        @Test
+        void stripControlChars_nullInputReturnsInvalid() {
+            invalidTest(null, stringTransforms().stripControlChars(), "cannot.be.null");
+        }
+    }
 }

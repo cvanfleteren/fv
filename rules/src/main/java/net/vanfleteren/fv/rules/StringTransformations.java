@@ -2,9 +2,12 @@ package net.vanfleteren.fv.rules;
 
 import net.vanfleteren.fv.MappingRule;
 import net.vanfleteren.fv.Validation;
+
+import java.text.Normalizer;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 public class StringTransformations {
 
@@ -217,24 +220,65 @@ public class StringTransformations {
      * Example: {@code replaceAll("-", "").apply("phone: 123-456-7890") -> "phone: 1234567890"}.
      * <p>
      * If {@code regex} or {@code replacement} is {@code null}, they are treated as empty strings.
-     * Invalid patterns will throw {@link java.util.regex.PatternSyntaxException} at runtime.
+     * Invalid patterns will throw {@link java.util.regex.PatternSyntaxException} at creation time,
+     * The regex gets compiled into a {@link Pattern} for efficient reuse.
      * <p>
      * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
      *
      * @param regex        the regular expression to which the input is to be matched.
      * @param replacement  the string to be substituted for each match.
-     * @return a {@link MappingRule} that performs {@link String#replaceAll(String, String)}.
+     * @return a {@link MappingRule} that performs {@link java.util.regex.Matcher#replaceAll(String)}.
      */
     public MappingRule<String, String> replaceAll(String regex, String replacement) {
         final String rx = Objects.requireNonNullElse(regex, "");
         final String repl = Objects.requireNonNullElse(replacement, "");
+        final Pattern pattern = Pattern.compile(rx);
         return input -> {
             if (input != null) {
-                return Validation.valid(input.replaceAll(rx, repl));
+                return Validation.valid(pattern.matcher(input).replaceAll(repl));
             } else {
                 return Validation.invalid("cannot.be.null");
             }
         };
+    }
+
+    /**
+     * Removes diacritical marks (accents/combining marks) from the input while preserving base characters.
+     * <p>
+     * Implementation detail: normalizes to {@link Form#NFD}, removes all combining marks (\p{M}+), then
+     * re-normalizes to {@link Form#NFC}.
+     * <p>
+     * Example: {@code "Café naïve" -> "Cafe naive"}.
+     * <p>
+     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     *
+     * @return a {@link MappingRule} that strips diacritics while keeping base letters.
+     */
+    public MappingRule<String, String> stripDiacritics() {
+        return nullSafe(s -> {
+            String nfd = Normalizer.normalize(s, Normalizer.Form.NFD);
+            String stripped = nfd.replaceAll("\\p{M}+", "");
+            return Normalizer.normalize(stripped, Normalizer.Form.NFC);
+        });
+    }
+
+    /**
+     * Removes control characters and common zero-width/format characters from the input.
+     * <p>
+     * This removes Unicode category {@code Cc} (ISO control chars) and specific format characters like
+     * ZERO WIDTH SPACE/ZWJ/ZWNJ, WORD JOINER, and BOM (\u200B-\u200D, \u2060, \uFEFF).
+     * <p>
+     * Example: {@code "A\u0000B\u200BC" -> "ABC"}.
+     * <p>
+     * Note: This will also remove line breaks since they are control characters.
+     * <p>
+     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     *
+     * @return a {@link MappingRule} that strips control and zero-width formatting characters.
+     */
+    public MappingRule<String, String> stripControlChars() {
+        // \p{Cc}: control chars. Additionally strip zero-width/formatting characters.
+        return nullSafe(s -> s.replaceAll("[\\p{Cc}\\u200B-\\u200D\\u2060\\uFEFF]+", ""));
     }
 
     private MappingRule<String,String> nullSafe(Function<String,String> op) {
