@@ -119,6 +119,38 @@ public class StringTransformations {
     }
 
     /**
+     * Keeps only Unicode letters and removes everything else (digits, punctuation, symbols, whitespace, etc.).
+     * <p>
+     * Uses the Unicode category {@code \p{L}} to detect letters across all scripts.
+     * <p>
+     * Example: {@code "H3llo, 世界!" -> "Hllo世界"}.
+     * <p>
+     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     *
+     * @return a {@link MappingRule} that filters the input to letters only.
+     */
+    public MappingRule<String, String> lettersOnly() {
+        return nullSafe(s -> s.replaceAll("[^\\p{L}]+", ""));
+    }
+
+    /**
+     * Keeps only Unicode letters and regular spaces (U+0020), removing all other characters including
+     * digits, punctuation, symbols, and other kinds of whitespace (tabs, newlines, etc.).
+     * <p>
+     * Example: {@code "Hello, 世界! 123" -> "Hello 世界"}.
+     * <p>
+     * Note: This preserves existing spacing but does not trim. Use {@link #trim()} or {@link #collapseWhitespace()} if needed.
+     * <p>
+     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     *
+     * @return a {@link MappingRule} that filters the input to letters and spaces only.
+     */
+    public MappingRule<String, String> lettersAndSpacesOnly() {
+        // Preserve only \p{L} (letters) and literal space. Remove everything else, including other whitespace kinds.
+        return nullSafe(s -> s.replaceAll("[^\\p{L} ]+", ""));
+    }
+
+    /**
      * Converts the input to lower case using {@link Locale#ROOT}.
      * <p>
      * Example: {@code "HeLLo" -> "hello"}.
@@ -243,10 +275,60 @@ public class StringTransformations {
     }
 
     /**
+     * Keeps only the characters that are present in the supplied {@code allowed} set and removes all others.
+     * <p>
+     * The {@code allowed} string is treated as a literal set of characters (not a regex). Internally it is escaped
+     * to form a character class. If {@code allowed} is {@code null} or empty, the result will always be the empty
+     * string for non-null inputs.
+     * <p>
+     * Examples:
+     * <ul>
+     *     <li>{@code keepChars("0123456789").apply("abc123-45")} → {@code "12345"}</li>
+     *     <li>{@code keepChars("-[]").apply("a-]b[")} → {@code "-]["}</li>
+     * </ul>
+     * <p>
+     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     *
+     * @param allowed the characters to keep; if {@code null} or empty, nothing is kept (result becomes empty string)
+     * @return a {@link MappingRule} that filters the input to the provided character set.
+     */
+    public MappingRule<String, String> keepChars(String allowed) {
+        final String toKeep = Objects.requireNonNullElse(allowed, "");
+
+        if (toKeep.isEmpty()) {
+            // For any non-null input, return empty string
+            return input -> input != null ? Validation.valid("") : Validation.invalid("cannot.be.null");
+        }
+
+        // Build a safe character class content from the provided characters
+        final StringBuilder allowedClassContent = new StringBuilder();
+        toKeep.chars().forEach(c -> {
+            char ch = (char) c;
+            // Escape regex metacharacters inside a character class: - ] ^ \ [
+            if (ch == '-' || ch == ']' || ch == '^' || ch == '\\' || ch == '[') {
+                allowedClassContent.append('\\').append(ch);
+            } else {
+                allowedClassContent.append(ch);
+            }
+        });
+
+        // We want to remove everything NOT in the allowed class
+        final Pattern notAllowed = Pattern.compile("[^" + allowedClassContent + "]+");
+
+        return input -> {
+            if (input != null) {
+                return Validation.valid(notAllowed.matcher(input).replaceAll(""));
+            } else {
+                return Validation.invalid("cannot.be.null");
+            }
+        };
+    }
+
+    /**
      * Removes diacritical marks (accents/combining marks) from the input while preserving base characters.
      * <p>
-     * Implementation detail: normalizes to {@link Form#NFD}, removes all combining marks (\p{M}+), then
-     * re-normalizes to {@link Form#NFC}.
+     * Implementation detail: normalizes to {@link java.text.Normalizer.Form#NFD}, removes all combining marks (\p{M}+), then
+     * re-normalizes to {@link java.text.Normalizer.Form#NFC}.
      * <p>
      * Example: {@code "Café naïve" -> "Cafe naive"}.
      * <p>

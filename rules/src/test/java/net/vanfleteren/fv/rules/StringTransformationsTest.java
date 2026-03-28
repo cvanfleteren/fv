@@ -39,6 +39,44 @@ class StringTransformationsTest {
     }
 
     @Nested
+    class KeepChars {
+
+        @Test
+        void keepChars_keepsOnlyAllowedDigits() {
+            validTest("abc123-45", "12345", stringTransforms().keepChars("0123456789"));
+        }
+
+        @Test
+        void keepChars_keepsOnlyProvidedLettersAndSpace() {
+            validTest("a1b_ c!d", "ab cd", stringTransforms().keepChars("abcd "));
+            validTest("H3llo, 世界!", "Hllo世界", stringTransforms().keepChars("Hllo世界"));
+        }
+
+        @Test
+        void keepChars_handlesRegexMetaCharsInAllowed() {
+            // Allowed contains '-', ']', '[' which must be treated literally
+            validTest("x-]y[", "-][", stringTransforms().keepChars("-[]"));
+        }
+
+        @Test
+        void keepChars_emptyAllowedRemovesEverything() {
+            validTest("Hello 123", "", stringTransforms().keepChars(""));
+        }
+
+        @Test
+        void keepChars_nullAllowedRemovesEverything() {
+            validTest("Hello 123", "", stringTransforms().keepChars(null));
+        }
+
+        @Test
+        void keepChars_nullInputReturnsInvalid() {
+            invalidTest(null, stringTransforms().keepChars("abc"), "cannot.be.null");
+        }
+
+
+    }
+
+    @Nested
     class RemoveNewlines {
 
         @Test
@@ -129,6 +167,62 @@ class StringTransformationsTest {
         @Test
         void alphanumeric_nullInputReturnsInvalid() {
             invalidTest(null, stringTransforms().alphanumeric(), "cannot.be.null");
+        }
+    }
+
+    @Nested
+    class LettersOnly {
+
+        @Test
+        void lettersOnly_keepsOnlyUnicodeLetters() {
+            validTest("H3llo, 世界!", "Hllo世界", stringTransforms().lettersOnly());
+        }
+
+        @Test
+        void lettersOnly_handlesAccentsAndCombiningMarks() {
+            // "e\u0301" is e + combining acute; combining mark should be removed
+            validTest("Cafe\u0301 and naïve", "Cafeandnaïve", stringTransforms().lettersOnly());
+            // Precomposed accents (like é, ï) are letters and should be preserved; spaces are removed
+            validTest("Café naïve", "Cafénaïve", stringTransforms().lettersOnly());
+        }
+
+        @Test
+        void lettersOnly_returnsEmptyWhenNoLetters() {
+            validTest("1234 !?", "", stringTransforms().lettersOnly());
+        }
+
+        @Test
+        void lettersOnly_nullInputReturnsInvalid() {
+            invalidTest(null, stringTransforms().lettersOnly(), "cannot.be.null");
+        }
+    }
+
+    @Nested
+    class LettersAndSpacesOnly {
+
+        @Test
+        void lettersAndSpacesOnly_keepsLettersAndSpacesOnly() {
+            validTest("Hello, 世界! 123", "Hello 世界 ", stringTransforms().lettersAndSpacesOnly());
+        }
+
+        @Test
+        void lettersAndSpacesOnly_preservesRegularSpacesButRemovesOtherWhitespace() {
+            validTest("A\tB\nC D", "ABC D", stringTransforms().lettersAndSpacesOnly());
+        }
+
+        @Test
+        void lettersAndSpacesOnly_allowsMultipleSpacesAndDoesNotTrim() {
+            validTest("Hi,  there!", "Hi  there", stringTransforms().lettersAndSpacesOnly());
+        }
+
+        @Test
+        void lettersAndSpacesOnly_emptyWhenNoLettersOrSpaces() {
+            validTest("\t\n123,!", "", stringTransforms().lettersAndSpacesOnly());
+        }
+
+        @Test
+        void lettersAndSpacesOnly_nullInputReturnsInvalid() {
+            invalidTest(null, stringTransforms().lettersAndSpacesOnly(), "cannot.be.null");
         }
     }
 
