@@ -363,6 +363,107 @@ public class StringTransformations {
         return nullSafe(s -> s.replaceAll("[\\p{Cc}\\u200B-\\u200D\\u2060\\uFEFF]+", ""));
     }
 
+    /**
+     * Truncates the string to at most {@code maxLen} UTF-16 code units without splitting a surrogate pair.
+     * <p>
+     * If the input length is less than or equal to {@code maxLen}, the input is returned unchanged.
+     * If cutting at {@code maxLen} would split a surrogate pair (i.e. the character boundary falls between
+     * a high and low surrogate), the cut index is moved one position to the left to preserve the pair.
+     * <p>
+     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     *
+     * @param maxLen maximum length of the resulting string, must be {@code >= 0}
+     * @return a {@link MappingRule} that truncates strings safely.
+     * @throws IllegalArgumentException when {@code maxLen} is negative
+     */
+    public MappingRule<String, String> truncate(int maxLen) {
+        if (maxLen < 0) {
+            throw new IllegalArgumentException("maxLen must be >= 0");
+        }
+        return nullSafe(s -> {
+            if (s.length() <= maxLen) return s;
+            int cut = safeCutIndex(s, maxLen);
+            return s.substring(0, cut);
+        });
+    }
+
+    /**
+     * Truncates the string and appends an ellipsis when content is cut, avoiding surrogate pair splits.
+     * <p>
+     * Behavior:
+     * - If the input length is {@code <= maxLen}, returns input unchanged (no ellipsis).
+     * - If over length, appends an ellipsis while ensuring the total length is {@code <= maxLen}.
+     * - Uses the single-character Unicode ellipsis {@code …} when it fits. If it doesn't fit but three characters
+     *   do, falls back to ASCII {@code ...}. For very small {@code maxLen}, returns as much as possible without
+     *   appending ellipsis when even the shortest ellipsis can't fit.
+     * - Never splits surrogate pairs at the cut point.
+     * <p>
+     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     *
+     * @param maxLen maximum total length including the ellipsis, must be {@code >= 0}
+     * @return a {@link MappingRule} that truncates with ellipsis safely.
+     * @throws IllegalArgumentException when {@code maxLen} is negative
+     */
+    public MappingRule<String, String> truncateWithEllipsis(int maxLen) {
+        if (maxLen < 0) {
+            throw new IllegalArgumentException("maxLen must be >= 0");
+        }
+        final String ellipsis = "…";
+        final String asciiDots = "...";
+        return nullSafe(s -> {
+            if (s.length() <= maxLen) return s;
+
+            // Handle tiny budgets explicitly to match expected behavior
+            if (maxLen == 0) return "";
+            if (maxLen == 1) return ellipsis; // only room for the marker
+            if (maxLen == 2) {
+                // Prefer one char + unicode ellipsis if safe; else best two code units without ellipsis
+                int cut1 = safeCutIndex(s, 1);
+                if (cut1 > 0) return s.substring(0, cut1) + ellipsis;
+                int cut2 = safeCutIndex(s, 2);
+                return s.substring(0, cut2);
+            }
+            if (maxLen == 3) {
+                // Try 2 code units + unicode ellipsis; if not possible, fall back to ASCII '...'
+                int cut2 = safeCutIndex(s, 2);
+                if (cut2 > 0) return s.substring(0, cut2) + ellipsis;
+                return asciiDots;
+            }
+
+            // maxLen >= 4: prefer single-character ellipsis with as much content as fits
+            int room = maxLen - 1;
+            int cut = safeCutIndex(s, room);
+            if (cut > 0) {
+                return s.substring(0, cut) + ellipsis;
+            }
+            // Fallback: if somehow no room for content with single ellipsis, try ASCII dots
+            room = maxLen - 3;
+            cut = safeCutIndex(s, room);
+            if (cut > 0) {
+                return s.substring(0, cut) + asciiDots;
+            }
+            // Ultimately, just return the dots (shouldn't usually happen for maxLen>=4)
+            return asciiDots;
+        });
+    }
+
+    private static int safeCutIndex(String s, int maxUnits) {
+        if (maxUnits <= 0) return 0;
+        int len = s.length();
+        int cut = Math.min(maxUnits, len);
+        // If we are exactly at a boundary that would split a surrogate pair, step back one
+        if (cut < len) {
+            if (cut > 0) {
+                char prev = s.charAt(cut - 1);
+                char next = s.charAt(cut);
+                if (Character.isHighSurrogate(prev) && Character.isLowSurrogate(next)) {
+                    cut -= 1;
+                }
+            }
+        }
+        return cut;
+    }
+
     private MappingRule<String,String> nullSafe(Function<String,String> op) {
         return input -> {
             if (input != null) {

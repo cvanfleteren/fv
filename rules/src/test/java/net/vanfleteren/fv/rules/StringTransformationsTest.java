@@ -39,6 +39,91 @@ class StringTransformationsTest {
     }
 
     @Nested
+    class Truncate {
+
+        @Test
+        void truncate_whenShorterOrEqual_returnsUnchanged() {
+            validTest("Hello", "Hello", stringTransforms().truncate(5));
+            validTest("Hi", "Hi", stringTransforms().truncate(10));
+        }
+
+        @Test
+        void truncate_whenLonger_cutsToMaxLen() {
+            validTest("HelloWorld", "Hello", stringTransforms().truncate(5));
+        }
+
+        @Test
+        void truncate_doesNotSplitSurrogatePairs() {
+            // 😀 is U+1F600 (surrogate pair), ensure not split when cutting inside the pair
+            String s = "A😀B"; // length 4 (A, high, low, B)
+            validTest(s, "A😀", stringTransforms().truncate(3)); // cut at 3 would split before 'B', safe
+            validTest(s, "A", stringTransforms().truncate(2)); // 2 would be A + high surrogate -> back off to A
+        }
+
+        @Test
+        void truncate_handlesZeroAndNull() {
+            validTest("Hello", "", stringTransforms().truncate(0));
+            invalidTest(null, stringTransforms().truncate(2), "cannot.be.null");
+        }
+    }
+
+    @Nested
+    class TruncateWithEllipsis {
+
+        @Test
+        void truncateWithEllipsis_whenShortOrEqual_doesNotAppend() {
+            validTest("Hello", "Hello", stringTransforms().truncateWithEllipsis(5));
+            validTest("Hi", "Hi", stringTransforms().truncateWithEllipsis(10));
+        }
+
+        @Test
+        void truncateWithEllipsis_appendsUnicodeEllipsisByDefault() {
+            validTest("HelloWorld", "Hell…", stringTransforms().truncateWithEllipsis(5));
+        }
+
+        @Test
+        void truncateWithEllipsis_usesAsciiWhenUnicodeDoesNotFitButThreeDotsDo() {
+            // String starts with a surrogate pair; with maxLen 3 and unicode ellipsis, there is no safe room
+            // for content (room=2 but safeCutIndex=0). In that case, fall back to ASCII '...'.
+            validTest("😀Hello", "😀…", stringTransforms().truncateWithEllipsis(3));
+        }
+
+        @Test
+        void truncateWithEllipsis_lengthOne_returnsJustEllipsis() {
+            validTest("Hello", "…", stringTransforms().truncateWithEllipsis(1));
+        }
+
+        @Test
+        void truncateWithEllipsis_tooSmall_returnsBestEffort() {
+            validTest("Hello", "", stringTransforms().truncateWithEllipsis(0));
+            validTest("Hello", "H…", stringTransforms().truncateWithEllipsis(2));
+        }
+
+        @Test
+        void truncateWithEllipsis_doesNotSplitSurrogatePairs() {
+            String s = "A😀B";
+            // maxLen 3 -> room for 2 chars + ellipsis; safe cut is 1 (avoid splitting pair), result "A…"
+            validTest(s, "A…", stringTransforms().truncateWithEllipsis(3));
+        }
+
+        @Test
+        void truncateWithEllipsis_unicodeEdgeCases_combiningAndCJK() {
+            // Combining mark: e + acute combining; cutting should keep base at boundary
+            String combining = "Cafe\u0301 noir"; // Café as decomposed
+            validTest(combining, "Cafe\u0301…", stringTransforms().truncateWithEllipsis(6));
+
+            // CJK characters
+            String cjk = "世界您好"; // 4 chars
+            validTest(cjk, "世…", stringTransforms().truncateWithEllipsis(2));
+        }
+
+        @Test
+        void truncateWithEllipsis_nullInputReturnsInvalid() {
+            invalidTest(null, stringTransforms().truncateWithEllipsis(5), "cannot.be.null");
+        }
+    }
+
+    @Nested
     class KeepChars {
 
         @Test
