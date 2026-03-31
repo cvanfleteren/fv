@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.function.Predicate;
 
 import static net.vanfleteren.fv.API.validateThat;
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
@@ -153,18 +154,18 @@ class CollectionRulesTest {
 
         @Test
         void valid_whenAllElementsMatch() {
-            Rule<List<Integer>> even = collections.allMatch(n -> n % 2 == 0);
+            Rule<List<Integer>> even = collections.allMatchPredicate((Predicate<Integer>) (n -> n % 2 == 0));
             validTest(List.of(2, 4, 6), even);
         }
 
         @Test
         void valid_whenEmptyCollection_vacuouslyTrue() {
-            validTest(List.<Integer>of(), collections.allMatch(n -> n % 2 == 0));
+            validTest(List.of(), collections.allMatchPredicate((Predicate<Integer>) (n -> n % 2 == 0)));
         }
 
         @Test
         void invalid_whenAnyElementDoesNotMatch_usesDefaultErrorKey() {
-            invalidTest(List.of(2, 3, 4), collections.allMatch(n -> n % 2 == 0), "must.all.match");
+            invalidTest(List.of(2, 3, 4), collections.allMatchPredicate((Predicate<Integer>) (n -> n % 2 == 0)), "must.all.match");
         }
 
         @Test
@@ -192,7 +193,32 @@ class CollectionRulesTest {
         @Test
         void throws_whenPredicateIsNull_andRuleIsEvaluated() {
             assertThatThrownBy(() ->
-                    validateThat(List.of(1), "value").is(collections.allMatch(null)).getOrElseThrow()
+                    validateThat(List.of(1), "value").is(collections.allMatchPredicate((Predicate<Integer>) null)).getOrElseThrow()
+            ).isInstanceOf(NullPointerException.class);
+        }
+
+        // Tests for allMatch(Rule<T>) overload
+
+        @Test
+        void valid_whenAllElementsMatch_withElementRule() {
+            Rule<String> rule = Rule.of(s -> s.length() == 1, ErrorMessage.of("len.must.be.one"));
+            validTest(List.of("a", "b", "c"), collections.allMatch(rule));
+        }
+
+        @Test
+        void invalid_whenAnyElementDoesNotMatch_usesInnerRuleError_andAddsIndexPath_withElementRule() {
+            Rule<String> rule = Rule.of(s -> s.length() == 1, ErrorMessage.of("len.must.be.one"));
+            assertThatValidation(
+                    validateThat(List.of("a", "bb", "c"), "value").is(collections.allMatch(rule))
+            )
+                    .isInvalid()
+                    .hasErrorMessages("value[1].len.must.be.one");
+        }
+
+        @Test
+        void throws_whenRuleIsNull_andRuleIsEvaluated() {
+            assertThatThrownBy(() ->
+                    validateThat(List.of("x"), "value").is(collections.allMatch((Rule<String>) null)).getOrElseThrow()
             ).isInstanceOf(NullPointerException.class);
         }
     }
@@ -202,18 +228,18 @@ class CollectionRulesTest {
 
         @Test
         void valid_whenNoElementsMatchPredicate() {
-            Rule<List<Integer>> noEvens = collections.noneMatch(n -> n % 2 == 0);
+            Rule<List<Integer>> noEvens = collections.noneMatchPredicate((Predicate<Integer>) (n -> n % 2 == 0));
             validTest(List.of(1, 3, 5), noEvens);
         }
 
         @Test
         void valid_whenEmptyCollection_vacuouslyTrue() {
-            validTest(List.<Integer>of(), collections.noneMatch(n -> n % 2 == 0));
+            validTest(List.<Integer>of(), collections.noneMatchPredicate((Predicate<Integer>) (n -> n % 2 == 0)));
         }
 
         @Test
         void invalid_whenAnyElementMatchesPredicate_usesDefaultErrorKey() {
-            invalidTest(List.of(1, 2, 3), collections.noneMatch(n -> n % 2 == 0), "must.none.match");
+            invalidTest(List.of(1, 2, 3), collections.noneMatchPredicate((Predicate<Integer>) (n -> n % 2 == 0)), "must.none.match");
         }
 
         @Test
@@ -239,7 +265,32 @@ class CollectionRulesTest {
         @Test
         void throws_whenPredicateIsNull_andRuleIsEvaluated() {
             assertThatThrownBy(() ->
-                    validateThat(List.of(1), "value").is(collections.noneMatch(null)).getOrElseThrow()
+                    validateThat(List.of(1), "value").is(collections.noneMatchPredicate((Predicate<Integer>) null)).getOrElseThrow()
+            ).isInstanceOf(NullPointerException.class);
+        }
+
+        // Tests for noneMatch(Rule<T>) overload
+
+        @Test
+        void valid_whenNoElementsMatch_withElementRule() {
+            Rule<String> len2 = Rule.of(s -> s.length() == 2, ErrorMessage.of("len.must.be.two"));
+            validTest(List.of("a", "bbb", "cccc"), collections.noneMatch(len2));
+        }
+
+        @Test
+        void invalid_whenAnyElementMatches_usesDefaultErrorKey_andAddsIndexPath_withElementRule() {
+            Rule<String> len2 = Rule.of(s -> s.length() == 2, ErrorMessage.of("len.must.be.two"));
+            assertThatValidation(
+                    validateThat(List.of("a", "bb", "c"), "value").is(collections.noneMatch(len2))
+            )
+                    .isInvalid()
+                    .hasErrorMessages("value[1].must.none.match");
+        }
+
+        @Test
+        void throws_whenRuleIsNull_andRuleIsEvaluated() {
+            assertThatThrownBy(() ->
+                    validateThat(List.of("x"), "value").is(collections.noneMatch((Rule<String>) null)).getOrElseThrow()
             ).isInstanceOf(NullPointerException.class);
         }
     }
