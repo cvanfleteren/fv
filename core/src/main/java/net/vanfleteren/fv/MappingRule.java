@@ -334,7 +334,7 @@ public interface MappingRule<T, R> {
     }
 
     /**
-     * Applies the specified {@link MappingRule} to the result of applying the selector function to the input. Aka <code>contraMap</code>.
+     * Applies the specified {@link MappingRule} to the result of applying the selector function to the input. Aka <code>contramap</code>.
      *
      * @param <T>      the type of the input to be tested
      * @param <V>      the type of the result produced by the selector function

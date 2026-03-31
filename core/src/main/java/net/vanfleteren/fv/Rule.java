@@ -445,7 +445,7 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
-     * Applies the specified {@link Rule} to the result of applying the selector function to the input. Aka <code>contraMap</code>.
+     * Applies the specified {@link Rule} to the result of applying the selector function to the input. Aka <code>contramap</code>.
      * <p>
      * Usage example:
      * <pre>{@code
