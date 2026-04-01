@@ -4,7 +4,9 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.Set;
 import net.vanfleteren.fv.ErrorMessage;
+import net.vanfleteren.fv.MappingRule;
 import net.vanfleteren.fv.Rule;
+import net.vanfleteren.fv.Validation;
 
 import java.util.Objects;
 
@@ -55,7 +57,7 @@ public interface IObjectRules<T> {
      * @return a {@link Rule} checking if the value is one of the allowed values.
      */
     default Rule<T> oneOf(T... values) {
-       return oneOf(HashSet.of(values));
+        return oneOf(HashSet.of(values));
     }
 
     /**
@@ -89,7 +91,7 @@ public interface IObjectRules<T> {
      * @return a {@link Rule} checking if the value is not one of the forbidden values.
      */
     default Rule<T> notOneOf(T... values) {
-      return notOneOf(HashSet.of(values));
+        return notOneOf(HashSet.of(values));
     }
 
     /**
@@ -119,12 +121,18 @@ public interface IObjectRules<T> {
      *     <li>{@code of}: the required class ({@link Class})</li>
      * </ul>
      *
-     * @param <U> the type of the class.
+     * @param <U>   the type of the class.
      * @param clazz the required class.
      * @return a {@link Rule} checking the object's type.
      */
-    default <U> Rule<Object> instanceOf(Class<U> clazz) {
-        return Rule.of(clazz::isInstance, ErrorMessage.of("must.be.instance", HashMap.of("of", clazz)));
+    default <U> MappingRule<Object, U> instanceOf(Class<U> clazz) {
+        return input -> {
+            if (clazz.isInstance(input)) {
+                return Validation.valid(clazz.cast(input));
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.be.instance", HashMap.of("of", clazz)));
+            }
+        };
     }
 
 }

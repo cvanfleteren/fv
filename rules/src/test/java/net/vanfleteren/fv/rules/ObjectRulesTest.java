@@ -2,6 +2,7 @@ package net.vanfleteren.fv.rules;
 
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
+import net.vanfleteren.fv.MappingRule;
 import net.vanfleteren.fv.Rule;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -123,13 +124,13 @@ class ObjectRulesTest {
 
         @Test
         void valid() {
-            validTest("hello", objects.instanceOf(String.class));
-            validTest(123, objects.instanceOf(Integer.class));
+            validTest("hello", "hello", objects.instanceOf(String.class));
+            validTest(123, 123, objects.instanceOf(Integer.class));
         }
 
         @Test
         void invalid() {
-            Rule<Object> stringRule = objects.instanceOf(String.class);
+            MappingRule<Object, String> stringRule = objects.instanceOf(String.class);
 
             assertThatValidation(stringRule.test(BigDecimal.ZERO))
                     .isInvalid()
