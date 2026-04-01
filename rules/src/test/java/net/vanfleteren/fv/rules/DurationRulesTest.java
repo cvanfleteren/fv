@@ -95,4 +95,32 @@ class DurationRulesTest {
             invalidTest(Duration.ofMinutes(21), durations.isAtMost(max), "must.be.at.most", HashMap.of("max", max));
         }
     }
+
+    @Nested
+    class IsPositive {
+        @Test
+        void valid() {
+            validTest(Duration.ofSeconds(1), durations.isPositive());
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(Duration.ZERO, durations.isPositive(), "must.be.positive", HashMap.empty());
+            invalidTest(Duration.ofSeconds(-1), durations.isPositive(), "must.be.positive", HashMap.empty());
+        }
+    }
+
+    @Nested
+    class IsNegative {
+        @Test
+        void valid() {
+            validTest(Duration.ofSeconds(-1), durations.isNegative());
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(Duration.ZERO, durations.isNegative(), "must.be.negative", HashMap.empty());
+            invalidTest(Duration.ofSeconds(1), durations.isNegative(), "must.be.negative", HashMap.empty());
+        }
+    }
 }

@@ -106,4 +106,32 @@ public class DurationRules implements ComparableRules<Duration>, IObjectRules<Du
                 ErrorMessage.of("must.be.longer", "limit", limit)
         );
     }
+
+    /**
+     * Fails if the duration is not positive.
+     * <p>
+     * Error key: {@code must.be.positive}
+     *
+     * @return a {@link Rule} checking if the duration is positive.
+     */
+    public Rule<Duration> isPositive() {
+        return Rule.of(
+                d -> d.compareTo(Duration.ZERO) > 0,
+                ErrorMessage.of("must.be.positive")
+        );
+    }
+
+    /**
+     * Fails if the duration is not negative.
+     * <p>
+     * Error key: {@code must.be.negative}
+     *
+     * @return a {@link Rule} checking if the duration is negative.
+     */
+    public Rule<Duration> isNegative() {
+        return Rule.of(
+                d -> d.compareTo(Duration.ZERO) < 0,
+                ErrorMessage.of("must.be.negative")
+        );
+    }
 }
