@@ -1,0 +1,98 @@
+package net.vanfleteren.fv.rules;
+
+import io.vavr.collection.HashMap;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
+
+import static net.vanfleteren.fv.rules.DurationRules.durations;
+import static net.vanfleteren.fv.rules.RulesTest.invalidTest;
+import static net.vanfleteren.fv.rules.RulesTest.validTest;
+
+class DurationRulesTest {
+
+    @Nested
+    class IsShorterThan {
+        @Test
+        void valid() {
+            Duration limit = Duration.ofHours(1);
+            validTest(Duration.ofMinutes(59), durations.isShorterThan(limit));
+        }
+
+        @Test
+        void invalid() {
+            Duration limit = Duration.ofHours(1);
+            invalidTest(limit, durations.isShorterThan(limit), "must.be.shorter", HashMap.of("limit", limit));
+            invalidTest(Duration.ofHours(2), durations.isShorterThan(limit), "must.be.shorter", HashMap.of("limit", limit));
+        }
+    }
+
+    @Nested
+    class IsLongerThan {
+        @Test
+        void valid() {
+            Duration limit = Duration.ofHours(1);
+            validTest(Duration.ofHours(2), durations.isLongerThan(limit));
+        }
+
+        @Test
+        void invalid() {
+            Duration limit = Duration.ofHours(1);
+            invalidTest(limit, durations.isLongerThan(limit), "must.be.longer", HashMap.of("limit", limit));
+            invalidTest(Duration.ofMinutes(30), durations.isLongerThan(limit), "must.be.longer", HashMap.of("limit", limit));
+        }
+    }
+
+    @Nested
+    class Between {
+        @Test
+        void valid() {
+            Duration min = Duration.ofMinutes(10);
+            Duration max = Duration.ofMinutes(20);
+            validTest(Duration.ofMinutes(10), durations.between(min, max));
+            validTest(Duration.ofMinutes(15), durations.between(min, max));
+            validTest(Duration.ofMinutes(20), durations.between(min, max));
+        }
+
+        @Test
+        void invalid() {
+            Duration min = Duration.ofMinutes(10);
+            Duration max = Duration.ofMinutes(20);
+            invalidTest(Duration.ofMinutes(9), durations.between(min, max), "must.be.between", HashMap.of("min", min, "max", max));
+            invalidTest(Duration.ofMinutes(21), durations.between(min, max), "must.be.between", HashMap.of("min", min, "max", max));
+        }
+    }
+
+    @Nested
+    class IsAtLeast {
+        @Test
+        void valid() {
+            Duration min = Duration.ofMinutes(10);
+            validTest(Duration.ofMinutes(10), durations.isAtLeast(min));
+            validTest(Duration.ofMinutes(15), durations.isAtLeast(min));
+        }
+
+        @Test
+        void invalid() {
+            Duration min = Duration.ofMinutes(10);
+            invalidTest(Duration.ofMinutes(9), durations.isAtLeast(min), "must.be.at.least", HashMap.of("min", min));
+        }
+    }
+
+    @Nested
+    class IsAtMost {
+        @Test
+        void valid() {
+            Duration max = Duration.ofMinutes(20);
+            validTest(Duration.ofMinutes(20), durations.isAtMost(max));
+            validTest(Duration.ofMinutes(15), durations.isAtMost(max));
+        }
+
+        @Test
+        void invalid() {
+            Duration max = Duration.ofMinutes(20);
+            invalidTest(Duration.ofMinutes(21), durations.isAtMost(max), "must.be.at.most", HashMap.of("max", max));
+        }
+    }
+}
