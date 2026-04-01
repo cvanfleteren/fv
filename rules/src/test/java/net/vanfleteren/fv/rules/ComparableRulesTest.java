@@ -5,7 +5,7 @@ import net.vanfleteren.fv.Rule;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static net.vanfleteren.fv.rules.IntegerRules.ints;
+import static net.vanfleteren.fv.rules.numbers.IntegerRules.ints;
 import static net.vanfleteren.fv.rules.RulesTest.invalidTest;
 import static net.vanfleteren.fv.rules.RulesTest.validTest;
 import static org.assertj.core.api.Assertions.assertThat;

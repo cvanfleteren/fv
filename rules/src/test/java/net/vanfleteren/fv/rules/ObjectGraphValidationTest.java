@@ -1,16 +1,17 @@
 package net.vanfleteren.fv.rules;
 
 import io.vavr.collection.List;
-import net.vanfleteren.fv.ErrorMessage;
 import net.vanfleteren.fv.MappingRule;
 import net.vanfleteren.fv.Rule;
 import net.vanfleteren.fv.Validation;
+import net.vanfleteren.fv.rules.collections.CollectionRules;
+import net.vanfleteren.fv.rules.text.StringRules;
 import org.junit.jupiter.api.Test;
 
 import static net.vanfleteren.fv.API.*;
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import static net.vanfleteren.fv.rules.ObjectRules.objects;
-import static net.vanfleteren.fv.rules.StringRules.strings;
+import static net.vanfleteren.fv.rules.text.StringRules.strings;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ObjectGraphValidationTest {

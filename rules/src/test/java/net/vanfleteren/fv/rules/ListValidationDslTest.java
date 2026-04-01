@@ -1,14 +1,13 @@
 package net.vanfleteren.fv.rules;
 
 import io.vavr.collection.List;
-import net.vanfleteren.fv.Rule;
 import net.vanfleteren.fv.Validation;
 import org.junit.jupiter.api.Test;
 
 import static net.vanfleteren.fv.API.*;
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
-import static net.vanfleteren.fv.rules.CollectionRules.collections;
-import static net.vanfleteren.fv.rules.StringRules.strings;
+import static net.vanfleteren.fv.rules.collections.CollectionRules.collections;
+import static net.vanfleteren.fv.rules.text.StringRules.strings;
 
 public class ListValidationDslTest {
 

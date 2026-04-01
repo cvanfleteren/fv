@@ -8,25 +8,25 @@ import static net.vanfleteren.fv.API.validateThat;
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 
 public class RulesTest {
-    static <T> void validTest(T value, Rule<? super T> rule) {
+    public static <T> void validTest(T value, Rule<? super T> rule) {
         assertThatValidation(validateThat(value, "value").is(rule))
                 .isValid()
                 .hasValue(value);
     }
 
-    static <T, R> void validTest(T value, R expected, MappingRule<? super T, R> rule) {
+    public static <T, R> void validTest(T value, R expected, MappingRule<? super T, R> rule) {
         assertThatValidation(validateThat(value, "value").is(rule))
                 .isValid()
                 .hasValue(expected);
     }
 
-    static <T, R> void invalidTest(T value, MappingRule<? super T, R> rule, String... errorKeys) {
+    public static <T, R> void invalidTest(T value, MappingRule<? super T, R> rule, String... errorKeys) {
         assertThatValidation(validateThat(value, "value").is(rule))
                 .isInvalid()
                 .hasErrorKeys(errorKeys);
     }
 
-    static <T, R> void invalidTest(T value, MappingRule<? super T, R> rule, String errorKey, Map<String, Object> args) {
+    public static <T, R> void invalidTest(T value, MappingRule<? super T, R> rule, String errorKey, Map<String, Object> args) {
         assertThatValidation(validateThat(value, "value").is(rule))
                 .isInvalid()
                 .hasErrorMessage(errorKey, args);
