@@ -96,7 +96,7 @@ public class ErrorMessage {
         if (paths.isEmpty()) {
             return prepend(new Path("", Option.of(index)));
         } else {
-            return this.withPaths(List.of(paths.head().withIndex(Option.of(index))).appendAll(paths.tail()));
+            return this.withPaths(paths.update(0, paths.head().withIndex(Option.of(index))));
         }
     }
 
@@ -184,12 +184,7 @@ public class ErrorMessage {
          * @return the formatted path segment.
          */
         public String formatted() {
-            // no specific name was given
-            if ("".equals(text)) {
-                return index.map(i -> "[" + i + "]").getOrElse("");
-            } else {
-                return text + index.map(i -> "[" + i + "]").getOrElse("");
-            }
+            return text + index.map(i -> "[" + i + "]").getOrElse("");
         }
     }
 }

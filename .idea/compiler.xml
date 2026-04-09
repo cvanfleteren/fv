@@ -30,6 +30,7 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="dsl" target="21" />
+      <module name="testing" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>

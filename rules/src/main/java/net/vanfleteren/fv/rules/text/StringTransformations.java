@@ -106,7 +106,7 @@ public class StringTransformations {
     }
 
     /**
-     * Keeps only alphanumeric characters (letters A-Z/a-z and digits 0-9).
+     * Keeps only alphanumeric ASCII characters (letters A-Z/a-z and digits 0-9).
      * <p>
      * Example: {@code "abc@#123" -> "abc123"}.
      * <p>
@@ -413,37 +413,40 @@ public class StringTransformations {
         return nullSafe(s -> {
             if (s.length() <= maxLen) return s;
 
-            // Handle tiny budgets explicitly to match expected behavior
-            if (maxLen == 0) return "";
-            if (maxLen == 1) return ellipsis; // only room for the marker
-            if (maxLen == 2) {
-                // Prefer one char + unicode ellipsis if safe; else best two code units without ellipsis
-                int cut1 = safeCutIndex(s, 1);
-                if (cut1 > 0) return s.substring(0, cut1) + ellipsis;
-                int cut2 = safeCutIndex(s, 2);
-                return s.substring(0, cut2);
+            switch(maxLen) {
+                case 0 -> {
+                    return "";
+                }
+                case 1 -> {
+                    return ellipsis;
+                }
+                case 2 -> {
+                    // Prefer one char + unicode ellipsis if safe; else best two code units without ellipsis
+                    int cut1 = safeCutIndex(s, 1);
+                    if (cut1 > 0) {
+                        return s.substring(0, cut1) + ellipsis;
+                    } else {
+                        int cut2 = safeCutIndex(s, 2);
+                        return s.substring(0, cut2);
+                    }
+                }
+                default -> {
+                    // maxLen >= 4: prefer single-character ellipsis with as much content as fits
+                    int room = maxLen - 1;
+                    int cut = safeCutIndex(s, room);
+                    if (cut > 0) {
+                        return s.substring(0, cut) + ellipsis;
+                    }
+                    // Fallback: if somehow no room for content with single ellipsis, try ASCII dots
+                    room = maxLen - 3;
+                    cut = safeCutIndex(s, room);
+                    if (cut > 0) {
+                        return s.substring(0, cut) + asciiDots;
+                    }
+                    // Ultimately, just return the dots (shouldn't usually happen for maxLen>=4)
+                    return asciiDots;
+                }
             }
-            if (maxLen == 3) {
-                // Try 2 code units + unicode ellipsis; if not possible, fall back to ASCII '...'
-                int cut2 = safeCutIndex(s, 2);
-                if (cut2 > 0) return s.substring(0, cut2) + ellipsis;
-                return asciiDots;
-            }
-
-            // maxLen >= 4: prefer single-character ellipsis with as much content as fits
-            int room = maxLen - 1;
-            int cut = safeCutIndex(s, room);
-            if (cut > 0) {
-                return s.substring(0, cut) + ellipsis;
-            }
-            // Fallback: if somehow no room for content with single ellipsis, try ASCII dots
-            room = maxLen - 3;
-            cut = safeCutIndex(s, room);
-            if (cut > 0) {
-                return s.substring(0, cut) + asciiDots;
-            }
-            // Ultimately, just return the dots (shouldn't usually happen for maxLen>=4)
-            return asciiDots;
         });
     }
 
