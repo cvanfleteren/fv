@@ -80,7 +80,7 @@ public class InstantRules implements ComparableRules<Instant>, IObjectRules<Inst
     }
 
     /**
-     * Fails if the Instant is not in the past.
+     * Fails if the Instant is not in the past according to the provided {@link Clock}..
      * <p>
      * Error key: {@code must.be.past}
      *
@@ -91,7 +91,7 @@ public class InstantRules implements ComparableRules<Instant>, IObjectRules<Inst
     }
 
     /**
-     * Fails if the Instant is not in the future.
+     * Fails if the Instant is not in the future according to the provided {@link Clock}..
      * <p>
      * Error key: {@code must.be.future}
      *

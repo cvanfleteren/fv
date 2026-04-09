@@ -16,17 +16,6 @@ import static net.vanfleteren.fv.rules.RulesTest.validTest;
 class LocalTimeRulesTest {
 
     @Nested
-    class ClockDependent {
-        @Test
-        void factoryMethod_usesProvidedClock() {
-            Clock fixedClock = Clock.fixed(Instant.parse("2024-01-01T12:00:00Z"), ZoneId.of("UTC"));
-            LocalTimeRules rules = localTimes(fixedClock);
-            // This is just a sanity check that the factory works
-            validTest(LocalTime.of(12, 0), rules.equalTo(LocalTime.of(12, 0)));
-        }
-    }
-
-    @Nested
     class IsBefore {
         @Test
         void valid() {

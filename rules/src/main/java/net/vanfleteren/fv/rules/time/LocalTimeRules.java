@@ -13,16 +13,10 @@ import java.time.LocalTime;
  */
 public class LocalTimeRules implements ComparableRules<LocalTime>, IObjectRules<LocalTime> {
 
-    private final Clock clock;
-
-    LocalTimeRules(Clock clock) {
-        this.clock = clock;
-    }
-
     /**
      * Singleton instance of {@link LocalTimeRules}.
      */
-    public static final LocalTimeRules localTimes = new LocalTimeRules(Clock.systemDefaultZone());
+    public static final LocalTimeRules localTimes = new LocalTimeRules();
 
     /**
      * Returns the singleton instance of {@link LocalTimeRules}.
@@ -31,15 +25,6 @@ public class LocalTimeRules implements ComparableRules<LocalTime>, IObjectRules<
      */
     public static LocalTimeRules localTimes() {
         return localTimes;
-    }
-
-    /**
-     * Returns an instance of {@link LocalTimeRules} that uses the passed {@link java.time.Clock} for determining the current time.
-     *
-     * @return the {@link LocalTimeRules} instance.
-     */
-    public static LocalTimeRules localTimes(Clock clock) {
-        return new LocalTimeRules(clock);
     }
 
     /**

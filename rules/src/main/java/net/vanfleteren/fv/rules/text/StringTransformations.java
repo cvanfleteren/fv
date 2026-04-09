@@ -456,12 +456,10 @@ public class StringTransformations {
         int cut = Math.min(maxUnits, len);
         // If we are exactly at a boundary that would split a surrogate pair, step back one
         if (cut < len) {
-            if (cut > 0) {
-                char prev = s.charAt(cut - 1);
-                char next = s.charAt(cut);
-                if (Character.isHighSurrogate(prev) && Character.isLowSurrogate(next)) {
-                    cut -= 1;
-                }
+            char prev = s.charAt(cut - 1);
+            char next = s.charAt(cut);
+            if (Character.isHighSurrogate(prev) && Character.isLowSurrogate(next)) {
+                cut -= 1;
             }
         }
         return cut;

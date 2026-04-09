@@ -83,7 +83,7 @@ public class LocalDateRules implements ComparableRules<LocalDate>, IObjectRules<
     }
 
     /**
-     * Fails if the date is not in the past.
+     * Fails if the date is not in the past according to the provided {@link Clock}..
      * <p>
      * Error key: {@code must.be.past}
      *
@@ -94,7 +94,7 @@ public class LocalDateRules implements ComparableRules<LocalDate>, IObjectRules<
     }
 
     /**
-     * Fails if the date is not in the future.
+     * Fails if the date is not in the future according to the provided {@link Clock}..
      * <p>
      * Error key: {@code must.be.future}
      *
@@ -105,7 +105,7 @@ public class LocalDateRules implements ComparableRules<LocalDate>, IObjectRules<
     }
 
     /**
-     * Fails if the date is not today.
+     * Fails if the date is not today according to the provided {@link Clock}..
      * <p>
      * Error key: {@code must.be.today}
      *
