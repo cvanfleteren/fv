@@ -183,7 +183,7 @@ public class CollectionRules {
      * Error key: {@code must.none.match}
      *
      * @param <T> the type of elements in the collection.
-     * @param predicate the predicate to test each element against.
+     * @param rule the Rule to test each element against.
      * @return a {@link Rule} that validates if none of the elements match the {@link Rule}.
      */
     public <T> Rule<List<T>> noneMatch(Rule<T> rule) {
@@ -403,7 +403,7 @@ public class CollectionRules {
      */
     public <T> Rule<List<T>> validateValuesWith(Rule<? super T> rule) {
         return list -> {
-            Rule<T> castedRule = (Rule<T>) rule;
+            Rule<T> castedRule = Rule.narrow(rule);
             Rule<List<T>> rule2 =  castedRule.liftToList();
             return rule2.test(list);
         };
