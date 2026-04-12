@@ -48,6 +48,18 @@ public interface Rule<T> extends MappingRule<T, T> {
 
     /**
      * Tests the given value against the rule.
+     * <pre>{@code
+     * // 1. A rule that validates if a String is not empty
+     * Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "not.empty");
+     *
+     * // 2. Successful validation: String "hello" -> Valid
+     * Validation<String> success = notEmpty.test("hello");
+     * // Returns Valid("hello")
+     *
+     * // 3. Failed validation: String "" -> Invalid
+     * Validation<String> failure = notEmpty.test("");
+     * // Returns Invalid(ErrorMessage("not.empty"))
+     * }</pre>
      *
      * @param value the value to be validated.
      * @return a {@link Validation} object indicating the result of the test.
@@ -56,6 +68,16 @@ public interface Rule<T> extends MappingRule<T, T> {
 
     /**
      * Creates a {@link Rule} from the given predicate and error message key.
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * // 1. Create a rule using a predicate and an error key
+     * Rule<Integer> positive = Rule.of(i -> i > 0, "must.be.positive");
+     *
+     * // 2. Usage
+     * positive.test(10); // Returns Valid(10)
+     * positive.test(-5); // Returns Invalid(ErrorMessage("must.be.positive"))
+     * }</pre>
      *
      * @param predicate    the predicate to test values against.
      * @param errorKey     the error message key to use if the predicate returns {@code false}.
@@ -68,6 +90,17 @@ public interface Rule<T> extends MappingRule<T, T> {
 
     /**
      * Creates a {@link Rule} from the given predicate and {@link ErrorMessage}.
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * // 1. Create a rule using a predicate and an ErrorMessage
+     * ErrorMessage error = ErrorMessage.of("must.be.positive");
+     * Rule<Integer> positive = Rule.of(i -> i > 0, error);
+     *
+     * // 2. Usage
+     * positive.test(10); // Returns Valid(10)
+     * positive.test(-5); // Returns Invalid(ErrorMessage("must.be.positive"))
+     * }</pre>
      *
      * @param predicate    the predicate to test values against.
      * @param errorMessage the error message to use if the predicate returns {@code false}.
@@ -86,6 +119,21 @@ public interface Rule<T> extends MappingRule<T, T> {
      * If this rule fails, the evaluation stops and the other rule is not evaluated.
      * <p>
      * If you want to evaluate both rules and accumulate their errors, use {@link #andAlso(Rule)}.
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * // 1. Two rules to be combined
+     * Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "not.empty");
+     * Rule<String> atLeast5 = Rule.of(s -> s.length() >= 5, "at.least.5");
+     *
+     * // 2. Chain them: stop at the first failure
+     * Rule<String> combined = notEmpty.and(atLeast5);
+     *
+     * // 3. Usage
+     * combined.test("hello"); // Returns Valid("hello")
+     * combined.test("");      // Returns Invalid("not.empty")
+     * combined.test("abc");   // Returns Invalid("at.least.5")
+     * }</pre>
      *
      * @param other the other rule to compose with.
      * @param <S>   the target type.
@@ -104,6 +152,19 @@ public interface Rule<T> extends MappingRule<T, T> {
      * If both rules fail, their errors are combined.
      * <p>
      * If you want to stop evaluation after the first failure, use {@link #and(Rule)}.
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * // 1. Two rules to be combined
+     * Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "not.empty");
+     * Rule<String> atLeast5 = Rule.of(s -> s.length() >= 5, "at.least.5");
+     *
+     * // 2. Combine them: collect all failures
+     * Rule<String> combined = notEmpty.andAlso(atLeast5);
+     *
+     * // 3. Usage
+     * combined.test(""); // Returns Invalid("not.empty", "at.least.5")
+     * }</pre>
      *
      * @param other the other rule to compose with.
      * @param <S>   the target type.
@@ -120,6 +181,21 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Composes this rule with another rule using "or" logic.
      * The combined rule is successful if either this or the other rule is successful.
      * If both rules fail, their errors are combined.
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * // 1. Two rules to be combined with OR logic
+     * Rule<String> startsWithA = Rule.of(s -> s.startsWith("A"), "must.start.with.A");
+     * Rule<String> startsWithB = Rule.of(s -> s.startsWith("B"), "must.start.with.B");
+     *
+     * // 2. Combine them
+     * Rule<String> combined = startsWithA.or(startsWithB);
+     *
+     * // 3. Usage
+     * combined.test("Apple"); // Returns Valid("Apple")
+     * combined.test("Banana"); // Returns Valid("Banana")
+     * combined.test("Cherry"); // Returns Invalid("must.start.with.A", "must.start.with.B")
+     * }</pre>
      *
      * @param other the other rule to compose with.
      * @param <S>   the target type.
@@ -146,24 +222,51 @@ public interface Rule<T> extends MappingRule<T, T> {
 
     /**
      * Negates this rule. The caller must provide the error message key to use when the negated rule fails.
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * // 1. A rule that checks if a string starts with "A"
+     * Rule<String> startsWithA = Rule.of(s -> s.startsWith("A"), "must.start.with.A");
+     *
+     * // 2. Negate it: now it validates that it does NOT start with "A"
+     * Rule<String> doesNotStartWithA = startsWithA.negate("must.not.start.with.A");
+     *
+     * // 3. Usage
+     * doesNotStartWithA.test("Banana"); // Returns Valid("Banana")
+     * doesNotStartWithA.test("Apple");  // Returns Invalid(ErrorMessage("must.not.start.with.A"))
+     * }</pre>
      *
      * @param negatedErrorKey the error message key to use if negation fails.
      * @return a negated {@link Rule}.
      * @throws NullPointerException if {@code negatedErrorKey} is null.
      */
-    default Rule<T> not(String negatedErrorKey) {
+    default Rule<T> negate(String negatedErrorKey) {
         Objects.requireNonNull(negatedErrorKey, "negatedErrorKey cannot be null");
-        return not(ErrorMessage.of(negatedErrorKey));
+        return negate(ErrorMessage.of(negatedErrorKey));
     }
 
     /**
      * Negates this rule. The caller must provide the {@link ErrorMessage} to use when the negated rule fails.
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * // 1. A rule that checks if a string starts with "A"
+     * Rule<String> startsWithA = Rule.of(s -> s.startsWith("A"), "must.start.with.A");
+     *
+     * // 2. Negate it using an ErrorMessage
+     * ErrorMessage error = ErrorMessage.of("must.not.start.with.A");
+     * Rule<String> doesNotStartWithA = startsWithA.negate(error);
+     *
+     * // 3. Usage
+     * doesNotStartWithA.test("Banana"); // Returns Valid("Banana")
+     * doesNotStartWithA.test("Apple");  // Returns Invalid(ErrorMessage("must.not.start.with.A"))
+     * }</pre>
      *
      * @param negatedError the error message to use if negation fails.
      * @return a negated {@link Rule}.
      * @throws NullPointerException if {@code negatedError} is null.
      */
-    default Rule<T> not(ErrorMessage negatedError) {
+    default Rule<T> negate(ErrorMessage negatedError) {
         Objects.requireNonNull(negatedError, "negatedError cannot be null");
         return value -> {
             Validation<T> original = this.test(value);
@@ -174,13 +277,24 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
-     *Applies a conditional rule.
+     * Applies a conditional rule.
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * // Only validate if the string is not empty
+     * Rule<String> minLength = Rule.of(s -> s.length() >= 5, "too.short");
+     * Rule<String> whenNotEmpty = minLength.onlyIf(s -> !s.isEmpty());
+     *
+     * whenNotEmpty.test("");      // Returns Valid("")
+     * whenNotEmpty.test("abc");   // Returns Invalid("too.short")
+     * whenNotEmpty.test("abcde"); // Returns Valid("abcde")
+     * }</pre>
      *
      * @param condition the condition to test, must not be null
      * @return a rule that tests the condition. If the condition is true, the original rule is applied.
      * If the condition is false, the value is considered valid by default.
      */
-    default Rule<T> when(Predicate<T> condition) {
+    default Rule<T> onlyIf(Predicate<T> condition) {
         Objects.requireNonNull(condition, "condition cannot be null");
         return value -> {
             if (condition.test(value)) {
@@ -191,13 +305,23 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
-     *Applies a conditional rule.
+     * Applies a conditional rule.
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * // Only validate if a certain flag is enabled
+     * Rule<String> rule = Rule.of(s -> s.length() >= 5, "too.short");
+     * Rule<String> conditional = rule.onlyIf(() -> config.isValidationEnabled());
+     *
+     * // If isValidationEnabled() returns false:
+     * conditional.test("abc"); // Returns Valid("abc")
+     * }</pre>
      *
      * @param condition the condition to test, must not be null
      * @return a rule that tests the condition. If the condition is true, the original rule is applied.
      * If the condition is false, the value is considered valid by default.
      */
-    default Rule<T> when(Supplier<Boolean> condition) {
+    default Rule<T> onlyIf(Supplier<Boolean> condition) {
         Objects.requireNonNull(condition, "condition cannot be null");
         return value -> {
             if (condition.get()) {
@@ -211,6 +335,21 @@ public interface Rule<T> extends MappingRule<T, T> {
     /**
      * Returns a new {@link Rule} that first applies this rule, and if the input is invalid, falls back to the other rule.
      * Like {@link MappingRule#recoverWith}, but the fallback is a {@link Rule}.
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * // 1. Try to validate as admin, otherwise try as guest
+     * Rule<String> adminOnly = Rule.of(s -> s.equals("admin"), "not.admin");
+     * Rule<String> guestOk = Rule.of(s -> s.equals("guest"), "not.guest");
+     *
+     * // 2. Use recoverWithRule to fall back
+     * Rule<String> combined = adminOnly.recoverWithRule(guestOk);
+     *
+     * // 3. Usage
+     * combined.test("admin"); // Returns Valid("admin")
+     * combined.test("guest"); // Returns Valid("guest")
+     * combined.test("other"); // Returns Invalid("not.guest")
+     * }</pre>
      *
      * @param other the other rule to use as a fallback if this rule fails
      * @return a new {@link Rule} that first applies this rule, and if the input is invalid, falls back to the other rule
@@ -229,6 +368,19 @@ public interface Rule<T> extends MappingRule<T, T> {
 
     /**
      * Lifts a {@link Rule} so it applies to a {@link List} of T instead of a single T.
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * // 1. Define a rule for a single element
+     * Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
+     *
+     * // 2. Lift it to apply to a list
+     * Rule<List<String>> listRule = notEmpty.liftToList();
+     *
+     * // 3. Usage
+     * listRule.test(List.of("a", "b")); // Returns Valid(List("a", "b"))
+     * listRule.test(List.of("a", ""));  // Returns Invalid(ErrorMessage("must.not.be.empty").atIndex(1))
+     * }</pre>
      *
      * @return a new {@link Rule} instance.
      */
@@ -243,7 +395,23 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Semantics:
      * - None =&gt; {@code valid(None)} (nothing to validate)
      * - Some(x) =&gt; validate x, and return {@code valid(Some(x))} or {@code invalid(errors)}
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * // 1. Define a rule for a single element
+     * Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
      *
+     * // 2. Lift it to apply to an Option
+     * Rule<Option<String>> optionRule = notEmpty.liftToOption();
+     *
+     * // 3. Usage
+     * optionRule.test(Option.some("a")); // Returns Valid(Some("a"))
+     * optionRule.test(Option.none());     // Returns Valid(None)
+     * optionRule.test(Option.some(""));  // Returns Invalid("must.not.be.empty")
+     * }</pre>
+     *
+     * @see Rule#requiredOption(Rule) 
+     * @see MappingRule#requiredOption(MappingRule) 
      * @return a new {@link Rule} instance.
      */
     @Override
@@ -257,7 +425,23 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Semantics:
      * - empty =&gt; {@code valid(Optional.empty)} (nothing to validate)
      * - not empty =&gt; validate x, and return {@code valid(Optional.of(x))} or {@code invalid(errors)}
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * // 1. Define a rule for a single element
+     * Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
      *
+     * // 2. Lift it to apply to an Optional
+     * Rule<Optional<String>> optionalRule = notEmpty.liftToOptional();
+     *
+     * // 3. Usage
+     * optionalRule.test(Optional.of("a")); // Returns Valid(Optional("a"))
+     * optionalRule.test(Optional.empty());   // Returns Valid(Optional.empty)
+     * optionalRule.test(Optional.of(""));  // Returns Invalid("must.not.be.empty")
+     * }</pre>
+     *
+     * @see Rule#requiredOptional(Rule)
+     * @see MappingRule#requiredOptional(MappingRule)
      * @return a new {@link Rule} instance.
      */
     @Override
@@ -276,6 +460,19 @@ public interface Rule<T> extends MappingRule<T, T> {
      * - Each value in the map is validated, and the resulting validations are collected.
      * - If any validation fails, the entire map is considered invalid.
      * - If all validations pass, the map is considered valid.
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * // 1. Define a rule for a single element
+     * Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
+     *
+     * // 2. Lift it to apply to a map
+     * Rule<Map<String, String>> mapRule = notEmpty.liftToMap();
+     *
+     * // 3. Usage
+     * mapRule.test(Map.of("key1", "val1")); // Returns Valid(Map("key1", "val1"))
+     * mapRule.test(Map.of("key1", ""));     // Returns Invalid(ErrorMessage("must.not.be.empty").atIndex("key1"))
+     * }</pre>
      *
      * @param <K> the key type.
      * @return a new {@link Rule} instance.
@@ -292,9 +489,20 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Behaves the same as {@link #liftToMap()}, but uses the keyExtractor function to generate the path segment.
      * <p>
      * Semantics:
-     * - Each value in the map is validated, and the resulting validations are collected.
      * - If any validation fails, the entire map is considered invalid.
      * - If all validations pass, the map is considered valid.
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * // 1. Define a rule for a single element
+     * Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
+     *
+     * // 2. Lift it to apply to a map with a custom key extractor for the error path
+     * Rule<Map<Integer, String>> mapRule = notEmpty.liftToMap(key -> "item-" + key);
+     *
+     * // 3. Usage
+     * mapRule.test(Map.of(1, "")); // Returns Invalid(ErrorMessage("must.not.be.empty").atIndex("item-1"))
+     * }</pre>
      *
      * @param keyExtractor the function to extract a path segment from the key.
      * @param <K>          the key type.
@@ -323,10 +531,20 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
-     * Composes two rules using "non short circuiting and" logic.
+     * Composes two rules using "non-short-circuiting and" logic.
      * The combined rule is successful only if both rules are successful.
      * If both rules fail, the errors are combined.
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * Rule<String> minLength = Rule.of(s -> s.length() >= 3, "too.short");
+     * Rule<String> containsAt = Rule.of(s -> s.contains("@"), "missing.at");
+     * Rule<String> both = Rule.both(minLength, containsAt);
      *
+     * both.test("a"); // Returns Invalid("too.short", "missing.at")
+     * }</pre>
+     *
+     * @see Rule#andAlso(Rule) 
      * @param first  the first rule.
      * @param second the second rule.
      * @param <T>    the type of the value to be validated.
@@ -339,9 +557,19 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
-     * Composes multiple rules using "non short circuiting and" logic.
+     * Composes multiple rules using "non-short-circuiting and" logic.
      * The combined rule is successful only if all rules are successful.
      * If multiple rules fail, all errors are combined.
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * Rule<String> rule1 = Rule.of(s -> s.length() >= 3, "too.short");
+     * Rule<String> rule2 = Rule.of(s -> s.contains("@"), "missing.at");
+     * Rule<String> rule3 = Rule.of(s -> s.endsWith(".com"), "wrong.domain");
+     * Rule<String> all = Rule.all(rule1, rule2, rule3);
+     *
+     * all.test("a"); // Returns Invalid("too.short", "missing.at", "wrong.domain")
+     * }</pre>
      *
      * @param rules the rules to combine.
      * @param <T>   the type of the value to be validated.
@@ -367,6 +595,16 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Composes multiple rules using "at least one of" logic.
      * The combined rule is successful if at least one of the rules is successful.
      * If all rules fail, all errors are combined.
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * Rule<String> hasAt = Rule.of(s -> s.contains("@"), "missing.at");
+     * Rule<String> hasDot = Rule.of(s -> s.contains("."), "missing.dot");
+     * Rule<String> combined = Rule.atLeastOneOf(hasAt, hasDot);
+     *
+     * combined.test("abc"); // Returns Invalid("missing.at", "missing.dot")
+     * combined.test("a.b"); // Returns Valid("a.b")
+     * }</pre>
      *
      * @param rules the rules to combine.
      * @param <T>   the type of the value to be validated.
@@ -424,6 +662,19 @@ public interface Rule<T> extends MappingRule<T, T> {
 
     /**
      * Returns a {@link MappingRule} that checks if the input {@link Option} is defined and then applies the given rule to its value.
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * // 1. A rule that checks if a string is not empty
+     * Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "not.empty");
+     *
+     * // 2. A rule that requires the Option to be present before applying the rule
+     * MappingRule<Option<String>, String> requiredString = Rule.requiredOption(notEmpty);
+     *
+     * // 3. Usage
+     * requiredString.test(Option.of("hello")); // Returns Valid("hello")
+     * requiredString.test(Option.none());      // Returns Invalid("must.not.be.empty")
+     * }</pre>
      *
      * @param <T>  the type of the value inside the {@link Option}
      * @param rule the rule to apply to the value inside the {@link Option}
@@ -435,6 +686,19 @@ public interface Rule<T> extends MappingRule<T, T> {
 
     /**
      * Returns a MappingRule that checks if the input {@link Optional} is defined and applies the given rule to its value.
+     * <p>
+     * Usage example:
+     * <pre>{@code
+     * // 1. A rule that checks if a string is not empty
+     * Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "not.empty");
+     *
+     * // 2. A rule that requires the Optional to be present before applying the rule
+     * MappingRule<Optional<String>, String> requiredString = Rule.requiredOptional(notEmpty);
+     *
+     * // 3. Usage
+     * requiredString.test(Optional.of("hello")); // Returns Valid("hello")
+     * requiredString.test(Optional.empty());      // Returns Invalid("must.not.be.empty")
+     * }</pre>
      *
      * @param <T>  the type of the value inside the {@link Optional}
      * @param rule the rule to apply to the value inside the {@link Optional}
@@ -449,12 +713,16 @@ public interface Rule<T> extends MappingRule<T, T> {
      * <p>
      * Usage example:
      * <pre>{@code
-     * record User(String name) {}
+     * // 1. Define a rule for a property
      * Rule<String> nameRule = Rule.of(s -> s.length() > 3, "too.short");
+     *
+     * // 2. Apply it to a property of a record
+     * record User(String name) {}
      * Rule<User> userRule = Rule.with(User::name, nameRule);
      *
-     * userRule.test(new User("Joe")); // returns Invalid("too.short")
-     * userRule.test(new User("Alice")); // returns Valid(User("Alice"))
+     * // 3. Usage
+     * userRule.test(new User("Joe")); // Returns Invalid("too.short")
+     * userRule.test(new User("Alice")); // Returns Valid(User("Alice"))
      * }</pre>
      *
      * @param <T>      the type of the input to be tested

@@ -511,13 +511,13 @@ class RuleTest {
     }
 
     @Nested
-    class Not {
+    class Negate {
 
         @Test
-        void not_withErrorKey_whenOriginalRuleMatches_returnsInvalidWithNegatedErrorKey() {
+        void negate_withErrorKey_whenOriginalRuleMatches_returnsInvalidWithNegatedErrorKey() {
             // Arrange
             Rule<String> startsWithH = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> notStartsWithH = startsWithH.not("must.not.start.with.h");
+            Rule<String> notStartsWithH = startsWithH.negate("must.not.start.with.h");
 
             // Act
             Validation<String> result = notStartsWithH.test("hello");
@@ -529,10 +529,10 @@ class RuleTest {
         }
 
         @Test
-        void not_withErrorKey_whenOriginalRuleFails_returnsValidResult() {
+        void negate_withErrorKey_whenOriginalRuleFails_returnsValidResult() {
             // Arrange
             Rule<String> startsWithH = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> notStartsWithH = startsWithH.not("must.not.start.with.h");
+            Rule<String> notStartsWithH = startsWithH.negate("must.not.start.with.h");
 
             // Act
             Validation<String> result = notStartsWithH.test("apple");
@@ -544,10 +544,10 @@ class RuleTest {
         }
 
         @Test
-        void not_withErrorMessage_whenOriginalRuleMatches_returnsInvalidWithNegatedErrorMessageKey() {
+        void negate_withErrorMessage_whenOriginalRuleMatches_returnsInvalidWithNegatedErrorMessageKey() {
             // Arrange
             Rule<Integer> isEven = Rule.of(i -> i % 2 == 0, "must.be.even");
-            Rule<Integer> isNotEven = isEven.not(ErrorMessage.of("must.not.be.even"));
+            Rule<Integer> isNotEven = isEven.negate(ErrorMessage.of("must.not.be.even"));
 
             // Act
             Validation<Integer> result = isNotEven.test(2);
@@ -559,23 +559,23 @@ class RuleTest {
         }
 
         @Test
-        void not_whenNegatedErrorKeyIsNull_throwsNullPointerException() {
+        void negate_whenNegatedErrorKeyIsNull_throwsNullPointerException() {
             // Arrange
             Rule<String> rule = Rule.of(s -> true, "ok");
 
             // Act & Assert
-            assertThatCode(() -> rule.not((String) null))
+            assertThatCode(() -> rule.negate((String) null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("negatedErrorKey cannot be null");
         }
 
         @Test
-        void not_whenNegatedErrorMessageIsNull_throwsNullPointerException() {
+        void negate_whenNegatedErrorMessageIsNull_throwsNullPointerException() {
             // Arrange
             Rule<String> rule = Rule.of(s -> true, "ok");
 
             // Act & Assert
-            assertThatCode(() -> rule.not((ErrorMessage) null))
+            assertThatCode(() -> rule.negate((ErrorMessage) null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("negatedError cannot be null");
         }
@@ -945,12 +945,12 @@ class RuleTest {
     }
 
     @Nested
-    class When {
+    class OnlyIf {
 
         @Test
-        void when_predicate_whenConditionIsMetAndRulePasses_returnsValidResult() {
+        void onlyIf_predicate_whenConditionIsMetAndRulePasses_returnsValidResult() {
             Rule<String> rule = Rule.of(s -> s.length() > 5, "too.short");
-            Rule<String> conditionalRule = rule.when(s -> s.startsWith("a"));
+            Rule<String> conditionalRule = rule.onlyIf(s -> s.startsWith("a"));
 
             assertThatValidation(conditionalRule.test("apple-pie"))
                     .isValid()
@@ -958,9 +958,9 @@ class RuleTest {
         }
 
         @Test
-        void when_predicate_whenConditionIsMetAndRuleFails_returnsInvalid() {
+        void onlyIf_predicate_whenConditionIsMetAndRuleFails_returnsInvalid() {
             Rule<String> rule = Rule.of(s -> s.length() > 10, "too.short");
-            Rule<String> conditionalRule = rule.when(s -> s.startsWith("a"));
+            Rule<String> conditionalRule = rule.onlyIf(s -> s.startsWith("a"));
 
             assertThatValidation(conditionalRule.test("apple"))
                     .isInvalid()
@@ -968,9 +968,9 @@ class RuleTest {
         }
 
         @Test
-        void when_predicate_whenConditionIsNotMet_returnsValidResult() {
+        void onlyIf_predicate_whenConditionIsNotMet_returnsValidResult() {
             Rule<String> rule = Rule.of(s -> s.length() > 10, "too.short");
-            Rule<String> conditionalRule = rule.when(s -> s.startsWith("b"));
+            Rule<String> conditionalRule = rule.onlyIf(s -> s.startsWith("b"));
 
             // "apple" does not start with "b", so rule shouldn't run
             assertThatValidation(conditionalRule.test("apple"))
@@ -979,9 +979,9 @@ class RuleTest {
         }
 
         @Test
-        void when_supplier_whenConditionIsMetAndRuleFails_returnsInvalid() {
+        void onlyIf_supplier_whenConditionIsMetAndRuleFails_returnsInvalid() {
             Rule<String> rule = Rule.of(s -> s.length() > 5, "too.short");
-            Rule<String> conditionalRule = rule.when(() -> true);
+            Rule<String> conditionalRule = rule.onlyIf(() -> true);
 
             assertThatValidation(conditionalRule.test("abc"))
                     .isInvalid()
@@ -989,9 +989,9 @@ class RuleTest {
         }
 
         @Test
-        void when_supplier_whenConditionIsNotMet_returnsValidResult() {
+        void onlyIf_supplier_whenConditionIsNotMet_returnsValidResult() {
             Rule<String> rule = Rule.of(s -> s.length() > 5, "too.short");
-            Rule<String> conditionalRule = rule.when(() -> false);
+            Rule<String> conditionalRule = rule.onlyIf(() -> false);
 
             assertThatValidation(conditionalRule.test("abc"))
                     .isValid()
@@ -999,17 +999,17 @@ class RuleTest {
         }
 
         @Test
-        void when_predicate_whenConditionIsNull_throwsNullPointerException() {
+        void onlyIf_predicate_whenConditionIsNull_throwsNullPointerException() {
             Rule<String> rule = Rule.of(s -> true, "ok");
-            assertThatCode(() -> rule.when((Predicate<String>) null))
+            assertThatCode(() -> rule.onlyIf((Predicate<String>) null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("condition cannot be null");
         }
 
         @Test
-        void when_supplier_whenConditionIsNull_throwsNullPointerException() {
+        void onlyIf_supplier_whenConditionIsNull_throwsNullPointerException() {
             Rule<String> rule = Rule.of(s -> true, "ok");
-            assertThatCode(() -> rule.when((java.util.function.Supplier<Boolean>) null))
+            assertThatCode(() -> rule.onlyIf((java.util.function.Supplier<Boolean>) null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("condition cannot be null");
         }
