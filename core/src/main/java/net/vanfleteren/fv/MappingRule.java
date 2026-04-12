@@ -27,23 +27,7 @@ public interface MappingRule<T, R> {
 
     /**
      * Evaluates the input against this rule, transforming it from type T to type R.
-     *<pre>{@code
-     * // 1. A rule that transforms a String into an Integer
-     * // If parsing fails, it returns an Invalid validation with the specified error key
-     * MappingRule<String, Integer> parseInt = MappingRule.ofTry(
-     *     s -> Try.of(() -> Integer.parseInt(s)),
-     *     "not.a.number"
-     * );
-     *
-     * // 2. Successful transformation: String "123" -> Integer 123
-     * Validation<Integer> success = parseInt.test("123");
-     * // Returns Valid(123)
-     *
-     * // 3. Failed transformation: String "abc" -> Invalid
-     * Validation<Integer> failure = parseInt.test("abc");
-     * // Returns Invalid(ErrorMessage("not.a.number"))
-     *  }</pre>
-     *
+     * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="test-example"}
      *
      * @param value the value to be processed by this {@link MappingRule}
      * @return a {@link Validation} instance representing the outcome: either a {@link net.vanfleteren.fv.Validation.Valid}
@@ -57,17 +41,7 @@ public interface MappingRule<T, R> {
      * If the mapper throws an exception, the rule will fail with the specified error message.
      * <p>
      * Usage example:
-     * <pre>{@code
-     * // 1. A mapper that might throw an exception (e.g., parsing an integer)
-     * Function<String, Integer> parser = Integer::parseInt;
-     *
-     * // 2. Create a rule that catches exceptions and uses a specific error message
-     * MappingRule<String, Integer> rule = MappingRule.of(parser, "invalid.number");
-     *
-     * // 3. Usage
-     * rule.test("123");  // Returns Valid(123)
-     * rule.test("abc");  // Returns Invalid(ErrorMessage("invalid.number"))
-     * }</pre>
+     * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="of-string-example"}
      *
      * @param <T>      the type of input to be mapped
      * @param <R>      the type of output after mapping
@@ -84,17 +58,7 @@ public interface MappingRule<T, R> {
      * If the mapper returns a {@link Try.Failure}, the rule will fail with the specified error key.
      * <p>
      * Usage example:
-     * <pre>{@code
-     * // 1. A mapper that returns a Try (e.g., parsing an integer which might throw)
-     * Function<String, Try<Integer>> parser = s -> Try.of(() -> Integer.parseInt(s));
-     *
-     * // 2. Create a rule that handles the Try and uses a specific error key
-     * MappingRule<String, Integer> rule = MappingRule.ofTry(parser, ErrorMessage.of("invalid.number"));
-     *
-     * // 3. Usage
-     * rule.test("123");  // Returns Valid(123)
-     * rule.test("abc");  // Returns Invalid(ErrorMessage("invalid.number"))
-     * }</pre>
+     * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="of-try-error-example"}
      *
      * @param <T>          the type of input to be mapped
      * @param <R>          the type of output after mapping
@@ -119,17 +83,7 @@ public interface MappingRule<T, R> {
      * If the mapper returns a {@link Try.Failure}, the rule will fail with the specified error key.
      * <p>
      * Usage example:
-     * <pre>{@code
-     * // 1. A mapper that returns a Try (e.g., parsing an integer which might throw)
-     * Function<String, Try<Integer>> parser = s -> Try.of(() -> Integer.parseInt(s));
-     *
-     * // 2. Create a rule that handles the Try and uses a specific error key
-     * MappingRule<String, Integer> rule = MappingRule.ofTry(parser, "invalid.number");
-     *
-     * // 3. Usage
-     * rule.test("123");  // Returns Valid(123)
-     * rule.test("abc");  // Returns Invalid(ErrorMessage("invalid.number"))
-     * }</pre>
+     * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="of-try-string-example"}
      *
      * @param <T>      the type of input to be mapped
      * @param <R>      the type of output after mapping
@@ -146,18 +100,7 @@ public interface MappingRule<T, R> {
      * If the mapper throws an exception, the rule will fail with the specified error message.
      * <p>
      * Usage example:
-     * <pre>{@code
-     * // 1. A mapper that might throw an exception (e.g., parsing an integer)
-     * Function<String, Integer> parser = Integer::parseInt;
-     *
-     * // 2. Create a rule that catches exceptions and uses a specific error message
-     * ErrorMessage error = ErrorMessage.of("invalid.number");
-     * MappingRule<String, Integer> rule = MappingRule.of(parser, error);
-     *
-     * // 3. Usage
-     * rule.test("123");  // Returns Valid(123)
-     * rule.test("abc");  // Returns Invalid(ErrorMessage("invalid.number"))
-     * }</pre>
+     * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="of-error-example"}
      *
      * @param <T>            the type of input to be mapped
      * @param <R>            the type of output after mapping
@@ -183,28 +126,7 @@ public interface MappingRule<T, R> {
      * applies the next rule (the argument to this method) to the result of the first rule.
      * <p>
      * Usage example:
-     * <pre>{@code
-     * // 1. A rule that parses a String to an Integer
-     * MappingRule<String, Integer> parseInt = s -> {
-     *     try {
-     *         return Validation.valid(Integer.parseInt(s));
-     *     } catch (NumberFormatException e) {
-     *         return Validation.invalid("not.a.number");
-     *     }
-     * };
-     *
-     * // 2. A rule that validates if an Integer is positive
-     * MappingRule<Integer, Integer> isPositive = i ->
-     *     i > 0 ? Validation.valid(i) : Validation.invalid("not.positive");
-     *
-     * // 3. Chain them: Parse the string, then check if the resulting number is positive
-     * MappingRule<String, Integer> parseAndCheckPositive = parseInt.andThen(isPositive);
-     *
-     * // 4. Usage
-     * Validation<Integer> valid = parseAndCheckPositive.test("10");  // Returns Valid(10)
-     * Validation<Integer> notPositive = parseAndCheckPositive.test("-5");  // Returns Invalid("not.positive")
-     * Validation<Integer> notANumber = parseAndCheckPositive.test("abc"); // Returns Invalid("not.a.number")
-     * }</pre>
+     * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="and-then-example"}
      *
      * @param <Z>  the type of output from the next rule after transformation.
      * @param rule the rule to apply after this rule if this rule is successful.
@@ -316,17 +238,7 @@ public interface MappingRule<T, R> {
      * Lifts a {@link MappingRule} so it applies to a {@link List} of T instead of a single T.
      * <p>
      * Usage example:
-     * <pre>{@code
-     * // 1. Define a mapping rule
-     * MappingRule<String, Integer> toInt =  MappingRule.of(s -> Integer.parseInt(s), "not.a.number");
-     *
-     * // 2. Lift it to apply to a list
-     * MappingRule<List<String>, List<Integer>> listRule = toInt.liftToList();
-     *
-     * // 3. Usage
-     * listRule.test(List.of("1", "2")); // Returns Valid(List(1, 2))
-     * listRule.test(List.of("1", "a")); // Returns Invalid(ErrorMessage("not.a.number").atIndex(1))
-     * }</pre>
+     * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="lift-to-list-example"}
      *
      * @return a new {@link MappingRule} instance.
      */
@@ -346,15 +258,7 @@ public interface MappingRule<T, R> {
      * - Some(x) =&gt; validate x, and return {@code valid(Some(x))} or {@code invalid(errors)}
      * <p>
      * Usage example:
-     * <pre>{@code
-     * MappingRule<String, Integer> toInt =  MappingRule.of(s -> Integer.parseInt(s), "not.a.number");
-     *
-     * MappingRule<Option<String>, Option<Integer>> optionRule = toInt.liftToOption();
-     *
-     * optionRule.test(Option.some("1")); // Returns Valid(Some(1))
-     * optionRule.test(Option.none());     // Returns Valid(None)
-     * optionRule.test(Option.some("a")); // Returns Invalid("not.a.number")
-     * }</pre>
+     * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="lift-to-option-example"}
      *
      * @return a new {@link MappingRule} instance.
      */
@@ -372,15 +276,7 @@ public interface MappingRule<T, R> {
      * - not empty =&gt; validate x, and return {@code valid(Optional.of(x))} or {@code invalid(errors)}
      * <p>
      * Usage example:
-     * <pre>{@code
-     * MappingRule<String, Integer> toInt =  MappingRule.of(s -> Integer.parseInt(s), "not.a.number");
-     *
-     * MappingRule<Optional<String>, Optional<Integer>> optionalRule = toInt.liftToOptional();
-     *
-     * optionalRule.test(Optional.of("1")); // Returns Valid(Optional(1))
-     * optionalRule.test(Optional.empty());   // Returns Valid(Optional.empty)
-     * optionalRule.test(Optional.of("a")); // Returns Invalid("not.a.number")
-     * }</pre>
+     * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="lift-to-optional-example"}
      *
      * @return a new {@link MappingRule} instance.
      */
@@ -403,14 +299,7 @@ public interface MappingRule<T, R> {
      * - If all validations pass, the map is considered valid.
      * <p>
      * Usage example:
-     * <pre>{@code
-     * MappingRule<String, Integer> toInt =  MappingRule.of(s -> Integer.parseInt(s), "not.a.number");
-     *
-     * MappingRule<Map<String, String>, Map<String, Integer>> mapRule = toInt.liftToMap();
-     *
-     * mapRule.test(Map.of("k1", "1")); // Returns Valid(Map("k1", 1))
-     * mapRule.test(Map.of("k1", "a")); // Returns Invalid(ErrorMessage("not.a.number").atIndex("k1"))
-     * }</pre>
+     * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="lift-to-map-example"}
      *
      * @param <K> the key type.
      * @return a new {@link MappingRule} instance.
@@ -430,13 +319,7 @@ public interface MappingRule<T, R> {
      * - If all validations pass, the map is considered valid.
      * <p>
      * Usage example:
-     * <pre>{@code
-     * MappingRule<String, Integer> toInt =  MappingRule.of(s -> Integer.parseInt(s), "not.a.number");
-     *
-     * MappingRule<Map<Integer, String>, Map<Integer, Integer>> mapRule = toInt.liftToMap(k -> "item-" + k);
-     *
-     * mapRule.test(Map.of(1, "a")); // Returns Invalid(ErrorMessage("not.a.number").atIndex("item-1"))
-     * }</pre>
+     * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="lift-to-map-extractor-example"}
      *
      * @param keyExtractor the function to extract a path segment from the key.
      * @param <K>          the key type.
@@ -464,18 +347,7 @@ public interface MappingRule<T, R> {
      * Returns a {@link MappingRule} that checks if the input {@link Option} is defined and then applies the given rule to its value.
      * <p>
      * Usage example:
-     * <pre>{@code
-     * // 1. A rule that checks if a string is not empty
-     * MappingRule<String, String> notEmpty = s ->
-     *     s.isEmpty() ? Validation.invalid("not.empty") : Validation.valid(s);
-     *
-     * // 2. A rule that requires the Option to be present before applying the rule
-     * MappingRule<Option<String>, String> requiredString = MappingRule.requiredOption(notEmpty);
-     *
-     * // 3. Usage
-     * Validation<String> valid = requiredString.test(Option.of("hello")); // Returns Valid("hello")
-     * Validation<String> invalid = requiredString.test(Option.none());      // Returns Invalid("must.not.be.empty")
-     * }</pre>
+     * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="required-option-example"}
      *
      * @param <T>  the type of the value inside the {@link Option}
      * @param <R>  the type of the result of the mapping rule
@@ -491,18 +363,7 @@ public interface MappingRule<T, R> {
      * Returns a {@link MappingRule} that checks if the input {@link Optional} is defined and then applies the given rule to its value.
      * <p>
      * Usage example:
-     * <pre>{@code
-     * // 1. A rule that checks if a string is not empty
-     * MappingRule<String, String> notEmpty = s ->
-     *     s.isEmpty() ? Validation.invalid("not.empty") : Validation.valid(s);
-     *
-     * // 2. A rule that requires the Option to be present before applying the rule
-     * MappingRule<Optional<String>, String> requiredString = MappingRule.requiredOptional(notEmpty);
-     *
-     * // 3. Usage
-     * Validation<String> valid = requiredString.test(Optional.of("hello")); // Returns Valid("hello")
-     * Validation<String> invalid = requiredString.test(Optional.empty());      // Returns Invalid("must.not.be.empty")
-     * }</pre>
+     * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="required-optional-example"}
      *
      * @param <T>  the type of the value inside the {@link Optional}
      * @param <R>  the type of the result of the mapping rule
@@ -530,19 +391,7 @@ public interface MappingRule<T, R> {
      * Applies the specified {@link MappingRule} to the result of applying the selector function to the input. Aka <code>contramap</code>.
      * <p>
      * Usage example:
-     * <pre>{@code
-     * // 1. A rule that validates a String and returns its length
-     * MappingRule<String, Integer> lengthRule = s ->
-     *     s.isEmpty() ? Validation.invalid("not.empty") : Validation.valid(s.length());
-     *
-     * // 2. A rule that applies 'lengthRule' to the 'name' property of a User
-     * record User(String name) {}
-     * MappingRule<User, Integer> userLengthRule = MappingRule.with(User::name, lengthRule);
-     *
-     * // 3. Usage
-     * userLengthRule.test(new User("Alice")); // Returns Valid(5)
-     * userLengthRule.test(new User(""));      // Returns Invalid("not.empty")
-     * }</pre>
+     * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="with-example"}
      *
      * @param <T>      the type of the input to be tested
      * @param <V>      the type of the result produced by the selector function
