@@ -121,6 +121,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
+                    <release>${maven.compiler.source}</release>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -149,17 +150,32 @@
                 <configuration>
                     <failOnError>true</failOnError>
                     <doclint>all,-missing</doclint>
-                    <source>${maven.compiler.source}</source>
+                    <release>${maven.compiler.source}</release>
                     <additionalOptions>
-                        <additionalOption>--snippet-path=${project.basedir}/src/test/java</additionalOption>
+                        <!-- Aggregated snippets are resolved from the root.
+                             You can add multiple paths if snippets are in different modules. -->
+                        <additionalOption>--snippet-path=${project.basedir}/core/src/test/java</additionalOption>
                     </additionalOptions>
                 </configuration>
                 <executions>
+                    <!-- Standard Javadoc for each individual module -->
                     <execution>
                         <id>attach-javadocs</id>
                         <goals>
                             <goal>jar</goal>
                         </goals>
+                    </execution>
+                    <!-- The Aggregate Javadoc for the entire project -->
+                    <execution>
+                        <id>aggregate</id>
+                        <goals>
+                            <goal>aggregate</goal>
+                        </goals>
+                        <phase>site</phase>
+                        <configuration>
+                            <!-- Specific config for the aggregated site if needed -->
+                            <reportOutputDirectory>${project.reporting.outputDirectory}/aggregate</reportOutputDirectory>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
