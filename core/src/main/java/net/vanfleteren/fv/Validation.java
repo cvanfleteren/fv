@@ -26,7 +26,7 @@ import java.util.function.Supplier;
  *     <li>{@link Invalid}: representing a failed validation and containing one or more {@link ErrorMessage} objects.</li>
  * </ul>
  *
- * <h3>Example: Basic usage and result handling</h3>
+ * <h2>Example: Basic usage and result handling</h2>
  * <pre>{@code
  * // 1. Create a validation (e.g., from a rule or a factory)
  * Validation<String> result = Validation.valid("Hello World");
@@ -43,7 +43,7 @@ import java.util.function.Supplier;
  * System.out.println(outcome);
  * }</pre>
  *
- * <h3>Example: Accumulating errors from multiple validations</h3>
+ * <h2>Example: Accumulating errors from multiple validations</h2>
  * <pre>{@code
  * Validation<String> v1 = Validation.valid("foo");
  * Validation<Integer> v2 = Validation.invalid("must.be.positive");
@@ -88,6 +88,12 @@ public sealed interface Validation<T> extends Value<T> {
     /**
      * Returns the valid value, or throws {@link ValidationException} if this validation is invalid.
      *
+     * <p>Example: successful retrieval
+     * {@snippet file="net/vanfleteren/fv/ValidationSnippets.java" region="getOrElseThrow_success"}
+     *
+     * <p>Example: handling validation failure
+     * {@snippet file="net/vanfleteren/fv/ValidationSnippets.java" region="getOrElseThrow_failure"}
+     *
      * @return the valid value.
      * @throws ValidationException if this validation is invalid.
      */
@@ -100,6 +106,9 @@ public sealed interface Validation<T> extends Value<T> {
 
     /**
      * Returns this validation if it is valid; otherwise returns the specified alternative validation.
+     *
+     * <p>Example:
+     * {@snippet file="net/vanfleteren/fv/ValidationSnippets.java" region="orElse_value"}
      *
      * @param other the alternative validation.
      * @param <U>   the common type.
@@ -115,6 +124,9 @@ public sealed interface Validation<T> extends Value<T> {
      * Returns this validation if it is valid; otherwise returns the alternative validation
      * provided by the {@link Supplier}.
      *
+     * <p>Example:
+     * {@snippet file="net/vanfleteren/fv/ValidationSnippets.java" region="orElse_supplier"}
+     *
      * @param supplier the alternative validation supplier.
      * @param <U>      the common type.
      * @return a {@link Validation} instance.
@@ -129,6 +141,9 @@ public sealed interface Validation<T> extends Value<T> {
      * Executes the given consumer on the contained value if this {@code Validation} is valid;
      * otherwise, does nothing. This method is an alias for {@link #peek(Consumer)}.
      *
+     * <p>Example:
+     * {@snippet file="net/vanfleteren/fv/ValidationSnippets.java" region="whenValid"}
+     *
      * @param consumer a consumer to apply to the contained value.
      * @return this {@code Validation} instance.
      * @throws NullPointerException if {@code consumer} is null.
@@ -141,6 +156,9 @@ public sealed interface Validation<T> extends Value<T> {
     /**
      * Executes the given consumer on the contained errors if this {@code Validation} is invalid;
      * otherwise, does nothing.
+     *
+     * <p>Example:
+     * {@snippet file="net/vanfleteren/fv/ValidationSnippets.java" region="whenInvalid"}
      *
      * @param consumer a consumer to apply to the contained errors.
      * @return this {@code Validation} instance.
@@ -168,8 +186,8 @@ public sealed interface Validation<T> extends Value<T> {
     //region common functional operations on single validations
 
     /**
-     * Maps the value of a valid validation using the provided mapper function.
-     * If this validation is invalid, the mapper is not applied and the invalid validation is returned.
+     * Transforms the valid value using the provided mapper.
+     * {@snippet file="net/vanfleteren/fv/ValidationSnippets.java" region="map"}
      *
      * @param mapper the function to apply to the valid value.
      * @param <R>    the type of the result of the mapper function.
@@ -185,7 +203,15 @@ public sealed interface Validation<T> extends Value<T> {
 
     /**
      * Like {@link #map(Function)}, but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
+     * So this method does NOT have pure map semantics but is an easy alternative to having to flatMap and handle errors yourself.
+     * <p>
      * {@link ValidationException}s that are thrown are handled cleanly, accumulating the errors present.
+     *
+     * <p>Example: successful mapping
+     * {@snippet file="net/vanfleteren/fv/ValidationSnippets.java" region="mapCatching_success"}
+     *
+     * <p>Example: mapping that throws a RuntimeException
+     * {@snippet file="net/vanfleteren/fv/ValidationSnippets.java" region="mapCatching_runtimeException"}
      *
      * @param mapper the function to apply to the valid value.
      * @param <R>    the type of the result of the mapper function.
@@ -197,7 +223,12 @@ public sealed interface Validation<T> extends Value<T> {
 
     /**
      * Like {@link #map(Function)}, but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
+     * So this method does NOT have pure map semantics but is an easy alternative to having to flatMap and handle errors yourself.
+     * <p>
      * {@link ValidationException}s that are thrown are handled cleanly, accumulating the errors present.
+     *
+     * <p>Example: mapping that throws a RuntimeException with custom error message
+     * {@snippet file="net/vanfleteren/fv/ValidationSnippets.java" region="mapCatching_customError"}
      *
      * @param mapper       the function to apply to the valid value.
      * @param errorMessage the error message key to use if a {@link RuntimeException} is caught.
@@ -222,12 +253,12 @@ public sealed interface Validation<T> extends Value<T> {
     }
 
     /**
-     * Maps the value of a valid validation to a new validation using the provided flatMapper function.
-     * If this validation is invalid, the flatMapper is not applied and the invalid validation is returned.
+     * Maps a valid value to a new validation, or returns this if invalid.
+     * {@snippet file="net/vanfleteren/fv/ValidationSnippets.java" region="flatMap"}
      *
      * @param flatMapper the function to apply to the valid value.
      * @param <R>        the type of the result of the flatMapper function.
-     * @return the result of applying the flatMapper to the valid value, or the original errors if invalid.
+     * @return the result of the flatMapper, or this if invalid.
      */
     default <R> Validation<R> flatMap(Function1<? super T, Validation<? extends R>> flatMapper) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
@@ -238,8 +269,15 @@ public sealed interface Validation<T> extends Value<T> {
     }
 
     /**
-     * Like {@link #flatMap(Function1)}, but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
+     * Like {@link #flatMap(Function1)}, but also catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
+     * <p>
      * {@link ValidationException}s that are thrown are handled cleanly, accumulating the errors present.
+     *
+     * <p>Example: successful flatMapping
+     * {@snippet file="net/vanfleteren/fv/ValidationSnippets.java" region="flatMapCatching_success"}
+     *
+     * <p>Example: flatMapping that throws a RuntimeException
+     * {@snippet file="net/vanfleteren/fv/ValidationSnippets.java" region="flatMapCatching_runtimeException"}
      *
      * @param flatMapper the function to apply to the valid value.
      * @param <R>        the type of the result of the flatMapper function.
@@ -251,7 +289,11 @@ public sealed interface Validation<T> extends Value<T> {
 
     /**
      * Like {@link #flatMap(Function1)}, but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
+     * <p>
      * {@link ValidationException}s that are thrown are handled cleanly, accumulating the errors present.
+     *
+     * <p>Example: flatMapping that throws a RuntimeException with custom error message
+     * {@snippet file="net/vanfleteren/fv/ValidationSnippets.java" region="flatMapCatching_customError"}
      *
      * @param flatMapper   the function to apply to the valid value.
      * @param errorMessage the error message key to use if a {@link RuntimeException} is caught.
@@ -543,7 +585,9 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v4, "v4 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
+                var t3
+        ) && v4 instanceof Valid(var t4)) {
             return valid(mapper.apply(t1, t2, t3, t4));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors()).flatMap(Function.identity()));
@@ -575,7 +619,9 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v4, "v4 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
+                var t3
+        ) && v4 instanceof Valid(var t4)) {
             return Validation.narrow(mapper.apply(t1, t2, t3, t4));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors()).flatMap(Function.identity()));
@@ -610,7 +656,9 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v5, "v5 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
+                var t3
+        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5)) {
             return valid(mapper.apply(t1, t2, t3, t4, t5));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors()).flatMap(Function.identity()));
@@ -645,7 +693,9 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v5, "v5 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
+                var t3
+        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5)) {
             return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors()).flatMap(Function.identity()));
@@ -683,7 +733,9 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v6, "v6 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
+                var t3
+        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6)) {
             return valid(mapper.apply(t1, t2, t3, t4, t5, t6));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors()).flatMap(Function.identity()));
@@ -721,7 +773,9 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v6, "v6 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
+                var t3
+        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6)) {
             return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5, t6));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors()).flatMap(Function.identity()));
@@ -762,7 +816,11 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v7, "v7 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6) && v7 instanceof Valid(var t7)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
+                var t3
+        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(
+                var t6
+        ) && v7 instanceof Valid(var t7)) {
             return valid(mapper.apply(t1, t2, t3, t4, t5, t6, t7));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors()).flatMap(Function.identity()));
@@ -803,7 +861,11 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v7, "v7 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6) && v7 instanceof Valid(var t7)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
+                var t3
+        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(
+                var t6
+        ) && v7 instanceof Valid(var t7)) {
             return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5, t6, t7));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors()).flatMap(Function.identity()));
@@ -847,7 +909,11 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v8, "v8 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6) && v7 instanceof Valid(var t7) && v8 instanceof Valid(var t8)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
+                var t3
+        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(
+                var t6
+        ) && v7 instanceof Valid(var t7) && v8 instanceof Valid(var t8)) {
             return valid(mapper.apply(t1, t2, t3, t4, t5, t6, t7, t8));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors(), v8.errors()).flatMap(Function.identity()));
@@ -891,7 +957,11 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v8, "v8 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6) && v7 instanceof Valid(var t7) && v8 instanceof Valid(var t8)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
+                var t3
+        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(
+                var t6
+        ) && v7 instanceof Valid(var t7) && v8 instanceof Valid(var t8)) {
             return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5, t6, t7, t8));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors(), v8.errors()).flatMap(Function.identity()));
@@ -916,9 +986,9 @@ public sealed interface Validation<T> extends Value<T> {
     /**
      * Creates an invalid validation with the provided error messages.
      *
-     * @param error the first error message.
+     * @param error      the first error message.
      * @param moreErrors additional error messages.
-     * @param <T>    the result type.
+     * @param <T>        the result type.
      * @return an invalid {@link Validation} instance.
      */
     @SuppressWarnings("unchecked")
@@ -1222,7 +1292,7 @@ public sealed interface Validation<T> extends Value<T> {
 
         public Invalid {
             Objects.requireNonNull(errors, "errors cannot be null");
-            if(errors.isEmpty()) {
+            if (errors.isEmpty()) {
                 throw new IllegalStateException("errors cannot be empty");
             }
         }

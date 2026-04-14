@@ -17,7 +17,7 @@ import java.util.function.Supplier;
  * <p>A Rule is essentially a {@link java.util.function.Predicate} that returns a {@link Validation}
  * object containing either the valid value or a structured {@link ErrorMessage}.
  *
- * <h3>Example: Defining and using a simple rule</h3>
+ * <h2>Example: Defining and using a simple rule</h2>
  * {@snippet file="net/vanfleteren/fv/RuleSnippets.java" region="rule-example"}
  *
  * @param <T> the type of the value to be validated.

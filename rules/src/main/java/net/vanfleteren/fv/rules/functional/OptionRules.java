@@ -27,7 +27,6 @@ public class OptionRules {
      * Error key: {@code must.not.be.empty}
      *
      * @param <T> the type of the value contained in the Option
-     * @return a MappingRule that enforces the non-empty constraint on Option<T>
      */
     public <T> MappingRule<Option<T>, T> required() {
         return input -> input.fold(
@@ -42,7 +41,6 @@ public class OptionRules {
      * Error key: {@code must.not.be.empty}
      *
      * @param <T> the type of the value contained in the Option
-     * @return a MappingRule that enforces the non-empty constraint on Option<T>
      */
     public <T> Rule<Option<T>> requiredOption() {
         return input -> input.isEmpty() ? Validation.invalid("must.not.be.empty") : Validation.valid(input);
@@ -54,7 +52,6 @@ public class OptionRules {
      * Error key: {@code must.be.empty}
      *
      * @param <T> the type of the value contained in the Option
-     * @return a Rule that enforces the empty constraint on Option<T>
      */
     public <T> Rule<Option<T>> empty() {
         return input -> input.isEmpty() ? Validation.valid(input) : Validation.invalid("must.be.empty");

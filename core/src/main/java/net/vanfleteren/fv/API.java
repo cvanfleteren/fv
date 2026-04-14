@@ -10,7 +10,7 @@ import java.util.Objects;
  * Entry point for the functional validation API.
  * This class provides static factory methods to create and execute validations.
  *
- * <h3>Example: Constructor validation using {@code assertAllValid}</h3>
+ * <h2>Example: Constructor validation using {@code assertAllValid}</h2>
  * <pre>{@code
  * public record Person(String name, int age) {
  *     private static final Rule<String> minLength = Rule.of(s -> s.length() > 3, "too.short");

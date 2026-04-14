@@ -28,7 +28,6 @@ public class OptionalRules {
      * Error key: {@code must.not.be.empty}
      *
      * @param <T> the type of the value contained in the Optional
-     * @return a MappingRule that enforces the non-empty constraint on Optional<T>
      */
     public <T> MappingRule<Optional<T>, T> required() {
         return input -> input.map(Validation::valid).orElse(Validation.invalid("must.not.be.empty"));
@@ -40,7 +39,6 @@ public class OptionalRules {
      * Error key: {@code must.not.be.empty}
      *
      * @param <T> the type of the value contained in the Optional
-     * @return a Rule that enforces the non-empty constraint on Optional<T>
      */
     public <T> Rule<Optional<T>> requiredOptional() {
         return input -> input.isEmpty() ? Validation.invalid("must.not.be.empty") : Validation.valid(input);
@@ -51,8 +49,7 @@ public class OptionalRules {
      * <p>
      * Error key: {@code must.be.empty}
      *
-     * @param <T> the type of the value contained in the Option
-     * @return a Rule that enforces the empty constraint on Optional<T>
+     * @param <T> the type of the value contained in the Optional
      */
     public <T> Rule<Optional<T>> empty() {
         return input -> input.isEmpty() ? Validation.valid(input) : Validation.invalid("must.be.empty");

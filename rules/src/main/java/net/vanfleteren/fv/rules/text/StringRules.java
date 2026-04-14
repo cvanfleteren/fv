@@ -193,7 +193,6 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      *
      * <p>
      * Error key: {@code must.be.single.line}
-     * @see
      */
     public Rule<String> singleLine = Rule.of(s -> !LINE_BREAK.matcher(s).find(), "must.be.single.line");
 
