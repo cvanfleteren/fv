@@ -113,4 +113,14 @@ public class ValidationSnippets {
         // @end
     }
 
+    void fold() {
+        // @start region="fold"
+        Validation<String> v = Validation.valid("123");
+        String result = v.fold(
+                errors -> "Invalid: " + errors.head().message(),
+                value -> "Valid: " + value
+        ); // returns "Valid: 123"
+        // @end
+    }
+
 }

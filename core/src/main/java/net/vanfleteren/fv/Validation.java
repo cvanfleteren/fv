@@ -112,7 +112,6 @@ public sealed interface Validation<T> extends Value<T> {
      *
      * @param other the alternative validation.
      * @param <U>   the common type.
-     * @return a {@link Validation} instance.
      */
     @SuppressWarnings("unchecked")
     default <U> Validation<U> orElse(Validation<? extends U> other) {
@@ -129,7 +128,6 @@ public sealed interface Validation<T> extends Value<T> {
      *
      * @param supplier the alternative validation supplier.
      * @param <U>      the common type.
-     * @return a {@link Validation} instance.
      */
     @SuppressWarnings("unchecked")
     default <U> Validation<U> orElse(Supplier<? extends Validation<? extends U>> supplier) {
@@ -175,8 +173,6 @@ public sealed interface Validation<T> extends Value<T> {
 
     /**
      * Returns the error messages as a standard Java {@link java.util.List}.
-     *
-     * @return a standard Java {@link java.util.List} of {@link ErrorMessage} objects.
      */
     default java.util.List<ErrorMessage> javaErrors() {
         return errors().asJava();
@@ -215,7 +211,7 @@ public sealed interface Validation<T> extends Value<T> {
      *
      * @param mapper the function to apply to the valid value.
      * @param <R>    the type of the result of the mapper function.
-     * @return a new {@link Validation} containing the mapped value if valid, or a default error if an exception occurs.
+     * @return a new {@link Validation} containing the mapped value if valid, or this if invalid
      */
     default <R> Validation<R> mapCatching(Function<? super T, ? extends R> mapper) {
         return mapCatching(mapper, "could.not.be.mapped");
@@ -233,7 +229,7 @@ public sealed interface Validation<T> extends Value<T> {
      * @param mapper       the function to apply to the valid value.
      * @param errorMessage the error message key to use if a {@link RuntimeException} is caught.
      * @param <R>          the type of the result of the mapper function.
-     * @return a new {@link Validation} containing the mapped value if valid, or the specified error if an exception occurs.
+     * @return a new {@link Validation} containing the mapped value if valid, or this if invalid
      */
     default <R> Validation<R> mapCatching(Function<? super T, ? extends R> mapper, String errorMessage) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
@@ -281,7 +277,6 @@ public sealed interface Validation<T> extends Value<T> {
      *
      * @param flatMapper the function to apply to the valid value.
      * @param <R>        the type of the result of the flatMapper function.
-     * @return the result of applying the flatMapper, or a default error if an exception occurs.
      */
     default <R> Validation<R> flatMapCatching(Function1<? super T, Validation<? extends R>> flatMapper) {
         return flatMapCatching(flatMapper, "could.not.be.mapped");
@@ -298,7 +293,6 @@ public sealed interface Validation<T> extends Value<T> {
      * @param flatMapper   the function to apply to the valid value.
      * @param errorMessage the error message key to use if a {@link RuntimeException} is caught.
      * @param <R>          the type of the result of the flatMapper function.
-     * @return the result of applying the flatMapper, or the specified error if an exception occurs.
      */
     default <R> Validation<R> flatMapCatching(Function1<? super T, Validation<? extends R>> flatMapper, String errorMessage) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
@@ -319,6 +313,7 @@ public sealed interface Validation<T> extends Value<T> {
 
     /**
      * Folds this validation into a single value by applying one of two functions.
+     * {@snippet file="net/vanfleteren/fv/ValidationSnippets.java" region="fold"}
      *
      * @param whenInvalid the function to apply if this validation is invalid.
      * @param whenValid   the function to apply if this validation is valid.
