@@ -39,8 +39,7 @@
     <properties>
         <revision>0.0.1-SNAPSHOT</revision>
         <java.version>21</java.version>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.jupiter.version>6.0.3</junit.jupiter.version>
     </properties>
@@ -121,7 +120,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <release>${maven.compiler.source}</release>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -150,7 +148,6 @@
                 <configuration>
                     <failOnError>true</failOnError>
                     <doclint>all,-missing</doclint>
-                    <release>${maven.compiler.source}</release>
                     <additionalOptions>
                         <!-- Aggregated snippets are resolved from the root.
                              You can add multiple paths if snippets are in different modules. -->
