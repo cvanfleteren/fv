@@ -201,6 +201,8 @@ public sealed interface Validation<T> extends Value<T> {
      * Like {@link #map(Function)}, but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
      * So this method does NOT have pure map semantics but is an easy alternative to having to flatMap and handle errors yourself.
      * <p>
+     * <b>This method is somewhat dangerous because if the mapper function starts throwing totally unexpected Exceptions, they might get buried as "failed validations".</b>
+     * <p>
      * {@link ValidationException}s that are thrown are handled cleanly, accumulating the errors present.
      *
      * <p>Example: successful mapping
@@ -220,6 +222,8 @@ public sealed interface Validation<T> extends Value<T> {
     /**
      * Like {@link #map(Function)}, but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
      * So this method does NOT have pure map semantics but is an easy alternative to having to flatMap and handle errors yourself.
+     * <p>
+ *   * <b>This method is somewhat dangerous because if the mapper function starts throwing totally unexpected Exceptions, they might get buried as "failed validations".</b><p>
      * <p>
      * {@link ValidationException}s that are thrown are handled cleanly, accumulating the errors present.
      *
@@ -267,6 +271,8 @@ public sealed interface Validation<T> extends Value<T> {
     /**
      * Like {@link #flatMap(Function1)}, but also catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
      * <p>
+     * <b>This method is somewhat dangerous because if the mapper function starts throwing totally unexpected Exceptions, they might get buried as "failed validations".</b>
+     * <p>
      * {@link ValidationException}s that are thrown are handled cleanly, accumulating the errors present.
      *
      * <p>Example: successful flatMapping
@@ -284,6 +290,8 @@ public sealed interface Validation<T> extends Value<T> {
 
     /**
      * Like {@link #flatMap(Function1)}, but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
+     * <p>
+     * <b>This method is somewhat dangerous because if the mapper function starts throwing totally unexpected Exceptions, they might get buried as "failed validations".</b>
      * <p>
      * {@link ValidationException}s that are thrown are handled cleanly, accumulating the errors present.
      *

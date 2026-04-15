@@ -331,6 +331,26 @@ class RuleTest {
     class And {
 
         @Test
+        void and_withMisbehavingRule_returnsValueOfFirstRule() {
+            // 1. A well-behaved Rule<String>
+            Rule<String> stringRule = s -> Validation.valid(s);
+
+            // 2. A "sneaky" Rule<Object> that is allowed by the 'and' signature
+            // Because S is String, 'other' can be Rule<Object> (since Object is a supertype of String)
+            Rule<Object> sneakyRule = obj -> Validation.valid(123);
+
+            // 3. The Composition
+            // The 'and' method takes the Validation<Object> from sneakyRule
+            // and casts it to Validation<String> via (Validation<S>)
+            Rule<String> combinedRule = stringRule.and(sneakyRule);
+
+            // 4. The result: since and maps the result of the second Rule back to the value of the first Rule,
+            // we're protected from the misbehaving second rule
+            String result = combinedRule.test("some input").get();
+            assertThat(result).isEqualTo("some input");
+        }
+
+        @Test
         void and_whenCombinedWithSuperRule_orderDoesntMatter() {
             Rule<Number> numberRule = Rule.of(o -> true, "msg");
             Rule<BigDecimal> decimalRule = Rule.of(o -> true, "msg");

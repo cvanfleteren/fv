@@ -26,7 +26,8 @@ import java.util.function.Supplier;
 public interface Rule<T> extends MappingRule<T, T> {
 
     /**
-     * Tests the given value against the rule.
+     * Tests the given value against the rule. If the value passes the test,
+     * a {@link net.vanfleteren.fv.Validation.Valid} containing the exact same instance will be returned.
      * {@snippet file="net/vanfleteren/fv/RuleSnippets.java" region="test-example"}
      *
      * @param value the value to be validated.
@@ -81,10 +82,9 @@ public interface Rule<T> extends MappingRule<T, T> {
      * @return a new {@link Rule} instance.
      * @throws NullPointerException if {@code other} is null.
      */
-    @SuppressWarnings("unchecked")
     default <S extends T> Rule<S> and(Rule<? super S> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
-        return value -> test(value).flatMap(v -> (Validation<S>) other.test(value));
+        return input -> test(input).flatMap(v -> other.test(input).map(ignored -> input));
     }
 
     /**
@@ -102,10 +102,10 @@ public interface Rule<T> extends MappingRule<T, T> {
      * @return a new {@link Rule} instance.
      * @throws NullPointerException if {@code other} is null.
      */
-    @SuppressWarnings("unchecked")
     default <S extends T> Rule<S> andAlso(Rule<? super S> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
-        return value -> Validation.mapN((Validation<S>) test(value), (Validation<S>) other.test(value), (v, o) -> v);
+        // map back to original input so we're protected against other returning an incompatible value
+        return input -> Validation.mapN(test(input), other.test(input), (v, o) -> v).map(ignore -> input);
     }
 
     /**
@@ -130,7 +130,7 @@ public interface Rule<T> extends MappingRule<T, T> {
                 return first;
             }
 
-            Validation<S> second = (Validation<S>) other.test(input);
+            Validation<S> second = other.test(input).map(ignore -> input);
             if (second.isValid()) {
                 return second;
             }
