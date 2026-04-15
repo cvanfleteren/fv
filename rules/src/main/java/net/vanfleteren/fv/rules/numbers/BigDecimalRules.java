@@ -19,8 +19,6 @@ public class BigDecimalRules implements ComparableRules<BigDecimal>, NumberRules
 
     /**
      * Returns the singleton instance of {@link BigDecimalRules}.
-     *
-     * @return the {@link BigDecimalRules} instance.
      */
     public static BigDecimalRules bigDecimals() {
         return bigDecimals;

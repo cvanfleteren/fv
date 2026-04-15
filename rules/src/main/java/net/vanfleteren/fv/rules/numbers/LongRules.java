@@ -17,8 +17,6 @@ public class LongRules implements ComparableRules<Long>, NumberRules<Long>, IObj
 
     /**
      * Returns the singleton instance of {@link LongRules}.
-     *
-     * @return the {@link LongRules} instance.
      */
     public static LongRules longs() {
         return longs;

@@ -20,8 +20,6 @@ public class ObjectRules implements IObjectRules<Object> {
 
     /**
      * Returns the singleton instance of {@link ObjectRules}.
-     *
-     * @return the {@link ObjectRules} instance.
      */
     public static ObjectRules objects() {
         return objects;

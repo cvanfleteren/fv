@@ -26,8 +26,6 @@ public class ZonedDateTimeRules implements ComparableRules<ZonedDateTime>, IObje
 
     /**
      * Returns the singleton instance of {@link ZonedDateTimeRules}.
-     *
-     * @return the {@link ZonedDateTimeRules} instance.
      */
     public static ZonedDateTimeRules zonedDateTimes() {
         return zonedDateTimes;
@@ -35,8 +33,6 @@ public class ZonedDateTimeRules implements ComparableRules<ZonedDateTime>, IObje
 
     /**
      * Returns an instance of {@link ZonedDateTimeRules} that uses the passed {@link Clock} for determining the current date-time.
-     *
-     * @return the {@link ZonedDateTimeRules} instance.
      */
     public static ZonedDateTimeRules zonedDateTimes(Clock clock) {
         return new ZonedDateTimeRules(clock);

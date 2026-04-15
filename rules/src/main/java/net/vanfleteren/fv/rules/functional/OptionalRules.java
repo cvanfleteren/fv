@@ -15,8 +15,6 @@ public class OptionalRules {
 
     /**
      * Returns the singleton instance of {@link OptionalRules}.
-     *
-     * @return the {@link OptionalRules} instance.
      */
     public static OptionalRules optionals() {
         return optionals;

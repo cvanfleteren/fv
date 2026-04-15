@@ -25,8 +25,6 @@ public class CollectionRules {
 
     /**
      * Returns the singleton instance of {@link CollectionRules}.
-     *
-     * @return the {@link CollectionRules} instance.
      */
     public static CollectionRules collections() {
         return collections;

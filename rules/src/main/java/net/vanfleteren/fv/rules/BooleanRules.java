@@ -2,20 +2,39 @@ package net.vanfleteren.fv.rules;
 
 import net.vanfleteren.fv.Rule;
 
-import static net.vanfleteren.fv.rules.ObjectRules.objects;
-
 public class BooleanRules {
 
+    /**
+     * Singleton instance of {@link BooleanRules}.
+     */
     public static final BooleanRules booleans = new BooleanRules();
 
+    /**
+     * Returns the singleton instance of {@link BooleanRules}.
+     */
     public static BooleanRules booleans() {
         return booleans;
     }
 
+    /**
+     * Fails if the boolean is {@code null} or {@code false}.
+     * <p>
+     * Error key: {@code must.be.true}
+     */
     public Rule<Boolean> isTrue = Rule.of(b -> b != null && b, "must.be.true");
 
+    /**
+     * Fails if the boolean is {@code null} or {@code true}.
+     * <p>
+     * Error key: {@code must.be.false}
+     */
     public Rule<Boolean> isFalse = Rule.of(b -> b != null && !b, "must.be.false");
 
+    /**
+     * Fails if the boolean is {@code null}.
+     * <p>
+     * Error key: {@code must.not.be.null}
+     */
     public Rule<Boolean> notNull = Rule.notNull();
 
 }

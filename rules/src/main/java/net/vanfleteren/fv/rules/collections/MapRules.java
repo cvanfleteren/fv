@@ -19,8 +19,6 @@ public class MapRules {
 
     /**
      * Returns the singleton instance of {@link MapRules}.
-     *
-     * @return the {@link MapRules} instance.
      */
     public static MapRules maps() {
         return maps;

@@ -29,8 +29,6 @@ public class JCollectionRules {
 
     /**
      * Returns the singleton instance of {@link JCollectionRules}.
-     *
-     * @return the {@link JCollectionRules} instance.
      */
     public static JCollectionRules jCollections() {
         return jCollections;

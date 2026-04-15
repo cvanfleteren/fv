@@ -20,8 +20,6 @@ public class LocalTimeRules implements ComparableRules<LocalTime>, IObjectRules<
 
     /**
      * Returns the singleton instance of {@link LocalTimeRules}.
-     *
-     * @return the {@link LocalTimeRules} instance.
      */
     public static LocalTimeRules localTimes() {
         return localTimes;

@@ -26,8 +26,6 @@ public class LocalDateRules implements ComparableRules<LocalDate>, IObjectRules<
 
     /**
      * Returns the singleton instance of {@link LocalDateRules}.
-     *
-     * @return the {@link LocalDateRules} instance.
      */
     public static LocalDateRules localDates() {
         return localDates;
@@ -35,8 +33,6 @@ public class LocalDateRules implements ComparableRules<LocalDate>, IObjectRules<
 
     /**
      * Returns an instance of {@link LocalDateRules} that uses the passed {@link java.time.Clock} for determining the current date.
-     *
-     * @return the {@link LocalDateRules} instance.
      */
     public static LocalDateRules localDates(Clock clock) {
         return new LocalDateRules(clock);

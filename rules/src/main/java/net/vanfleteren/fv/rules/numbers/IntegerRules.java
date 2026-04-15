@@ -17,8 +17,6 @@ public class IntegerRules implements ComparableRules<Integer>, NumberRules<Integ
 
     /**
      * Returns the singleton instance of {@link IntegerRules}.
-     *
-     * @return the {@link IntegerRules} instance.
      */
     public static IntegerRules ints() {
         return ints;

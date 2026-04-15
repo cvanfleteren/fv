@@ -17,8 +17,6 @@ public class FloatRules implements ComparableRules<Float>, NumberRules<Float>, I
 
     /**
      * Returns the singleton instance of {@link FloatRules}.
-     *
-     * @return the {@link FloatRules} instance.
      */
     public static FloatRules floats() {
         return floats;

@@ -23,8 +23,6 @@ public class YearMonthRules implements ComparableRules<YearMonth>, IObjectRules<
 
     /**
      * Returns the singleton instance of {@link YearMonthRules}.
-     *
-     * @return the {@link YearMonthRules} instance.
      */
     public static YearMonthRules yearMonths() {
         return yearMonths;
@@ -32,8 +30,6 @@ public class YearMonthRules implements ComparableRules<YearMonth>, IObjectRules<
 
     /**
      * Returns an instance of {@link YearMonthRules} that uses the passed {@link Clock} for determining the current YearMonth.
-     *
-     * @return the {@link YearMonthRules} instance.
      */
     public static YearMonthRules yearMonths(Clock clock) {
         return new YearMonthRules(clock);

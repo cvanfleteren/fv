@@ -12,9 +12,6 @@ import java.time.Duration;
  */
 public class DurationRules implements ComparableRules<Duration>, IObjectRules<Duration> {
 
-    DurationRules() {
-    }
-
     /**
      * Singleton instance of {@link DurationRules}.
      */
@@ -22,8 +19,6 @@ public class DurationRules implements ComparableRules<Duration>, IObjectRules<Du
 
     /**
      * Returns the singleton instance of {@link DurationRules}.
-     *
-     * @return the {@link DurationRules} instance.
      */
     public static DurationRules durations() {
         return durations;

@@ -22,8 +22,6 @@ public class JMapRules {
 
     /**
      * Returns the singleton instance of {@link JMapRules}.
-     *
-     * @return the {@link JMapRules} instance.
      */
     public static JMapRules jMaps() {
         return jMaps;

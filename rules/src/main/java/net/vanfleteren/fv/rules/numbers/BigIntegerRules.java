@@ -19,8 +19,6 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
 
     /**
      * Returns the singleton instance of {@link BigIntegerRules}.
-     *
-     * @return the {@link BigIntegerRules} instance.
      */
     public static BigIntegerRules bigInts() {
         return bigInts;

@@ -14,8 +14,6 @@ public class OptionRules {
 
     /**
      * Returns the singleton instance of {@link OptionRules}.
-     *
-     * @return the {@link OptionRules} instance.
      */
     public static OptionRules options() {
         return options;

@@ -23,8 +23,6 @@ public class InstantRules implements ComparableRules<Instant>, IObjectRules<Inst
 
     /**
      * Returns the singleton instance of {@link InstantRules}.
-     *
-     * @return the {@link InstantRules} instance.
      */
     public static InstantRules instants() {
         return instants;
@@ -32,8 +30,6 @@ public class InstantRules implements ComparableRules<Instant>, IObjectRules<Inst
 
     /**
      * Returns an instance of {@link InstantRules} that uses the passed {@link java.time.Clock} for determining the current Instant.
-     *
-     * @return the {@link InstantRules} instance.
      */
     public static InstantRules instants(Clock clock) {
         return new InstantRules(clock);
@@ -80,7 +76,7 @@ public class InstantRules implements ComparableRules<Instant>, IObjectRules<Inst
     }
 
     /**
-     * Fails if the Instant is not in the past according to the provided {@link Clock}..
+     * Fails if the Instant is not in the past according to the provided {@link Clock}.
      * <p>
      * Error key: {@code must.be.past}
      *
@@ -91,7 +87,7 @@ public class InstantRules implements ComparableRules<Instant>, IObjectRules<Inst
     }
 
     /**
-     * Fails if the Instant is not in the future according to the provided {@link Clock}..
+     * Fails if the Instant is not in the future according to the provided {@link Clock}.
      * <p>
      * Error key: {@code must.be.future}
      *

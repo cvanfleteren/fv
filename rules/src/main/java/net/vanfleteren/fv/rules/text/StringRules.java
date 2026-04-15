@@ -32,8 +32,6 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
 
     /**
      * Returns the singleton instance of {@link StringRules}.
-     *
-     * @return the {@link StringRules} instance.
      */
     public static StringRules strings() {
         return strings;

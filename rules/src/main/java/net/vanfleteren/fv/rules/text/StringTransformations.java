@@ -19,13 +19,10 @@ public class StringTransformations {
 
     /**
      * Returns the singleton instance of {@link StringTransformations}.
-     *
-     * @return the {@link StringTransformations} instance.
      */
     public static StringTransformations stringTransforms() {
         return strings;
     }
-
 
     /**
      * Trims leading and trailing whitespace from the input string.

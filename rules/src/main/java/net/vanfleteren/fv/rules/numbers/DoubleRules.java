@@ -17,8 +17,6 @@ public class DoubleRules implements ComparableRules<Double>, NumberRules<Double>
 
     /**
      * Returns the singleton instance of {@link DoubleRules}.
-     *
-     * @return the {@link DoubleRules} instance.
      */
     public static DoubleRules doubles() {
         return doubles;
