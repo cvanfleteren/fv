@@ -144,7 +144,7 @@
                     <additionalOptions>
                         <!-- Aggregated snippets are resolved from the root.
                              You can add multiple paths if snippets are in different modules. -->
-                        <additionalOption>--snippet-path=${project.basedir}/core/src/test/java</additionalOption>
+                        <additionalOption>--snippet-path=${project.basedir}/src/test/java</additionalOption>
                     </additionalOptions>
                 </configuration>
                 <executions>
