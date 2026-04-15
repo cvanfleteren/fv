@@ -884,6 +884,23 @@ class RuleTest {
         }
 
         @Test
+        void liftToMap_whenMapIsEmpty_returnsValidResult() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<Map<String, String>> mapRule = rule.liftToMap();
+
+            Map<String, String> input = HashMap.empty();
+
+            // Act
+            Validation<Map<String, String>> result = mapRule.test(input);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(input);
+        }
+
+        @Test
         void liftToMap_withKeyExtractor_whenAllValuesAreValid_returnsValidResult() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
@@ -916,6 +933,8 @@ class RuleTest {
             assertThatCode(() -> mapRule.test(input))
                     .isInstanceOf(NullPointerException.class);
         }
+
+
     }
 
     @Nested

@@ -296,6 +296,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * If you can't guarantee this, use the version of {@link #liftToMap(Function)} that takes a keyExtractor function instead.
      * <p>
      * Semantics:
+     * - If the Map is empty, the map is considered valid.
      * - Each value in the map is validated, and the resulting validations are collected.
      * - If any validation fails, the entire map is considered invalid.
      * - If all validations pass, the map is considered valid.

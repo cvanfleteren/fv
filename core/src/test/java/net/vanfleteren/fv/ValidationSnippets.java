@@ -1,5 +1,8 @@
 package net.vanfleteren.fv;
 
+import io.vavr.collection.List;
+import org.junit.jupiter.api.Test;
+
 public class ValidationSnippets {
 
     void getOrElseThrow_success() {
@@ -120,6 +123,35 @@ public class ValidationSnippets {
                 errors -> "Invalid: " + errors.head().message(),
                 value -> "Valid: " + value
         ); // returns "Valid: 123"
+        // @end
+    }
+
+    void sequence_seq() {
+        // @start region="sequence_seq"
+        io.vavr.collection.List<Validation<Integer>> list = io.vavr.collection.List.of(
+            Validation.valid(1),
+            Validation.valid(2),
+            Validation.valid(3)
+        );
+        Validation<io.vavr.collection.List<Integer>> result = Validation.sequence(list); // returns Valid(List(1, 2, 3))
+
+        io.vavr.collection.List<Validation<Integer>> mixed = io.vavr.collection.List.of(
+            Validation.valid(1),
+            Validation.invalid("error.1"),
+            Validation.invalid("error.2")
+        );
+        Validation<io.vavr.collection.List<Integer>> mixedResult = Validation.sequence(mixed); // returns Invalid("error.1", "error.2")
+        List<String> errors = mixedResult.errors().map(ErrorMessage::message); // List([1].error.1, [2].error.2)
+        // @end
+    }
+
+    void sequence_collection() {
+        // @start region="sequence_collection"
+        java.util.List<Validation<Integer>> list = java.util.List.of(
+            Validation.valid(1),
+            Validation.valid(2)
+        );
+        Validation<java.util.List<Integer>> result = Validation.sequence(list); // returns Valid(java.util.List.of(1, 2))
         // @end
     }
 

@@ -407,6 +407,9 @@ public sealed interface Validation<T> extends Value<T> {
     /**
      * Transforms a {@link Seq} of {@link Validation}s into a single {@code Validation} of a {@link List}.
      * If any validation is invalid, the result will contain all accumulated errors.
+     * <p>
+     * Usage example:
+     * {@snippet file="net/vanfleteren/fv/ValidationSnippets.java" region="sequence_seq"}
      *
      * @param validations the sequence of validations to sequence.
      * @param <T>         the value type.
@@ -440,6 +443,9 @@ public sealed interface Validation<T> extends Value<T> {
     /**
      * Transforms a {@link java.util.Collection} of {@link Validation}s into a single {@code Validation} of a {@link java.util.List}.
      * If any validation is invalid, the result will contain all accumulated errors.
+     * <p>
+     * Usage example:
+     * {@snippet file="net/vanfleteren/fv/ValidationSnippets.java" region="sequence_collection"}
      *
      * @param validations the collection of validations to sequence.
      * @param <T>         the value type.

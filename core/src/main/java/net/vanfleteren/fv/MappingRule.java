@@ -190,23 +190,7 @@ public interface MappingRule<T, R> {
      * Returns a new {@link MappingRule} that first applies this rule, and if the input is invalid, falls back to the other rule.
      * <p>
      * Usage example:
-     * <pre>{@code
-     * // 1. A rule that maps the string "A" to 1
-     * MappingRule<String, Integer> ruleA = s ->
-     *     "A".equals(s) ? Validation.valid(1) : Validation.invalid("not.A");
-     *
-     * // 2. A rule that maps the string "B" to 2
-     * MappingRule<String, Integer> ruleB = s ->
-     *     "B".equals(s) ? Validation.valid(2) : Validation.invalid("not.B");
-     *
-     * // 3. Use recoverWith to try ruleA, and fall back to ruleB if ruleA fails
-     * MappingRule<String, Integer> combined = ruleA.recoverWith(ruleB);
-     *
-     * // 4. Usage
-     * Validation<Integer> validA = combined.test("A"); // Returns Valid(1)
-     * Validation<Integer> validB = combined.test("B"); // Returns Valid(2)
-     * Validation<Integer> invalid = combined.test("C"); // Returns Invalid("not.B")
-     * }</pre>
+     * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="recover-with-example"}
      *
      * @param <S> the type of valid output produced by the other rule
      * @param other the other rule to use as a fallback if this rule fails
@@ -236,6 +220,8 @@ public interface MappingRule<T, R> {
 
     /**
      * Lifts a {@link MappingRule} so it applies to a {@link List} of T instead of a single T.
+     * If the List is empty, the List is considered valid.
+     *
      * <p>
      * Usage example:
      * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="lift-to-list-example"}
@@ -314,6 +300,7 @@ public interface MappingRule<T, R> {
      * Behaves the same as {@link #liftToMap()}, but uses the keyExtractor function to generate the path segment.
      * <p>
      * Semantics:
+     * - If the Map is empty, the map is considered valid.
      * - Each value in the map is validated, and the resulting validations are collected.
      * - If any validation fails, the entire map is considered invalid.
      * - If all validations pass, the map is considered valid.
