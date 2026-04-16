@@ -34,7 +34,7 @@ public class BigDecimalRules implements ComparableRules<BigDecimal>, NumberRules
      */
     @Override
     public Rule<BigDecimal> positive() {
-        return Rule.of(b -> b.signum() == 1, "must.be.positive");
+        return Rule.notNull().and(Rule.of(b -> b.signum() == 1, "must.be.positive"));
     }
 
     /**
@@ -46,7 +46,7 @@ public class BigDecimalRules implements ComparableRules<BigDecimal>, NumberRules
      */
     @Override
     public Rule<BigDecimal> nonNegative() {
-        return Rule.of(b -> b.signum() > -1, "must.be.non.negative");
+        return Rule.notNull().and(Rule.of(b -> b.signum() > -1, "must.be.non.negative"));
     }
 
     /**
@@ -58,7 +58,7 @@ public class BigDecimalRules implements ComparableRules<BigDecimal>, NumberRules
      */
     @Override
     public Rule<BigDecimal> negative() {
-        return Rule.of(b -> b.signum() == -1, "must.be.negative");
+        return Rule.notNull().and(Rule.of(b -> b.signum() == -1, "must.be.negative"));
     }
 
     /**
@@ -70,7 +70,7 @@ public class BigDecimalRules implements ComparableRules<BigDecimal>, NumberRules
      */
     @Override
     public Rule<BigDecimal> nonPositive() {
-        return Rule.of(b -> b.signum() < 1, "must.be.non.positive");
+        return Rule.notNull().and(Rule.of(b -> b.signum() < 1, "must.be.non.positive"));
     }
 
     /**
@@ -82,7 +82,7 @@ public class BigDecimalRules implements ComparableRules<BigDecimal>, NumberRules
      */
     @Override
     public Rule<BigDecimal> zero() {
-        return Rule.of(b -> b.signum() == 0, "must.be.zero");
+        return Rule.notNull().and(Rule.of(b -> b.signum() == 0, "must.be.zero"));
     }
 
     /**
@@ -94,7 +94,7 @@ public class BigDecimalRules implements ComparableRules<BigDecimal>, NumberRules
      */
     @Override
     public Rule<BigDecimal> nonZero() {
-        return Rule.of(b -> b.signum() != 0, "must.not.be.zero");
+        return Rule.notNull().and(Rule.of(b -> b.signum() != 0, "must.not.be.zero"));
     }
     //endregion
 
@@ -113,10 +113,10 @@ public class BigDecimalRules implements ComparableRules<BigDecimal>, NumberRules
      * @return a {@link Rule} checking the minimum value.
      */
     public Rule<BigDecimal> min(BigDecimal minInclusive) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 b -> b.compareTo(minInclusive) >= 0,
                 ErrorMessage.of("must.be.at.least", "min", minInclusive)
-        );
+        ));
     }
 
     /**
@@ -133,10 +133,10 @@ public class BigDecimalRules implements ComparableRules<BigDecimal>, NumberRules
      * @return a {@link Rule} checking the maximum value.
      */
     public Rule<BigDecimal> max(BigDecimal maxInclusive) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 b -> b.compareTo(maxInclusive) <= 0,
                 ErrorMessage.of("must.be.at.most", "max", maxInclusive)
-        );
+        ));
     }
     //endregion
 

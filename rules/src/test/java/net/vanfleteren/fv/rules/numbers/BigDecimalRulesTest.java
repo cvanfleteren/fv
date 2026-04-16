@@ -281,4 +281,18 @@ class BigDecimalRulesTest {
             );
         }
     }
+    @Nested
+    class NullHandling {
+        @Test
+        void returnsInvalidWhenNull() {
+            invalidTest(null, bigDecimals.positive(), "cannot.be.null");
+            invalidTest(null, bigDecimals.nonNegative(), "cannot.be.null");
+            invalidTest(null, bigDecimals.negative(), "cannot.be.null");
+            invalidTest(null, bigDecimals.nonPositive(), "cannot.be.null");
+            invalidTest(null, bigDecimals.zero(), "cannot.be.null");
+            invalidTest(null, bigDecimals.nonZero(), "cannot.be.null");
+            invalidTest(null, bigDecimals.min(BigDecimal.ZERO), "cannot.be.null");
+            invalidTest(null, bigDecimals.max(BigDecimal.ZERO), "cannot.be.null");
+        }
+    }
 }

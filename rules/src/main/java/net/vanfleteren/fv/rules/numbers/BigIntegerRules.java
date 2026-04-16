@@ -34,7 +34,7 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
      */
     @Override
     public Rule<BigInteger> positive() {
-        return Rule.of(b -> b.signum() == 1, "must.be.positive");
+        return Rule.notNull().and(Rule.of(b -> b.signum() == 1, "must.be.positive"));
     }
 
     /**
@@ -46,7 +46,7 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
      */
     @Override
     public Rule<BigInteger> nonNegative() {
-        return Rule.of(b -> b.signum() > -1, "must.be.non.negative");
+        return Rule.notNull().and(Rule.of(b -> b.signum() > -1, "must.be.non.negative"));
     }
 
     /**
@@ -58,7 +58,7 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
      */
     @Override
     public Rule<BigInteger> negative() {
-        return Rule.of(b -> b.signum() == -1, "must.be.negative");
+        return Rule.notNull().and(Rule.of(b -> b.signum() == -1, "must.be.negative"));
     }
 
     /**
@@ -70,7 +70,7 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
      */
     @Override
     public Rule<BigInteger> nonPositive() {
-        return Rule.of(b -> b.signum() < 1, "must.be.non.positive");
+        return Rule.notNull().and(Rule.of(b -> b.signum() < 1, "must.be.non.positive"));
     }
 
     /**
@@ -82,7 +82,7 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
      */
     @Override
     public Rule<BigInteger> zero() {
-        return Rule.of(b -> b.signum() == 0, "must.be.zero");
+        return Rule.notNull().and(Rule.of(b -> b.signum() == 0, "must.be.zero"));
     }
 
     /**
@@ -94,7 +94,7 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
      */
     @Override
     public Rule<BigInteger> nonZero() {
-        return Rule.of(b -> b.signum() != 0, "must.not.be.zero");
+        return Rule.notNull().and(Rule.of(b -> b.signum() != 0, "must.not.be.zero"));
     }
     //endregion
 
@@ -107,7 +107,7 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
      * @return a {@link Rule} checking for odd values.
      */
     public Rule<BigInteger> odd() {
-        return Rule.of(b -> b.testBit(0), "must.be.odd");
+        return Rule.notNull().and(Rule.of(b -> b.testBit(0), "must.be.odd"));
     }
 
     /**
@@ -118,7 +118,7 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
      * @return a {@link Rule} checking for even values.
      */
     public Rule<BigInteger> even() {
-        return Rule.of(b -> !b.testBit(0), "must.be.even");
+        return Rule.notNull().and(Rule.of(b -> !b.testBit(0), "must.be.even"));
     }
     //endregion
 
@@ -137,10 +137,10 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
      * @return a {@link Rule} checking the minimum value.
      */
     public Rule<BigInteger> min(BigInteger minInclusive) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 b -> b.compareTo(minInclusive) >= 0,
                 ErrorMessage.of("must.be.at.least", "min", minInclusive)
-        );
+        ));
     }
 
     /**
@@ -157,10 +157,10 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
      * @return a {@link Rule} checking the maximum value.
      */
     public Rule<BigInteger> max(BigInteger maxInclusive) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 b -> b.compareTo(maxInclusive) <= 0,
                 ErrorMessage.of("must.be.at.most", "max", maxInclusive)
-        );
+        ));
     }
     //endregion
 

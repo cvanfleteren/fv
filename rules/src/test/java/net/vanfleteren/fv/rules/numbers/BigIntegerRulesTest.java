@@ -168,4 +168,20 @@ class BigIntegerRulesTest {
             invalidTest(BigInteger.ZERO, bigInts().between(BigInteger.ONE, new BigInteger("3")), "must.be.between", HashMap.of("min", BigInteger.ONE, "max", new BigInteger("3")));
         }
     }
+    @Nested
+    class NullHandling {
+        @Test
+        void returnsInvalidWhenNull() {
+            invalidTest(null, bigInts().positive(), "cannot.be.null");
+            invalidTest(null, bigInts().nonNegative(), "cannot.be.null");
+            invalidTest(null, bigInts().negative(), "cannot.be.null");
+            invalidTest(null, bigInts().nonPositive(), "cannot.be.null");
+            invalidTest(null, bigInts().zero(), "cannot.be.null");
+            invalidTest(null, bigInts().nonZero(), "cannot.be.null");
+            invalidTest(null, bigInts().odd(), "cannot.be.null");
+            invalidTest(null, bigInts().even(), "cannot.be.null");
+            invalidTest(null, bigInts().min(BigInteger.ZERO), "cannot.be.null");
+            invalidTest(null, bigInts().max(BigInteger.ZERO), "cannot.be.null");
+        }
+    }
 }
