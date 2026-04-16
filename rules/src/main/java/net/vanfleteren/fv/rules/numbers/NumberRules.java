@@ -18,7 +18,7 @@ public interface NumberRules<T extends Number> {
      * @return a {@link Rule} checking for positive values.
      */
     default Rule<T> positive() {
-        return Rule.of(i -> i.doubleValue() > 0, "must.be.positive");
+        return Rule.notNull().and(Rule.of(i -> i.doubleValue() > 0, "must.be.positive"));
     }
 
     /**
@@ -29,7 +29,7 @@ public interface NumberRules<T extends Number> {
      * @return a {@link Rule} checking for non-negative values.
      */
     default Rule<T> nonNegative() {
-        return Rule.of(i -> i.doubleValue() >= 0, "must.be.non.negative");
+        return Rule.notNull().and(Rule.of(i -> i.doubleValue() >= 0, "must.be.non.negative"));
     }
 
     /**
@@ -40,7 +40,7 @@ public interface NumberRules<T extends Number> {
      * @return a {@link Rule} checking for negative values.
      */
     default Rule<T> negative() {
-        return Rule.of(i -> i.doubleValue() < 0, "must.be.negative");
+        return Rule.notNull().and(Rule.of(i -> i.doubleValue() < 0, "must.be.negative"));
     }
 
     /**
@@ -51,7 +51,7 @@ public interface NumberRules<T extends Number> {
      * @return a {@link Rule} checking for non-positive values.
      */
     default Rule<T> nonPositive() {
-        return Rule.of(i -> i.doubleValue() <= 0, "must.be.non.positive");
+        return Rule.notNull().and(Rule.of(i -> i.doubleValue() <= 0, "must.be.non.positive"));
     }
 
     /**
@@ -62,7 +62,7 @@ public interface NumberRules<T extends Number> {
      * @return a {@link Rule} checking for zero values.
      */
     default Rule<T> zero() {
-        return Rule.of(i -> i.doubleValue() == 0, "must.be.zero");
+        return Rule.notNull().and(Rule.of(i -> i.doubleValue() == 0, "must.be.zero"));
     }
 
     /**
@@ -73,7 +73,7 @@ public interface NumberRules<T extends Number> {
      * @return a {@link Rule} checking for non-zero values.
      */
     default Rule<T> nonZero() {
-        return Rule.of(i -> i.doubleValue() != 0, "must.not.be.zero");
+        return Rule.notNull().and(Rule.of(i -> i.doubleValue() != 0, "must.not.be.zero"));
     }
 
     /**
@@ -90,10 +90,10 @@ public interface NumberRules<T extends Number> {
      * @return a {@link Rule} checking the minimum value.
      */
     default Rule<T> min(T minInclusive) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 i -> i.doubleValue() >= minInclusive.doubleValue(),
                 ErrorMessage.of("must.be.at.least", "min", minInclusive)
-        );
+        ));
     }
 
     /**
@@ -110,9 +110,9 @@ public interface NumberRules<T extends Number> {
      * @return a {@link Rule} checking the maximum value.
      */
     default Rule<T> max(T maxInclusive) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 i -> i.doubleValue() <= maxInclusive.doubleValue(),
                 ErrorMessage.of("must.be.at.most", "max", maxInclusive)
-        );
+        ));
     }
 }

@@ -25,6 +25,7 @@ class BigDecimalRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, bigDecimals.positive(), "must.not.be.null");
             invalidTest(BigDecimal.ZERO, bigDecimals.positive(), "must.be.positive");
             invalidTest(BigDecimal.ONE.negate(), bigDecimals.positive(), "must.be.positive");
         }
@@ -42,6 +43,7 @@ class BigDecimalRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, bigDecimals.nonNegative(), "must.not.be.null");
             invalidTest(BigDecimal.ONE.negate(), bigDecimals.nonNegative(), "must.be.non.negative");
             invalidTest(new BigDecimal("-42"), bigDecimals.nonNegative(), "must.be.non.negative");
         }
@@ -58,6 +60,7 @@ class BigDecimalRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, bigDecimals.negative(), "must.not.be.null");
             invalidTest(BigDecimal.ZERO,bigDecimals.negative(), "must.be.negative");
             invalidTest(BigDecimal.ONE,bigDecimals.negative(), "must.be.negative");
         }
@@ -74,6 +77,7 @@ class BigDecimalRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, bigDecimals.nonPositive(), "must.not.be.null");
             invalidTest(BigDecimal.ONE,bigDecimals.nonPositive(), "must.be.non.positive");
             invalidTest(new BigDecimal("42"),bigDecimals.nonPositive(), "must.be.non.positive");
         }
@@ -89,6 +93,7 @@ class BigDecimalRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, bigDecimals.zero(), "must.not.be.null");
             invalidTest(BigDecimal.ONE,bigDecimals.zero(), "must.be.zero");
             invalidTest(BigDecimal.ONE.negate(),bigDecimals.zero(), "must.be.zero");
         }
@@ -105,6 +110,7 @@ class BigDecimalRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, bigDecimals.nonZero(), "must.not.be.null");
             invalidTest(BigDecimal.ZERO,bigDecimals.nonZero(), "must.not.be.zero");
         }
     }
@@ -120,6 +126,7 @@ class BigDecimalRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, bigDecimals.min(new BigDecimal("2")), "must.not.be.null");
             invalidTest(new BigDecimal("1"), bigDecimals.min(new BigDecimal("2")), "must.be.at.least", HashMap.of("min", new BigDecimal("2")));
             invalidTest(new BigDecimal("-100"), bigDecimals.min(new BigDecimal("2")), "must.be.at.least", HashMap.of("min", new BigDecimal("2")));
         }
@@ -137,6 +144,7 @@ class BigDecimalRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, bigDecimals.max(new BigDecimal("2")), "must.not.be.null");
             invalidTest(new BigDecimal("3"), bigDecimals.max(new BigDecimal("2")), "must.be.at.most", HashMap.of("max", new BigDecimal("2")));
             invalidTest(new BigDecimal("100"), bigDecimals.max(new BigDecimal("2")), "must.be.at.most", HashMap.of("max", new BigDecimal("2")));
         }
@@ -279,20 +287,6 @@ class BigDecimalRulesTest {
                     "must.not.be.one.of",
                     HashMap.of("values", HashSet.of(BigDecimal.ONE, new BigDecimal("2"), new BigDecimal("3")))
             );
-        }
-    }
-    @Nested
-    class NullHandling {
-        @Test
-        void returnsInvalidWhenNull() {
-            invalidTest(null, bigDecimals.positive(), "cannot.be.null");
-            invalidTest(null, bigDecimals.nonNegative(), "cannot.be.null");
-            invalidTest(null, bigDecimals.negative(), "cannot.be.null");
-            invalidTest(null, bigDecimals.nonPositive(), "cannot.be.null");
-            invalidTest(null, bigDecimals.zero(), "cannot.be.null");
-            invalidTest(null, bigDecimals.nonZero(), "cannot.be.null");
-            invalidTest(null, bigDecimals.min(BigDecimal.ZERO), "cannot.be.null");
-            invalidTest(null, bigDecimals.max(BigDecimal.ZERO), "cannot.be.null");
         }
     }
 }

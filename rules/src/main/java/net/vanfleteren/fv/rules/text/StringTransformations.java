@@ -27,7 +27,7 @@ public class StringTransformations {
     /**
      * Trims leading and trailing whitespace from the input string.
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @return a {@link MappingRule} that maps {@code "  hello  "} to {@code "hello"}.
      */
@@ -40,7 +40,7 @@ public class StringTransformations {
      * <p>
      * Example: {@code "hello\nworld" -> "hello world"}.
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @return a {@link MappingRule} that normalizes line breaks to spaces and trims.
      */
@@ -54,7 +54,7 @@ public class StringTransformations {
      * <p>
      * Example: {@code "a \n\t b" -> "a b"}.
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @return a {@link MappingRule} that collapses all runs of whitespace to a single space.
      */
@@ -68,7 +68,7 @@ public class StringTransformations {
      * <p>
      * Example: {@code " a b c " -> "abc"}.
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @return a {@link MappingRule} that strips all whitespace.
      */
@@ -81,7 +81,7 @@ public class StringTransformations {
      * <p>
      * Example: {@code "abc123def456" -> "123456"}.
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @return a {@link MappingRule} that filters the input to digits only.
      */
@@ -94,7 +94,7 @@ public class StringTransformations {
      * <p>
      * Example: {@code "abc123def456" -> "abcdef"}.
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @return a {@link MappingRule} that removes digits from the input.
      */
@@ -107,7 +107,7 @@ public class StringTransformations {
      * <p>
      * Example: {@code "abc@#123" -> "abc123"}.
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @return a {@link MappingRule} that filters the input to letters and digits.
      */
@@ -122,7 +122,7 @@ public class StringTransformations {
      * <p>
      * Example: {@code "H3llo, 世界!" -> "Hllo世界"}.
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @return a {@link MappingRule} that filters the input to letters only.
      */
@@ -138,7 +138,7 @@ public class StringTransformations {
      * <p>
      * Note: This preserves existing spacing but does not trim. Use {@link #trim()} or {@link #collapseWhitespace()} if needed.
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @return a {@link MappingRule} that filters the input to letters and spaces only.
      */
@@ -152,7 +152,7 @@ public class StringTransformations {
      * <p>
      * Example: {@code "HeLLo" -> "hello"}.
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @return a {@link MappingRule} that lowercases the input with locale-independent semantics.
      */
@@ -165,7 +165,7 @@ public class StringTransformations {
      * <p>
      * Example: {@code "HeLLo" -> "hello"} (actual output may depend on the locale).
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @param locale the {@link Locale} to use for case conversion; must not be {@code null}.
      * @return a {@link MappingRule} that lowercases the input with the given locale.
@@ -179,7 +179,7 @@ public class StringTransformations {
      * <p>
      * Example: {@code "HeLLo" -> "HELLO"}.
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @return a {@link MappingRule} that uppercases the input with locale-independent semantics.
      */
@@ -192,7 +192,7 @@ public class StringTransformations {
      * <p>
      * Example: {@code "HeLLo" -> "HELLO"} (actual output may depend on the locale).
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @param locale the {@link Locale} to use for case conversion; must not be {@code null}.
      * @return a {@link MappingRule} that uppercases the input with the given locale.
@@ -209,7 +209,7 @@ public class StringTransformations {
      * <p>
      * Example: {@code removeCharacters("-").apply("a-b-c") -> "abc"}.
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @param chars characters to remove; if {@code null}, nothing is removed.
      * @return a {@link MappingRule} that strips the specified characters from the input.
@@ -238,7 +238,7 @@ public class StringTransformations {
                 }
                 return Validation.valid(input.replaceAll(characterClass, ""));
             } else {
-                return Validation.invalid("cannot.be.null");
+                return Validation.invalid("must.not.be.null");
             }
         };
     }
@@ -252,7 +252,7 @@ public class StringTransformations {
      * Invalid patterns will throw {@link java.util.regex.PatternSyntaxException} at creation time,
      * The regex gets compiled into a {@link Pattern} for efficient reuse.
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @param regex        the regular expression to which the input is to be matched.
      * @param replacement  the string to be substituted for each match.
@@ -266,7 +266,7 @@ public class StringTransformations {
             if (input != null) {
                 return Validation.valid(pattern.matcher(input).replaceAll(repl));
             } else {
-                return Validation.invalid("cannot.be.null");
+                return Validation.invalid("must.not.be.null");
             }
         };
     }
@@ -284,7 +284,7 @@ public class StringTransformations {
      *     <li>{@code keepChars("-[]").apply("a-]b[")} → {@code "-]["}</li>
      * </ul>
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @param allowed the characters to keep; if {@code null} or empty, nothing is kept (result becomes empty string)
      * @return a {@link MappingRule} that filters the input to the provided character set.
@@ -294,7 +294,7 @@ public class StringTransformations {
 
         if (toKeep.isEmpty()) {
             // For any non-null input, return empty string
-            return input -> input != null ? Validation.valid("") : Validation.invalid("cannot.be.null");
+            return input -> input != null ? Validation.valid("") : Validation.invalid("must.not.be.null");
         }
 
         // Build a safe character class content from the provided characters
@@ -316,7 +316,7 @@ public class StringTransformations {
             if (input != null) {
                 return Validation.valid(notAllowed.matcher(input).replaceAll(""));
             } else {
-                return Validation.invalid("cannot.be.null");
+                return Validation.invalid("must.not.be.null");
             }
         };
     }
@@ -329,7 +329,7 @@ public class StringTransformations {
      * <p>
      * Example: {@code "Café naïve" -> "Cafe naive"}.
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @return a {@link MappingRule} that strips diacritics while keeping base letters.
      */
@@ -351,7 +351,7 @@ public class StringTransformations {
      * <p>
      * Note: This will also remove line breaks since they are control characters.
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @return a {@link MappingRule} that strips control and zero-width formatting characters.
      */
@@ -367,7 +367,7 @@ public class StringTransformations {
      * If cutting at {@code maxLen} would split a surrogate pair (i.e. the character boundary falls between
      * a high and low surrogate), the cut index is moved one position to the left to preserve the pair.
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @param maxLen maximum length of the resulting string, must be {@code >= 0}
      * @return a {@link MappingRule} that truncates strings safely.
@@ -395,7 +395,7 @@ public class StringTransformations {
      *   appending ellipsis when even the shortest ellipsis can't fit.
      * - Never splits surrogate pairs at the cut point.
      * <p>
-     * Null handling: returns {@code Validation.invalid("cannot.be.null")} when the input is {@code null}.
+     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @param maxLen maximum total length including the ellipsis, must be {@code >= 0}
      * @return a {@link MappingRule} that truncates with ellipsis safely.
@@ -467,7 +467,7 @@ public class StringTransformations {
             if (input != null) {
                 return Validation.valid(op.apply(input));
             } else {
-                return Validation.invalid("cannot.be.null");
+                return Validation.invalid("must.not.be.null");
             }
         };
     }

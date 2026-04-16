@@ -28,7 +28,7 @@ class MapRulesTest {
 
         @Test
         void invalid_whenNull_thenCannotBeNull() {
-            invalidTest(null, notEmpty(), "cannot.be.null");
+            invalidTest(null, notEmpty(), "must.not.be.null");
         }
 
         @Test
@@ -47,7 +47,7 @@ class MapRulesTest {
 
         @Test
         void invalid_whenNull_thenCannotBeNull() {
-            invalidTest(null, containsKey("a"), "cannot.be.null");
+            invalidTest(null, containsKey("a"), "must.not.be.null");
         }
 
         @Test
@@ -76,7 +76,7 @@ class MapRulesTest {
 
         @Test
         void invalid_whenNullMap_thenCannotBeNull() {
-            invalidTest(null, valuesNotNull(), "cannot.be.null");
+            invalidTest(null, valuesNotNull(), "must.not.be.null");
         }
 
         @Test
@@ -129,11 +129,11 @@ class MapRulesTest {
 
         @Test
         void invalid_whenNull_thenCannotBeNull() {
-            // A null map should trigger the universal "cannot.be.null" message.
+            // A null map should trigger the universal "must.not.be.null" message.
             invalidTest(
                     null,
                     containsKeys("a", "b"),
-                    "cannot.be.null"
+                    "must.not.be.null"
             );
         }
 

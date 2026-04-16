@@ -23,6 +23,7 @@ class BigIntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, bigInts().positive(), "must.not.be.null");
             invalidTest(BigInteger.ZERO, bigInts().positive(), "must.be.positive");
             invalidTest(BigInteger.ONE.negate(), bigInts().positive(), "must.be.positive");
         }
@@ -38,6 +39,7 @@ class BigIntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, bigInts().nonNegative(), "must.not.be.null");
             invalidTest(BigInteger.ONE.negate(), bigInts().nonNegative(), "must.be.non.negative");
         }
     }
@@ -51,6 +53,7 @@ class BigIntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, bigInts().negative(), "must.not.be.null");
             invalidTest(BigInteger.ZERO, bigInts().negative(), "must.be.negative");
             invalidTest(BigInteger.ONE, bigInts().negative(), "must.be.negative");
         }
@@ -66,6 +69,7 @@ class BigIntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, bigInts().nonPositive(), "must.not.be.null");
             invalidTest(BigInteger.ONE, bigInts().nonPositive(), "must.be.non.positive");
         }
     }
@@ -79,6 +83,7 @@ class BigIntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, bigInts().zero(), "must.not.be.null");
             invalidTest(BigInteger.ONE, bigInts().zero(), "must.be.zero");
         }
     }
@@ -92,6 +97,7 @@ class BigIntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, bigInts().nonZero(), "must.not.be.null");
             invalidTest(BigInteger.ZERO, bigInts().nonZero(), "must.not.be.zero");
         }
     }
@@ -107,6 +113,7 @@ class BigIntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, bigInts().odd(), "must.not.be.null");
             invalidTest(BigInteger.ZERO, bigInts().odd(), "must.be.odd");
             invalidTest(new BigInteger("2"), bigInts().odd(), "must.be.odd");
         }
@@ -123,6 +130,7 @@ class BigIntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, bigInts().even(), "must.not.be.null");
             invalidTest(BigInteger.ONE, bigInts().even(), "must.be.even");
             invalidTest(BigInteger.ONE.negate(), bigInts().even(), "must.be.even");
         }
@@ -138,6 +146,7 @@ class BigIntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, bigInts().min(new BigInteger("2")), "must.not.be.null");
             invalidTest(BigInteger.ONE, bigInts().min(new BigInteger("2")), "must.be.at.least", HashMap.of("min", new BigInteger("2")));
         }
     }
@@ -152,6 +161,7 @@ class BigIntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, bigInts().max(new BigInteger("2")), "must.not.be.null");
             invalidTest(new BigInteger("3"), bigInts().max(new BigInteger("2")), "must.be.at.most", HashMap.of("max", new BigInteger("2")));
         }
     }
@@ -166,22 +176,6 @@ class BigIntegerRulesTest {
         @Test
         void invalid() {
             invalidTest(BigInteger.ZERO, bigInts().between(BigInteger.ONE, new BigInteger("3")), "must.be.between", HashMap.of("min", BigInteger.ONE, "max", new BigInteger("3")));
-        }
-    }
-    @Nested
-    class NullHandling {
-        @Test
-        void returnsInvalidWhenNull() {
-            invalidTest(null, bigInts().positive(), "cannot.be.null");
-            invalidTest(null, bigInts().nonNegative(), "cannot.be.null");
-            invalidTest(null, bigInts().negative(), "cannot.be.null");
-            invalidTest(null, bigInts().nonPositive(), "cannot.be.null");
-            invalidTest(null, bigInts().zero(), "cannot.be.null");
-            invalidTest(null, bigInts().nonZero(), "cannot.be.null");
-            invalidTest(null, bigInts().odd(), "cannot.be.null");
-            invalidTest(null, bigInts().even(), "cannot.be.null");
-            invalidTest(null, bigInts().min(BigInteger.ZERO), "cannot.be.null");
-            invalidTest(null, bigInts().max(BigInteger.ZERO), "cannot.be.null");
         }
     }
 }

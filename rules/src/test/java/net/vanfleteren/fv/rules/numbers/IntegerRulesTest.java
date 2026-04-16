@@ -23,6 +23,7 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, ints().positive(), "must.not.be.null");
             invalidTest(0, ints().positive(), "must.be.positive");
             invalidTest(-1, ints().positive(), "must.be.positive");
         }
@@ -40,6 +41,7 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, ints().nonNegative(), "must.not.be.null");
             invalidTest(-1, ints().nonNegative(), "must.be.non.negative");
             invalidTest(-42, ints().nonNegative(), "must.be.non.negative");
         }
@@ -56,6 +58,7 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, ints().negative(), "must.not.be.null");
             invalidTest(0,ints().negative(), "must.be.negative");
             invalidTest(1,ints().negative(), "must.be.negative");
         }
@@ -72,6 +75,7 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, ints().nonPositive(), "must.not.be.null");
             invalidTest(1,ints().nonPositive(), "must.be.non.positive");
             invalidTest(42,ints().nonPositive(), "must.be.non.positive");
         }
@@ -87,6 +91,7 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, ints().zero(), "must.not.be.null");
             invalidTest(1,ints().zero(), "must.be.zero");
             invalidTest(-1,ints().zero(), "must.be.zero");
         }
@@ -103,6 +108,7 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, ints().nonZero(), "must.not.be.null");
             invalidTest(0,ints().nonZero(), "must.not.be.zero");
         }
     }
@@ -119,6 +125,7 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, ints().even(), "must.not.be.null");
             invalidTest(1,ints().even(), "must.be.even");
             invalidTest(-1,ints().even(), "must.be.even");
         }
@@ -135,6 +142,7 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, ints().odd(), "must.not.be.null");
             invalidTest(0,ints().odd(), "must.be.odd");
             invalidTest(2,ints().odd(), "must.be.odd");
             invalidTest(-2,ints().odd(), "must.be.odd");
@@ -152,6 +160,7 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, ints().min(2), "must.not.be.null");
             invalidTest(1, ints().min(2), "must.be.at.least", HashMap.of("min", 2));
             invalidTest(-100, ints().min(2), "must.be.at.least", HashMap.of("min", 2));
         }
@@ -169,6 +178,7 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, ints().max(2), "must.not.be.null");
             invalidTest(3, ints().max(2), "must.be.at.most", HashMap.of("max", 2));
             invalidTest(100, ints().max(2), "must.be.at.most", HashMap.of("max", 2));
         }

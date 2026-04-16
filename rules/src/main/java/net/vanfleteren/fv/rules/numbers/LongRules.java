@@ -32,7 +32,7 @@ public class LongRules implements ComparableRules<Long>, NumberRules<Long>, IObj
      */
     @Override
     public Rule<Long> positive() {
-        return Rule.of(l -> l > 0, "must.be.positive");
+        return Rule.notNull().and(Rule.of(l -> l > 0, "must.be.positive"));
     }
 
     /**
@@ -44,7 +44,7 @@ public class LongRules implements ComparableRules<Long>, NumberRules<Long>, IObj
      */
     @Override
     public Rule<Long> nonNegative() {
-        return Rule.of(l -> l >= 0, "must.be.non.negative");
+        return Rule.notNull().and(Rule.of(l -> l >= 0, "must.be.non.negative"));
     }
 
     /**
@@ -56,7 +56,7 @@ public class LongRules implements ComparableRules<Long>, NumberRules<Long>, IObj
      */
     @Override
     public Rule<Long> negative() {
-        return Rule.of(l -> l < 0, "must.be.negative");
+        return Rule.notNull().and(Rule.of(l -> l < 0, "must.be.negative"));
     }
 
     /**
@@ -68,7 +68,7 @@ public class LongRules implements ComparableRules<Long>, NumberRules<Long>, IObj
      */
     @Override
     public Rule<Long> nonPositive() {
-        return Rule.of(l -> l <= 0, "must.be.non.positive");
+        return Rule.notNull().and(Rule.of(l -> l <= 0, "must.be.non.positive"));
     }
 
     /**
@@ -80,7 +80,7 @@ public class LongRules implements ComparableRules<Long>, NumberRules<Long>, IObj
      */
     @Override
     public Rule<Long> zero() {
-        return Rule.of(l -> l == 0, "must.be.zero");
+        return Rule.notNull().and(Rule.of(l -> l == 0, "must.be.zero"));
     }
 
     /**
@@ -92,7 +92,7 @@ public class LongRules implements ComparableRules<Long>, NumberRules<Long>, IObj
      */
     @Override
     public Rule<Long> nonZero() {
-        return Rule.of(l -> l != 0, "must.not.be.zero");
+        return Rule.notNull().and(Rule.of(l -> l != 0, "must.not.be.zero"));
     }
     //endregion
 
@@ -105,7 +105,7 @@ public class LongRules implements ComparableRules<Long>, NumberRules<Long>, IObj
      * @return a {@link Rule} checking for odd values.
      */
     public Rule<Long> odd() {
-        return Rule.of(l -> (l & 1) != 0, "must.be.odd");
+        return Rule.notNull().and(Rule.of(l -> (l & 1) != 0, "must.be.odd"));
     }
 
     /**
@@ -116,7 +116,7 @@ public class LongRules implements ComparableRules<Long>, NumberRules<Long>, IObj
      * @return a {@link Rule} checking for even values.
      */
     public Rule<Long> even() {
-        return Rule.of(l -> (l & 1) == 0, "must.be.even");
+        return Rule.notNull().and(Rule.of(l -> (l & 1) == 0, "must.be.even"));
     }
     //endregion
 
@@ -135,10 +135,10 @@ public class LongRules implements ComparableRules<Long>, NumberRules<Long>, IObj
      * @return a {@link Rule} checking the minimum value.
      */
     public Rule<Long> min(long minInclusive) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 l -> l >= minInclusive,
                 ErrorMessage.of("must.be.at.least", "min", minInclusive)
-        );
+        ));
     }
 
     /**
@@ -155,10 +155,10 @@ public class LongRules implements ComparableRules<Long>, NumberRules<Long>, IObj
      * @return a {@link Rule} checking the maximum value.
      */
     public Rule<Long> max(long maxInclusive) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 l -> l <= maxInclusive,
                 ErrorMessage.of("must.be.at.most", "max", maxInclusive)
-        );
+        ));
     }
     //endregion
 

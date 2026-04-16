@@ -29,7 +29,7 @@ class ObjectRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(null, objects.notNull(), "cannot.be.null");
+            invalidTest(null, objects.notNull(), "must.not.be.null");
         }
     }
 

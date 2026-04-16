@@ -34,7 +34,7 @@ class StringTransformationsTest {
 
         @Test
         void trim_nullInputReturnsInvalid() {
-            invalidTest(null, stringTransforms().trim(), "cannot.be.null");
+            invalidTest(null, stringTransforms().trim(), "must.not.be.null");
         }
     }
 
@@ -63,7 +63,7 @@ class StringTransformationsTest {
         @Test
         void truncate_handlesZeroAndNull() {
             validTest("Hello", "", stringTransforms().truncate(0));
-            invalidTest(null, stringTransforms().truncate(2), "cannot.be.null");
+            invalidTest(null, stringTransforms().truncate(2), "must.not.be.null");
         }
     }
 
@@ -119,7 +119,7 @@ class StringTransformationsTest {
 
         @Test
         void truncateWithEllipsis_nullInputReturnsInvalid() {
-            invalidTest(null, stringTransforms().truncateWithEllipsis(5), "cannot.be.null");
+            invalidTest(null, stringTransforms().truncateWithEllipsis(5), "must.not.be.null");
         }
     }
 
@@ -155,7 +155,7 @@ class StringTransformationsTest {
 
         @Test
         void keepChars_nullInputReturnsInvalid() {
-            invalidTest(null, stringTransforms().keepChars("abc"), "cannot.be.null");
+            invalidTest(null, stringTransforms().keepChars("abc"), "must.not.be.null");
         }
 
 
@@ -171,7 +171,7 @@ class StringTransformationsTest {
 
         @Test
         void removeNewlines_nullInputReturnsInvalid() {
-            invalidTest(null, stringTransforms().removeNewlines(), "cannot.be.null");
+            invalidTest(null, stringTransforms().removeNewlines(), "must.not.be.null");
         }
     }
 
@@ -185,7 +185,7 @@ class StringTransformationsTest {
 
         @Test
         void collapseWhitespace_nullInputReturnsInvalid() {
-            invalidTest(null, stringTransforms().collapseWhitespace(), "cannot.be.null");
+            invalidTest(null, stringTransforms().collapseWhitespace(), "must.not.be.null");
         }
     }
 
@@ -199,7 +199,7 @@ class StringTransformationsTest {
 
         @Test
         void removeWhitespace_nullInputReturnsInvalid() {
-            invalidTest(null, stringTransforms().removeWhitespace(), "cannot.be.null");
+            invalidTest(null, stringTransforms().removeWhitespace(), "must.not.be.null");
         }
     }
 
@@ -218,7 +218,7 @@ class StringTransformationsTest {
 
         @Test
         void digits_nullInputReturnsInvalid() {
-            invalidTest(null, stringTransforms().digits(), "cannot.be.null");
+            invalidTest(null, stringTransforms().digits(), "must.not.be.null");
         }
     }
 
@@ -237,7 +237,7 @@ class StringTransformationsTest {
 
         @Test
         void nonDigits_nullInputReturnsInvalid() {
-            invalidTest(null, stringTransforms().nonDigits(), "cannot.be.null");
+            invalidTest(null, stringTransforms().nonDigits(), "must.not.be.null");
         }
     }
 
@@ -251,7 +251,7 @@ class StringTransformationsTest {
 
         @Test
         void alphanumeric_nullInputReturnsInvalid() {
-            invalidTest(null, stringTransforms().alphanumeric(), "cannot.be.null");
+            invalidTest(null, stringTransforms().alphanumeric(), "must.not.be.null");
         }
     }
 
@@ -278,7 +278,7 @@ class StringTransformationsTest {
 
         @Test
         void lettersOnly_nullInputReturnsInvalid() {
-            invalidTest(null, stringTransforms().lettersOnly(), "cannot.be.null");
+            invalidTest(null, stringTransforms().lettersOnly(), "must.not.be.null");
         }
     }
 
@@ -307,7 +307,7 @@ class StringTransformationsTest {
 
         @Test
         void lettersAndSpacesOnly_nullInputReturnsInvalid() {
-            invalidTest(null, stringTransforms().lettersAndSpacesOnly(), "cannot.be.null");
+            invalidTest(null, stringTransforms().lettersAndSpacesOnly(), "must.not.be.null");
         }
     }
 
@@ -321,7 +321,7 @@ class StringTransformationsTest {
 
         @Test
         void lowercase_nullInputReturnsInvalid() {
-            invalidTest(null, stringTransforms().lowercase(), "cannot.be.null");
+            invalidTest(null, stringTransforms().lowercase(), "must.not.be.null");
         }
     }
 
@@ -335,7 +335,7 @@ class StringTransformationsTest {
 
         @Test
         void uppercase_nullInputReturnsInvalid() {
-            invalidTest(null, stringTransforms().uppercase(), "cannot.be.null");
+            invalidTest(null, stringTransforms().uppercase(), "must.not.be.null");
         }
     }
 
@@ -354,7 +354,7 @@ class StringTransformationsTest {
 
         @Test
         void removeCharacters_nullInputReturnsInvalid() {
-            invalidTest(null, stringTransforms().removeCharacters("-"), "cannot.be.null");
+            invalidTest(null, stringTransforms().removeCharacters("-"), "must.not.be.null");
         }
     }
 
@@ -368,7 +368,7 @@ class StringTransformationsTest {
 
         @Test
         void replaceAll_nullInputReturnsInvalid() {
-            invalidTest(null, stringTransforms().replaceAll("-", ""), "cannot.be.null");
+            invalidTest(null, stringTransforms().replaceAll("-", ""), "must.not.be.null");
         }
     }
 
@@ -414,7 +414,7 @@ class StringTransformationsTest {
 
         @Test
         void stripDiacritics_nullInputReturnsInvalid() {
-            invalidTest(null, stringTransforms().stripDiacritics(), "cannot.be.null");
+            invalidTest(null, stringTransforms().stripDiacritics(), "must.not.be.null");
         }
     }
 
@@ -468,7 +468,7 @@ class StringTransformationsTest {
 
         @Test
         void stripControlChars_nullInputReturnsInvalid() {
-            invalidTest(null, stringTransforms().stripControlChars(), "cannot.be.null");
+            invalidTest(null, stringTransforms().stripControlChars(), "must.not.be.null");
         }
     }
 }

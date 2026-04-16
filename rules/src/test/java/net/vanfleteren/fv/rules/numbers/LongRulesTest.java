@@ -23,6 +23,7 @@ class LongRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, longs.positive(), "must.not.be.null");
             invalidTest(0L, longs.positive(), "must.be.positive");
             invalidTest(-1L, longs.positive(), "must.be.positive");
         }
@@ -40,6 +41,7 @@ class LongRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, longs.nonNegative(), "must.not.be.null");
             invalidTest(-1L, longs.nonNegative(), "must.be.non.negative");
             invalidTest(-42L, longs.nonNegative(), "must.be.non.negative");
         }
@@ -56,6 +58,7 @@ class LongRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, longs.negative(), "must.not.be.null");
             invalidTest(0L,longs.negative(), "must.be.negative");
             invalidTest(1L,longs.negative(), "must.be.negative");
         }
@@ -72,6 +75,7 @@ class LongRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, longs.nonPositive(), "must.not.be.null");
             invalidTest(1L,longs.nonPositive(), "must.be.non.positive");
             invalidTest(42L,longs.nonPositive(), "must.be.non.positive");
         }
@@ -87,6 +91,7 @@ class LongRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, longs.zero(), "must.not.be.null");
             invalidTest(1L,longs.zero(), "must.be.zero");
             invalidTest(-1L,longs.zero(), "must.be.zero");
         }
@@ -103,6 +108,7 @@ class LongRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, longs.nonZero(), "must.not.be.null");
             invalidTest(0L,longs.nonZero(), "must.not.be.zero");
         }
     }
@@ -119,6 +125,7 @@ class LongRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, longs.even(), "must.not.be.null");
             invalidTest(1L,longs.even(), "must.be.even");
             invalidTest(-1L,longs.even(), "must.be.even");
         }
@@ -135,6 +142,7 @@ class LongRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, longs.odd(), "must.not.be.null");
             invalidTest(0L,longs.odd(), "must.be.odd");
             invalidTest(2L,longs.odd(), "must.be.odd");
             invalidTest(-2L,longs.odd(), "must.be.odd");
@@ -152,6 +160,7 @@ class LongRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, longs.min(2L), "must.not.be.null");
             invalidTest(1L, longs.min(2L), "must.be.at.least", HashMap.of("min", 2L));
             invalidTest(-100L, longs.min(2L), "must.be.at.least", HashMap.of("min", 2L));
         }
@@ -169,6 +178,7 @@ class LongRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, longs.max(2L), "must.not.be.null");
             invalidTest(3L, longs.max(2L), "must.be.at.most", HashMap.of("max", 2L));
             invalidTest(100L, longs.max(2L), "must.be.at.most", HashMap.of("max", 2L));
         }

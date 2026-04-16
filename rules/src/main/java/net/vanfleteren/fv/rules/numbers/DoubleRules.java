@@ -32,7 +32,7 @@ public class DoubleRules implements ComparableRules<Double>, NumberRules<Double>
      */
     @Override
     public Rule<Double> positive() {
-        return Rule.of(d -> d > 0.0, "must.be.positive");
+        return Rule.notNull().and(Rule.of(d -> d > 0.0, "must.be.positive"));
     }
 
     /**
@@ -44,7 +44,7 @@ public class DoubleRules implements ComparableRules<Double>, NumberRules<Double>
      */
     @Override
     public Rule<Double> nonNegative() {
-        return Rule.of(d -> d >= 0.0, "must.be.non.negative");
+        return Rule.notNull().and(Rule.of(d -> d >= 0.0, "must.be.non.negative"));
     }
 
     /**
@@ -56,7 +56,7 @@ public class DoubleRules implements ComparableRules<Double>, NumberRules<Double>
      */
     @Override
     public Rule<Double> negative() {
-        return Rule.of(d -> d < 0.0, "must.be.negative");
+        return Rule.notNull().and(Rule.of(d -> d < 0.0, "must.be.negative"));
     }
 
     /**
@@ -68,7 +68,7 @@ public class DoubleRules implements ComparableRules<Double>, NumberRules<Double>
      */
     @Override
     public Rule<Double> nonPositive() {
-        return Rule.of(d -> d <= 0.0, "must.be.non.positive");
+        return Rule.notNull().and(Rule.of(d -> d <= 0.0, "must.be.non.positive"));
     }
 
     /**
@@ -80,7 +80,7 @@ public class DoubleRules implements ComparableRules<Double>, NumberRules<Double>
      */
     @Override
     public Rule<Double> zero() {
-        return Rule.of(d -> d == 0.0, "must.be.zero");
+        return Rule.notNull().and(Rule.of(d -> d == 0.0, "must.be.zero"));
     }
 
     /**
@@ -92,7 +92,7 @@ public class DoubleRules implements ComparableRules<Double>, NumberRules<Double>
      */
     @Override
     public Rule<Double> nonZero() {
-        return Rule.of(d -> d != 0.0, "must.not.be.zero");
+        return Rule.notNull().and(Rule.of(d -> d != 0.0, "must.not.be.zero"));
     }
     //endregion
 
@@ -105,7 +105,7 @@ public class DoubleRules implements ComparableRules<Double>, NumberRules<Double>
      * @return a {@link Rule} checking for finite values.
      */
     public Rule<Double> finite() {
-        return Rule.of(Double::isFinite, "must.be.finite");
+        return Rule.notNull().and(Rule.of(Double::isFinite, "must.be.finite"));
     }
 
     /**
@@ -116,7 +116,7 @@ public class DoubleRules implements ComparableRules<Double>, NumberRules<Double>
      * @return a {@link Rule} checking for NaN values.
      */
     public Rule<Double> nan() {
-        return Rule.of(d -> Double.isNaN(d), "must.be.nan");
+        return Rule.notNull().and(Rule.of(d -> Double.isNaN(d), "must.be.nan"));
     }
 
     /**
@@ -127,7 +127,7 @@ public class DoubleRules implements ComparableRules<Double>, NumberRules<Double>
      * @return a {@link Rule} checking for non-NaN values.
      */
     public Rule<Double> nonNan() {
-        return Rule.of(d -> !Double.isNaN(d), "must.not.be.nan");
+        return Rule.notNull().and(Rule.of(d -> !Double.isNaN(d), "must.not.be.nan"));
     }
     //endregion
 
@@ -146,10 +146,10 @@ public class DoubleRules implements ComparableRules<Double>, NumberRules<Double>
      * @return a {@link Rule} checking the minimum value.
      */
     public Rule<Double> min(double minInclusive) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 d -> d >= minInclusive,
                 ErrorMessage.of("must.be.at.least", "min", minInclusive)
-        );
+        ));
     }
 
     /**
@@ -166,10 +166,10 @@ public class DoubleRules implements ComparableRules<Double>, NumberRules<Double>
      * @return a {@link Rule} checking the maximum value.
      */
     public Rule<Double> max(double maxInclusive) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 d -> d <= maxInclusive,
                 ErrorMessage.of("must.be.at.most", "max", maxInclusive)
-        );
+        ));
     }
     //endregion
 

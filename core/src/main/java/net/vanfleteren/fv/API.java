@@ -326,7 +326,7 @@ public class API {
 
         public ValidationDSL(T value, String name) {
             if (value == null) {
-                this.validation = (Validation<T>) Validation.invalid(ErrorMessage.of("cannot.be.null")).at(name);
+                this.validation = (Validation<T>) Validation.invalid(ErrorMessage.of("must.not.be.null")).at(name);
             } else {
                 this.validation = Validation.valid(value).at(name);
             }
@@ -364,7 +364,7 @@ public class API {
 
         /**
          * Validates that the value satisfies the given rule.
-         * If the value is {@code null}, an error "cannot.be.null" is automatically added.
+         * If the value is {@code null}, an error "must.not.be.null" is automatically added.
          *
          * @param rule the rule to check.
          * @return a {@link Validation} result.
@@ -377,7 +377,7 @@ public class API {
 
         /**
          * Validates that the value satisfies the given rule.
-         * If the value is {@code null}, an error "cannot.be.null" is automatically added.
+         * If the value is {@code null}, an error "must.not.be.null" is automatically added.
          *
          * @param rule the rule to check.
          * @return a {@link Validation} result.
@@ -390,7 +390,7 @@ public class API {
 
         /**
          * Validates that the value satisfies the given rule.
-         * If the value is {@code null}, an error "cannot.be.null" is automatically added.
+         * If the value is {@code null}, an error "must.not.be.null" is automatically added.
          *
          * @param rule the rule to check.
          * @return a {@link Validation} result.
@@ -422,7 +422,7 @@ public class API {
             this.value = value;
             this.name = name;
             if (value == null) {
-                this.validation = Validation.<List<T>>invalid(ErrorMessage.of("cannot.be.null")).at(name);
+                this.validation = Validation.<List<T>>invalid(ErrorMessage.of("must.not.be.null")).at(name);
             } else {
                 this.validation = Validation.valid(value).at(name);
             }

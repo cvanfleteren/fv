@@ -32,7 +32,7 @@ public class IntegerRules implements ComparableRules<Integer>, NumberRules<Integ
      */
     @Override
     public Rule<Integer> positive() {
-        return Rule.of(i -> i > 0, "must.be.positive");
+        return Rule.notNull().and(Rule.of(i -> i > 0, "must.be.positive"));
     }
 
     /**
@@ -44,7 +44,7 @@ public class IntegerRules implements ComparableRules<Integer>, NumberRules<Integ
      */
     @Override
     public Rule<Integer> nonNegative() {
-        return Rule.of(i -> i >= 0, "must.be.non.negative");
+        return Rule.notNull().and(Rule.of(i -> i >= 0, "must.be.non.negative"));
     }
 
     /**
@@ -56,7 +56,7 @@ public class IntegerRules implements ComparableRules<Integer>, NumberRules<Integ
      */
     @Override
     public Rule<Integer> negative() {
-        return Rule.of(i -> i < 0, "must.be.negative");
+        return Rule.notNull().and(Rule.of(i -> i < 0, "must.be.negative"));
     }
 
     /**
@@ -68,7 +68,7 @@ public class IntegerRules implements ComparableRules<Integer>, NumberRules<Integ
      */
     @Override
     public Rule<Integer> nonPositive() {
-        return Rule.of(i -> i <= 0, "must.be.non.positive");
+        return Rule.notNull().and(Rule.of(i -> i <= 0, "must.be.non.positive"));
     }
 
     /**
@@ -80,7 +80,7 @@ public class IntegerRules implements ComparableRules<Integer>, NumberRules<Integ
      */
     @Override
     public Rule<Integer> zero() {
-        return Rule.of(i -> i == 0, "must.be.zero");
+        return Rule.notNull().and(Rule.of(i -> i == 0, "must.be.zero"));
     }
 
     /**
@@ -92,7 +92,7 @@ public class IntegerRules implements ComparableRules<Integer>, NumberRules<Integ
      */
     @Override
     public Rule<Integer> nonZero() {
-        return Rule.of(i -> i != 0, "must.not.be.zero");
+        return Rule.notNull().and(Rule.of(i -> i != 0, "must.not.be.zero"));
     }
     //endregion
 
@@ -105,7 +105,7 @@ public class IntegerRules implements ComparableRules<Integer>, NumberRules<Integ
      * @return a {@link Rule} checking for odd values.
      */
     public Rule<Integer> odd() {
-        return Rule.of(i -> (i & 1) != 0, "must.be.odd");
+        return Rule.notNull().and(Rule.of(i -> (i & 1) != 0, "must.be.odd"));
     }
 
     /**
@@ -116,7 +116,7 @@ public class IntegerRules implements ComparableRules<Integer>, NumberRules<Integ
      * @return a {@link Rule} checking for even values.
      */
     public Rule<Integer> even() {
-        return Rule.of(i -> (i & 1) == 0, "must.be.even");
+        return Rule.notNull().and(Rule.of(i -> (i & 1) == 0, "must.be.even"));
     }
     //endregion
 
@@ -135,10 +135,10 @@ public class IntegerRules implements ComparableRules<Integer>, NumberRules<Integ
      * @return a {@link Rule} checking the minimum value.
      */
     public Rule<Integer> min(int minInclusive) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 i -> i >= minInclusive,
                 ErrorMessage.of("must.be.at.least", "min", minInclusive)
-        );
+        ));
     }
 
     /**
@@ -155,10 +155,10 @@ public class IntegerRules implements ComparableRules<Integer>, NumberRules<Integ
      * @return a {@link Rule} checking the maximum value.
      */
     public Rule<Integer> max(int maxInclusive) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 i -> i <= maxInclusive,
                 ErrorMessage.of("must.be.at.most", "max", maxInclusive)
-        );
+        ));
     }
     //endregion
 

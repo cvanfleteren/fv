@@ -20,6 +20,7 @@ class DoubleRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, doubles().positive(), "must.not.be.null");
             invalidTest(0.0, doubles().positive(), "must.be.positive");
             invalidTest(-1.0, doubles().positive(), "must.be.positive");
         }
@@ -35,6 +36,7 @@ class DoubleRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, doubles().nonNegative(), "must.not.be.null");
             invalidTest(-1.0, doubles().nonNegative(), "must.be.non.negative");
         }
     }
@@ -48,6 +50,7 @@ class DoubleRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, doubles().negative(), "must.not.be.null");
             invalidTest(0.0, doubles().negative(), "must.be.negative");
             invalidTest(1.0, doubles().negative(), "must.be.negative");
         }
@@ -63,6 +66,7 @@ class DoubleRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, doubles().nonPositive(), "must.not.be.null");
             invalidTest(1.0, doubles().nonPositive(), "must.be.non.positive");
         }
     }
@@ -76,6 +80,7 @@ class DoubleRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, doubles().zero(), "must.not.be.null");
             invalidTest(1.0, doubles().zero(), "must.be.zero");
             invalidTest(-1.0, doubles().zero(), "must.be.zero");
         }
@@ -91,6 +96,7 @@ class DoubleRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, doubles().nonZero(), "must.not.be.null");
             invalidTest(0.0, doubles().nonZero(), "must.not.be.zero");
         }
     }
@@ -104,6 +110,7 @@ class DoubleRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, doubles().finite(), "must.not.be.null");
             invalidTest(Double.POSITIVE_INFINITY, doubles().finite(), "must.be.finite");
             invalidTest(Double.NaN, doubles().finite(), "must.be.finite");
         }
@@ -118,6 +125,7 @@ class DoubleRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, doubles().nan(), "must.not.be.null");
             invalidTest(1.0, doubles().nan(), "must.be.nan");
         }
     }
@@ -131,6 +139,7 @@ class DoubleRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, doubles().nonNan(), "must.not.be.null");
             invalidTest(Double.NaN, doubles().nonNan(), "must.not.be.nan");
         }
     }
@@ -145,6 +154,7 @@ class DoubleRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, doubles().min(2.0), "must.not.be.null");
             invalidTest(1.0, doubles().min(2.0), "must.be.at.least", HashMap.of("min", 2.0));
         }
     }
@@ -159,6 +169,7 @@ class DoubleRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, doubles().max(2.0), "must.not.be.null");
             invalidTest(3.0, doubles().max(2.0), "must.be.at.most", HashMap.of("max", 2.0));
         }
     }

@@ -32,7 +32,7 @@ public class FloatRules implements ComparableRules<Float>, NumberRules<Float>, I
      */
     @Override
     public Rule<Float> positive() {
-        return Rule.of(f -> f > 0.0f, "must.be.positive");
+        return Rule.notNull().and(Rule.of(f -> f > 0.0f, "must.be.positive"));
     }
 
     /**
@@ -44,7 +44,7 @@ public class FloatRules implements ComparableRules<Float>, NumberRules<Float>, I
      */
     @Override
     public Rule<Float> nonNegative() {
-        return Rule.of(f -> f >= 0.0f, "must.be.non.negative");
+        return Rule.notNull().and(Rule.of(f -> f >= 0.0f, "must.be.non.negative"));
     }
 
     /**
@@ -56,7 +56,7 @@ public class FloatRules implements ComparableRules<Float>, NumberRules<Float>, I
      */
     @Override
     public Rule<Float> negative() {
-        return Rule.of(f -> f < 0.0f, "must.be.negative");
+        return Rule.notNull().and(Rule.of(f -> f < 0.0f, "must.be.negative"));
     }
 
     /**
@@ -68,7 +68,7 @@ public class FloatRules implements ComparableRules<Float>, NumberRules<Float>, I
      */
     @Override
     public Rule<Float> nonPositive() {
-        return Rule.of(f -> f <= 0.0f, "must.be.non.positive");
+        return Rule.notNull().and(Rule.of(f -> f <= 0.0f, "must.be.non.positive"));
     }
 
     /**
@@ -80,7 +80,7 @@ public class FloatRules implements ComparableRules<Float>, NumberRules<Float>, I
      */
     @Override
     public Rule<Float> zero() {
-        return Rule.of(f -> f == 0.0f, "must.be.zero");
+        return Rule.notNull().and(Rule.of(f -> f == 0.0f, "must.be.zero"));
     }
 
     /**
@@ -92,7 +92,7 @@ public class FloatRules implements ComparableRules<Float>, NumberRules<Float>, I
      */
     @Override
     public Rule<Float> nonZero() {
-        return Rule.of(f -> f != 0.0f, "must.not.be.zero");
+        return Rule.notNull().and(Rule.of(f -> f != 0.0f, "must.not.be.zero"));
     }
     //endregion
 
@@ -105,7 +105,7 @@ public class FloatRules implements ComparableRules<Float>, NumberRules<Float>, I
      * @return a {@link Rule} checking for finite values.
      */
     public Rule<Float> finite() {
-        return Rule.of(Float::isFinite, "must.be.finite");
+        return Rule.notNull().and(Rule.of(Float::isFinite, "must.be.finite"));
     }
 
     /**
@@ -116,7 +116,7 @@ public class FloatRules implements ComparableRules<Float>, NumberRules<Float>, I
      * @return a {@link Rule} checking for NaN values.
      */
     public Rule<Float> nan() {
-        return Rule.of(f -> Float.isNaN(f), "must.be.nan");
+        return Rule.notNull().and(Rule.of(f -> Float.isNaN(f), "must.be.nan"));
     }
 
     /**
@@ -127,7 +127,7 @@ public class FloatRules implements ComparableRules<Float>, NumberRules<Float>, I
      * @return a {@link Rule} checking for non-NaN values.
      */
     public Rule<Float> nonNan() {
-        return Rule.of(f -> !Float.isNaN(f), "must.not.be.nan");
+        return Rule.notNull().and(Rule.of(f -> !Float.isNaN(f), "must.not.be.nan"));
     }
     //endregion
 
@@ -146,10 +146,10 @@ public class FloatRules implements ComparableRules<Float>, NumberRules<Float>, I
      * @return a {@link Rule} checking the minimum value.
      */
     public Rule<Float> min(float minInclusive) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 f -> f >= minInclusive,
                 ErrorMessage.of("must.be.at.least", "min", minInclusive)
-        );
+        ));
     }
 
     /**
@@ -166,10 +166,10 @@ public class FloatRules implements ComparableRules<Float>, NumberRules<Float>, I
      * @return a {@link Rule} checking the maximum value.
      */
     public Rule<Float> max(float maxInclusive) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 f -> f <= maxInclusive,
                 ErrorMessage.of("must.be.at.most", "max", maxInclusive)
-        );
+        ));
     }
     //endregion
 

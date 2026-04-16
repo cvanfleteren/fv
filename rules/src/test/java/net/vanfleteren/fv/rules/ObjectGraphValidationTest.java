@@ -166,6 +166,6 @@ class ObjectGraphValidationTest {
         // Assert
         assertThatValidation(result)
                 .isInvalid()
-                .hasErrorMessage("address.address.cannot.be.null");
+                .hasErrorMessage("address.address.must.not.be.null");
     }
 }
