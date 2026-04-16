@@ -39,7 +39,13 @@ public class JCollectionRules {
      * <p>
      * Error key: {@code must.not.be.empty}
      */
-    public Rule<Collection<?>> notEmpty = Rule.of(value -> value != null && !value.isEmpty(), "must.not.be.empty");
+    public Rule<Collection<?>> notEmpty = Rule.notNull().and(value -> {
+        if (!value.isEmpty()) {
+            return Validation.valid(value);
+        } else {
+            return Validation.invalid(ErrorMessage.of("must.not.be.empty"));
+        }
+    });
 
     /**
      * Fails if the collection size is less than the specified minimum.
@@ -55,7 +61,13 @@ public class JCollectionRules {
      * @return a {@link Rule} checking the minimum size.
      */
     public Rule<Collection<?>> minSize(int size) {
-        return Rule.of(value -> value.size() >= size, ErrorMessage.of("must.have.min.size", "min", size));
+        return Rule.notNull().and(value -> {
+            if (value.size() >= size) {
+                return Validation.valid(value);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.have.min.size", "min", size));
+            }
+        });
     }
 
     /**
@@ -72,7 +84,13 @@ public class JCollectionRules {
      * @return a {@link Rule} checking the maximum size.
      */
     public Rule<Collection<?>> maxSize(int size) {
-        return Rule.of(value -> value.size() <= size, ErrorMessage.of("must.have.max.size", "max", size));
+        return Rule.notNull().and(value -> {
+            if (value.size() <= size) {
+                return Validation.valid(value);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.have.max.size", "max", size));
+            }
+        });
     }
 
     /**
@@ -89,7 +107,13 @@ public class JCollectionRules {
      * @return a {@link Rule} checking the exact size.
      */
     public Rule<Collection<?>> sizeEquals(int size) {
-        return Rule.of(value -> value.size() == size, ErrorMessage.of("must.have.exact.size", "equal", size));
+        return Rule.notNull().and(value -> {
+            if (value.size() == size) {
+                return Validation.valid(value);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.have.exact.size", "equal", size));
+            }
+        });
     }
 
     /**
@@ -108,13 +132,14 @@ public class JCollectionRules {
      * @return a {@link Rule} checking the size range.
      */
     public Rule<Collection<?>> sizeBetween(int min, int max) {
-        return Rule.of(
-                value -> {
-                    int size = value.size();
-                    return size >= min && size <= max;
-                },
-                ErrorMessage.of("must.have.size.between", HashMap.of("min", min, "max", max))
-        );
+        return Rule.notNull().and(value -> {
+            int size = value.size();
+            if (size >= min && size <= max) {
+                return Validation.valid(value);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.have.size.between", HashMap.of("min", min, "max", max)));
+            }
+        });
     }
 
     /**
@@ -126,7 +151,7 @@ public class JCollectionRules {
      * @return a {@link Rule} that validates if the collection has no null elements.
      */
     public <T> Rule<List<T>> noNullElements() {
-        return validateValuesWith(objects.notNull());
+        return Rule.notNull().and(validateValuesWith(objects.notNull()));
     }
 
     /**
@@ -153,7 +178,7 @@ public class JCollectionRules {
      */
     public <T> Rule<List<T>> allMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
-        return value -> validateValuesWith(Rule.of(predicate, errorMessage)).test(value);
+        return Rule.notNull().and(value -> validateValuesWith(Rule.of(predicate, errorMessage)).test(value));
     }
 
     /**
@@ -180,7 +205,7 @@ public class JCollectionRules {
      */
     public <T> Rule<List<T>> noneMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
-        return value -> validateValuesWith(Rule.of(predicate.negate(), errorMessage)).test(value);
+        return Rule.notNull().and(value -> validateValuesWith(Rule.of(predicate.negate(), errorMessage)).test(value));
     }
 
     /**
@@ -207,7 +232,7 @@ public class JCollectionRules {
      */
     public <T> Rule<List<T>> anyMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
-        return value -> value.stream().anyMatch(predicate) ? Validation.valid(value) : Validation.invalid(errorMessage);
+        return Rule.notNull().and(value -> value.stream().anyMatch(predicate) ? Validation.valid(value) : Validation.invalid(errorMessage));
     }
 
     /**
@@ -225,10 +250,13 @@ public class JCollectionRules {
      * @return a {@link Rule} that validates if the collection contains the element.
      */
     public <T> Rule<Collection<T>> contains(T element) {
-        return Rule.of(
-                values -> values.contains(element),
-                ErrorMessage.of("must.contain", HashMap.of("element", element))
-        );
+        return Rule.notNull().and(values -> {
+            if (values.contains(element)) {
+                return Validation.valid(values);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.contain", HashMap.of("element", element)));
+            }
+        });
     }
 
     /**
@@ -251,10 +279,13 @@ public class JCollectionRules {
 
         Set<T> requiredSet = HashSet.ofAll(required);
 
-        return Rule.of(
-                values -> values.containsAll(requiredSet.toJavaSet()),
-                ErrorMessage.of("must.contain.all", HashMap.of("required", requiredSet))
-        );
+        return Rule.notNull().and(values -> {
+            if (values.containsAll(requiredSet.toJavaSet())) {
+                return Validation.valid(values);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.contain.all", HashMap.of("required", requiredSet)));
+            }
+        });
     }
 
     /**
@@ -277,15 +308,13 @@ public class JCollectionRules {
 
         Set<T> candidateSet = HashSet.ofAll(candidates);
 
-        return Rule.of(
-                values -> {
-                    if (candidateSet.isEmpty()) {
-                        return false;
-                    }
-                    return values.stream().anyMatch(candidateSet::contains);
-                },
-                ErrorMessage.of("must.contain.any.of", HashMap.of("candidates", candidateSet))
-        );
+        return Rule.notNull().and(values -> {
+            if (!candidateSet.isEmpty() && values.stream().anyMatch(candidateSet::contains)) {
+                return Validation.valid(values);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.contain.any.of", HashMap.of("candidates", candidateSet)));
+            }
+        });
     }
 
     /**
@@ -311,11 +340,9 @@ public class JCollectionRules {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
         Objects.requireNonNull(key, "key cannot be null");
 
-        return values -> {
-            Objects.requireNonNull(values, "values cannot be null");
-
+        return Rule.notNull().and(values -> {
             java.util.List<T> list = new ArrayList<>(values);
-            
+
             Tuple2<Map<K, Integer>, Map<K, io.vavr.collection.List<Integer>>> state = IntStream.range(0, list.size())
                     .boxed()
                     .reduce(
@@ -340,7 +367,9 @@ public class JCollectionRules {
                                     return Tuple.of(firstIndexByKey.put(keyValue, idx), duplicateIndicesByKey);
                                 }
                             },
-                            (acc1, acc2) -> { throw new UnsupportedOperationException("Parallel stream not supported"); }
+                            (acc1, acc2) -> {
+                                throw new UnsupportedOperationException("Parallel stream not supported");
+                            }
                     );
 
             Map<K, io.vavr.collection.List<Integer>> duplicateIndicesByKey = state._2;
@@ -358,7 +387,7 @@ public class JCollectionRules {
                             )
                     )
             );
-        };
+        });
     }
 
     /**
@@ -370,7 +399,7 @@ public class JCollectionRules {
      * @return a {@link Rule} that applies the given rule to all elements in the list.
      */
     public <T> Rule<List<T>> validateValuesWith(Rule<? super T> rule) {
-        return list -> {
+        return Rule.notNull().and(list -> {
             var validations = IntStream.range(0, list.size()).mapToObj(idx ->
                     rule.test(list.get(idx))
                             .mapErrors(errors ->
@@ -384,7 +413,7 @@ public class JCollectionRules {
             } else {
                 return Validation.valid(list);
             }
-        };
+        });
     }
 
 }

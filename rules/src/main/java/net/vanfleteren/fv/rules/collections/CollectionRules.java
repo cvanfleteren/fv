@@ -36,7 +36,13 @@ public class CollectionRules {
      * Error key: {@code must.not.be.empty}
      */
     public Rule<? super Iterable<?>> notEmpty() {
-            return Rule.of(value -> value.iterator().hasNext(), "must.not.be.empty");
+        return Rule.notNull().and(value -> {
+            if (value.iterator().hasNext()) {
+                return Validation.valid(value);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.not.be.empty"));
+            }
+        });
     }
 
     /**
@@ -45,7 +51,13 @@ public class CollectionRules {
      * Error key: {@code must.be.empty}
      */
     public Rule<? super Iterable<?>> empty() {
-            return Rule.of(value -> !value.iterator().hasNext(), "must.be.empty");
+        return Rule.notNull().and(value -> {
+            if (!value.iterator().hasNext()) {
+                return Validation.valid(value);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.be.empty"));
+            }
+        });
     }
 
     /**
@@ -62,7 +74,13 @@ public class CollectionRules {
      * @return a {@link Rule} checking the minimum size.
      */
     public Rule<Traversable<?>> minSize(int size) {
-        return Rule.of(value -> value.size() >= size, ErrorMessage.of("must.have.min.size", "min", size));
+        return Rule.notNull().and(value -> {
+            if (value.size() >= size) {
+                return Validation.valid(value);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.have.min.size", "min", size));
+            }
+        });
     }
 
     /**
@@ -79,7 +97,13 @@ public class CollectionRules {
      * @return a {@link Rule} checking the maximum size.
      */
     public Rule<Traversable<?>> maxSize(int size) {
-        return Rule.of(value -> value.size() <= size, ErrorMessage.of("must.have.max.size", "max", size));
+        return Rule.notNull().and(value -> {
+            if (value.size() <= size) {
+                return Validation.valid(value);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.have.max.size", "max", size));
+            }
+        });
     }
 
     /**
@@ -96,7 +120,13 @@ public class CollectionRules {
      * @return a {@link Rule} checking the exact size.
      */
     public Rule<Traversable<?>> sizeEquals(int size) {
-        return Rule.of(value -> value.size() == size, ErrorMessage.of("must.have.exact.size", "equal", size));
+        return Rule.notNull().and(value -> {
+            if (value.size() == size) {
+                return Validation.valid(value);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.have.exact.size", "equal", size));
+            }
+        });
     }
 
     /**
@@ -115,13 +145,14 @@ public class CollectionRules {
      * @return a {@link Rule} checking the size range.
      */
     public Rule<Traversable<?>> sizeBetween(int min, int max) {
-        return Rule.of(
-                value -> {
-                    int size = value.size();
-                    return size >= min && size <= max;
-                },
-                ErrorMessage.of("must.have.size.between", HashMap.of("min", min, "max", max))
-        );
+        return Rule.notNull().and(value -> {
+            int size = value.size();
+            if (size >= min && size <= max) {
+                return Validation.valid(value);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.have.size.between", HashMap.of("min", min, "max", max)));
+            }
+        });
     }
 
     /**
@@ -134,7 +165,7 @@ public class CollectionRules {
      */
     public <T> Rule<List<T>> noNullElements() {
         Rule<T> notNull = objects.notNull();
-        return notNull.liftToList();
+        return Rule.notNull().and(notNull.liftToList());
     }
 
     /**
@@ -145,7 +176,7 @@ public class CollectionRules {
      * @return a {@link Rule} that validates if all elements match the {@link Rule}.
      */
     public <T> Rule<List<T>> allMatch(Rule<T> rule) {
-        return input -> rule.liftToList().test(input);
+        return Rule.notNull().and(rule.liftToList());
     }
 
     /**
@@ -172,7 +203,7 @@ public class CollectionRules {
      */
     public <T> Rule<List<T>> allMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
-        return value -> Rule.of(predicate, errorMessage).liftToList().test(value);
+        return Rule.notNull().and(value -> Rule.of(predicate, errorMessage).liftToList().test(value));
     }
 
     /**
@@ -212,7 +243,7 @@ public class CollectionRules {
      */
     public <T> Rule<List<T>> noneMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
-        return value -> Rule.of(predicate.negate(), errorMessage).liftToList().test(value);
+        return Rule.notNull().and(value -> Rule.of(predicate.negate(), errorMessage).liftToList().test(value));
     }
 
     /**
@@ -239,7 +270,7 @@ public class CollectionRules {
      */
     public <T> Rule<List<T>> anyMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
-        return value -> value.exists(predicate) ? Validation.valid(value) : Validation.invalid(errorMessage);
+        return Rule.notNull().and(value -> value.exists(predicate) ? Validation.valid(value) : Validation.invalid(errorMessage));
     }
 
     /**
@@ -257,10 +288,13 @@ public class CollectionRules {
      * @return a {@link Rule} that validates if the collection contains the element.
      */
     public <T> Rule<Iterable<T>> contains(T element) {
-        return Rule.of(
-                values -> Iterator.ofAll(values).contains(element),
-                ErrorMessage.of("must.contain", HashMap.of("element", element))
-        );
+        return Rule.notNull().and(values -> {
+            if (Iterator.ofAll(values).contains(element)) {
+                return Validation.valid(values);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.contain", HashMap.of("element", element)));
+            }
+        });
     }
 
     /**
@@ -283,10 +317,13 @@ public class CollectionRules {
 
         Set<T> requiredSet = HashSet.ofAll(required);
 
-        return Rule.of(
-                values -> Iterator.ofAll(values).containsAll(requiredSet),
-                ErrorMessage.of("must.contain.all", HashMap.of("required", requiredSet))
-        );
+        return Rule.notNull().and(values -> {
+            if (Iterator.ofAll(values).containsAll(requiredSet)) {
+                return Validation.valid(values);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.contain.all", HashMap.of("required", requiredSet)));
+            }
+        });
     }
 
     /**
@@ -309,15 +346,13 @@ public class CollectionRules {
 
         Set<T> candidateSet = HashSet.ofAll(candidates);
 
-        return Rule.of(
-                values -> {
-                    if (candidateSet.isEmpty()) {
-                        return false;
-                    }
-                    return Iterator.ofAll(values).exists(candidateSet::contains);
-                },
-                ErrorMessage.of("must.contain.any.of", HashMap.of("candidates", candidateSet))
-        );
+        return Rule.notNull().and(values -> {
+            if (!candidateSet.isEmpty() && Iterator.ofAll(values).exists(candidateSet::contains)) {
+                return Validation.valid(values);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.contain.any.of", HashMap.of("candidates", candidateSet)));
+            }
+        });
     }
 
     /**
@@ -343,9 +378,7 @@ public class CollectionRules {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
         Objects.requireNonNull(key, "key cannot be null");
 
-        return values -> {
-            Objects.requireNonNull(values, "values cannot be null");
-
+        return Rule.notNull().and(values -> {
             Tuple2<Map<K, Integer>, Map<K, List<Integer>>> state = Iterator.ofAll(values)
                     .zipWithIndex()
                     .foldLeft(
@@ -388,7 +421,7 @@ public class CollectionRules {
                             )
                     )
             );
-        };
+        });
     }
 
     /**
@@ -400,11 +433,11 @@ public class CollectionRules {
      * @return a {@link Rule} that applies the given rule to all elements in the list.
      */
     public <T> Rule<List<T>> validateValuesWith(Rule<? super T> rule) {
-        return list -> {
+        return Rule.notNull().and(list -> {
             Rule<T> castedRule = Rule.narrow(rule);
-            Rule<List<T>> rule2 =  castedRule.liftToList();
+            Rule<List<T>> rule2 = castedRule.liftToList();
             return rule2.test(list);
-        };
+        });
     }
 
 }
