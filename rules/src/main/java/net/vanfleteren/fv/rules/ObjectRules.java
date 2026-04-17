@@ -40,6 +40,9 @@ public class ObjectRules implements IObjectRules<Object> {
     /**
      * Fails if the input string is not a valid enum value for the given enum class.
      * <p>
+     * Usage example:
+     * {@snippet file="net/vanfleteren/fv/rules/ObjectRulesSnippets.java" region="is-enum-example"}
+     * <p>
      * Error key: {@code must.be.valid.enum.value}
      *
      * @param <E> the type of the enum.
