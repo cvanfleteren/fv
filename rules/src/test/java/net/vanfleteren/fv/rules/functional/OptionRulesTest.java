@@ -14,13 +14,14 @@ class OptionRulesTest {
     class Required {
 
         @Test
-        void required_whenOptionIsSome_returnsValidResult() {
+        void valid() {
             validTest(Option.of("value"), "value", options().required());
         }
 
         @Test
-        void required_whenOptionIsNone_returnsInvalidWithErrorMessage() {
+        void invalid() {
             invalidTest(Option.none(), options().required(), "must.not.be.empty");
+            invalidTest(null, options().required(), "must.not.be.null");
         }
     }
 
@@ -28,14 +29,15 @@ class OptionRulesTest {
     class RequiredOption {
 
         @Test
-        void requiredOption_whenOptionIsSome_returnsValidResult() {
+        void valid() {
             Option<String> some = Option.of("value");
             validTest(some, options().requiredOption());
         }
 
         @Test
-        void requiredOption_whenOptionIsNone_returnsInvalidWithErrorMessage() {
+        void invalid() {
             invalidTest(Option.none(), options().requiredOption(), "must.not.be.empty");
+            invalidTest(null, options().requiredOption(), "must.not.be.null");
         }
     }
 
@@ -43,14 +45,15 @@ class OptionRulesTest {
     class Empty {
 
         @Test
-        void empty_whenOptionIsNone_returnsValidResult() {
+        void valid() {
             Option<String> none = Option.none();
             validTest(none, options().empty());
         }
 
         @Test
-        void empty_whenOptionIsSome_returnsInvalidWithErrorMessage() {
+        void invalid() {
             invalidTest(Option.of("value"), options().empty(), "must.be.empty");
+            invalidTest(null, options().empty(), "must.not.be.null");
         }
     }
 }

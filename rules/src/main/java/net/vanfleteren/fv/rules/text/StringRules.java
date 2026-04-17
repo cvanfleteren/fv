@@ -47,7 +47,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that transforms a String into an Integer.
      */
     public MappingRule<String, Integer> asInteger() {
-        return MappingRule.of(Integer::parseInt, "must.be.integer");
+        return Rule.<String>notNull().andThen(MappingRule.of(Integer::parseInt, "must.be.integer"));
     }
 
     /**
@@ -55,10 +55,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.long}
      *
-     * @return a {@link MappingRule} that transforms a String into an Long.
+     * @return a {@link MappingRule} that transforms a String into a Long.
      */
     public MappingRule<String, Long> asLong() {
-        return MappingRule.of(Long::parseLong, "must.be.long");
+        return Rule.<String>notNull().andThen(MappingRule.of(Long::parseLong, "must.be.long"));
     }
 
     /**
@@ -69,7 +69,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that transforms a String into a Double.
      */
     public MappingRule<String, Double> asDouble() {
-        return MappingRule.of(Double::parseDouble, "must.be.double");
+        return Rule.<String>notNull().andThen(MappingRule.of(Double::parseDouble, "must.be.double"));
     }
 
     /**
@@ -80,7 +80,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that transforms a String into a Float.
      */
     public MappingRule<String, Float> asFloat() {
-        return MappingRule.of(Float::parseFloat, "must.be.float");
+        return Rule.<String>notNull().andThen(MappingRule.of(Float::parseFloat, "must.be.float"));
     }
 
     /**
@@ -91,7 +91,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that transforms a String into a BigInteger.
      */
     public MappingRule<String, BigInteger> asBigInteger() {
-        return MappingRule.of(BigInteger::new, "must.be.biginteger");
+        return Rule.<String>notNull().andThen(MappingRule.of(BigInteger::new, "must.be.biginteger"));
     }
 
     /**
@@ -102,7 +102,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that transforms a String into a BigDecimal.
      */
     public MappingRule<String, BigDecimal> asBigDecimal() {
-        return MappingRule.of(BigDecimal::new, "must.be.bigdecimal");
+        return Rule.<String>notNull().andThen(MappingRule.of(BigDecimal::new, "must.be.bigdecimal"));
     }
 
 
@@ -114,7 +114,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that transforms a String into a UUID.
      */
     public MappingRule<String, UUID> asUUID() {
-        return MappingRule.of(UUID::fromString, "must.be.uuid");
+        return Rule.<String>notNull().andThen(MappingRule.of(UUID::fromString, "must.be.uuid"));
     }
 
     /**
@@ -125,7 +125,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that transforms a String into a URL.
      */
     public MappingRule<String, URL> asURL() {
-        return MappingRule.ofTry(s -> Try.of(() -> URI.create(s).toURL()), "must.be.url");
+        return Rule.<String>notNull().andThen(MappingRule.ofTry(s -> Try.of(() -> URI.create(s).toURL()), "must.be.url"));
     }
 
     /**
@@ -139,7 +139,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @see LocalDateTime#parse(CharSequence)
      */
     public MappingRule<String, LocalDateTime> asLocalDateTime() {
-        return MappingRule.of(LocalDateTime::parse, "must.be.localdatetime");
+        return Rule.<String>notNull().andThen(MappingRule.of(LocalDateTime::parse, "must.be.localdatetime"));
     }
 
     /**
@@ -153,7 +153,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @see LocalDateTime#parse(CharSequence)
      */
     public MappingRule<String, LocalDate> asLocalDate() {
-        return MappingRule.of(LocalDate::parse, "must.be.localdate");
+        return Rule.<String>notNull().andThen(MappingRule.of(LocalDate::parse, "must.be.localdate"));
     }
 
     /**
@@ -167,7 +167,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @see LocalDateTime#parse(CharSequence)
      */
     public MappingRule<String, Instant> asInstant() {
-        return MappingRule.of(Instant::parse, "must.be.instant");
+        return Rule.<String>notNull().andThen(MappingRule.of(Instant::parse, "must.be.instant"));
     }
 
     /**
@@ -178,7 +178,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that transforms a String into a {@link URI}.
      */
     public MappingRule<String, URI> asURI() {
-        return MappingRule.of(URI::create, "must.be.uri");
+        return Rule.<String>notNull().andThen(MappingRule.of(URI::create, "must.be.uri"));
     }
 
     //endregion
@@ -192,38 +192,38 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.single.line}
      */
-    public Rule<String> singleLine = Rule.of(s -> !LINE_BREAK.matcher(s).find(), "must.be.single.line");
+    public Rule<String> singleLine = Rule.notNull().and(Rule.of(s -> !LINE_BREAK.matcher(s).find(), "must.be.single.line"));
 
     /**
      * Fails if the string is empty.
      * <p>
      * Error key: {@code must.not.be.empty}
      */
-    public Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
+    public Rule<String> notEmpty = Rule.notNull().and(Rule.of(s -> !s.isEmpty(), "must.not.be.empty"));
 
     /**
      * Fails if the string is empty or contains only whitespace.
      * <p>
      * Error key: {@code must.not.be.blank}
      */
-    public Rule<String> notBlank = Rule.of(s -> !s.isBlank(), "must.not.be.blank");
+    public Rule<String> notBlank = Rule.notNull().and(Rule.of(s -> !s.isBlank(), "must.not.be.blank"));
 
     /**
      * Fails if the string has leading or trailing whitespace.
      * <p>
      * Error key: {@code must.be.trimmed}
      */
-    public Rule<String> trimmed = Rule.of(s -> s.equals(s.trim()), "must.be.trimmed");
+    public Rule<String> trimmed = Rule.notNull().and(Rule.of(s -> s.equals(s.trim()), "must.be.trimmed"));
 
     /**
      * Fails if the string contains any whitespace anywhere.
      * <p>
      * Error key: {@code must.not.contain.whitespace}
      */
-    public Rule<String> noWhitespace = Rule.of(
+    public Rule<String> noWhitespace = Rule.notNull().and(Rule.of(
             s -> s.chars().noneMatch(Character::isWhitespace),
             "must.not.contain.whitespace"
-    );
+    ));
     //endregion
 
     //region case
@@ -235,10 +235,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.uppercase}
      */
-    public Rule<String> uppercase = Rule.of(
+    public Rule<String> uppercase = Rule.notNull().and(Rule.of(
             s -> s.equals(s.toUpperCase()),
             "must.be.uppercase"
-    );
+    ));
 
     /**
      * Fails if the string contains any uppercase letter.
@@ -247,10 +247,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.lowercase}
      */
-    public Rule<String> lowercase = Rule.of(
+    public Rule<String> lowercase = Rule.notNull().and(Rule.of(
             s -> s.equals(s.toLowerCase()),
             "must.be.lowercase"
-    );
+    ));
 
     //endregion
 
@@ -273,7 +273,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         if (minLength < 0) {
             throw new IllegalArgumentException("minLength must be >= 0");
         }
-        return Rule.of(s -> s.length() >= minLength, ErrorMessage.of("must.have.min.length", "min", minLength));
+        return Rule.notNull().and(Rule.of(s -> s.length() >= minLength, ErrorMessage.of("must.have.min.length", "min", minLength)));
     }
 
     /**
@@ -293,7 +293,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         if (maxLength < 0) {
             throw new IllegalArgumentException("maxLength must be >= 0");
         }
-        return Rule.of(s -> s.length() <= maxLength, ErrorMessage.of("must.have.max.length", "max", maxLength));
+        return Rule.notNull().and(Rule.of(s -> s.length() <= maxLength, ErrorMessage.of("must.have.max.length", "max", maxLength)));
     }
 
     /**
@@ -321,10 +321,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         if (maxLength < minLength) {
             throw new IllegalArgumentException("maxLength must be >= minLength");
         }
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 s -> s.length() >= minLength && s.length() <= maxLength,
                 ErrorMessage.of("must.have.length.between", HashMap.of("min", minLength, "max", maxLength))
-        );
+        ));
     }
 
     /**
@@ -344,7 +344,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         if (length < 0) {
             throw new IllegalArgumentException("length must be >= 0");
         }
-        return Rule.of(s -> s.length() == length, ErrorMessage.of("must.have.exact.length", "len", length));
+        return Rule.notNull().and(Rule.of(s -> s.length() == length, ErrorMessage.of("must.have.exact.length", "len", length)));
     }
     //endregion
 
@@ -365,10 +365,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> startsWith(String prefix) {
         Objects.requireNonNull(prefix, "prefix cannot be null");
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 s -> s.startsWith(prefix),
                 ErrorMessage.of("must.start.with", "prefix", prefix)
-        );
+        ));
     }
 
     /**
@@ -386,10 +386,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> startsWithIgnoreCase(String prefix) {
         Objects.requireNonNull(prefix, "prefix cannot be null");
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 s -> s.regionMatches(true, 0, prefix, 0, prefix.length()),
                 ErrorMessage.of("must.start.with.ignorecase", "prefix", prefix)
-        );
+        ));
     }
 
     /**
@@ -407,10 +407,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> endsWith(String suffix) {
         Objects.requireNonNull(suffix, "suffix cannot be null");
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 s -> s.endsWith(suffix),
                 ErrorMessage.of("must.end.with", "suffix", suffix)
-        );
+        ));
     }
 
     /**
@@ -428,11 +428,11 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> endsWithIgnoreCase(String suffix) {
         Objects.requireNonNull(suffix, "suffix cannot be null");
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 s -> s.length() >= suffix.length()
                         && s.regionMatches(true, s.length() - suffix.length(), suffix, 0, suffix.length()),
                 ErrorMessage.of("must.end.with.ignorecase", "suffix", suffix)
-        );
+        ));
     }
 
     /**
@@ -450,10 +450,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> contains(String fragment) {
         Objects.requireNonNull(fragment, "fragment cannot be null");
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 s -> s.contains(fragment),
                 ErrorMessage.of("must.contain", "fragment", fragment)
-        );
+        ));
     }
 
     /**
@@ -472,7 +472,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     public Rule<String> containsIgnoreCase(String fragment) {
         Objects.requireNonNull(fragment, "fragment cannot be null");
 
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 s -> {
                     int needleLen = fragment.length();
                     if (needleLen == 0) {
@@ -492,7 +492,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
                     return false;
                 },
                 ErrorMessage.of("must.contain.ignorecase", "fragment", fragment)
-        );
+        ));
     }
 
     /**
@@ -510,10 +510,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> doesNotContain(String fragment) {
         Objects.requireNonNull(fragment, "fragment cannot be null");
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 s -> !s.contains(fragment),
                 ErrorMessage.of("must.not.contain", "fragment", fragment)
-        );
+        ));
     }
 
     /**
@@ -532,10 +532,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     public Rule<String> notIn(Set<String> forbidden) {
         Objects.requireNonNull(forbidden, "forbidden cannot be null");
 
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 s -> !forbidden.contains(s),
                 ErrorMessage.of("must.not.be.in", "forbidden", forbidden)
-        );
+        ));
     }
 
     /**
@@ -553,10 +553,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> isIn(Set<String> allowed) {
         Objects.requireNonNull(allowed, "allowed cannot be null");
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 allowed::contains,
                 ErrorMessage.of("must.be.in", "allowed", allowed)
-        );
+        ));
     }
 
     /**
@@ -575,10 +575,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     public Rule<String> matches(String regex) {
         Objects.requireNonNull(regex, "regex cannot be null");
         Pattern pattern = Pattern.compile(regex);
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 s -> pattern.matcher(s).matches(),
                 ErrorMessage.of("must.match.regex", "regex", regex)
-        );
+        ));
     }
 
     /**
@@ -587,17 +587,17 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.alpha}
      */
-    public Rule<String> alpha = Rule.of(
+    public Rule<String> alpha = Rule.notNull().and(Rule.of(
             s -> s.codePoints().allMatch(Character::isLetter),
             "must.be.alpha"
-    );
+    ));
 
     /**
      * Fails if the string contains anything other than letters or digits (ASCII).
      * <p>
      * Error key: {@code must.be.alphanumeric}
      */
-    public Rule<String> alphaNumeric = Rule.of(
+    public Rule<String> alphaNumeric = Rule.notNull().and(Rule.of(
             s -> s.codePoints().allMatch(c ->
                     // ‘0–9’
                     (c >= 48 && c <= 57) ||
@@ -607,7 +607,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
                             (c >= 97 && c <= 122)
             ),
             "must.be.alphanumeric"
-    );
+    ));
 
     /**
      * Fails if the string contains anything other than letters or digits (Unicode).
@@ -615,10 +615,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.unicode.alphanumeric}
      */
-    public Rule<String> alphaNumericUnicode = Rule.of(
+    public Rule<String> alphaNumericUnicode = Rule.notNull().and(Rule.of(
             s -> s.codePoints().allMatch(Character::isLetterOrDigit),
             "must.be.unicode.alphanumeric"
-    );
+    ));
 
     /**
      * Fails if the string contains anything other than digits (Unicode).
@@ -626,10 +626,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.unicode.digits.only}
      */
-    public Rule<String> onlyUnicodeDigits = Rule.of(
+    public Rule<String> onlyUnicodeDigits = Rule.notNull().and(Rule.of(
             s -> s.codePoints().allMatch(Character::isDigit),
             "must.be.unicode.digits.only"
-    );
+    ));
 
     /**
      * Fails if the string contains anything other than digits (0-9).
@@ -639,12 +639,12 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link Rule} checking if the string contains only digits.
      */
     public Rule<String> onlyDigits() {
-        return Rule.of(s -> s.codePoints().allMatch(c ->
+        return Rule.notNull().and(Rule.of(s -> s.codePoints().allMatch(c ->
                         // ‘0–9’
                         (c >= 48 && c <= 57)
                 ),
                 "must.be.digits.only"
-        );
+        ));
     }
 
     /**
@@ -656,7 +656,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> hexadecimal() {
         Pattern p = Pattern.compile("[0-9a-f]*", Pattern.CASE_INSENSITIVE);
-        return Rule.of(s -> p.matcher(s).matches(), ErrorMessage.of("must.be.hexadecimal"));
+        return Rule.notNull().and(Rule.of(s -> p.matcher(s).matches(), ErrorMessage.of("must.be.hexadecimal")));
     }
 
 
@@ -677,10 +677,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Error key: {@code must.be.email}
      */
     public Rule<String> looksLikeEmailAddress() {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 s -> isEmailPattern.matcher(s).matches(),
                 "must.be.email"
-        );
+        ));
     }
 
     //endregion

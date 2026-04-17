@@ -53,6 +53,7 @@ class ZonedDateTimeRulesTest {
             ZonedDateTime limit = ZonedDateTime.now();
             invalidTest(limit, zonedDateTimes.isBefore(limit), "must.be.before", HashMap.of("limit", limit));
             invalidTest(limit.plusHours(1), zonedDateTimes.isBefore(limit), "must.be.before", HashMap.of("limit", limit));
+            invalidTest(null, zonedDateTimes.isBefore(limit), "must.not.be.null");
         }
     }
 
@@ -69,6 +70,7 @@ class ZonedDateTimeRulesTest {
             ZonedDateTime limit = ZonedDateTime.now();
             invalidTest(limit, zonedDateTimes.isAfter(limit), "must.be.after", HashMap.of("limit", limit));
             invalidTest(limit.minusHours(1), zonedDateTimes.isAfter(limit), "must.be.after", HashMap.of("limit", limit));
+            invalidTest(null, zonedDateTimes.isAfter(limit), "must.not.be.null");
         }
     }
 
@@ -82,6 +84,7 @@ class ZonedDateTimeRulesTest {
         @Test
         void invalid() {
             invalidTest(ZonedDateTime.now().plusHours(1), zonedDateTimes.isPast(), "must.be.past");
+            invalidTest(null, zonedDateTimes.isPast(), "must.not.be.null");
         }
     }
 
@@ -95,6 +98,7 @@ class ZonedDateTimeRulesTest {
         @Test
         void invalid() {
             invalidTest(ZonedDateTime.now().minusHours(1), zonedDateTimes.isFuture(), "must.be.future");
+            invalidTest(null, zonedDateTimes.isFuture(), "must.not.be.null");
         }
     }
 
@@ -115,6 +119,7 @@ class ZonedDateTimeRulesTest {
             ZonedDateTime max = ZonedDateTime.of(2023, 12, 31, 23, 59, 59, 999999999, ZoneId.systemDefault());
             invalidTest(ZonedDateTime.of(2022, 12, 31, 23, 59, 59, 999999999, ZoneId.systemDefault()), zonedDateTimes.between(min, max), "must.be.between", HashMap.of("min", min, "max", max));
             invalidTest(ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()), zonedDateTimes.between(min, max), "must.be.between", HashMap.of("min", min, "max", max));
+            invalidTest(null, zonedDateTimes.between(min, max), "must.not.be.null");
         }
     }
 }

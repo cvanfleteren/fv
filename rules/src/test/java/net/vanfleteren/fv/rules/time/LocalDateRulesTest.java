@@ -25,6 +25,7 @@ class LocalDateRulesTest {
             LocalDate limit = LocalDate.now();
             invalidTest(limit, localDates.isBefore(limit), "must.be.before", HashMap.of("limit", limit));
             invalidTest(limit.plusDays(1), localDates.isBefore(limit), "must.be.before", HashMap.of("limit", limit));
+            invalidTest(null, localDates.isBefore(limit), "must.not.be.null");
         }
     }
 
@@ -41,6 +42,7 @@ class LocalDateRulesTest {
             LocalDate limit = LocalDate.now();
             invalidTest(limit, localDates.isAfter(limit), "must.be.after", HashMap.of("limit", limit));
             invalidTest(limit.minusDays(1), localDates.isAfter(limit), "must.be.after", HashMap.of("limit", limit));
+            invalidTest(null, localDates.isAfter(limit), "must.not.be.null");
         }
     }
 
@@ -55,6 +57,7 @@ class LocalDateRulesTest {
         void invalid() {
             invalidTest(LocalDate.now(), localDates.isPast(), "must.be.past");
             invalidTest(LocalDate.now().plusDays(1), localDates.isPast(), "must.be.past");
+            invalidTest(null, localDates.isPast(), "must.not.be.null");
         }
     }
 
@@ -69,6 +72,7 @@ class LocalDateRulesTest {
         void invalid() {
             invalidTest(LocalDate.now(), localDates.isFuture(), "must.be.future");
             invalidTest(LocalDate.now().minusDays(1), localDates.isFuture(), "must.be.future");
+            invalidTest(null, localDates.isFuture(), "must.not.be.null");
         }
     }
 
@@ -83,6 +87,7 @@ class LocalDateRulesTest {
         void invalid() {
             invalidTest(LocalDate.now().minusDays(1), localDates.isToday(), "must.be.today");
             invalidTest(LocalDate.now().plusDays(1), localDates.isToday(), "must.be.today");
+            invalidTest(null, localDates.isToday(), "must.not.be.null");
         }
     }
 
@@ -98,6 +103,7 @@ class LocalDateRulesTest {
         void invalid() {
             invalidTest(LocalDate.of(2023, 1, 1), localDates.isLeapYear(), "must.be.leap.year");
             invalidTest(LocalDate.of(2100, 1, 1), localDates.isLeapYear(), "must.be.leap.year");
+            invalidTest(null, localDates.isLeapYear(), "must.not.be.null");
         }
     }
 
@@ -118,6 +124,7 @@ class LocalDateRulesTest {
             LocalDate max = LocalDate.of(2023, 12, 31);
             invalidTest(LocalDate.of(2022, 12, 31), localDates.between(min, max), "must.be.between", HashMap.of("min", min, "max", max));
             invalidTest(LocalDate.of(2024, 1, 1), localDates.between(min, max), "must.be.between", HashMap.of("min", min, "max", max));
+            invalidTest(null, localDates.between(min, max), "must.not.be.null");
         }
     }
 }

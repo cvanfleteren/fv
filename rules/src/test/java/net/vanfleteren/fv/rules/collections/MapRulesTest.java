@@ -27,12 +27,8 @@ class MapRulesTest {
         }
 
         @Test
-        void invalid_whenNull_thenCannotBeNull() {
+        void invalid() {
             invalidTest(null, notEmpty(), "must.not.be.null");
-        }
-
-        @Test
-        void invalid_whenEmpty_thenCannotBeEmpty() {
             invalidTest(HashMap.empty(), notEmpty(), "must.not.be.empty");
         }
     }
@@ -46,12 +42,8 @@ class MapRulesTest {
         }
 
         @Test
-        void invalid_whenNull_thenCannotBeNull() {
+        void invalid() {
             invalidTest(null, containsKey("a"), "must.not.be.null");
-        }
-
-        @Test
-        void invalid_whenKeyMissing_thenHasKeyAndArgs() {
             invalidTest(
                     HashMap.of("a", 1),
                     containsKey("b"),
@@ -65,22 +57,14 @@ class MapRulesTest {
     class ValuesNotNull {
 
         @Test
-        void valid_whenEmptyMap() {
+        void valid() {
             validTest(HashMap.empty(), valuesNotNull());
-        }
-
-        @Test
-        void valid_whenNoNullValues() {
             validTest(HashMap.of("a", 1, "b", 2), valuesNotNull());
         }
 
         @Test
-        void invalid_whenNullMap_thenCannotBeNull() {
+        void invalid() {
             invalidTest(null, valuesNotNull(), "must.not.be.null");
-        }
-
-        @Test
-        void invalid_whenContainsNullValues_thenReportsKeys() {
             invalidTest(
                     HashMap.of("a", 1, "b", null, "c", null),
                     valuesNotNull(),
@@ -128,17 +112,13 @@ class MapRulesTest {
         }
 
         @Test
-        void invalid_whenNull_thenCannotBeNull() {
+        void invalid() {
             // A null map should trigger the universal "must.not.be.null" message.
             invalidTest(
                     null,
                     containsKeys("a", "b"),
                     "must.not.be.null"
             );
-        }
-
-        @Test
-        void invalid_whenMissingKey_thenHasKeyAndArgs() {
             // The map is missing key "b".
             invalidTest(
                     HashMap.of("a", 1),
@@ -146,10 +126,6 @@ class MapRulesTest {
                     "must.contain.keys",
                     HashMap.of("keys", HashSet.of("a","b"))
             );
-        }
-
-        @Test
-        void invalid_whenMultipleMissingKeys_showsFirstMissingKey() {
             // The map is missing both "b" and "c".  The error message contains the
             // first missing key (because the current implementation returns the last
             // key that fails the containsAll check).

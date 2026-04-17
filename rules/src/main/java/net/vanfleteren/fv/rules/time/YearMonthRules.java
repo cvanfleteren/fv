@@ -49,10 +49,10 @@ public class YearMonthRules implements ComparableRules<YearMonth>, IObjectRules<
      * @return a {@link Rule} checking if the YearMonth is before the limit.
      */
     public Rule<YearMonth> isBefore(YearMonth limit) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 d -> d.isBefore(limit),
                 ErrorMessage.of("must.be.before", "limit", limit)
-        );
+        ));
     }
 
     /**
@@ -69,10 +69,10 @@ public class YearMonthRules implements ComparableRules<YearMonth>, IObjectRules<
      * @return a {@link Rule} checking if the YearMonth is after the limit.
      */
     public Rule<YearMonth> isAfter(YearMonth limit) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 d -> d.isAfter(limit),
                 ErrorMessage.of("must.be.after", "limit", limit)
-        );
+        ));
     }
 
     /**
@@ -83,7 +83,7 @@ public class YearMonthRules implements ComparableRules<YearMonth>, IObjectRules<
      * @return a {@link Rule} checking if the YearMonth is in the past.
      */
     public Rule<YearMonth> isPast() {
-        return Rule.of(d -> d.isBefore(YearMonth.now(clock)), "must.be.past");
+        return Rule.notNull().and(Rule.of(d -> d.isBefore(YearMonth.now(clock)), "must.be.past"));
     }
 
     /**
@@ -94,9 +94,9 @@ public class YearMonthRules implements ComparableRules<YearMonth>, IObjectRules<
      * @return a {@link Rule} checking if the YearMonth is in the future.
      */
     public Rule<YearMonth> isFuture() {
-        return Rule.of(d ->
+        return Rule.notNull().and(Rule.of(d ->
                 d.isAfter(YearMonth.now(clock)
-                ), "must.be.future");
+                ), "must.be.future"));
     }
 
 }

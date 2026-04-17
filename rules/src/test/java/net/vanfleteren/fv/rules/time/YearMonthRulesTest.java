@@ -55,6 +55,7 @@ class YearMonthRulesTest {
             YearMonth limit = YearMonth.now();
             invalidTest(limit, yearMonths.isBefore(limit), "must.be.before", HashMap.of("limit", limit));
             invalidTest(limit.plusMonths(1), yearMonths.isBefore(limit), "must.be.before", HashMap.of("limit", limit));
+            invalidTest(null, yearMonths.isBefore(limit), "must.not.be.null");
         }
     }
 
@@ -71,6 +72,7 @@ class YearMonthRulesTest {
             YearMonth limit = YearMonth.now();
             invalidTest(limit, yearMonths.isAfter(limit), "must.be.after", HashMap.of("limit", limit));
             invalidTest(limit.minusMonths(1), yearMonths.isAfter(limit), "must.be.after", HashMap.of("limit", limit));
+            invalidTest(null, yearMonths.isAfter(limit), "must.not.be.null");
         }
     }
 
@@ -84,6 +86,7 @@ class YearMonthRulesTest {
         @Test
         void invalid() {
             invalidTest(YearMonth.now().plusMonths(1), yearMonths.isPast(), "must.be.past");
+            invalidTest(null, yearMonths.isPast(), "must.not.be.null");
         }
     }
 
@@ -97,6 +100,7 @@ class YearMonthRulesTest {
         @Test
         void invalid() {
             invalidTest(YearMonth.now().minusMonths(1), yearMonths.isFuture(), "must.be.future");
+            invalidTest(null, yearMonths.isFuture(), "must.not.be.null");
         }
     }
 
@@ -117,6 +121,7 @@ class YearMonthRulesTest {
             YearMonth max = YearMonth.parse("2023-12");
             invalidTest(YearMonth.parse("2022-12"), yearMonths.between(min, max), "must.be.between", HashMap.of("min", min, "max", max));
             invalidTest(YearMonth.parse("2024-01"), yearMonths.between(min, max), "must.be.between", HashMap.of("min", min, "max", max));
+            invalidTest(null, yearMonths.between(min, max), "must.not.be.null");
         }
     }
 }

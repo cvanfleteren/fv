@@ -25,6 +25,7 @@ class DurationRulesTest {
             Duration limit = Duration.ofHours(1);
             invalidTest(limit, durations.isShorterThan(limit), "must.be.shorter", HashMap.of("limit", limit));
             invalidTest(Duration.ofHours(2), durations.isShorterThan(limit), "must.be.shorter", HashMap.of("limit", limit));
+            invalidTest(null, durations.isShorterThan(limit), "must.not.be.null");
         }
     }
 
@@ -41,6 +42,7 @@ class DurationRulesTest {
             Duration limit = Duration.ofHours(1);
             invalidTest(limit, durations.isLongerThan(limit), "must.be.longer", HashMap.of("limit", limit));
             invalidTest(Duration.ofMinutes(30), durations.isLongerThan(limit), "must.be.longer", HashMap.of("limit", limit));
+            invalidTest(null, durations.isLongerThan(limit), "must.not.be.null");
         }
     }
 
@@ -61,6 +63,7 @@ class DurationRulesTest {
             Duration max = Duration.ofMinutes(20);
             invalidTest(Duration.ofMinutes(9), durations.between(min, max), "must.be.between", HashMap.of("min", min, "max", max));
             invalidTest(Duration.ofMinutes(21), durations.between(min, max), "must.be.between", HashMap.of("min", min, "max", max));
+            invalidTest(null, durations.between(min, max), "must.not.be.null");
         }
     }
 
@@ -77,6 +80,7 @@ class DurationRulesTest {
         void invalid() {
             Duration min = Duration.ofMinutes(10);
             invalidTest(Duration.ofMinutes(9), durations.isAtLeast(min), "must.be.at.least", HashMap.of("min", min));
+            invalidTest(null, durations.isAtLeast(min), "must.not.be.null");
         }
     }
 
@@ -93,6 +97,7 @@ class DurationRulesTest {
         void invalid() {
             Duration max = Duration.ofMinutes(20);
             invalidTest(Duration.ofMinutes(21), durations.isAtMost(max), "must.be.at.most", HashMap.of("max", max));
+            invalidTest(null, durations.isAtMost(max), "must.not.be.null");
         }
     }
 
@@ -107,6 +112,7 @@ class DurationRulesTest {
         void invalid() {
             invalidTest(Duration.ZERO, durations.isPositive(), "must.be.positive", HashMap.empty());
             invalidTest(Duration.ofSeconds(-1), durations.isPositive(), "must.be.positive", HashMap.empty());
+            invalidTest(null, durations.isPositive(), "must.not.be.null");
         }
     }
 
@@ -121,6 +127,7 @@ class DurationRulesTest {
         void invalid() {
             invalidTest(Duration.ZERO, durations.isNegative(), "must.be.negative", HashMap.empty());
             invalidTest(Duration.ofSeconds(1), durations.isNegative(), "must.be.negative", HashMap.empty());
+            invalidTest(null, durations.isNegative(), "must.not.be.null");
         }
     }
 }

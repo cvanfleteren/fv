@@ -30,10 +30,10 @@ public interface ComparableRules<T extends Comparable<? super T>> {
         if (maxInclusive.compareTo(minInclusive) < 0) {
             throw new IllegalArgumentException("maxInclusive must be >= minInclusive");
         }
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 i -> i.compareTo(minInclusive) >= 0 && i.compareTo(maxInclusive) <= 0,
                 ErrorMessage.of("must.be.between", HashMap.of("min", minInclusive, "max", maxInclusive))
-        );
+        ));
     }
 
     /**
@@ -55,10 +55,10 @@ public interface ComparableRules<T extends Comparable<? super T>> {
         if (maxExclusive.compareTo(minExclusive) <= 0) {
             throw new IllegalArgumentException("maxExclusive must be > minExclusive");
         }
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 i -> i.compareTo(minExclusive) > 0 && i.compareTo(maxExclusive) < 0,
                 ErrorMessage.of("must.be.between.exclusive", HashMap.of("min", minExclusive, "max", maxExclusive))
-        );
+        ));
     }
 
     /**
@@ -75,10 +75,10 @@ public interface ComparableRules<T extends Comparable<? super T>> {
      * @return a {@link Rule} checking the minimum value (exclusive).
      */
     default Rule<T> greaterThan(T minExclusive) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 i -> i.compareTo(minExclusive) > 0,
                 ErrorMessage.of("must.be.greater.than", "min", minExclusive)
-        );
+        ));
     }
 
     /**
@@ -95,10 +95,10 @@ public interface ComparableRules<T extends Comparable<? super T>> {
      * @return a {@link Rule} checking the minimum value (inclusive).
      */
     default Rule<T> atLeast(T minInclusive) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 i -> i.compareTo(minInclusive) >= 0,
                 ErrorMessage.of("must.be.at.least", "min", minInclusive)
-        );
+        ));
     }
 
     /**
@@ -115,10 +115,10 @@ public interface ComparableRules<T extends Comparable<? super T>> {
      * @return a {@link Rule} checking the maximum value (exclusive).
      */
     default Rule<T> lessThan(T maxExclusive) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 i -> i.compareTo(maxExclusive) < 0,
                 ErrorMessage.of("must.be.less.than", "max", maxExclusive)
-        );
+        ));
     }
 
     /**
@@ -135,10 +135,10 @@ public interface ComparableRules<T extends Comparable<? super T>> {
      * @return a {@link Rule} checking the maximum value (inclusive).
      */
     default Rule<T> atMost(T maxInclusive) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 i -> i.compareTo(maxInclusive) <= 0,
                 ErrorMessage.of("must.be.at.most", "max", maxInclusive)
-        );
+        ));
     }
 
 }

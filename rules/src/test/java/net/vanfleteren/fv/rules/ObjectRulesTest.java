@@ -46,6 +46,7 @@ class ObjectRulesTest {
         void invalid() {
             invalidTest("a", objects.equalTo("b"), "must.be.equal");
             invalidTest(123, objects.equalTo(456), "must.be.equal");
+            invalidTest(null, objects.equalTo("a"), "must.not.be.null");
         }
 
         @Test
@@ -69,6 +70,7 @@ class ObjectRulesTest {
         void invalid() {
             invalidTest("a", objects.notEqualTo("a"), "must.not.be.equal");
             invalidTest(123, objects.notEqualTo(123), "must.not.be.equal");
+            invalidTest(null, objects.notEqualTo("a"), "must.not.be.null");
         }
 
         @Test
@@ -96,6 +98,7 @@ class ObjectRulesTest {
             invalidTest(4, objects.oneOf(1, 2, 3), "must.be.one.of",
                     HashMap.of("values", HashSet.of(1, 2, 3))
             );
+            invalidTest(null, objects.oneOf(1, 2, 3), "must.not.be.null");
         }
     }
 
@@ -116,6 +119,7 @@ class ObjectRulesTest {
             invalidTest(2, objects.notOneOf(1, 2, 3), "must.not.be.one.of",
                     HashMap.of("values", HashSet.of(1, 2, 3))
             );
+            invalidTest(null, objects.notOneOf(1, 2, 3), "must.not.be.null");
         }
     }
 
@@ -135,6 +139,10 @@ class ObjectRulesTest {
             assertThatValidation(stringRule.test(BigDecimal.ZERO))
                     .isInvalid()
                     .hasErrorMessages("must.be.instance");
+
+            assertThatValidation(stringRule.test(null))
+                    .isInvalid()
+                    .hasErrorMessages("must.not.be.null");
         }
     }
 

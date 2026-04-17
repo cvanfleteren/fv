@@ -27,10 +27,10 @@ public class OptionRules {
      * @param <T> the type of the value contained in the Option
      */
     public <T> MappingRule<Option<T>, T> required() {
-        return input -> input.fold(
+        return MappingRule.<Option<T>>notNull().andThen(input -> input.fold(
                 () -> Validation.invalid("must.not.be.empty"),
                 Validation::valid
-        );
+        ));
     }
 
     /**
@@ -41,7 +41,7 @@ public class OptionRules {
      * @param <T> the type of the value contained in the Option
      */
     public <T> Rule<Option<T>> requiredOption() {
-        return input -> input.isEmpty() ? Validation.invalid("must.not.be.empty") : Validation.valid(input);
+        return Rule.notNull().and(input -> input.isEmpty() ? Validation.invalid("must.not.be.empty") : Validation.valid(input));
     }
 
     /**
@@ -52,7 +52,7 @@ public class OptionRules {
      * @param <T> the type of the value contained in the Option
      */
     public <T> Rule<Option<T>> empty() {
-        return input -> input.isEmpty() ? Validation.valid(input) : Validation.invalid("must.be.empty");
+        return Rule.notNull().and(input -> input.isEmpty() ? Validation.valid(input) : Validation.invalid("must.be.empty"));
     }
 
 }

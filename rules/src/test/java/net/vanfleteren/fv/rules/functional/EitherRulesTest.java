@@ -25,6 +25,7 @@ class EitherRulesTest {
         @Test
         void isRight_whenLeft_fails() {
             invalidTest(Either.left("error"), eithers().isRight(), "must.be.right");
+            invalidTest(null, eithers().isRight(), "must.not.be.null");
         }
 
         @Test
@@ -57,6 +58,7 @@ class EitherRulesTest {
         @Test
         void isLeft_whenRight_fails() {
             invalidTest(Either.right("ok"), eithers().isLeft(), "must.be.left");
+            invalidTest(null, eithers().isLeft(), "must.not.be.null");
         }
 
         @Test
@@ -97,6 +99,7 @@ class EitherRulesTest {
             assertThatValidation(validateThat(Either.<String, Integer>left(""), "value").is(rule))
                     .isInvalid()
                     .hasErrorMessages("value.must.not.be.empty");
+            invalidTest(null, rule, "must.not.be.null");
         }
     }
 
@@ -118,6 +121,7 @@ class EitherRulesTest {
             assertThatValidation(validateThat(Either.<String, Integer>right(-1), "value").is(rule))
                     .isInvalid()
                     .hasErrorMessages("value.must.be.positive");
+            invalidTest(null, rule, "must.not.be.null");
         }
     }
 }

@@ -28,6 +28,7 @@ class LocalTimeRulesTest {
             LocalTime limit = LocalTime.NOON;
             invalidTest(limit, localTimes.isBefore(limit), "must.be.before", HashMap.of("limit", limit));
             invalidTest(limit.plusHours(1), localTimes.isBefore(limit), "must.be.before", HashMap.of("limit", limit));
+            invalidTest(null, localTimes.isBefore(limit), "must.not.be.null");
         }
     }
 
@@ -44,6 +45,7 @@ class LocalTimeRulesTest {
             LocalTime limit = LocalTime.NOON;
             invalidTest(limit, localTimes.isAfter(limit), "must.be.after", HashMap.of("limit", limit));
             invalidTest(limit.minusHours(1), localTimes.isAfter(limit), "must.be.after", HashMap.of("limit", limit));
+            invalidTest(null, localTimes.isAfter(limit), "must.not.be.null");
         }
     }
 
@@ -59,6 +61,7 @@ class LocalTimeRulesTest {
         void invalid() {
             invalidTest(LocalTime.NOON, localTimes.isAm(), "must.be.am");
             invalidTest(LocalTime.of(13, 0), localTimes.isAm(), "must.be.am");
+            invalidTest(null, localTimes.isAm(), "must.not.be.null");
         }
     }
 
@@ -74,6 +77,7 @@ class LocalTimeRulesTest {
         void invalid() {
             invalidTest(LocalTime.of(11, 59, 59), localTimes.isPm(), "must.be.pm");
             invalidTest(LocalTime.of(0, 0), localTimes.isPm(), "must.be.pm");
+            invalidTest(null, localTimes.isPm(), "must.not.be.null");
         }
     }
 
@@ -94,6 +98,7 @@ class LocalTimeRulesTest {
             LocalTime max = LocalTime.of(17, 0);
             invalidTest(LocalTime.of(8, 59), localTimes.between(min, max), "must.be.between", HashMap.of("min", min, "max", max));
             invalidTest(LocalTime.of(17, 1), localTimes.between(min, max), "must.be.between", HashMap.of("min", min, "max", max));
+            invalidTest(null, localTimes.between(min, max), "must.not.be.null");
         }
     }
 }

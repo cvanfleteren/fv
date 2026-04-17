@@ -39,7 +39,7 @@ public class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
      * @return a {@link Rule} checking if the either is a right.
      */
     public Rule<Either<L, R>> isRight() {
-        return Rule.of(Either::isRight, "must.be.right");
+        return Rule.notNull().and(Rule.of(Either::isRight, "must.be.right"));
     }
 
     /**
@@ -64,7 +64,7 @@ public class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
      * @return a {@link Rule} checking if the either is a left.
      */
     public Rule<Either<L, R>> isLeft() {
-        return Rule.of(Either::isLeft, "must.be.left");
+        return Rule.notNull().and(Rule.of(Either::isLeft, "must.be.left"));
     }
 
     /**
@@ -92,12 +92,12 @@ public class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
      */
     public Rule<Either<L, R>> validateLeftWith(Rule<? super L> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return either -> {
+        return Rule.notNull().and(either -> {
             if (either.isLeft()) {
                 return rule.test(either.getLeft()).map(ignore -> either);
             }
             return net.vanfleteren.fv.Validation.valid(either);
-        };
+        });
     }
 
     /**
@@ -111,12 +111,12 @@ public class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
      */
     public Rule<Either<L, R>> validateRightWith(Rule<? super R> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return either -> {
+        return Rule.notNull().and(either -> {
             if (either.isRight()) {
                 return rule.test(either.get()).map(ignore -> either);
             }
             return net.vanfleteren.fv.Validation.valid(either);
-        };
+        });
     }
 
 }

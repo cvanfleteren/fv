@@ -52,6 +52,7 @@ class InstantRulesTest {
             Instant limit = Instant.now();
             invalidTest(limit, instants.isBefore(limit), "must.be.before", HashMap.of("limit", limit));
             invalidTest(limit.plusSeconds(1), instants.isBefore(limit), "must.be.before", HashMap.of("limit", limit));
+            invalidTest(null, instants.isBefore(limit), "must.not.be.null");
         }
     }
 
@@ -68,6 +69,7 @@ class InstantRulesTest {
             Instant limit = Instant.now();
             invalidTest(limit, instants.isAfter(limit), "must.be.after", HashMap.of("limit", limit));
             invalidTest(limit.minusSeconds(1), instants.isAfter(limit), "must.be.after", HashMap.of("limit", limit));
+            invalidTest(null, instants.isAfter(limit), "must.not.be.null");
         }
     }
 
@@ -81,6 +83,7 @@ class InstantRulesTest {
         @Test
         void invalid() {
             invalidTest(Instant.now().plusSeconds(1), instants.isPast(), "must.be.past");
+            invalidTest(null, instants.isPast(), "must.not.be.null");
         }
     }
 
@@ -94,6 +97,7 @@ class InstantRulesTest {
         @Test
         void invalid() {
             invalidTest(Instant.now().minusSeconds(1), instants.isFuture(), "must.be.future");
+            invalidTest(null, instants.isFuture(), "must.not.be.null");
         }
     }
 
@@ -114,6 +118,7 @@ class InstantRulesTest {
             Instant max = Instant.parse("2023-12-31T23:59:59Z");
             invalidTest(Instant.parse("2022-12-31T23:59:59Z"), instants.between(min, max), "must.be.between", HashMap.of("min", min, "max", max));
             invalidTest(Instant.parse("2024-01-01T00:00:00Z"), instants.between(min, max), "must.be.between", HashMap.of("min", min, "max", max));
+            invalidTest(null, instants.between(min, max), "must.not.be.null");
         }
     }
 }

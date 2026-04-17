@@ -84,3 +84,6 @@
 - Property-like tests: roundtrips for escape/unescape pairs, idempotency checks (e.g., applying `slugify` twice yields the same result), and compositional invariants (e.g., `normalizeLineEndings` followed by `removeNewlines` equals `removeNewlines` alone).
 
 If you’d like, I can draft signatures and skeleton implementations for the top 5 you choose (e.g., `stripDiacritics`, `normalizeLineEndings`, `slugify`, `escapeRegex`, `truncateWithEllipsis`) along with unit tests mirroring your current style.
+
+
+keep CollectionRues in sync with JCOllectionRules, need liftToJList

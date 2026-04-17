@@ -27,7 +27,7 @@ public interface IObjectRules<T> {
      */
     default Rule<T> equalTo(T value) {
         Objects.requireNonNull(value, "value cannot be null");
-        return Rule.of(o -> Objects.equals(o, value), "must.be.equal");
+        return Rule.notNull().and(Rule.of(o -> Objects.equals(o, value), "must.be.equal"));
     }
 
     /**
@@ -40,7 +40,7 @@ public interface IObjectRules<T> {
      */
     default Rule<T> notEqualTo(T value) {
         Objects.requireNonNull(value, "value cannot be null");
-        return Rule.of(o -> !Objects.equals(o, value), "must.not.be.equal");
+        return Rule.notNull().and(Rule.of(o -> !Objects.equals(o, value), "must.not.be.equal"));
     }
 
     /**
@@ -74,7 +74,7 @@ public interface IObjectRules<T> {
      * @return a {@link Rule} checking if the value is one of the allowed values.
      */
     default Rule<T> oneOf(Set<T> values) {
-        return Rule.of(values::contains, ErrorMessage.of("must.be.one.of", HashMap.of("values", values)));
+        return Rule.notNull().and(Rule.of(values::contains, ErrorMessage.of("must.be.one.of", HashMap.of("values", values))));
     }
 
     /**
@@ -108,7 +108,7 @@ public interface IObjectRules<T> {
      * @return a {@link Rule} checking if the value is not one of the forbidden values.
      */
     default Rule<T> notOneOf(Set<T> values) {
-        return Rule.of(o -> !values.contains(o), ErrorMessage.of("must.not.be.one.of", HashMap.of("values", values)));
+        return Rule.notNull().and(Rule.of(o -> !values.contains(o), ErrorMessage.of("must.not.be.one.of", HashMap.of("values", values))));
     }
 
     /**
@@ -126,13 +126,13 @@ public interface IObjectRules<T> {
      * @return a {@link Rule} checking the object's type.
      */
     default <U> MappingRule<Object, U> instanceOf(Class<U> clazz) {
-        return input -> {
-            if (clazz.isInstance(input)) {
-                return Validation.valid(clazz.cast(input));
+        return input -> MappingRule.notNull().test(input).flatMap(i -> {
+            if (clazz.isInstance(i)) {
+                return Validation.valid(clazz.cast(i));
             } else {
                 return Validation.invalid(ErrorMessage.of("must.be.instance", HashMap.of("of", clazz)));
             }
-        };
+        });
     }
 
 }

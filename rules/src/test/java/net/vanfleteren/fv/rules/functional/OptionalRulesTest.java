@@ -15,13 +15,14 @@ class OptionalRulesTest {
     class Required {
 
         @Test
-        void required_whenOptionIsSome_returnsValidResult() {
+        void valid() {
             validTest(Optional.of("value"), "value", optionals().required());
         }
 
         @Test
-        void required_whenOptionIsNone_returnsInvalidWithErrorMessage() {
+        void invalid() {
             invalidTest(Optional.empty(), optionals().required(), "must.not.be.empty");
+            invalidTest(null, optionals().required(), "must.not.be.null");
         }
     }
 
@@ -29,14 +30,15 @@ class OptionalRulesTest {
     class RequiredOption {
 
         @Test
-        void requiredOption_whenOptionIsSome_returnsValidResult() {
+        void valid() {
             Optional<String> some = Optional.of("value");
             validTest(some, optionals().requiredOptional());
         }
 
         @Test
-        void requiredOption_whenOptionIsNone_returnsInvalidWithErrorMessage() {
+        void invalid() {
             invalidTest(Optional.empty(), optionals().requiredOptional(), "must.not.be.empty");
+            invalidTest(null, optionals().requiredOptional(), "must.not.be.null");
         }
     }
 
@@ -44,14 +46,15 @@ class OptionalRulesTest {
     class Empty {
 
         @Test
-        void empty_whenOptionIsNone_returnsValidResult() {
+        void valid() {
             Optional<String> none = Optional.empty();
             validTest(none, optionals().empty());
         }
 
         @Test
-        void empty_whenOptionIsSome_returnsInvalidWithErrorMessage() {
+        void invalid() {
             invalidTest(Optional.of("value"), optionals().empty(), "must.be.empty");
+            invalidTest(null, optionals().empty(), "must.not.be.null");
         }
     }
 }

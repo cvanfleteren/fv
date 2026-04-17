@@ -52,10 +52,10 @@ public class LocalDateRules implements ComparableRules<LocalDate>, IObjectRules<
      * @return a {@link Rule} checking if the date is before the limit.
      */
     public Rule<LocalDate> isBefore(LocalDate limit) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 d -> d.isBefore(limit),
                 ErrorMessage.of("must.be.before", "limit", limit)
-        );
+        ));
     }
 
     /**
@@ -72,10 +72,10 @@ public class LocalDateRules implements ComparableRules<LocalDate>, IObjectRules<
      * @return a {@link Rule} checking if the date is after the limit.
      */
     public Rule<LocalDate> isAfter(LocalDate limit) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 d -> d.isAfter(limit),
                 ErrorMessage.of("must.be.after", "limit", limit)
-        );
+        ));
     }
 
     /**
@@ -86,7 +86,7 @@ public class LocalDateRules implements ComparableRules<LocalDate>, IObjectRules<
      * @return a {@link Rule} checking if the date is in the past.
      */
     public Rule<LocalDate> isPast() {
-        return Rule.of(d -> d.isBefore(LocalDate.now(clock)), "must.be.past");
+        return Rule.notNull().and(Rule.of(d -> d.isBefore(LocalDate.now(clock)), "must.be.past"));
     }
 
     /**
@@ -97,7 +97,7 @@ public class LocalDateRules implements ComparableRules<LocalDate>, IObjectRules<
      * @return a {@link Rule} checking if the date is in the future.
      */
     public Rule<LocalDate> isFuture() {
-        return Rule.of(d -> d.isAfter(LocalDate.now(clock)), "must.be.future");
+        return Rule.notNull().and(Rule.of(d -> d.isAfter(LocalDate.now(clock)), "must.be.future"));
     }
 
     /**
@@ -108,7 +108,7 @@ public class LocalDateRules implements ComparableRules<LocalDate>, IObjectRules<
      * @return a {@link Rule} checking if the date is today.
      */
     public Rule<LocalDate> isToday() {
-        return Rule.of(d -> d.isEqual(LocalDate.now(clock)), "must.be.today");
+        return Rule.notNull().and(Rule.of(d -> d.isEqual(LocalDate.now(clock)), "must.be.today"));
     }
 
     /**
@@ -119,7 +119,7 @@ public class LocalDateRules implements ComparableRules<LocalDate>, IObjectRules<
      * @return a {@link Rule} checking if the date's year is a leap year.
      */
     public Rule<LocalDate> isLeapYear() {
-        return Rule.of(LocalDate::isLeapYear, "must.be.leap.year");
+        return Rule.notNull().and(Rule.of(LocalDate::isLeapYear, "must.be.leap.year"));
     }
 
 }

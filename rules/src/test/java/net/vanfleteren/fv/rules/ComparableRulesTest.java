@@ -22,21 +22,19 @@ class ComparableRulesTest {
     class Between {
 
         @Test
-        void valid_whenValueIsWithinInclusiveBounds() {
+        void valid() {
             Rule<Integer> rule = ints().between(10, 20);
             validTest(15, rule);
+            validTest(10, rule);
+            validTest(20, rule);
         }
 
         @Test
-        void invalid_whenValueIsBelowLowerBound() {
+        void invalid() {
             Rule<Integer> rule = ints().between(10, 20);
             invalidTest(5, rule, "must.be.between", HashMap.of("min", 10, "max", 20));
-        }
-
-        @Test
-        void invalid_whenValueIsAboveUpperBound() {
-            Rule<Integer> rule = ints().between(10, 20);
             invalidTest(25, rule, "must.be.between", HashMap.of("min", 10, "max", 20));
+            invalidTest(null, rule, "must.not.be.null");
         }
 
         @Test
@@ -51,21 +49,17 @@ class ComparableRulesTest {
     class BetweenExclusive {
 
         @Test
-        void valid_whenValueIsStrictlyBetweenBounds() {
+        void valid() {
             Rule<Integer> rule = ints().betweenExclusive(10, 20);
             validTest(15, rule);
         }
 
         @Test
-        void invalid_whenValueEqualsLowerBound() {
+        void invalid() {
             Rule<Integer> rule = ints().betweenExclusive(10, 20);
             invalidTest(10, rule, "must.be.between.exclusive", HashMap.of("min", 10, "max", 20));
-        }
-
-        @Test
-        void invalid_whenValueEqualsUpperBound() {
-            Rule<Integer> rule = ints().betweenExclusive(10, 20);
             invalidTest(20, rule, "must.be.between.exclusive", HashMap.of("min", 10, "max", 20));
+            invalidTest(null, rule, "must.not.be.null");
         }
 
         @Test
@@ -84,21 +78,17 @@ class ComparableRulesTest {
     class GreaterThan {
 
         @Test
-        void valid_whenValueIsStrictlyGreaterThanMinimum() {
+        void valid() {
             Rule<Integer> rule = ints().greaterThan(10);
             validTest(11, rule);
         }
 
         @Test
-        void invalid_whenValueEqualsMinimum() {
+        void invalid() {
             Rule<Integer> rule = ints().greaterThan(10);
             invalidTest(10, rule, "must.be.greater.than", HashMap.of("min", 10));
-        }
-
-        @Test
-        void invalid_whenValueIsLessThanMinimum() {
-            Rule<Integer> rule = ints().greaterThan(10);
             invalidTest(5, rule, "must.be.greater.than", HashMap.of("min", 10));
+            invalidTest(null, rule, "must.not.be.null");
         }
     }
 
@@ -106,16 +96,17 @@ class ComparableRulesTest {
     class AtLeast {
 
         @Test
-        void valid_whenValueIsGreaterThanOrEqualToMinimum() {
+        void valid() {
             Rule<Integer> rule = ints().atLeast(10);
             validTest(10, rule);
             validTest(20, rule);
         }
 
         @Test
-        void invalid_whenValueIsLessThanMinimum() {
+        void invalid() {
             Rule<Integer> rule = ints().atLeast(10);
             invalidTest(5, rule, "must.be.at.least", HashMap.of("min", 10));
+            invalidTest(null, rule, "must.not.be.null");
         }
     }
 
@@ -123,21 +114,17 @@ class ComparableRulesTest {
     class LessThan {
 
         @Test
-        void valid_whenValueIsStrictlyLessThanMaximum() {
+        void valid() {
             Rule<Integer> rule = ints().lessThan(20);
             validTest(15, rule);
         }
 
         @Test
-        void invalid_whenValueEqualsMaximum() {
+        void invalid() {
             Rule<Integer> rule = ints().lessThan(20);
             invalidTest(20, rule, "must.be.less.than", HashMap.of("max", 20));
-        }
-
-        @Test
-        void invalid_whenValueIsGreaterThanMaximum() {
-            Rule<Integer> rule = ints().lessThan(20);
             invalidTest(25, rule, "must.be.less.than", HashMap.of("max", 20));
+            invalidTest(null, rule, "must.not.be.null");
         }
     }
 
@@ -145,16 +132,17 @@ class ComparableRulesTest {
     class AtMost {
 
         @Test
-        void valid_whenValueIsLessThanOrEqualToMaximum() {
+        void valid() {
             Rule<Integer> rule = ints().atMost(20);
             validTest(20, rule);
             validTest(15, rule);
         }
 
         @Test
-        void invalid_whenValueIsGreaterThanMaximum() {
+        void invalid() {
             Rule<Integer> rule = ints().atMost(20);
             invalidTest(25, rule, "must.be.at.most", HashMap.of("max", 20));
+            invalidTest(null, rule, "must.not.be.null");
         }
     }
 }

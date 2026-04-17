@@ -3,6 +3,8 @@ package net.vanfleteren.fv.rules;
 import io.vavr.collection.Map;
 import net.vanfleteren.fv.MappingRule;
 import net.vanfleteren.fv.Rule;
+import net.vanfleteren.fv.Validation;
+import net.vanfleteren.fv.assertj.InvalidValidationAssert;
 
 import static net.vanfleteren.fv.API.validateThat;
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
@@ -20,8 +22,8 @@ public class RulesTest {
                 .hasValue(expected);
     }
 
-    public static <T, R> void invalidTest(T value, MappingRule<? super T, R> rule, String... errorKeys) {
-        assertThatValidation(validateThat(value, "value").is(rule))
+    public static <T, R> InvalidValidationAssert<?, Validation.Invalid, R> invalidTest(T value, MappingRule<? super T, R> rule, String... errorKeys) {
+        return assertThatValidation(validateThat(value, "value").is(rule))
                 .isInvalid()
                 .hasErrorKeys(errorKeys);
     }

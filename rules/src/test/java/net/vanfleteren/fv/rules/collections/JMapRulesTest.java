@@ -27,12 +27,8 @@ class JMapRulesTest {
         }
 
         @Test
-        void invalid_whenNull_thenCannotBeNull() {
+        void invalid() {
             invalidTest(null, notEmpty(), "must.not.be.null");
-        }
-
-        @Test
-        void invalid_whenEmpty_thenCannotBeEmpty() {
             invalidTest(Map.of(), notEmpty(), "must.not.be.empty");
         }
     }
@@ -46,12 +42,8 @@ class JMapRulesTest {
         }
 
         @Test
-        void invalid_whenNull_thenCannotBeNull() {
+        void invalid() {
             invalidTest(null, containsKey("a"), "must.not.be.null");
-        }
-
-        @Test
-        void invalid_whenKeyMissing_thenHasKeyAndArgs() {
             invalidTest(
                     Map.of("a", 1),
                     containsKey("b"),
@@ -65,22 +57,15 @@ class JMapRulesTest {
     class ValuesNotNull {
 
         @Test
-        void valid_whenEmptyMap() {
+        void valid() {
             validTest(Map.of(), valuesNotNull());
-        }
-
-        @Test
-        void valid_whenNoNullValues() {
             validTest(Map.of("a", 1, "b", 2), valuesNotNull());
         }
 
         @Test
-        void invalid_whenNullMap_thenCannotBeNull() {
+        void invalid() {
             invalidTest(null, valuesNotNull(), "must.not.be.null");
-        }
 
-        @Test
-        void invalid_whenContainsNullValues_thenReportsKeys() {
             java.util.Map<String, Integer> input = new java.util.HashMap<>();
             input.put("a", 1);
             input.put("b", null);
@@ -131,26 +116,18 @@ class JMapRulesTest {
         }
 
         @Test
-        void invalid_whenNull_thenCannotBeNull() {
+        void invalid() {
             invalidTest(
                     null,
                     containsKeys("a", "b"),
                     "must.not.be.null"
             );
-        }
-
-        @Test
-        void invalid_whenMissingKey_thenHasKeyAndArgs() {
             invalidTest(
                     Map.of("a", 1),
                     containsKeys("a", "b"),
                     "must.contain.keys",
                     HashMap.of("keys", HashSet.of("a", "b"))
             );
-        }
-
-        @Test
-        void invalid_whenMultipleMissingKeys_showsFirstMissingKey() {
             invalidTest(
                     Map.of("a", 1),
                     containsKeys("a", "b", "c"),

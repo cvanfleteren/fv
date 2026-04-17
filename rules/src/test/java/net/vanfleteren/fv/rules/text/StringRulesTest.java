@@ -34,6 +34,7 @@ class StringRulesTest {
         @Test
         void invalid() {
             invalidTest("", strings().notEmpty, "must.not.be.empty");
+            invalidTest(null, strings().notEmpty, "must.not.be.null");
         }
     }
 
@@ -51,6 +52,7 @@ class StringRulesTest {
             invalidTest("", strings.notBlank, "must.not.be.blank");
             invalidTest("   ", strings.notBlank, "must.not.be.blank");
             invalidTest("\n\t", strings.notBlank, "must.not.be.blank");
+            invalidTest(null, strings.notBlank, "must.not.be.null");
         }
     }
 
@@ -69,6 +71,7 @@ class StringRulesTest {
             invalidTest(" hello", strings.trimmed, "must.be.trimmed");
             invalidTest("hello ", strings.trimmed, "must.be.trimmed");
             invalidTest(" hello ", strings.trimmed, "must.be.trimmed");
+            invalidTest(null, strings.trimmed, "must.not.be.null");
         }
     }
 
@@ -88,6 +91,7 @@ class StringRulesTest {
             invalidTest("a b", strings.noWhitespace, "must.not.contain.whitespace");
             invalidTest("\n", strings.noWhitespace, "must.not.contain.whitespace");
             invalidTest("a\tb", strings.noWhitespace, "must.not.contain.whitespace");
+            invalidTest(null, strings.noWhitespace, "must.not.be.null");
         }
     }
 
@@ -105,6 +109,7 @@ class StringRulesTest {
         void invalid() {
             invalidTest("", strings.minLength(2), "must.have.min.length", HashMap.of("min", 2));
             invalidTest("1", strings.minLength(2), "must.have.min.length", HashMap.of("min", 2));
+            invalidTest(null, strings.minLength(2), "must.not.be.null");
         }
     }
 
@@ -122,6 +127,7 @@ class StringRulesTest {
         void invalid() {
             invalidTest("1", strings.maxLength(0), "must.have.max.length", HashMap.of("max", 0));
             invalidTest("123", strings.maxLength(2), "must.have.max.length", HashMap.of("max", 2));
+            invalidTest(null, strings.maxLength(2), "must.not.be.null");
         }
     }
 
@@ -140,6 +146,7 @@ class StringRulesTest {
         void invalid() {
             invalidTest("", strings.lengthBetween(1, 2), "must.have.length.between", HashMap.of("min", 1, "max", 2));
             invalidTest("123", strings.lengthBetween(1, 2), "must.have.length.between", HashMap.of("min", 1, "max", 2));
+            invalidTest(null, strings.lengthBetween(1, 2), "must.not.be.null");
         }
     }
 
@@ -157,6 +164,7 @@ class StringRulesTest {
         void invalid() {
             invalidTest("", strings.exactLength(1), "must.have.exact.length", HashMap.of("len", 1));
             invalidTest("12", strings.exactLength(1), "must.have.exact.length", HashMap.of("len", 1));
+            invalidTest(null, strings.exactLength(1), "must.not.be.null");
         }
     }
 
@@ -174,6 +182,7 @@ class StringRulesTest {
         void invalid() {
             invalidTest("hello", strings.contains("xyz"), "must.contain", HashMap.of("fragment", "xyz"));
             invalidTest("", strings.contains("x"), "must.contain", HashMap.of("fragment", "x"));
+            invalidTest(null, strings.contains("x"), "must.not.be.null");
         }
     }
 
@@ -193,6 +202,7 @@ class StringRulesTest {
         void invalid() {
             invalidTest("hello", strings.containsIgnoreCase("XYZ"), "must.contain.ignorecase", HashMap.of("fragment", "XYZ"));
             invalidTest("", strings.containsIgnoreCase("x"), "must.contain.ignorecase", HashMap.of("fragment", "x"));
+            invalidTest(null, strings.containsIgnoreCase("x"), "must.not.be.null");
         }
     }
 
@@ -210,6 +220,7 @@ class StringRulesTest {
         void invalid() {
             invalidTest("hello", strings.startsWith("xy"), "must.start.with", HashMap.of("prefix", "xy"));
             invalidTest("", strings.startsWith("x"), "must.start.with", HashMap.of("prefix", "x"));
+            invalidTest(null, strings.startsWith("x"), "must.not.be.null");
         }
     }
 
@@ -229,6 +240,7 @@ class StringRulesTest {
         void invalid() {
             invalidTest("hello", strings.startsWithIgnoreCase("XY"), "must.start.with.ignorecase", HashMap.of("prefix", "XY"));
             invalidTest("", strings.startsWithIgnoreCase("x"), "must.start.with.ignorecase", HashMap.of("prefix", "x"));
+            invalidTest(null, strings.startsWithIgnoreCase("x"), "must.not.be.null");
         }
     }
 
@@ -246,6 +258,7 @@ class StringRulesTest {
         void invalid() {
             invalidTest("hello", strings.endsWith("xy"), "must.end.with", HashMap.of("suffix", "xy"));
             invalidTest("", strings.endsWith("x"), "must.end.with", HashMap.of("suffix", "x"));
+            invalidTest(null, strings.endsWith("x"), "must.not.be.null");
         }
     }
 
@@ -266,6 +279,7 @@ class StringRulesTest {
             invalidTest("hello", strings.endsWithIgnoreCase("XY"), "must.end.with.ignorecase", HashMap.of("suffix", "XY"));
             invalidTest("", strings.endsWithIgnoreCase("x"), "must.end.with.ignorecase", HashMap.of("suffix", "x"));
             invalidTest("hi", strings.endsWithIgnoreCase("LONGER"), "must.end.with.ignorecase", HashMap.of("suffix", "LONGER"));
+            invalidTest(null, strings.endsWithIgnoreCase("x"), "must.not.be.null");
         }
     }
 
@@ -286,6 +300,7 @@ class StringRulesTest {
                     "must.not.be.in",
                     HashMap.of("forbidden", HashSet.of("admin", "root"))
             );
+            invalidTest(null, strings.notIn(HashSet.of("admin")), "must.not.be.null");
         }
     }
 
@@ -302,6 +317,7 @@ class StringRulesTest {
         void invalid() {
             invalidTest("12a", strings.matches("\\d+"), "must.match.regex", HashMap.of("regex", "\\d+"));
             invalidTest("ab123", strings.matches("[a-z]{2}\\d{2}"), "must.match.regex", HashMap.of("regex", "[a-z]{2}\\d{2}"));
+            invalidTest(null, strings.matches("\\d+"), "must.not.be.null");
         }
     }
 
@@ -320,6 +336,7 @@ class StringRulesTest {
             invalidTest("abc1", strings.alpha, "must.be.alpha");
             invalidTest("a b", strings.alpha, "must.be.alpha");
             invalidTest("-", strings.alpha, "must.be.alpha");
+            invalidTest(null, strings.alpha, "must.not.be.null");
         }
     }
 
@@ -340,6 +357,7 @@ class StringRulesTest {
             invalidTest("ë", strings.alphaNumeric, "must.be.alphanumeric");
             invalidTest("!", strings.alphaNumeric, "must.be.alphanumeric");
             invalidTest("Åß١٢3", strings.alphaNumeric, "must.be.alphanumeric");
+            invalidTest(null, strings.alphaNumeric, "must.not.be.null");
         }
     }
 
@@ -359,6 +377,7 @@ class StringRulesTest {
             invalidTest("a_b", strings.alphaNumericUnicode, "must.be.unicode.alphanumeric");
             invalidTest("a b", strings.alphaNumericUnicode, "must.be.unicode.alphanumeric");
             invalidTest("!", strings.alphaNumericUnicode, "must.be.unicode.alphanumeric");
+            invalidTest(null, strings.alphaNumericUnicode, "must.not.be.null");
         }
     }
 
@@ -377,6 +396,7 @@ class StringRulesTest {
             invalidTest("12a", strings.onlyUnicodeDigits, "must.be.unicode.digits.only");
             invalidTest("12 3", strings.onlyUnicodeDigits, "must.be.unicode.digits.only");
             invalidTest("-", strings.onlyUnicodeDigits, "must.be.unicode.digits.only");
+            invalidTest(null, strings.onlyUnicodeDigits, "must.not.be.null");
         }
     }
 
@@ -393,6 +413,7 @@ class StringRulesTest {
         void invalid() {
             invalidTest("١٢٣", strings.onlyDigits(), "must.be.digits.only");
             invalidTest("12a", strings.onlyDigits(), "must.be.digits.only");
+            invalidTest(null, strings.onlyDigits(), "must.not.be.null");
         }
     }
 
@@ -416,6 +437,7 @@ class StringRulesTest {
             invalidTest("xyz", strings.hexadecimal(), "must.be.hexadecimal");
             invalidTest("0x123", strings.hexadecimal(), "must.be.hexadecimal"); // no prefix allowed
             invalidTest("12 34", strings.hexadecimal(), "must.be.hexadecimal"); // no spaces
+            invalidTest(null, strings.hexadecimal(), "must.not.be.null");
         }
     }
 
@@ -444,6 +466,7 @@ class StringRulesTest {
             invalidTest("foo@.com", strings.looksLikeEmailAddress(), "must.be.email");
             // No local part
             invalidTest("@example.com", strings.looksLikeEmailAddress(), "must.be.email");
+            invalidTest(null, strings.looksLikeEmailAddress(), "must.not.be.null");
         }
     }
 
@@ -464,6 +487,11 @@ class StringRulesTest {
         void asInteger_whenEmptyString_returnsInvalid() {
             invalidTest("", strings.asInteger(), "must.be.integer");
         }
+
+        @Test
+        void asInteger_whenNull_returnsInvalid() {
+            invalidTest(null, strings.asInteger(), "must.not.be.null");
+        }
     }
 
     @Nested
@@ -482,6 +510,11 @@ class StringRulesTest {
         @Test
         void asLong_whenValueTooLargeForLong_returnsInvalid() {
             invalidTest("9223372036854775808", strings.asLong(), "must.be.long");
+        }
+
+        @Test
+        void asLong_whenNull_returnsInvalid() {
+            invalidTest(null, strings.asLong(), "must.not.be.null");
         }
     }
 
@@ -502,6 +535,11 @@ class StringRulesTest {
         void asDouble_whenEmptyString_returnsInvalid() {
             invalidTest("", strings.asDouble(), "must.be.double");
         }
+
+        @Test
+        void asDouble_whenNull_returnsInvalid() {
+            invalidTest(null, strings.asDouble(), "must.not.be.null");
+        }
     }
 
     @Nested
@@ -520,6 +558,11 @@ class StringRulesTest {
         @Test
         void asFloat_whenEmptyString_returnsInvalid() {
             invalidTest("", strings.asFloat(), "must.be.float");
+        }
+
+        @Test
+        void asFloat_whenNull_returnsInvalid() {
+            invalidTest(null, strings.asFloat(), "must.not.be.null");
         }
     }
 
@@ -540,6 +583,11 @@ class StringRulesTest {
         void asBigInteger_whenEmptyString_returnsInvalid() {
             invalidTest("", strings.asBigInteger(), "must.be.biginteger");
         }
+
+        @Test
+        void asBigInteger_whenNull_returnsInvalid() {
+            invalidTest(null, strings.asBigInteger(), "must.not.be.null");
+        }
     }
 
     @Nested
@@ -558,6 +606,11 @@ class StringRulesTest {
         @Test
         void asBigDecimal_whenEmptyString_returnsInvalid() {
             invalidTest("", strings.asBigDecimal(), "must.be.bigdecimal");
+        }
+
+        @Test
+        void asBigDecimal_whenNull_returnsInvalid() {
+            invalidTest(null, strings.asBigDecimal(), "must.not.be.null");
         }
     }
 
@@ -579,6 +632,11 @@ class StringRulesTest {
         void asUUID_whenEmptyString_returnsInvalid() {
             invalidTest("", strings.asUUID(), "must.be.uuid");
         }
+
+        @Test
+        void asUUID_whenNull_returnsInvalid() {
+            invalidTest(null, strings.asUUID(), "must.not.be.null");
+        }
     }
 
     @Nested
@@ -598,6 +656,11 @@ class StringRulesTest {
         @Test
         void asURL_whenEmptyString_returnsInvalid() {
             invalidTest("", strings.asURL(), "must.be.url");
+        }
+
+        @Test
+        void asURL_whenNull_returnsInvalid() {
+            invalidTest(null, strings.asURL(), "must.not.be.null");
         }
     }
 
@@ -619,6 +682,11 @@ class StringRulesTest {
         void asLocalDateTime_whenEmptyString_returnsInvalid() {
             invalidTest("", strings.asLocalDateTime(), "must.be.localdatetime");
         }
+
+        @Test
+        void asLocalDateTime_whenNull_returnsInvalid() {
+            invalidTest(null, strings.asLocalDateTime(), "must.not.be.null");
+        }
     }
 
     @Nested
@@ -639,6 +707,11 @@ class StringRulesTest {
         void asLocalDate_whenEmptyString_returnsInvalid() {
             invalidTest("", strings.asLocalDate(), "must.be.localdate");
         }
+
+        @Test
+        void asLocalDate_whenNull_returnsInvalid() {
+            invalidTest(null, strings.asLocalDate(), "must.not.be.null");
+        }
     }
 
     @Nested
@@ -658,6 +731,11 @@ class StringRulesTest {
         @Test
         void asInstant_whenEmptyString_returnsInvalid() {
             invalidTest("", strings.asInstant(), "must.be.instant");
+        }
+
+        @Test
+        void asInstant_whenNull_returnsInvalid() {
+            invalidTest(null, strings.asInstant(), "must.not.be.null");
         }
     }
 
@@ -680,6 +758,11 @@ class StringRulesTest {
         void asURI_whenInvalidURIString_returnsInvalid() {
             invalidTest("not a valid uri with spaces", strings.asURI(), "must.be.uri");
         }
+
+        @Test
+        void asURI_whenNull_returnsInvalid() {
+            invalidTest(null, strings.asURI(), "must.not.be.null");
+        }
     }
 
     @Nested
@@ -698,6 +781,7 @@ class StringRulesTest {
             invalidTest("line1\rline2", strings.singleLine, "must.be.single.line");
             invalidTest("line1\r\nline2", strings.singleLine, "must.be.single.line");
             invalidTest("\n", strings.singleLine, "must.be.single.line");
+            invalidTest(null, strings.singleLine, "must.not.be.null");
         }
     }
 
@@ -717,6 +801,7 @@ class StringRulesTest {
             invalidTest("Hello", strings.uppercase, "must.be.uppercase");
             invalidTest("hello", strings.uppercase, "must.be.uppercase");
             invalidTest("ABCd", strings.uppercase, "must.be.uppercase");
+            invalidTest(null, strings.uppercase, "must.not.be.null");
         }
     }
 
@@ -736,6 +821,7 @@ class StringRulesTest {
             invalidTest("Hello", strings.lowercase, "must.be.lowercase");
             invalidTest("HELLO", strings.lowercase, "must.be.lowercase");
             invalidTest("abcD", strings.lowercase, "must.be.lowercase");
+            invalidTest(null, strings.lowercase, "must.not.be.null");
         }
     }
 
@@ -754,6 +840,7 @@ class StringRulesTest {
             invalidTest("hello world", strings.doesNotContain("world"), "must.not.contain", HashMap.of("fragment", "world"));
             invalidTest("hello", strings.doesNotContain("ell"), "must.not.contain", HashMap.of("fragment", "ell"));
             invalidTest("abc", strings.doesNotContain(""), "must.not.contain", HashMap.of("fragment", ""));
+            invalidTest(null, strings.doesNotContain("world"), "must.not.be.null");
         }
 
         @Test
@@ -785,6 +872,7 @@ class StringRulesTest {
                     "must.be.in",
                     HashMap.of("allowed", HashSet.of("admin"))
             );
+            invalidTest(null, strings.isIn(HashSet.of("admin")), "must.not.be.null");
         }
 
         @Test

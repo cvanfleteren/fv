@@ -52,10 +52,10 @@ public class LocalDateTimeRules implements ComparableRules<LocalDateTime>, IObje
      * @return a {@link Rule} checking if the date-time is before the limit.
      */
     public Rule<LocalDateTime> isBefore(LocalDateTime limit) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 d -> d.isBefore(limit),
                 ErrorMessage.of("must.be.before", "limit", limit)
-        );
+        ));
     }
 
     /**
@@ -72,10 +72,10 @@ public class LocalDateTimeRules implements ComparableRules<LocalDateTime>, IObje
      * @return a {@link Rule} checking if the date-time is after the limit.
      */
     public Rule<LocalDateTime> isAfter(LocalDateTime limit) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 d -> d.isAfter(limit),
                 ErrorMessage.of("must.be.after", "limit", limit)
-        );
+        ));
     }
 
     /**
@@ -86,7 +86,7 @@ public class LocalDateTimeRules implements ComparableRules<LocalDateTime>, IObje
      * @return a {@link Rule} checking if the date-time is in the past.
      */
     public Rule<LocalDateTime> isPast() {
-        return Rule.of(d -> d.isBefore(LocalDateTime.now(clock)), "must.be.past");
+        return Rule.notNull().and(Rule.of(d -> d.isBefore(LocalDateTime.now(clock)), "must.be.past"));
     }
 
     /**
@@ -97,7 +97,7 @@ public class LocalDateTimeRules implements ComparableRules<LocalDateTime>, IObje
      * @return a {@link Rule} checking if the date-time is in the future.
      */
     public Rule<LocalDateTime> isFuture() {
-        return Rule.of(d -> d.isAfter(LocalDateTime.now(clock)), "must.be.future");
+        return Rule.notNull().and(Rule.of(d -> d.isAfter(LocalDateTime.now(clock)), "must.be.future"));
     }
 
 }

@@ -49,10 +49,10 @@ public class InstantRules implements ComparableRules<Instant>, IObjectRules<Inst
      * @return a {@link Rule} checking if the Instant is before the limit.
      */
     public Rule<Instant> isBefore(Instant limit) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 d -> d.isBefore(limit),
                 ErrorMessage.of("must.be.before", "limit", limit)
-        );
+        ));
     }
 
     /**
@@ -69,10 +69,10 @@ public class InstantRules implements ComparableRules<Instant>, IObjectRules<Inst
      * @return a {@link Rule} checking if the Instant is after the limit.
      */
     public Rule<Instant> isAfter(Instant limit) {
-        return Rule.of(
+        return Rule.notNull().and(Rule.of(
                 d -> d.isAfter(limit),
                 ErrorMessage.of("must.be.after", "limit", limit)
-        );
+        ));
     }
 
     /**
@@ -83,7 +83,7 @@ public class InstantRules implements ComparableRules<Instant>, IObjectRules<Inst
      * @return a {@link Rule} checking if the Instant is in the past.
      */
     public Rule<Instant> isPast() {
-        return Rule.of(d -> d.isBefore(Instant.now(clock)), "must.be.past");
+        return Rule.notNull().and(Rule.of(d -> d.isBefore(Instant.now(clock)), "must.be.past"));
     }
 
     /**
@@ -94,7 +94,7 @@ public class InstantRules implements ComparableRules<Instant>, IObjectRules<Inst
      * @return a {@link Rule} checking if the Instant is in the future.
      */
     public Rule<Instant> isFuture() {
-        return Rule.of(d -> d.isAfter(Instant.now(clock)), "must.be.future");
+        return Rule.notNull().and(Rule.of(d -> d.isAfter(Instant.now(clock)), "must.be.future"));
     }
 
 }

@@ -28,7 +28,7 @@ public class OptionalRules {
      * @param <T> the type of the value contained in the Optional
      */
     public <T> MappingRule<Optional<T>, T> required() {
-        return input -> input.map(Validation::valid).orElse(Validation.invalid("must.not.be.empty"));
+        return MappingRule.<Optional<T>>notNull().andThen(input -> input.map(Validation::valid).orElse(Validation.invalid("must.not.be.empty")));
     }
 
     /**
@@ -39,7 +39,7 @@ public class OptionalRules {
      * @param <T> the type of the value contained in the Optional
      */
     public <T> Rule<Optional<T>> requiredOptional() {
-        return input -> input.isEmpty() ? Validation.invalid("must.not.be.empty") : Validation.valid(input);
+        return Rule.notNull().and(input -> input.isEmpty() ? Validation.invalid("must.not.be.empty") : Validation.valid(input));
     }
 
     /**
@@ -50,7 +50,7 @@ public class OptionalRules {
      * @param <T> the type of the value contained in the Optional
      */
     public <T> Rule<Optional<T>> empty() {
-        return input -> input.isEmpty() ? Validation.valid(input) : Validation.invalid("must.be.empty");
+        return Rule.notNull().and(input -> input.isEmpty() ? Validation.valid(input) : Validation.invalid("must.be.empty"));
     }
 
 }
