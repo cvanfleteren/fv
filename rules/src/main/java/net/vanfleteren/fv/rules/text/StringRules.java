@@ -603,13 +603,13 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      *     <li>{@code regex}: the regular expression ({@link String})</li>
      * </ul>
      *
-     * @param pattern the regular expression.
+     * @param regex the regular expression.
      */
-    public Rule<String> matches(Pattern pattern) {
-        Objects.requireNonNull(pattern, "regex cannot be null");
+    public Rule<String> matches(Pattern regex) {
+        Objects.requireNonNull(regex, "regex cannot be null");
         return Rule.notNull().and(Rule.of(
-                s -> pattern.matcher(s).matches(),
-                ErrorMessage.of("must.match.regex", "regex", pattern)
+                s -> regex.matcher(s).matches(),
+                ErrorMessage.of("must.match.regex", "regex", regex)
         ));
     }
 
