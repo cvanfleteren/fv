@@ -351,7 +351,7 @@ public sealed interface Validation<T> extends Value<T> {
 
     /**
      * Applies a filter to the current validation logic using the specified predicate and error message.
-     * This method refines the validation by adding a rule that checks if the provided predicate passes.
+     * This method refines the validation by adding a rule that fails if the provided predicate fails.
      *
      * @param predicate    the condition to be checked against the input
      * @param errorMessage the error message to be returned if the predicate fails
@@ -363,7 +363,7 @@ public sealed interface Validation<T> extends Value<T> {
 
     /**
      * Applies a filter to the current validation logic using the specified predicate and error message key.
-     * This method refines the validation by adding a rule that checks if the provided predicate passes.
+     * This method refines the validation by adding a rule that fails if the provided predicate fails.
      *
      * @param predicate the condition to be checked against the input
      * @param errorKey  the error message key to be returned if the predicate fails

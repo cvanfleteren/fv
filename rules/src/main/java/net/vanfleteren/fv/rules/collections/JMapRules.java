@@ -130,10 +130,7 @@ public class JMapRules {
     }
 
     /**
-     * Validates all values in the map using the specified rule.
-     * <p>
-     * If any value fails the rule, the resulting validation will contain errors with paths
-     * corresponding to the keys of the failing values.
+     * Fails if not all values pass the {@code rule}.
      * <p>
      * Usage example:
      * {@snippet file = "net/vanfleteren/fv/rules/collections/JMapRulesSnippets.java" region = "validate-values-with-example"}

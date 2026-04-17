@@ -385,7 +385,7 @@ public interface MappingRule<T, R> {
     }
 
     /**
-     * Returns a {@link MappingRule} that checks if the input {@link Option} is defined and then applies the given rule to its value.
+     * Fails if the input {@link Option} is empty. Otherwise, applies the given rule to its value.
      * <p>
      * Usage example:
      * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="required-option-example"}
@@ -401,7 +401,7 @@ public interface MappingRule<T, R> {
     }
 
     /**
-     * Returns a {@link MappingRule} that checks if the input {@link Optional} is defined and then applies the given rule to its value.
+     * Fails if the input {@link Optional} is empty. Otherwise, applies the given rule to its value.
      * <p>
      * Usage example:
      * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="required-optional-example"}

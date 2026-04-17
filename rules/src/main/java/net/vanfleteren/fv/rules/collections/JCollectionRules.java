@@ -160,19 +160,18 @@ public class JCollectionRules {
     }
 
     /**
-     * Checks if the collection contains no null elements.
+     * Fails when the collection contains null elements.
      * <p>
      * Error key: {@code must.not.be.null} (applied to elements)
      *
      * @param <T> the type of elements in the collection.
-     * @return a {@link Rule} that validates if the collection has no null elements.
      */
     public <T> Rule<List<T>> noNullElements() {
-        return Rule.notNull().and(validateValuesWith(objects.notNull()));
+        return objects.<T>notNull().liftToJList();
     }
 
     /**
-     * Checks if all elements in the collection match the given predicate.
+     * Fails if any element in the collection does not match the given predicate.
      * <p>
      * Error key: {@code must.all.match}
      *
@@ -186,7 +185,7 @@ public class JCollectionRules {
     }
 
     /**
-     * Checks if all elements in the collection match the given predicate.
+     * Fails if any element in the collection does not match the given predicate.
      *
      * @param <T> the type of elements in the collection.
      * @param predicate the predicate to test each element against.
@@ -209,7 +208,7 @@ public class JCollectionRules {
     }
 
     /**
-     * Checks if none of the elements in the collection match the given {@link Rule}.
+     * Fails if any element in the collection matches the given {@link Rule}.
      * <p>
      * Error key: {@code must.none.match}
      *
@@ -222,7 +221,7 @@ public class JCollectionRules {
     }
 
     /**
-     * Checks if none of the elements in the collection match the given predicate.
+     * Fails if any element in the collection matches the given predicate.
      * <p>
      * Error key: {@code must.none.match}
      *
@@ -236,7 +235,7 @@ public class JCollectionRules {
     }
 
     /**
-     * Checks if none of the elements in the collection match the given predicate.
+     * Fails if any element in the collection matches the given predicate.
      *
      * @param <T> the type of elements in the collection.
      * @param predicate the predicate to test each element against.
@@ -249,7 +248,7 @@ public class JCollectionRules {
     }
 
     /**
-     * Checks if at least one of the elements in the collection match the given predicate.
+     * Fails if no elements in the collection match the given predicate.
      * <p>
      * Error key: {@code must.at.least.one.match}
      *
@@ -263,7 +262,7 @@ public class JCollectionRules {
     }
 
     /**
-     * Checks if at least one of the elements in the collection match the given predicate.
+     * Fails if no elements in the collection match the given predicate.
      *
      * @param <T> the type of elements in the collection.
      * @param predicate the predicate to test each element against.
@@ -276,7 +275,7 @@ public class JCollectionRules {
     }
 
     /**
-     * Checks if the collection contains the given element.
+     * Fails if the collection does not contain the given element.
      * <p>
      * Error key: {@code must.contain}
      * <p>
@@ -358,7 +357,7 @@ public class JCollectionRules {
     }
 
     /**
-     * Ensures the extracted key is unique within the collection.
+     * Fails if the extracted key is not unique within the collection.
      * <p>
      * Accumulates duplicates and includes the duplicate keys in the error args.
      * <p>
@@ -374,6 +373,10 @@ public class JCollectionRules {
      * @param <K> the type of the extracted key.
      * @param keyExtractor the function to extract the unique key.
      * @param key the label for the key (e.g., "email").
+     * <p>
+     * Usage example:
+     * {@snippet file="net/vanfleteren/fv/rules/collections/JCollectionRulesSnippets.java" region="unique-by-example"}
+     *
      * @return a {@link Rule} checking for uniqueness by key.
      */
     public <T, K> Rule<Collection<T>> uniqueBy(Function1<T, K> keyExtractor, String key) {

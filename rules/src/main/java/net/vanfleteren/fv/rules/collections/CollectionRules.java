@@ -156,7 +156,7 @@ public class CollectionRules {
     }
 
     /**
-     * Checks if the collection contains no null elements.
+     * Fails when the collection contains null elements.
      * <p>
      * Error key: {@code must.not.be.null} (applied to elements)
      *
@@ -164,12 +164,11 @@ public class CollectionRules {
      * @return a {@link Rule} that validates if the collection has no null elements.
      */
     public <T> Rule<List<T>> noNullElements() {
-        Rule<T> notNull = objects.notNull();
-        return Rule.notNull().and(notNull.liftToList());
+        return objects.<T>notNull().liftToList();
     }
 
     /**
-     * Checks if all elements conform to the passed {@link Rule}.
+     * Fails if any element does not conform to the passed {@link Rule}.
      *
      * @param <T> the type of elements in the collection.
      * @param rule the {@link Rule} to validate each element against.
@@ -180,7 +179,7 @@ public class CollectionRules {
     }
 
     /**
-     * Checks if all elements in the collection match the given predicate.
+     * Fails if any element in the collection does not match the given predicate.
      * <p>
      * Error key: {@code must.all.match}
      *
@@ -194,7 +193,7 @@ public class CollectionRules {
     }
 
     /**
-     * Checks if all elements in the collection match the given predicate.
+     * Fails if any element in the collection does not match the given predicate.
      *
      * @param <T> the type of elements in the collection.
      * @param predicate the predicate to test each element against.
@@ -207,7 +206,7 @@ public class CollectionRules {
     }
 
     /**
-     * Checks if none of the elements in the collection match the given {@link Rule}.
+     * Fails if any element in the collection matches the given {@link Rule}.
      * <p>
      * Error key: {@code must.none.match}
      *
@@ -219,7 +218,7 @@ public class CollectionRules {
     }
 
     /**
-     * Checks if none of the elements in the collection match the given predicate.
+     * Fails if any element in the collection matches the given predicate.
      * <p>
      * Error key: {@code must.none.match}
      *
@@ -232,7 +231,7 @@ public class CollectionRules {
     }
 
     /**
-     * Checks if none of the elements in the collection match the given predicate.
+     * Fails if any element in the collection matches the given predicate.
      *
      * @param <T> the type of elements in the collection.
      * @param predicate the predicate to test each element against.
@@ -244,7 +243,7 @@ public class CollectionRules {
     }
 
     /**
-     * Checks if at least one of the elements in the collection match the given predicate.
+     * Fails if no elements in the collection match the given predicate.
      * <p>
      * Error key: {@code must.at.least.one.match}
      *
@@ -258,7 +257,7 @@ public class CollectionRules {
     }
 
     /**
-     * Checks if at least one of the elements in the collection match the given predicate.
+     * Fails if no elements in the collection match the given predicate.
      *
      * @param <T> the type of elements in the collection.
      * @param predicate the predicate to test each element against.
@@ -271,7 +270,7 @@ public class CollectionRules {
     }
 
     /**
-     * Checks if the collection contains the given element.
+     * Fails if the collection does not contain the given element.
      * <p>
      * Error key: {@code must.contain}
      * <p>
@@ -353,7 +352,7 @@ public class CollectionRules {
     }
 
     /**
-     * Ensures the extracted key is unique within the iterable.
+     * Fails if the extracted key is not unique within the iterable.
      * <p>
      * Accumulates duplicates and includes the duplicate keys in the error args.
      * <p>
@@ -369,6 +368,10 @@ public class CollectionRules {
      * @param <K> the type of the extracted key.
      * @param keyExtractor the function to extract the unique key.
      * @param key the label for the key (e.g., "email").
+     * <p>
+     * Usage example:
+     * {@snippet file="net/vanfleteren/fv/rules/collections/CollectionRulesSnippets.java" region="unique-by-example"}
+     *
      * @return a {@link Rule} checking for uniqueness by key.
      */
     public <T, K> Rule<Iterable<T>> uniqueBy(Function1<T, K> keyExtractor, String key) {
