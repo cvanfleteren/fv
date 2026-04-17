@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import static net.vanfleteren.fv.rules.RulesTest.invalidTest;
 import static net.vanfleteren.fv.rules.RulesTest.validTest;
@@ -318,6 +319,24 @@ class StringRulesTest {
             invalidTest("12a", strings.matches("\\d+"), "must.match.regex", HashMap.of("regex", "\\d+"));
             invalidTest("ab123", strings.matches("[a-z]{2}\\d{2}"), "must.match.regex", HashMap.of("regex", "[a-z]{2}\\d{2}"));
             invalidTest(null, strings.matches("\\d+"), "must.not.be.null");
+        }
+
+        @Test
+        void valid_pattern() {
+            validTest("12345", strings.matches(Pattern.compile("\\d+")));
+            validTest("AB12", strings.matches(Pattern.compile("[a-z]{2}\\d{2}", Pattern.CASE_INSENSITIVE)));
+        }
+
+        @Test
+        void invalid_pattern() {
+            Pattern pattern = Pattern.compile("\\d+");
+            invalidTest("12a", strings.matches(pattern), "must.match.regex", HashMap.of("regex", pattern));
+            invalidTest(null, strings.matches(pattern), "must.not.be.null");
+        }
+
+        @Test
+        void nullPattern_throwsException() {
+            assertThrows(NullPointerException.class, () -> strings.matches((Pattern) null));
         }
     }
 

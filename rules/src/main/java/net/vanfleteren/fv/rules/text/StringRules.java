@@ -526,7 +526,6 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      *
      * @param forbidden the set of forbidden values.
-     * @return a {@link Rule} checking if the value is forbidden.
      */
     public Rule<String> notIn(Set<String> forbidden) {
         Objects.requireNonNull(forbidden, "forbidden cannot be null");
@@ -548,7 +547,6 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      *
      * @param allowed the set of allowed values.
-     * @return a {@link Rule} checking if the value is allowed.
      */
     public Rule<String> isIn(Set<String> allowed) {
         Objects.requireNonNull(allowed, "allowed cannot be null");
@@ -569,7 +567,6 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      *
      * @param regex the regular expression.
-     * @return a {@link Rule} checking if the string matches the regex.
      */
     public Rule<String> matches(String regex) {
         Objects.requireNonNull(regex, "regex cannot be null");
@@ -577,6 +574,26 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         return Rule.notNull().and(Rule.of(
                 s -> pattern.matcher(s).matches(),
                 ErrorMessage.of("must.match.regex", "regex", regex)
+        ));
+    }
+
+    /**
+     * Fails if the string does not match the specified regular expression.
+     * <p>
+     * Error key: {@code must.match.regex}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code regex}: the regular expression ({@link String})</li>
+     * </ul>
+     *
+     * @param pattern the regular expression.
+     */
+    public Rule<String> matches(Pattern pattern) {
+        Objects.requireNonNull(pattern, "regex cannot be null");
+        return Rule.notNull().and(Rule.of(
+                s -> pattern.matcher(s).matches(),
+                ErrorMessage.of("must.match.regex", "regex", pattern)
         ));
     }
 
