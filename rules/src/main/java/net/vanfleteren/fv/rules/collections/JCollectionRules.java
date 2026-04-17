@@ -199,6 +199,9 @@ public class JCollectionRules {
 
     /**
      * Fails if one of the elements in the list does not match the passed {@link Rule}.
+     * <p>
+     * Usage example:
+     * {@snippet file="net/vanfleteren/fv/rules/collections/JCollectionRulesSnippets.java" region="all-match-rule-example"}
      *
      * @param <T> the type of elements in the collection.
      * @param rule the {@link Rule} to validate each element against.

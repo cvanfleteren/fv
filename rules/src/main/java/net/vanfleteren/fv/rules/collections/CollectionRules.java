@@ -169,6 +169,9 @@ public class CollectionRules {
 
     /**
      * Fails if any element does not conform to the passed {@link Rule}.
+     * <p>
+     * Usage example:
+     * {@snippet file="net/vanfleteren/fv/rules/collections/CollectionRulesSnippets.java" region="all-match-rule-example"}
      *
      * @param <T> the type of elements in the collection.
      * @param rule the {@link Rule} to validate each element against.

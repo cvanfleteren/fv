@@ -5,6 +5,7 @@ import net.vanfleteren.fv.Rule;
 import net.vanfleteren.fv.Validation;
 
 import static net.vanfleteren.fv.rules.collections.CollectionRules.collections;
+import static net.vanfleteren.fv.rules.text.StringRules.strings;
 
 class CollectionRulesSnippets {
 
@@ -19,7 +20,16 @@ class CollectionRulesSnippets {
         );
 
         Rule<Iterable<Person>> rule = collections().uniqueBy(Person::email, "email");
-        Validation<Iterable<Person>> result = rule.test(people); // Invalid:("must.be.unique.by.key")
+        Validation<Iterable<Person>> result = rule.test(people); // Invalid("must.be.unique.by.key")
+        // @end
+    }
+
+    void allMatchRuleExample() {
+        // @start region="all-match-rule-example"
+        List<String> names = List.of("Alice", "Bob", "Charlie");
+        Rule<List<String>> rule = collections().allMatchRule(strings().minLength(3));
+
+        Validation<List<String>> result = rule.test(names); // Valid
         // @end
     }
 
