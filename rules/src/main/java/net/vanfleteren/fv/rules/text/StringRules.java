@@ -647,6 +647,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         ));
     }
 
+    private static final Pattern HEXADECIMAL_PATTERN = Pattern.compile("[0-9a-f]*", Pattern.CASE_INSENSITIVE);
     /**
      * Fails if the string contains anything other than hexadecimal characters.
      * <p>
@@ -655,12 +656,42 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link Rule} checking if the string is hexadecimal.
      */
     public Rule<String> hexadecimal() {
-        Pattern p = Pattern.compile("[0-9a-f]*", Pattern.CASE_INSENSITIVE);
-        return Rule.notNull().and(Rule.of(s -> p.matcher(s).matches(), ErrorMessage.of("must.be.hexadecimal")));
+        return Rule.notNull().and(Rule.of(s -> HEXADECIMAL_PATTERN.matcher(s).matches(), ErrorMessage.of("must.be.hexadecimal")));
+    }
+
+    // Regex for standard Base64
+    private static final Pattern STANDARD_BASE64_PATTERN =
+            Pattern.compile("^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$");
+
+    // Regex for URL-safe Base64 (uses - and _ instead of + and /)
+    private static final Pattern URL_SAFE_BASE64_PATTERN =
+            Pattern.compile("^(?:[A-Za-z0-9-_]{4})*(?:[A-Za-z0-9-_]{2}==|[A-Za-z0-9-_]{3}=)?$");
+
+    /**
+     * Fails if the string is not valid Base64.
+     * <p>
+     * Error key: {@code must.be.base64}
+     *
+     * @return a {@link Rule} checking if the string is Base64.
+     */
+    public Rule<String> base64() {
+        return Rule.notNull().and(Rule.of(s -> STANDARD_BASE64_PATTERN.matcher(s).matches(), ErrorMessage.of("must.be.base64")));
+    }
+
+    /**
+     * Fails if the string is not valid URL-safe Base64.
+     * <p>
+     * Error key: {@code must.be.base64.urlsafe}
+     *
+     * @return a {@link Rule} checking if the string is URL-safe Base64.
+     */
+    public Rule<String> base64UrlSafe() {
+        return Rule.notNull().and(Rule.of(s -> URL_SAFE_BASE64_PATTERN.matcher(s).matches(), ErrorMessage.of("must.be.base64.urlsafe")));
     }
 
 
-    private static final Pattern isEmailPattern = Pattern.compile(
+
+    private static final Pattern IS_EMAIL_PATTERN = Pattern.compile(
             // local part
             "^[A-Za-z0-9+_.-]+@" +
                     // domain part = either:
@@ -678,7 +709,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> looksLikeEmailAddress() {
         return Rule.notNull().and(Rule.of(
-                s -> isEmailPattern.matcher(s).matches(),
+                s -> IS_EMAIL_PATTERN.matcher(s).matches(),
                 "must.be.email"
         ));
     }

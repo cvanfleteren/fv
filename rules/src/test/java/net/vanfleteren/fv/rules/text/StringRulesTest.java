@@ -441,6 +441,50 @@ class StringRulesTest {
         }
     }
 
+    @Nested
+    class Base64 {
+
+        @Test
+        void valid() {
+            validTest("", strings.base64());
+            validTest("SGVsbG8=", strings.base64());
+            validTest("SGVsbG8gd29ybGQ=", strings.base64());
+            validTest("YW55IGNhcm5hbCBwbGVhc3VyZS4=", strings.base64());
+            validTest("YW55IGNhcm5hbCBwbGVhc3VyZQ==", strings.base64());
+            validTest("YW55IGNhcm5hbCBwbGVhc3Vy", strings.base64());
+            validTest("Zm9vYmFy", strings.base64());
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("SGVsbG8", strings.base64(), "must.be.base64"); // length not multiple of 4 and no padding
+            invalidTest("SGVsbG8!", strings.base64(), "must.be.base64"); // invalid character
+            invalidTest("SGVsbG8==", strings.base64(), "must.be.base64"); // invalid padding (only 1 or 2 '=' allowed at end)
+            invalidTest("=SGVsbG8", strings.base64(), "must.be.base64"); // padding at start
+            invalidTest("SGVz-G8", strings.base64(), "must.be.base64"); // URL-safe char in standard Base64
+            invalidTest(null, strings.base64(), "must.not.be.null");
+        }
+    }
+
+    @Nested
+    class Base64UrlSafe {
+
+        @Test
+        void valid() {
+            validTest("", strings.base64UrlSafe());
+            validTest("SGVsbG8=", strings.base64UrlSafe());
+            validTest("SGVsbG8_dz9ybGQ=", strings.base64UrlSafe()); // includes '_'
+            validTest("YW55LWNhcm5hbC1wbGVhc3VyZQ==", strings.base64UrlSafe()); // includes '-'
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("SGVsbG8+", strings.base64UrlSafe(), "must.be.base64.urlsafe"); // '+' not allowed in URL-safe
+            invalidTest("SGVsbG8/", strings.base64UrlSafe(), "must.be.base64.urlsafe"); // '/' not allowed in URL-safe
+            invalidTest(null, strings.base64UrlSafe(), "must.not.be.null");
+        }
+    }
+
 
     @Nested
     class LooksLikeEmailAddress {
