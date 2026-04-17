@@ -456,6 +456,22 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     }
 
     /**
+     * Fails if the string does not contain a match for the specified pattern.
+     * <p>
+     * Error key: {@code must.contain.regex}
+     *
+     * @param pattern the pattern to find.
+     * @return a {@link Rule} checking if the pattern is found.
+     */
+    public Rule<String> containsPattern(Pattern pattern) {
+        Objects.requireNonNull(pattern, "pattern cannot be null");
+        return Rule.notNull().and(Rule.of(
+                s -> pattern.matcher(s).find(),
+                ErrorMessage.of("must.contain.regex", "regex", pattern.pattern())
+        ));
+    }
+
+    /**
      * Fails if the string does not contain the specified fragment (ignoring case).
      * <p>
      * Error key: {@code must.contain.ignorecase}

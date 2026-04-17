@@ -208,6 +208,28 @@ class StringRulesTest {
     }
 
     @Nested
+    class ContainsPattern {
+
+        @Test
+        void valid() {
+            validTest("abc123def", strings.containsPattern(Pattern.compile("\\d+")));
+            validTest("ABC", strings.containsPattern(Pattern.compile("ab", Pattern.CASE_INSENSITIVE)));
+        }
+
+        @Test
+        void invalid() {
+            Pattern pattern = Pattern.compile("\\d+");
+            invalidTest("abc", strings.containsPattern(pattern), "must.contain.regex", HashMap.of("regex", "\\d+"));
+            invalidTest(null, strings.containsPattern(pattern), "must.not.be.null");
+        }
+
+        @Test
+        void nullPattern_throwsException() {
+            assertThrows(NullPointerException.class, () -> strings.containsPattern(null));
+        }
+    }
+
+    @Nested
     class StartsWith {
 
         @Test
