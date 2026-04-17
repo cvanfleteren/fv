@@ -5,6 +5,8 @@ import net.vanfleteren.fv.MappingRule;
 import net.vanfleteren.fv.Rule;
 import net.vanfleteren.fv.Validation;
 
+import java.util.Optional;
+
 public class OptionRules {
 
     /**
@@ -20,7 +22,7 @@ public class OptionRules {
     }
 
     /**
-     * Returns a {@link MappingRule} that expects the input {@link Option} to be non-empty returning the value contained in the {@link Option}.
+     * Fails is the {@link Option} is empty while extracting the value from the {@link Option}.
      * <p>
      * Error key: {@code must.not.be.empty}
      * <p>
@@ -37,7 +39,7 @@ public class OptionRules {
     }
 
     /**
-     * Returns a {@link Rule} that expects the input {@link Option} to be non-empty.
+     * Fails is the {@link Optional} is empty.
      * <p>
      * Error key: {@code must.not.be.empty}
      * <p>
@@ -47,18 +49,22 @@ public class OptionRules {
      * @param <T> the type of the value contained in the Option
      */
     public <T> Rule<Option<T>> requiredOption() {
-        return Rule.notNull().and(input -> input.isEmpty() ? Validation.invalid("must.not.be.empty") : Validation.valid(input));
+        return Rule.notNull().and(input ->
+                input.isEmpty() ? Validation.invalid("must.not.be.empty") : Validation.valid(input)
+        );
     }
 
     /**
-     * Returns a {@link Rule} that expects the input {@link Option} to be empty.
+     * Fails is the {@link Option} is not empty.
      * <p>
      * Error key: {@code must.be.empty}
      *
      * @param <T> the type of the value contained in the Option
      */
     public <T> Rule<Option<T>> empty() {
-        return Rule.notNull().and(input -> input.isEmpty() ? Validation.valid(input) : Validation.invalid("must.be.empty"));
+        return Rule.notNull().and(input ->
+                input.isEmpty() ? Validation.valid(input) : Validation.invalid("must.be.empty")
+        );
     }
 
 }

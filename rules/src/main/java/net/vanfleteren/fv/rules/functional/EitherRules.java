@@ -82,13 +82,11 @@ public class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
     }
 
     /**
-     * Validates the value of a {@link Either.Left} using the specified rule.
+     * Fails if the value in the {@link Either#left()}  doesn't pass the {@code rule}.
      * <p>
      * If the {@link Either} is a {@link Either.Right}, the validation succeeds.
-     * If the {@link Either} is a {@link Either.Left}, the rule is applied to its value.
      *
      * @param rule the rule to apply to the left value.
-     * @return a {@link Rule} that validates the left value.
      */
     public Rule<Either<L, R>> validateLeftWith(Rule<? super L> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
@@ -101,13 +99,11 @@ public class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
     }
 
     /**
-     * Validates the value of a {@link Either.Right} using the specified rule.
+     * Fails if the value in the {@link Either#right()}  doesn't pass the {@code rule}.
      * <p>
      * If the {@link Either} is a {@link Either.Left}, the validation succeeds.
-     * If the {@link Either} is a {@link Either.Right}, the rule is applied to its value.
      *
      * @param rule the rule to apply to the right value.
-     * @return a {@link Rule} that validates the right value.
      */
     public Rule<Either<L, R>> validateRightWith(Rule<? super R> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
