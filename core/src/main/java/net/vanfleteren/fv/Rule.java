@@ -68,7 +68,7 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
-     * Composes this rule with another rule using "and" logic.
+     * Composes this rule with another rule using "short-circuiting and" logic.
      * The combined rule is successful only if both this and the other rule are successful.
      * If this rule fails, the evaluation stops and the other rule is not evaluated.
      * <p>
@@ -118,7 +118,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      *
      * @param other the other rule to compose with.
      * @param <S>   the target type.
-     * @return a new {@link Rule} instance.
      * @throws NullPointerException if {@code other} is null.
      */
     @SuppressWarnings("unchecked")
@@ -214,10 +213,10 @@ public interface Rule<T> extends MappingRule<T, T> {
         };
     }
 
-
     /**
-     * Returns a new {@link Rule} that first applies this rule, and if the input is invalid, falls back to the other rule.
+     * Returns a new {@link Rule} that first applies this rule, and if the input is invalid, falls back to the {@code other} rule.
      * Like {@link MappingRule#recoverWith}, but the fallback is a {@link Rule}.
+     * The difference with {@link #or(Rule)} is that only the errors of the {@code other} Rule will be returned if both fail.
      * <p>
      * Usage example:
      * {@snippet file="net/vanfleteren/fv/RuleSnippets.java" region="recover-with-rule-example"}
