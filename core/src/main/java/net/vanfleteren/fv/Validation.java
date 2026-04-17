@@ -678,9 +678,8 @@ public sealed interface Validation<T> extends Value<T> {
         Objects.requireNonNull(v5, "v5 validation cannot be null");
         Objects.requireNonNull(mapper, "mapper cannot be null");
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5)) {
+        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3)
+                && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5)) {
             return valid(mapper.apply(t1, t2, t3, t4, t5));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors()).flatMap(Function.identity()));
