@@ -114,7 +114,6 @@ public class JMapRules {
      */
     public static <K, V> Rule<Map<K, V>> valuesNotNull() {
         return Rule.notNull().and(map -> {
-            if (map == null) return Validation.invalid(ErrorMessage.of("must.not.be.null"));
             Set<K> keysWithNulls = HashSet.ofAll(
                     map.entrySet()
                             .stream()
@@ -142,23 +141,12 @@ public class JMapRules {
      * @param <K>  the type of keys in the map.
      * @param <V>  the type of values in the map.
      * @param rule the rule to apply to each value.
-     * @return a {@link Rule} that validates all map values.
      */
     public static <K, V> Rule<Map<K, V>> validateValuesWith(Rule<? super V> rule) {
         return Rule.notNull().and(map -> {
-            var validations = map.entrySet().stream().map(entry ->
-                    rule.test(entry.getValue())
-                            .mapErrors(errors ->
-                                    errors.map(e -> e.atIndex(Objects.toString(entry.getKey())))
-                            )
-            ).toList();
-
-            var invalidValidations = validations.stream().filter(v -> !v.isValid()).collect(Collectors.toList());
-            if (!invalidValidations.isEmpty()) {
-                return Validation.invalid(io.vavr.collection.List.ofAll(invalidValidations).flatMap(Validation::errors));
-            } else {
-                return Validation.valid(map);
-            }
+            Rule<V> castedRule = (Rule<V>) rule;
+            Rule<Map<K, V>> rule2 = castedRule.liftToJMap();
+            return rule2.test(map);
         });
     }
 

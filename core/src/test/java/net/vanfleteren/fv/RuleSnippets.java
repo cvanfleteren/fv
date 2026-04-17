@@ -267,6 +267,33 @@ public class RuleSnippets {
         // @end
     }
 
+    void liftToJMapExample() {
+        // @start region="lift-to-jmap-example"
+        // 1. Define a rule for a single element
+        Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
+
+        // 2. Lift it to apply to a map
+        Rule<java.util.Map<String, String>> mapRule = notEmpty.liftToJMap();
+
+        // 3. Usage
+        mapRule.test(java.util.Map.of("key1", "val1")); // Returns Valid(Map("key1", "val1"))
+        mapRule.test(java.util.Map.of("key1", ""));     // Returns Invalid(ErrorMessage("must.not.be.empty").atIndex("key1"))
+        // @end
+    }
+
+    void liftToJMapExtractorExample() {
+        // @start region="lift-to-jmap-extractor-example"
+        // 1. Define a rule for a single element
+        Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
+
+        // 2. Lift it to apply to a map with a custom key extractor for the error path
+        Rule<java.util.Map<Integer, String>> mapRule = notEmpty.liftToJMap(key -> "item-" + key);
+
+        // 3. Usage
+        mapRule.test(java.util.Map.of(1, "")); // Returns Invalid(ErrorMessage("must.not.be.empty").atIndex("item-1"))
+        // @end
+    }
+
     void bothExample() {
         // @start region="both-example"
         Rule<String> minLength = Rule.of(s -> s.length() >= 3, "too.short");

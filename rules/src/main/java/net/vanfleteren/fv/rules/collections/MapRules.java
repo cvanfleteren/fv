@@ -83,6 +83,7 @@ public class MapRules {
      * @param keys the required keys.
      * @return a {@link Rule} checking for the presence of all specified keys.
      */
+    @SafeVarargs
     public static <K,V> Rule<Map<K,V>> containsKeys(K... keys) {
         Set<K> keySet = HashSet.of(keys);
         return Rule.notNull().and(map -> {

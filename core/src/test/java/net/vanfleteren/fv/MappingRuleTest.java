@@ -408,6 +408,89 @@ class MappingRuleTest {
     }
 
     @Nested
+    class LiftToJMap {
+
+        @Test
+        void liftToJMap_whenAllValuesAreValid_returnsValidResult() {
+            // Arrange
+            MappingRule<java.util.Map<String, String>, java.util.Map<String, Integer>> mapRule = mustBeInt.liftToJMap();
+
+            java.util.Map<String, String> input = java.util.Map.of(
+                    "a", "123",
+                    "b", "456"
+            );
+
+            // Act
+            Validation<java.util.Map<String, Integer>> result = mapRule.test(input);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(java.util.Map.of("a", 123, "b", 456));
+        }
+
+        @Test
+        void liftToJMap_whenSomeValuesAreInvalid_addsKeyToPathAndAccumulatesErrors() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "must.be.int");
+            MappingRule<java.util.Map<String, String>, java.util.Map<String, Integer>> mapRule = rule.liftToJMap();
+
+            java.util.Map<String, String> input = java.util.Map.of(
+                    "a", "hi",
+                    "b", "yo"
+            );
+
+            // Act
+            Validation<java.util.Map<String, Integer>> result = mapRule.test(input).at("aMap");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("aMap[a].must.be.int", "aMap[b].must.be.int");
+        }
+
+        @Test
+        void liftToJMap_withKeyExtractor_whenSomeValuesAreInvalid_usesExtractedKeyInPath() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "must.be.int");
+            MappingRule<java.util.Map<Integer, String>, java.util.Map<Integer, Integer>> mapRule = rule.liftToJMap(k -> "k" + k);
+
+            java.util.Map<Integer, String> input = java.util.Map.of(
+                    10, "a",
+                    20, "b"
+            );
+
+            // Act
+            Validation<java.util.Map<Integer, Integer>> result = mapRule.test(input).at("aMap");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("aMap[k10].must.be.int", "aMap[k20].must.be.int");
+        }
+
+        @Test
+        void liftToJMap_withKeyExtractor_whenAllValuesAreValid_returnsValidResult() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "must.be.int");
+            MappingRule<java.util.Map<Integer, String>, java.util.Map<Integer, Integer>> mapRule = rule.liftToJMap(k -> "id-" + k);
+
+            java.util.Map<Integer, String> input = java.util.Map.of(
+                    1, "123",
+                    2, "456"
+            );
+
+            // Act
+            Validation<java.util.Map<Integer, Integer>> result = mapRule.test(input);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(java.util.Map.of(1, 123, 2, 456));
+        }
+    }
+
+    @Nested
     class NotNull {
         @Test
         void notNull_whenValueIsPresent_returnsValidResult() {

@@ -1,5 +1,6 @@
 package net.vanfleteren.fv;
 
+import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Seq;
@@ -313,7 +314,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      * {@snippet file="net/vanfleteren/fv/RuleSnippets.java" region="lift-to-map-example"}
      *
      * @param <K> the key type.
-     * @return a new {@link Rule} instance.
      */
     @Override
     default <K> Rule<Map<K, T>> liftToMap() {
@@ -335,7 +335,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      *
      * @param keyExtractor the function to extract a path segment from the key.
      * @param <K>          the key type.
-     * @return a new {@link Rule} instance.
      */
     @Override
     default <K> Rule<Map<K, T>> liftToMap(Function<K, Object> keyExtractor) {
@@ -357,6 +356,66 @@ public interface Rule<T> extends MappingRule<T, T> {
                 return Validation.valid(map);
             }
         };
+    }
+
+    /**
+     * Lifts this {@link Rule} so it applies to a {@link java.util.Map} of K to T.
+     * <p>
+     * Be careful, the key {@code value.toString()} will be used as part of the path segment.
+     * Make sure to have a key that has a meaningful string representation for this.
+     * If you can't guarantee this, use the version of {@link #liftToJMap(Function)} that takes a keyExtractor function instead.
+     * <p>
+     * Semantics:
+     * - If the Map is empty, the map is considered valid.
+     * - Each value in the map is validated, and the resulting validations are collected.
+     * - If any validation fails, the entire map is considered invalid.
+     * - If all validations pass, the map is considered valid.
+     * <p>
+     * Usage example:
+     * {@snippet file="net/vanfleteren/fv/RuleSnippets.java" region="lift-to-jmap-example"}
+     *
+     * @param <K> the key type.
+     */
+    @Override
+    default <K> Rule<java.util.Map<K, T>> liftToJMap() {
+        return liftToJMap(Objects::toString);
+    }
+
+    /**
+     * Lifts this {@link Rule} so it applies to a {@link java.util.Map} of K to T.
+     * <p>
+     * Behaves the same as {@link #liftToJMap()}, but uses the keyExtractor function to generate the path segment.
+     * <p>
+     * Semantics:
+     * - If any validation fails, the entire map is considered invalid.
+     * - If all validations pass, the map is considered valid.
+     * <p>
+     * Usage example:
+     * {@snippet file="net/vanfleteren/fv/RuleSnippets.java" region="lift-to-jmap-extractor-example"}
+     *
+     * @param keyExtractor the function to extract a path segment from the key.
+     * @param <K>          the key type.
+     */
+    @Override
+    default <K> Rule<java.util.Map<K, T>> liftToJMap(Function<K, Object> keyExtractor) {
+        // this version can work a bit more efficiently since we know we can return
+        // the original map if all entries are valid
+        // as the values cannot change type in a Rule (as opposed to a MappingRule)
+        return Rule.notNull().and(map -> {
+            Seq<Validation<T>> validations = HashMap.ofAll(map).map(tuple ->
+                    this.test(tuple._2)
+                            .mapErrors(errors ->
+                                    errors.map(e -> e.atIndex(keyExtractor.apply(tuple._1)))
+                            )
+            );
+
+            var validAndInvalid = validations.partition(Validation::isValid);
+            if (validAndInvalid._2.nonEmpty()) {
+                return Validation.invalid(validAndInvalid._2.flatMap(Validation::errors).toList());
+            } else {
+                return Validation.valid(map);
+            }
+        });
     }
 
     /**

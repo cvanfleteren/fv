@@ -3,6 +3,7 @@ package net.vanfleteren.fv;
 import io.vavr.Function1;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Seq;
@@ -338,6 +339,49 @@ public interface MappingRule<T, R> {
                 return Validation.valid(validAndInvalid._1.toMap(Tuple2::_1, t -> t._2.getOrElseThrow()));
             }
         };
+    }
+
+    /**
+     * Lifts this {@link MappingRule} so it applies to a {@link java.util.Map} of K to T.
+     * <p>
+     * Be careful, the key {@code key.toString()} will be used as part of the path segment.
+     * Make sure to have a key that has a meaningful string representation for this.
+     * If you can't guarantee this, use the version of {@link #liftToJMap(Function)} that takes a keyExtractor function instead.
+     * <p>
+     * Semantics:
+     * - Each value in the map is validated, and the resulting validations are collected.
+     * - If any validation fails, the entire map is considered invalid.
+     * - If all validations pass, the map is considered valid.
+     * <p>
+     * Usage example:
+     * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="lift-to-jmap-example"}
+     *
+     * @param <K> the key type.
+     */
+    default <K> MappingRule<java.util.Map<K, T>, java.util.Map<K, R>> liftToJMap() {
+        return liftToJMap(Objects::toString);
+    }
+
+    /**
+     * Lifts this {@link MappingRule} so it applies to a {@link java.util.Map} of K to T.
+     * <p>
+     * Behaves the same as {@link #liftToJMap()}, but uses the keyExtractor function to generate the path segment.
+     * <p>
+     * Semantics:
+     * - If the Map is empty, the map is considered valid.
+     * - Each value in the map is validated, and the resulting validations are collected.
+     * - If any validation fails, the entire map is considered invalid.
+     * - If all validations pass, the map is considered valid.
+     * <p>
+     * Usage example:
+     * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="lift-to-jmap-extractor-example"}
+     *
+     * @param keyExtractor the function to extract a path segment from the key.
+     * @param <K>          the key type.
+     */
+    default <K> MappingRule<java.util.Map<K, T>, java.util.Map<K, R>> liftToJMap(Function<K, Object> keyExtractor) {
+        Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
+        return value -> liftToMap(keyExtractor).test(HashMap.ofAll(value)).map(Map::toJavaMap);
     }
 
     /**

@@ -199,6 +199,27 @@ public class MappingRuleSnippets {
         // @end
     }
 
+    void liftToJMapExample() {
+        // @start region="lift-to-jmap-example"
+        MappingRule<String, Integer> toInt =  MappingRule.of(Integer::parseInt, "not.a.number");
+
+        MappingRule<java.util.Map<String, String>, java.util.Map<String, Integer>> mapRule = toInt.liftToJMap();
+
+        mapRule.test(java.util.Map.of("k1", "1")); // Returns Valid(Map("k1", 1))
+        mapRule.test(java.util.Map.of("k1", "a")); // Returns Invalid(ErrorMessage("not.a.number").atIndex("k1"))
+        // @end
+    }
+
+    void liftToJMapExtractorExample() {
+        // @start region="lift-to-jmap-extractor-example"
+        MappingRule<String, Integer> toInt =  MappingRule.of(Integer::parseInt, "not.a.number");
+
+        MappingRule<java.util.Map<Integer, String>, java.util.Map<Integer, Integer>> mapRule = toInt.liftToJMap(k -> "item-" + k);
+
+        mapRule.test(java.util.Map.of(1, "a")); // Returns Invalid(ErrorMessage("not.a.number").atIndex("item-1"))
+        // @end
+    }
+
     void requiredOptionExample() {
         // @start region="required-option-example"
         // 1. A rule that checks if a string is not empty
