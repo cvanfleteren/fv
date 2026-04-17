@@ -29,14 +29,30 @@ class JCollectionRulesTest {
 
         @Test
         void valid() {
-            validTest(List.of("x"), jCollections.notEmpty);
-            validTest(java.util.Set.of(1), jCollections.notEmpty);
+            validTest(List.of("x"), jCollections.notEmpty());
+            validTest(java.util.Set.of(1), jCollections.notEmpty());
         }
 
         @Test
         void invalid() {
-            invalidTest(new ArrayList<>(), jCollections.notEmpty, "must.not.be.empty");
-            invalidTest(java.util.Set.of(), jCollections.notEmpty, "must.not.be.empty");
+            invalidTest(new ArrayList<>(), jCollections.notEmpty(), "must.not.be.empty");
+            invalidTest(java.util.Set.of(), jCollections.notEmpty(), "must.not.be.empty");
+        }
+    }
+
+    @Nested
+    class Empty {
+
+        @Test
+        void valid() {
+            validTest(List.of(), jCollections.empty());
+            validTest(new ArrayList<>(), jCollections.empty());
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(List.of("x"), jCollections.empty(), "must.be.empty");
+            invalidTest(java.util.Set.of(1), jCollections.empty(), "must.be.empty");
         }
     }
 
@@ -145,26 +161,26 @@ class JCollectionRulesTest {
 
         @Test
         void valid() {
-            Rule<List<Integer>> even = jCollections.allMatchPredicate((Integer n) -> n % 2 == 0);
+            Rule<List<Integer>> even = jCollections.allMatch((Predicate<Integer>) (n -> n % 2 == 0));
             validTest(List.of(2, 4, 6), even);
-            validTest(List.of(), jCollections.allMatchPredicate((Integer n) -> n % 2 == 0));
-            validTest(List.of(), jCollections.allMatch(ints().even()));
+            validTest(List.of(), jCollections.allMatch((Predicate<Integer>) (n -> n % 2 == 0)));
+            validTest(List.of(), jCollections.allMatchRule(ints().even()));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, jCollections.allMatchPredicate((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
-            invalidTest(List.of(2, 3, 4), jCollections.allMatch(ints().even()), "must.be.even");
+            invalidTest(null, jCollections.allMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
+            invalidTest(List.of(2, 3, 4), jCollections.allMatchRule(ints().even()), "must.be.even");
 
             invalidTest(
                     List.of("a", "bb", "c"),
-                    jCollections.allMatchPredicate((String s) -> s.length() == 1, ErrorMessage.of("len.must.be.one")),
+                    jCollections.allMatch((Predicate<String>) (s -> s.length() == 1), ErrorMessage.of("len.must.be.one")),
                     "len.must.be.one"
             ).hasErrorMessages("value[1].len.must.be.one");
 
             invalidTest(
                     List.of("a", "bb"),
-                    jCollections.allMatchPredicate(s -> s.length() == 1, ErrorMessage.of("len.must.be", "len", 1)),
+                    jCollections.allMatch((Predicate<String>) (s -> s.length() == 1), ErrorMessage.of("len.must.be", "len", 1)),
                     "len.must.be",
                     HashMap.of("len", 1)
             );
@@ -183,18 +199,18 @@ class JCollectionRulesTest {
 
         @Test
         void valid() {
-            Rule<List<Integer>> noEvens = jCollections.noneMatch((Integer n) -> n % 2 == 0);
+            Rule<List<Integer>> noEvens = jCollections.noneMatch(n -> n % 2 == 0);
             validTest(List.of(1, 3, 5), noEvens);
-            validTest(List.<Integer>of(), jCollections.noneMatch((Integer n) -> n % 2 == 0));
+            validTest(List.<Integer>of(), jCollections.noneMatch(n -> n % 2 == 0));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, jCollections.noneMatch((Integer n) -> n % 2 == 0), "must.not.be.null");
-            invalidTest(List.of(1, 2, 3), jCollections.noneMatch((Integer n) -> n % 2 == 0), "must.none.match");
+            invalidTest(null, jCollections.noneMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
+            invalidTest(List.of(1, 2, 3), jCollections.noneMatch(n -> n % 2 == 0), "must.none.match");
             assertThatValidation(
                     validateThat(List.of("a", "bb", "c"), "value")
-                            .is(jCollections.noneMatch((String s) -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")))
+                            .is(jCollections.noneMatch(s -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")))
             )
                     .isInvalid()
                     .hasErrorMessages("value[1].len.must.not.be.two");
@@ -208,9 +224,10 @@ class JCollectionRulesTest {
 
         @Test
         void throws_whenPredicateIsNull_andRuleIsEvaluated() {
-            assertThatThrownBy(() ->
-                    validateThat(List.of(1), "value").is(jCollections.noneMatch(null)).getOrElseThrow()
-            ).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> {
+                Rule<List<Integer>> rule = jCollections.noneMatch(null);
+                validateThat(List.of(1), "value").is(rule).getOrElseThrow();
+            }).isInstanceOf(NullPointerException.class);
         }
     }
 
@@ -225,17 +242,17 @@ class JCollectionRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(null, jCollections.anyMatch((Integer n) -> n % 2 == 0), "must.not.be.null");
-            invalidTest(List.of(1, 3, 5), jCollections.anyMatch((Integer n) -> n % 2 == 0), "must.at.least.one.match");
-            invalidTest(List.<Integer>of(), jCollections.anyMatch((Integer n) -> n % 2 == 0), "must.at.least.one.match");
+            invalidTest(null, jCollections.anyMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
+            invalidTest(List.of(1, 3, 5), jCollections.anyMatch(n -> n % 2 == 0), "must.at.least.one.match");
+            invalidTest(List.<Integer>of(), jCollections.anyMatch(n -> n % 2 == 0), "must.at.least.one.match");
             invalidTest(
                     List.of("a", "bb", "ccc"),
-                    jCollections.anyMatch((String s) -> s.length() == 4, ErrorMessage.of("len.must.be.four")),
+                    jCollections.anyMatch(s -> s.length() == 4, ErrorMessage.of("len.must.be.four")),
                     "len.must.be.four"
             );
             invalidTest(
                     List.of("a", "bb"),
-                    jCollections.anyMatch((String s) -> s.length() == 3, ErrorMessage.of("len.must.be", "len", 3)),
+                    jCollections.anyMatch(s -> s.length() == 3, ErrorMessage.of("len.must.be", "len", 3)),
                     "len.must.be",
                     HashMap.of("len", 3)
             );

@@ -175,7 +175,7 @@ public class CollectionRules {
      * @param rule the {@link Rule} to validate each element against.
      * @return a {@link Rule} that validates if all elements match the {@link Rule}.
      */
-    public <T> Rule<List<T>> allMatch(Rule<T> rule) {
+    public <T> Rule<List<T>> allMatchRule(Rule<T> rule) {
         return Rule.notNull().and(rule.liftToList());
     }
 
@@ -188,9 +188,9 @@ public class CollectionRules {
      * @param predicate the predicate to test each element against.
      * @return a {@link Rule} that validates if all elements match the predicate.
      */
-    public <T> Rule<List<T>> allMatchPredicate(Predicate<T> predicate) {
+    public <T> Rule<List<T>> allMatch(Predicate<T> predicate) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
-        return allMatchPredicate(predicate, ErrorMessage.of("must.all.match"));
+        return allMatch(predicate, ErrorMessage.of("must.all.match"));
     }
 
     /**
@@ -201,7 +201,7 @@ public class CollectionRules {
      * @param errorMessage the error message to use if validation fails.
      * @return a {@link Rule} that validates if all elements match the predicate.
      */
-    public <T> Rule<List<T>> allMatchPredicate(Predicate<T> predicate, ErrorMessage errorMessage) {
+    public <T> Rule<List<T>> allMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
         return Rule.notNull().and(value -> Rule.of(predicate, errorMessage).liftToList().test(value));
     }
@@ -213,10 +213,9 @@ public class CollectionRules {
      *
      * @param <T> the type of elements in the collection.
      * @param rule the Rule to test each element against.
-     * @return a {@link Rule} that validates if none of the elements match the {@link Rule}.
      */
-    public <T> Rule<List<T>> noneMatch(Rule<T> rule) {
-        return noneMatchPredicate(rule.toPredicate());
+    public <T> Rule<List<T>> noneMatchRule(Rule<T> rule) {
+        return noneMatch(rule.toPredicate());
     }
 
     /**
@@ -226,9 +225,8 @@ public class CollectionRules {
      *
      * @param <T> the type of elements in the collection.
      * @param predicate the predicate to test each element against.
-     * @return a {@link Rule} that validates if none of the elements match the predicate.
      */
-    public <T> Rule<List<T>> noneMatchPredicate(Predicate<T> predicate) {
+    public <T> Rule<List<T>> noneMatch(Predicate<T> predicate) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
         return noneMatch(predicate, ErrorMessage.of("must.none.match"));
     }
@@ -239,7 +237,6 @@ public class CollectionRules {
      * @param <T> the type of elements in the collection.
      * @param predicate the predicate to test each element against.
      * @param errorMessage the error message to use if validation fails.
-     * @return a {@link Rule} that validates if none of the elements match the predicate.
      */
     public <T> Rule<List<T>> noneMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");

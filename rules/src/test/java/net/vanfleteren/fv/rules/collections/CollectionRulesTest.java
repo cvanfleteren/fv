@@ -157,33 +157,33 @@ class CollectionRulesTest {
 
         @Test
         void valid() {
-            Rule<List<Integer>> even = collections.allMatchPredicate((n -> n % 2 == 0));
+            Rule<List<Integer>> even = collections.allMatch(n -> n % 2 == 0);
             validTest(List.of(2, 4, 6), even);
-            validTest(List.<Integer>of(), collections.allMatchPredicate((n -> n % 2 == 0)));
-            validTest(List.of("a", "b", "c"), collections.allMatch(strings().exactLength(1)));
+            validTest(List.<Integer>of(), collections.allMatch(n -> n % 2 == 0));
+            validTest(List.of("a", "b", "c"), collections.allMatchRule(strings().exactLength(1)));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, collections.allMatchPredicate((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
-            invalidTest(List.of(2, 3, 4), collections.allMatchPredicate(n -> n % 2 == 0), "must.all.match");
+            invalidTest(null, collections.allMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
+            invalidTest(List.of(2, 3, 4), collections.allMatch(n -> n % 2 == 0), "must.all.match");
 
             invalidTest(
                     List.of("a", "bb", "c"),
-                    collections.allMatchPredicate((String s) -> s.length() == 1, ErrorMessage.of("len.must.be.one")),
+                    collections.allMatch((String s) -> s.length() == 1, ErrorMessage.of("len.must.be.one")),
                     "len.must.be.one"
             ).hasErrorMessages("value[1].len.must.be.one");
 
             invalidTest(
                     List.of("a", "bb"),
-                    collections.allMatchPredicate(s -> s.length() == 1, ErrorMessage.of("len.must.be", "len", 1)),
+                    collections.allMatch(s -> s.length() == 1, ErrorMessage.of("len.must.be", "len", 1)),
                     "len.must.be",
                     HashMap.of("len", 1)
             );
 
             invalidTest(
                     List.of("a", "bb", "c"),
-                    collections.allMatch(strings().exactLength(1)),
+                    collections.allMatchRule(strings().exactLength(1)),
                     "must.have.exact.length"
             ).hasErrorMessage("value[1].must.have.exact.length");
         }
@@ -191,14 +191,14 @@ class CollectionRulesTest {
         @Test
         void throws_whenPredicateIsNull_andRuleIsEvaluated() {
             assertThatThrownBy(() ->
-                    validateThat(List.of(1), "value").is(collections.allMatchPredicate((Predicate<Integer>) null)).getOrElseThrow()
+                    validateThat(List.of(1), "value").is(collections.allMatch(null)).getOrElseThrow()
             ).isInstanceOf(NullPointerException.class);
         }
 
         @Test
         void throws_whenRuleIsNull_andRuleIsEvaluated() {
             assertThatThrownBy(() ->
-                    validateThat(List.of("x"), "value").is(collections.allMatch((Rule<String>) null)).getOrElseThrow()
+                    validateThat(List.of("x"), "value").is(collections.allMatchRule(null)).getOrElseThrow()
             ).isInstanceOf(NullPointerException.class);
         }
     }
@@ -208,16 +208,16 @@ class CollectionRulesTest {
 
         @Test
         void valid() {
-            Rule<List<Integer>> noEvens = collections.noneMatchPredicate(ints().even().toPredicate());
+            Rule<List<Integer>> noEvens = collections.noneMatch(ints().even().toPredicate());
             validTest(List.of(1, 3, 5), noEvens);
-            validTest(List.of(), collections.noneMatchPredicate(ints().even().toPredicate()));
-            validTest(List.of("a", "bbb", "cccc"), collections.noneMatch(strings.exactLength(2)));
+            validTest(List.of(), collections.noneMatch(ints().even().toPredicate()));
+            validTest(List.of("a", "bbb", "cccc"), collections.noneMatchRule(strings.exactLength(2)));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, collections.noneMatchPredicate(ints().even().toPredicate()), "must.not.be.null");
-            invalidTest(List.of(1, 2, 3), collections.noneMatchPredicate(ints().even().toPredicate()), "must.none.match");
+            invalidTest(null, collections.noneMatch(ints().even().toPredicate()), "must.not.be.null");
+            invalidTest(List.of(1, 2, 3), collections.noneMatch(ints().even().toPredicate()), "must.none.match");
             invalidTest(
                     List.of("a", "bb", "c"),
                     collections.noneMatch((String s) -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")),
@@ -233,7 +233,7 @@ class CollectionRulesTest {
 
             invalidTest(
                     List.of("a", "bb", "c"),
-                    collections.noneMatch(strings().exactLength(2)),
+                    collections.noneMatchRule(strings().exactLength(2)),
                     "must.none.match"
             ).hasErrorMessages("value[1].must.none.match");
         }
@@ -241,14 +241,14 @@ class CollectionRulesTest {
         @Test
         void throws_whenPredicateIsNull_andRuleIsEvaluated() {
             assertThatThrownBy(() ->
-                    validateThat(List.of(1), "value").is(collections.noneMatchPredicate((Predicate<Integer>) null)).getOrElseThrow()
+                    validateThat(List.of(1), "value").is(collections.noneMatch(null)).getOrElseThrow()
             ).isInstanceOf(NullPointerException.class);
         }
 
         @Test
         void throws_whenRuleIsNull_andRuleIsEvaluated() {
             assertThatThrownBy(() ->
-                    validateThat(List.of("x"), "value").is(collections.noneMatch((Rule<String>) null)).getOrElseThrow()
+                    validateThat(List.of("x"), "value").is(collections.noneMatchRule(null)).getOrElseThrow()
             ).isInstanceOf(NullPointerException.class);
         }
     }

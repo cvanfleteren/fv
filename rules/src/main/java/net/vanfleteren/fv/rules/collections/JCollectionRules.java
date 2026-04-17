@@ -39,13 +39,30 @@ public class JCollectionRules {
      * <p>
      * Error key: {@code must.not.be.empty}
      */
-    public Rule<Collection<?>> notEmpty = Rule.notNull().and(value -> {
-        if (!value.isEmpty()) {
-            return Validation.valid(value);
-        } else {
-            return Validation.invalid(ErrorMessage.of("must.not.be.empty"));
-        }
-    });
+    public Rule<Collection<?>> notEmpty() {
+        return Rule.notNull().and(value -> {
+            if (!value.isEmpty()) {
+                return Validation.valid(value);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.not.be.empty"));
+            }
+        });
+    }
+
+    /**
+     * Fails if the collection is not empty.
+     * <p>
+     * Error key: {@code must.be.empty}
+     */
+    public Rule<Collection<?>> empty() {
+        return Rule.notNull().and(value -> {
+            if (value.isEmpty()) {
+                return Validation.valid(value);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.be.empty"));
+            }
+        });
+    }
 
     /**
      * Fails if the collection size is less than the specified minimum.
@@ -163,9 +180,9 @@ public class JCollectionRules {
      * @param predicate the predicate to test each element against.
      * @return a {@link Rule} that validates if all elements match the predicate.
      */
-    public <T> Rule<List<T>> allMatchPredicate(Predicate<T> predicate) {
+    public <T> Rule<List<T>> allMatch(Predicate<T> predicate) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
-        return allMatchPredicate(predicate, ErrorMessage.of("must.all.match"));
+        return allMatch(predicate, ErrorMessage.of("must.all.match"));
     }
 
     /**
@@ -176,7 +193,7 @@ public class JCollectionRules {
      * @param errorMessage the error message to use if validation fails.
      * @return a {@link Rule} that validates if all elements match the predicate.
      */
-    public <T> Rule<List<T>> allMatchPredicate(Predicate<T> predicate, ErrorMessage errorMessage) {
+    public <T> Rule<List<T>> allMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
         return Rule.notNull().and(value -> validateValuesWith(Rule.of(predicate, errorMessage)).test(value));
     }
@@ -187,8 +204,21 @@ public class JCollectionRules {
      * @param <T> the type of elements in the collection.
      * @param rule the {@link Rule} to validate each element against.
      */
-    public <T> Rule<List<T>> allMatch(Rule<T> rule) {
+    public <T> Rule<List<T>> allMatchRule(Rule<T> rule) {
         return Rule.notNull().and(rule.liftToJList());
+    }
+
+    /**
+     * Checks if none of the elements in the collection match the given {@link Rule}.
+     * <p>
+     * Error key: {@code must.none.match}
+     *
+     * @param <T> the type of elements in the collection.
+     * @param rule the Rule to test each element against.
+     * @return a {@link Rule} that validates if none of the elements match the {@link Rule}.
+     */
+    public <T> Rule<List<T>> noneMatchRule(Rule<T> rule) {
+        return noneMatch(rule.toPredicate());
     }
 
     /**
