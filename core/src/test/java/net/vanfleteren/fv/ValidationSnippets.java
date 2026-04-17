@@ -155,4 +155,14 @@ public class ValidationSnippets {
         // @end
     }
 
+    void getOrElse() {
+        // @start region="getOrElse"
+        Validation<String> v = Validation.valid("Hello");
+        String value = v.getOrElse("Fallback"); // returns "Hello"
+
+        Validation<String> errorV = Validation.invalid("error");
+        String fallbackValue = errorV.getOrElse("Fallback"); // returns "Fallback"
+        // @end
+    }
+
 }

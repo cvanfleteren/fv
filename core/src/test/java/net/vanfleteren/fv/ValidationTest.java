@@ -1647,6 +1647,18 @@ public class ValidationTest {
             // Assert
             assertThat(result).isEqualTo("fallback");
         }
+
+        @Test
+        void getOrElse_whenInvalid_returnsNullFallback() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("some.error");
+
+            // Act
+            String result = invalid.getOrElse((String) null);
+
+            // Assert
+            assertThat(result).isNull();
+        }
     }
 
     @Nested

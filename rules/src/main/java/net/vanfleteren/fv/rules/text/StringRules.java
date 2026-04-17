@@ -105,7 +105,6 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         return Rule.<String>notNull().andThen(MappingRule.of(BigDecimal::new, "must.be.bigdecimal"));
     }
 
-
     /**
      * Fails if the string is not a valid UUID.
      * <p>

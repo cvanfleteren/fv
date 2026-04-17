@@ -105,6 +105,19 @@ public sealed interface Validation<T> extends Value<T> {
     }
 
     /**
+     * Returns the valid value, or the passed {@code defaultValue} if invalid.
+     *
+     * <p>Example:
+     * {@snippet file="net/vanfleteren/fv/ValidationSnippets.java" region="getOrElse"}
+     */
+    default T getOrElse(T defaultValue) {
+        return switch (this) {
+            case Valid(var value) -> value;
+            default -> defaultValue;
+        };
+    }
+
+    /**
      * Returns this validation if it is valid; otherwise returns the specified alternative validation.
      *
      * <p>Example:
