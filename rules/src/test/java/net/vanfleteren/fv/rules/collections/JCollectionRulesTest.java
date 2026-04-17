@@ -18,6 +18,7 @@ import static net.vanfleteren.fv.rules.collections.CollectionRules.collections;
 import static net.vanfleteren.fv.rules.collections.JCollectionRules.*;
 import static net.vanfleteren.fv.rules.RulesTest.invalidTest;
 import static net.vanfleteren.fv.rules.RulesTest.validTest;
+import static net.vanfleteren.fv.rules.numbers.IntegerRules.ints;
 import static net.vanfleteren.fv.rules.text.StringRules.strings;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -144,25 +145,26 @@ class JCollectionRulesTest {
 
         @Test
         void valid() {
-            Rule<List<Integer>> even = jCollections.allMatch((Integer n) -> n % 2 == 0);
+            Rule<List<Integer>> even = jCollections.allMatchPredicate((Integer n) -> n % 2 == 0);
             validTest(List.of(2, 4, 6), even);
-            validTest(List.<Integer>of(), jCollections.allMatch((Integer n) -> n % 2 == 0));
+            validTest(List.of(), jCollections.allMatchPredicate((Integer n) -> n % 2 == 0));
+            validTest(List.of(), jCollections.allMatch(ints().even()));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, jCollections.allMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
-            invalidTest(List.of(2, 3, 4), jCollections.allMatch(n -> n % 2 == 0), "must.all.match");
+            invalidTest(null, jCollections.allMatchPredicate((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
+            invalidTest(List.of(2, 3, 4), jCollections.allMatch(ints().even()), "must.be.even");
 
             invalidTest(
                     List.of("a", "bb", "c"),
-                    jCollections.allMatch((String s) -> s.length() == 1, ErrorMessage.of("len.must.be.one")),
+                    jCollections.allMatchPredicate((String s) -> s.length() == 1, ErrorMessage.of("len.must.be.one")),
                     "len.must.be.one"
             ).hasErrorMessages("value[1].len.must.be.one");
 
             invalidTest(
                     List.of("a", "bb"),
-                    jCollections.allMatch(s -> s.length() == 1, ErrorMessage.of("len.must.be", "len", 1)),
+                    jCollections.allMatchPredicate(s -> s.length() == 1, ErrorMessage.of("len.must.be", "len", 1)),
                     "len.must.be",
                     HashMap.of("len", 1)
             );

@@ -163,9 +163,9 @@ public class JCollectionRules {
      * @param predicate the predicate to test each element against.
      * @return a {@link Rule} that validates if all elements match the predicate.
      */
-    public <T> Rule<List<T>> allMatch(Predicate<T> predicate) {
+    public <T> Rule<List<T>> allMatchPredicate(Predicate<T> predicate) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
-        return allMatch(predicate, ErrorMessage.of("must.all.match"));
+        return allMatchPredicate(predicate, ErrorMessage.of("must.all.match"));
     }
 
     /**
@@ -176,9 +176,19 @@ public class JCollectionRules {
      * @param errorMessage the error message to use if validation fails.
      * @return a {@link Rule} that validates if all elements match the predicate.
      */
-    public <T> Rule<List<T>> allMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
+    public <T> Rule<List<T>> allMatchPredicate(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
         return Rule.notNull().and(value -> validateValuesWith(Rule.of(predicate, errorMessage)).test(value));
+    }
+
+    /**
+     * Fails if one of the elements in the list does not match the passed {@link Rule}.
+     *
+     * @param <T> the type of elements in the collection.
+     * @param rule the {@link Rule} to validate each element against.
+     */
+    public <T> Rule<List<T>> allMatch(Rule<T> rule) {
+        return Rule.notNull().and(rule.liftToJList());
     }
 
     /**

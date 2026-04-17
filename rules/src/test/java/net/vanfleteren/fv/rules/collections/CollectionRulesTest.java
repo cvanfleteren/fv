@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.function.Predicate;
 
 import static net.vanfleteren.fv.API.validateThat;
-import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import static net.vanfleteren.fv.rules.RulesTest.invalidTest;
 import static net.vanfleteren.fv.rules.RulesTest.validTest;
 
@@ -171,13 +170,13 @@ class CollectionRulesTest {
 
             invalidTest(
                     List.of("a", "bb", "c"),
-                    collections.allMatch((String s) -> s.length() == 1, ErrorMessage.of("len.must.be.one")),
+                    collections.allMatchPredicate((String s) -> s.length() == 1, ErrorMessage.of("len.must.be.one")),
                     "len.must.be.one"
             ).hasErrorMessages("value[1].len.must.be.one");
 
             invalidTest(
                     List.of("a", "bb"),
-                    collections.allMatch(s -> s.length() == 1, ErrorMessage.of("len.must.be", "len", 1)),
+                    collections.allMatchPredicate(s -> s.length() == 1, ErrorMessage.of("len.must.be", "len", 1)),
                     "len.must.be",
                     HashMap.of("len", 1)
             );

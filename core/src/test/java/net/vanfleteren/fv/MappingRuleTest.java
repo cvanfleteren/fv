@@ -176,6 +176,57 @@ class MappingRuleTest {
     }
 
     @Nested
+    class LiftToJList {
+
+        @Test
+        void liftToList_whenAllElementsAreValid_returnsValidResult() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "must.be.int");
+            MappingRule<java.util.List<String>, java.util.List<Integer>> listRule = rule.liftToJList();
+
+            // Act
+            Validation<java.util.List<Integer>> result = listRule.test(java.util.List.of("123", "456"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(java.util.List.of(123, 456));
+        }
+
+        @Test
+        void liftToList_whenSomeElementsAreInvalid_accumulatesErrorsWithCorrectIndices() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "must.be.int");
+            MappingRule<java.util.List<String>, java.util.List<Integer>> listRule = rule.liftToJList();
+
+            // Act
+            Validation<java.util.List<Integer>> result = listRule.test(java.util.List.of("123", "hi", "yo"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("[1].must.be.int", "[2].must.be.int");
+        }
+
+        @Test
+        void liftToList_whenElementHasMultipleErrors_preservesAllErrorsWithSameIndex() {
+            // Arrange
+            MappingRule<String, Integer> rule = s -> s.length() > 3
+                    ? Validation.valid(s.length())
+                    : Validation.invalid(ErrorMessage.of("too.short"), ErrorMessage.of("must.be.longer"));
+            MappingRule<java.util.List<String>, java.util.List<Integer>> listRule = rule.liftToJList();
+
+            // Act
+            Validation<java.util.List<Integer>> result = listRule.test(java.util.List.of("hi", "hello"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("[0].too.short", "[0].must.be.longer");
+        }
+    }
+
+    @Nested
     class LiftToOption {
 
         @Test

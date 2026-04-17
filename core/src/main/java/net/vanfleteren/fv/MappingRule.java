@@ -165,7 +165,7 @@ public interface MappingRule<T, R> {
      *
      * @param other the other rule to compose with.
      * @param <S>   the target type.
-     * @return a new {@link MappingRule} instance.
+
      * @throws NullPointerException if {@code other} is null.
      */
     @SuppressWarnings("unchecked")
@@ -225,12 +225,26 @@ public interface MappingRule<T, R> {
      * <p>
      * Usage example:
      * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="lift-to-list-example"}
-     *
-     * @return a new {@link MappingRule} instance.
      */
     default MappingRule<List<T>, List<R>> liftToList() {
         return values -> {
             List<Validation<R>> validations = values.map(this::test);
+            // Validation.sequence already adds the [index] path segment, so we don't do it here.
+            return Validation.sequence(validations);
+        };
+    }
+
+    /**
+     * Lifts a {@link MappingRule} so it applies to a {@link java.util.List} of T instead of a single T.
+     * If the List is empty, the List is considered valid.
+     *
+     * <p>
+     * Usage example:
+     * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="lift-to-list-example"}
+     */
+    default MappingRule<java.util.List<T>, java.util.List<R>> liftToJList() {
+        return values -> {
+            java.util.List<Validation<R>> validations = values.stream().map(this::test).toList();
             // Validation.sequence already adds the [index] path segment, so we don't do it here.
             return Validation.sequence(validations);
         };
@@ -246,7 +260,6 @@ public interface MappingRule<T, R> {
      * Usage example:
      * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="lift-to-option-example"}
      *
-     * @return a new {@link MappingRule} instance.
      */
     default MappingRule<Option<T>, Option<R>> liftToOption() {
         return opt -> opt
@@ -264,7 +277,6 @@ public interface MappingRule<T, R> {
      * Usage example:
      * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="lift-to-optional-example"}
      *
-     * @return a new {@link MappingRule} instance.
      */
     default MappingRule<Optional<T>, Optional<R>> liftToOptional() {
         return opt -> opt
@@ -288,7 +300,6 @@ public interface MappingRule<T, R> {
      * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="lift-to-map-example"}
      *
      * @param <K> the key type.
-     * @return a new {@link MappingRule} instance.
      */
     default <K> MappingRule<Map<K, T>, Map<K, R>> liftToMap() {
         return liftToMap(Objects::toString);
@@ -310,7 +321,6 @@ public interface MappingRule<T, R> {
      *
      * @param keyExtractor the function to extract a path segment from the key.
      * @param <K>          the key type.
-     * @return a new {@link MappingRule} instance.
      */
     default <K> MappingRule<Map<K, T>, Map<K, R>> liftToMap(Function<K, Object> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");

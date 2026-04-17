@@ -242,12 +242,21 @@ public interface Rule<T> extends MappingRule<T, T> {
      * <p>
      * Usage example:
      * {@snippet file="net/vanfleteren/fv/RuleSnippets.java" region="lift-to-list-example"}
-     *
-     * @return a new {@link Rule} instance.
      */
     @Override
     default Rule<List<T>> liftToList() {
         return values -> MappingRule.super.liftToList().test(values);
+    }
+
+    /**
+     * Lifts this {@link Rule} so it applies to a {@link java.util.List} of T instead of a single T.
+     * <p>
+     * Usage example:
+     * {@snippet file="net/vanfleteren/fv/RuleSnippets.java" region="lift-to-jlist-example"}
+     */
+    @Override
+    default Rule<java.util.List<T>> liftToJList() {
+        return values -> MappingRule.super.liftToJList().test(values);
     }
 
     /**

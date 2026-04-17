@@ -196,6 +196,20 @@ public class RuleSnippets {
         // @end
     }
 
+    void liftToJListExample() {
+        // @start region="lift-to-jlist-example"
+        // 1. Define a rule for a single element
+        Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
+
+        // 2. Lift it to apply to a list
+        Rule<java.util.List<String>> listRule = notEmpty.liftToJList();
+
+        // 3. Usage
+        listRule.test(java.util.List.of("a", "b")); // Returns Valid(List("a", "b"))
+        listRule.test(java.util.List.of("a", ""));  // Returns Invalid(ErrorMessage("must.not.be.empty").atIndex(1))
+        // @end
+    }
+
     void liftToOptionExample() {
         // @start region="lift-to-option-example"
         // 1. Define a rule for a single element

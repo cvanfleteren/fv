@@ -91,17 +91,10 @@ public class MappingRuleSnippets {
     void andThenExample() {
         // @start region="and-then-example"
         // 1. A rule that parses a String to an Integer
-        MappingRule<String, Integer> parseInt = s -> {
-            try {
-                return Validation.valid(Integer.parseInt(s));
-            } catch (NumberFormatException e) {
-                return Validation.invalid("not.a.number");
-            }
-        };
+        MappingRule<String, Integer> parseInt = MappingRule.of(Integer::parseInt, "not.a.number");
 
         // 2. A rule that validates if an Integer is positive
-        MappingRule<Integer, Integer> isPositive = i ->
-            i > 0 ? Validation.valid(i) : Validation.invalid("not.positive");
+        MappingRule<Integer, Integer> isPositive = i -> i > 0 ? Validation.valid(i) : Validation.invalid("not.positive");
 
         // 3. Chain them: Parse the string, then check if the resulting number is positive
         MappingRule<String, Integer> parseAndCheckPositive = parseInt.andThen(isPositive);
@@ -136,7 +129,7 @@ public class MappingRuleSnippets {
     void liftToListExample() {
         // @start region="lift-to-list-example"
         // 1. Define a mapping rule
-        MappingRule<String, Integer> toInt =  MappingRule.of(s -> Integer.parseInt(s), "not.a.number");
+        MappingRule<String, Integer> toInt =  MappingRule.of(Integer::parseInt, "not.a.number");
 
         // 2. Lift it to apply to a list
         MappingRule<List<String>, List<Integer>> listRule = toInt.liftToList();
@@ -147,9 +140,23 @@ public class MappingRuleSnippets {
         // @end
     }
 
+    void liftToJListExample() {
+        // @start region="lift-to-jlist-example"
+        // 1. Define a mapping rule
+        MappingRule<String, Integer> toInt =  MappingRule.of(Integer::parseInt, "not.a.number");
+
+        // 2. Lift it to apply to a list
+        MappingRule<java.util.List<String>, java.util.List<Integer>> listRule = toInt.liftToJList();
+
+        // 3. Usage
+        listRule.test(java.util.List.of("1", "2")); // Returns Valid(List(1, 2))
+        listRule.test(java.util.List.of("1", "a")); // Returns Invalid(ErrorMessage("not.a.number").atIndex(1))
+        // @end
+    }
+
     void liftToOptionExample() {
         // @start region="lift-to-option-example"
-        MappingRule<String, Integer> toInt =  MappingRule.of(s -> Integer.parseInt(s), "not.a.number");
+        MappingRule<String, Integer> toInt =  MappingRule.of(Integer::parseInt, "not.a.number");
 
         MappingRule<Option<String>, Option<Integer>> optionRule = toInt.liftToOption();
 
@@ -161,7 +168,7 @@ public class MappingRuleSnippets {
 
     void liftToOptionalExample() {
         // @start region="lift-to-optional-example"
-        MappingRule<String, Integer> toInt =  MappingRule.of(s -> Integer.parseInt(s), "not.a.number");
+        MappingRule<String, Integer> toInt =  MappingRule.of(Integer::parseInt, "not.a.number");
 
         MappingRule<Optional<String>, Optional<Integer>> optionalRule = toInt.liftToOptional();
 
@@ -173,7 +180,7 @@ public class MappingRuleSnippets {
 
     void liftToMapExample() {
         // @start region="lift-to-map-example"
-        MappingRule<String, Integer> toInt =  MappingRule.of(s -> Integer.parseInt(s), "not.a.number");
+        MappingRule<String, Integer> toInt =  MappingRule.of(Integer::parseInt, "not.a.number");
 
         MappingRule<Map<String, String>, Map<String, Integer>> mapRule = toInt.liftToMap();
 
@@ -184,7 +191,7 @@ public class MappingRuleSnippets {
 
     void liftToMapExtractorExample() {
         // @start region="lift-to-map-extractor-example"
-        MappingRule<String, Integer> toInt =  MappingRule.of(s -> Integer.parseInt(s), "not.a.number");
+        MappingRule<String, Integer> toInt =  MappingRule.of(Integer::parseInt, "not.a.number");
 
         MappingRule<Map<Integer, String>, Map<Integer, Integer>> mapRule = toInt.liftToMap(k -> "item-" + k);
 

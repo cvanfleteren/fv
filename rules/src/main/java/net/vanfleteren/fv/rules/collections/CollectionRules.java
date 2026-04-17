@@ -190,7 +190,7 @@ public class CollectionRules {
      */
     public <T> Rule<List<T>> allMatchPredicate(Predicate<T> predicate) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
-        return allMatch(predicate, ErrorMessage.of("must.all.match"));
+        return allMatchPredicate(predicate, ErrorMessage.of("must.all.match"));
     }
 
     /**
@@ -201,7 +201,7 @@ public class CollectionRules {
      * @param errorMessage the error message to use if validation fails.
      * @return a {@link Rule} that validates if all elements match the predicate.
      */
-    public <T> Rule<List<T>> allMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
+    public <T> Rule<List<T>> allMatchPredicate(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
         return Rule.notNull().and(value -> Rule.of(predicate, errorMessage).liftToList().test(value));
     }
