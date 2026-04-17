@@ -24,6 +24,9 @@ public class OptionalRules {
      * Returns a {@link MappingRule} that expects the input {@link Optional} to be non-empty.
      * <p>
      * Error key: {@code must.not.be.empty}
+     * <p>
+     * Usage example:
+     * {@snippet file = "net/vanfleteren/fv/rules/functional/OptionalSnippets.java" region = "required-example"}
      *
      * @param <T> the type of the value contained in the Optional
      */
@@ -35,6 +38,9 @@ public class OptionalRules {
      * Returns a {@link Rule} that expects the input {@link Optional} to be non-empty.
      * <p>
      * Error key: {@code must.not.be.empty}
+     * <p>
+     * Usage example:
+     * {@snippet file = "net/vanfleteren/fv/rules/functional/OptionalSnippets.java" region = "required-option-example"}
      *
      * @param <T> the type of the value contained in the Optional
      */
@@ -43,7 +49,7 @@ public class OptionalRules {
     }
 
     /**
-     * Returns a {@link MappingRule} that expects the input {@link Optional} to be empty.
+     * Returns a {@link Rule} that expects the input {@link Optional} to be empty.
      * <p>
      * Error key: {@code must.be.empty}
      *

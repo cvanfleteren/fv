@@ -1,14 +1,13 @@
 package net.vanfleteren.fv;
 
+import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
-import io.vavr.collection.HashMap;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+
 import java.util.Optional;
 import java.util.function.Function;
-import net.vanfleteren.fv.Validation.Valid;
-import net.vanfleteren.fv.Validation.Invalid;
 
 public class MappingRuleSnippets {
 

@@ -20,9 +20,12 @@ public class OptionRules {
     }
 
     /**
-     * Returns a {@link MappingRule} that expects the input Option to be non-empty.
+     * Returns a {@link MappingRule} that expects the input {@link Option} to be non-empty returning the value contained in the {@link Option}.
      * <p>
      * Error key: {@code must.not.be.empty}
+     * <p>
+     * Usage example:
+     * {@snippet file = "net/vanfleteren/fv/rules/functional/OptionSnippets.java" region = "required-example"}
      *
      * @param <T> the type of the value contained in the Option
      */
@@ -34,9 +37,12 @@ public class OptionRules {
     }
 
     /**
-     * Returns a {@link Rule} that expects the input Option to be non-empty.
+     * Returns a {@link Rule} that expects the input {@link Option} to be non-empty.
      * <p>
      * Error key: {@code must.not.be.empty}
+     * <p>
+     * Usage example:
+     * {@snippet file = "net/vanfleteren/fv/rules/functional/OptionSnippets.java" region = "required-option-example"}
      *
      * @param <T> the type of the value contained in the Option
      */
@@ -45,7 +51,7 @@ public class OptionRules {
     }
 
     /**
-     * Returns a {@link MappingRule} that expects the input {@link Option} to be empty.
+     * Returns a {@link Rule} that expects the input {@link Option} to be empty.
      * <p>
      * Error key: {@code must.be.empty}
      *
