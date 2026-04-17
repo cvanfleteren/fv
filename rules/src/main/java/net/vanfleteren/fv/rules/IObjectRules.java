@@ -88,7 +88,6 @@ public interface IObjectRules<T> {
      * </ul>
      *
      * @param values the forbidden values.
-     * @return a {@link Rule} checking if the value is not one of the forbidden values.
      */
     default Rule<T> notOneOf(T... values) {
         return notOneOf(HashSet.of(values));

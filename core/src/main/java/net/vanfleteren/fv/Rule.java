@@ -80,6 +80,8 @@ public interface Rule<T> extends MappingRule<T, T> {
      *
      * @param other the other rule to compose with.
      * @param <S>   the target type.
+     * @see #andAlso(Rule) 
+     * @see #andThen(MappingRule) 
      * @return a new {@link Rule} instance.
      * @throws NullPointerException if {@code other} is null.
      */
@@ -100,6 +102,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      *
      * @param other the other rule to compose with.
      * @param <S>   the target type.
+     * @see #and(Rule) 
      * @return a new {@link Rule} instance.
      * @throws NullPointerException if {@code other} is null.
      */

@@ -32,8 +32,8 @@ public interface MappingRule<T, R> {
      *
      * @param value the value to be processed by this {@link MappingRule}
      * @return a {@link Validation} instance representing the outcome: either a {@link net.vanfleteren.fv.Validation.Valid}
-     *         with the successfully transformed value or the errors encountered during
-     *         mapping or validation
+     *         with the successfully transformed value or an {@link net.vanfleteren.fv.Validation.Invalid containing }the errors encountered during
+     *         mapping or validation.
      */
     Validation<R> test(T value);
 
@@ -122,16 +122,19 @@ public interface MappingRule<T, R> {
     }
 
     /**
-     * Returns a composed MappingRule that represents a shortcut-if-this rule.
-     * This rule first applies the current rule to the input, and if successful,
-     * applies the next rule (the argument to this method) to the result of the first rule.
+     * Composes this MappingRule with another MappingRule using "short-circuiting and" logic.
+     * The combined rule is successful only if both this and the other rule are successful.
+     * If this rule fails, the evaluation stops and the other rule is not evaluated.
+     * <p>
+     * This rule first applies the current rule to the input. If successful, it applies the next rule
+     * (the argument to this method) to the result of the first rule.
      * <p>
      * Usage example:
      * {@snippet file="net/vanfleteren/fv/MappingRuleSnippets.java" region="and-then-example"}
      *
      * @param <Z>  the type of output from the next rule after transformation.
      * @param rule the rule to apply after this rule if this rule is successful.
-     * @return a composed MappingRule that represents a shortcut-if-this rule.
+     * @return a composed {@link MappingRule} that applies both rules in sequence.
      */
     default <Z> MappingRule<T, Z> andThen(MappingRule<? super R, ? extends Z> rule) {
         return (T input) -> this.test(input).flatMap(rule::test);
