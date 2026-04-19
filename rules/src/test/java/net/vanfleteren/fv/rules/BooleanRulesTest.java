@@ -14,13 +14,13 @@ class BooleanRulesTest {
 
         @Test
         void valid() {
-            validTest(true, booleans.isTrue);
+            validTest(true, booleans.isTrue());
         }
 
         @Test
         void invalid() {
-            invalidTest(false, booleans.isTrue, "must.be.true");
-            invalidTest(null, booleans.isTrue, "must.not.be.null");
+            invalidTest(false, booleans.isTrue(), "must.be.true");
+            invalidTest(null, booleans.isTrue(), "must.not.be.null");
         }
     }
 
@@ -29,13 +29,13 @@ class BooleanRulesTest {
 
         @Test
         void valid() {
-            validTest(false, booleans.isFalse);
+            validTest(false, booleans.isFalse());
         }
 
         @Test
         void invalid() {
-            invalidTest(true, booleans.isFalse, "must.be.false");
-            invalidTest(null, booleans.isFalse, "must.not.be.null");
+            invalidTest(true, booleans.isFalse(), "must.be.false");
+            invalidTest(null, booleans.isFalse(), "must.not.be.null");
         }
     }
 
@@ -44,13 +44,13 @@ class BooleanRulesTest {
 
         @Test
         void valid() {
-            validTest(true, booleans.notNull);
-            validTest(false, booleans.notNull);
+            validTest(true, booleans.notNull());
+            validTest(false, booleans.notNull());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, booleans.notNull, "must.not.be.null");
+            invalidTest(null, booleans.notNull(), "must.not.be.null");
         }
     }
 }

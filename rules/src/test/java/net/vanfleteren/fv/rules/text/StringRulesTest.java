@@ -27,15 +27,15 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("hello", strings.notEmpty);
-            validTest(" ", strings.notEmpty);
-            validTest("\n", strings.notEmpty);
+            validTest("hello", strings.notEmpty());
+            validTest(" ", strings.notEmpty());
+            validTest("\n", strings.notEmpty());
         }
 
         @Test
         void invalid() {
-            invalidTest("", strings().notEmpty, "must.not.be.empty");
-            invalidTest(null, strings().notEmpty, "must.not.be.null");
+            invalidTest("", strings.notEmpty(), "must.not.be.empty");
+            invalidTest(null, strings.notEmpty(), "must.not.be.null");
         }
     }
 
@@ -44,16 +44,16 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("hello", strings.notBlank);
-            validTest(" x ", strings.notBlank);
+            validTest("hello", strings.notBlank());
+            validTest(" x ", strings.notBlank());
         }
 
         @Test
         void invalid() {
-            invalidTest("", strings.notBlank, "must.not.be.blank");
-            invalidTest("   ", strings.notBlank, "must.not.be.blank");
-            invalidTest("\n\t", strings.notBlank, "must.not.be.blank");
-            invalidTest(null, strings.notBlank, "must.not.be.null");
+            invalidTest("", strings.notBlank(), "must.not.be.blank");
+            invalidTest("   ", strings.notBlank(), "must.not.be.blank");
+            invalidTest("\n\t", strings.notBlank(), "must.not.be.blank");
+            invalidTest(null, strings.notBlank(), "must.not.be.null");
         }
     }
 
@@ -62,17 +62,17 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("hello", strings.trimmed);
-            validTest("he llo", strings.trimmed);
-            validTest("", strings.trimmed);
+            validTest("hello", strings.trimmed());
+            validTest("he llo", strings.trimmed());
+            validTest("", strings.trimmed());
         }
 
         @Test
         void invalid() {
-            invalidTest(" hello", strings.trimmed, "must.be.trimmed");
-            invalidTest("hello ", strings.trimmed, "must.be.trimmed");
-            invalidTest(" hello ", strings.trimmed, "must.be.trimmed");
-            invalidTest(null, strings.trimmed, "must.not.be.null");
+            invalidTest(" hello", strings.trimmed(), "must.be.trimmed");
+            invalidTest("hello ", strings.trimmed(), "must.be.trimmed");
+            invalidTest(" hello ", strings.trimmed(), "must.be.trimmed");
+            invalidTest(null, strings.trimmed(), "must.not.be.null");
         }
     }
 
@@ -81,18 +81,18 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("hello", strings.noWhitespace);
-            validTest("", strings.noWhitespace);
-            validTest("abc123", strings.noWhitespace);
+            validTest("hello", strings.noWhitespace());
+            validTest("", strings.noWhitespace());
+            validTest("abc123", strings.noWhitespace());
         }
 
         @Test
         void invalid() {
-            invalidTest(" ", strings.noWhitespace, "must.not.contain.whitespace");
-            invalidTest("a b", strings.noWhitespace, "must.not.contain.whitespace");
-            invalidTest("\n", strings.noWhitespace, "must.not.contain.whitespace");
-            invalidTest("a\tb", strings.noWhitespace, "must.not.contain.whitespace");
-            invalidTest(null, strings.noWhitespace, "must.not.be.null");
+            invalidTest(" ", strings.noWhitespace(), "must.not.contain.whitespace");
+            invalidTest("a b", strings.noWhitespace(), "must.not.contain.whitespace");
+            invalidTest("\n", strings.noWhitespace(), "must.not.contain.whitespace");
+            invalidTest("a\tb", strings.noWhitespace(), "must.not.contain.whitespace");
+            invalidTest(null, strings.noWhitespace(), "must.not.be.null");
         }
     }
 
@@ -367,17 +367,17 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("", strings.alpha);          // empty is ok; combine with notEmpty if you need non-empty
-            validTest("abc", strings.alpha);
-            validTest("Åß", strings.alpha);        // unicode letters are allowed
+            validTest("", strings.alpha());          // empty is ok; combine with notEmpty if you need non-empty
+            validTest("abc", strings.alpha());
+            validTest("Åß", strings.alpha());        // unicode letters are allowed
         }
 
         @Test
         void invalid() {
-            invalidTest("abc1", strings.alpha, "must.be.alpha");
-            invalidTest("a b", strings.alpha, "must.be.alpha");
-            invalidTest("-", strings.alpha, "must.be.alpha");
-            invalidTest(null, strings.alpha, "must.not.be.null");
+            invalidTest("abc1", strings.alpha(), "must.be.alpha");
+            invalidTest("a b", strings.alpha(), "must.be.alpha");
+            invalidTest("-", strings.alpha(), "must.be.alpha");
+            invalidTest(null, strings.alpha(), "must.not.be.null");
         }
     }
 
@@ -386,19 +386,19 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("", strings.alphaNumeric);
-            validTest("abcz", strings.alphaNumeric);
-            validTest("abc12390", strings.alphaNumeric);
+            validTest("", strings.alphaNumeric());
+            validTest("abcz", strings.alphaNumeric());
+            validTest("abc12390", strings.alphaNumeric());
         }
 
         @Test
         void invalid() {
-            invalidTest("a_b", strings.alphaNumeric, "must.be.alphanumeric");
-            invalidTest("a b", strings.alphaNumeric, "must.be.alphanumeric");
-            invalidTest("ë", strings.alphaNumeric, "must.be.alphanumeric");
-            invalidTest("!", strings.alphaNumeric, "must.be.alphanumeric");
-            invalidTest("Åß١٢3", strings.alphaNumeric, "must.be.alphanumeric");
-            invalidTest(null, strings.alphaNumeric, "must.not.be.null");
+            invalidTest("a_b", strings.alphaNumeric(), "must.be.alphanumeric");
+            invalidTest("a b", strings.alphaNumeric(), "must.be.alphanumeric");
+            invalidTest("ë", strings.alphaNumeric(), "must.be.alphanumeric");
+            invalidTest("!", strings.alphaNumeric(), "must.be.alphanumeric");
+            invalidTest("Åß١٢3", strings.alphaNumeric(), "must.be.alphanumeric");
+            invalidTest(null, strings.alphaNumeric(), "must.not.be.null");
         }
     }
 
@@ -407,18 +407,18 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("", strings.alphaNumericUnicode);
-            validTest("abc", strings.alphaNumericUnicode);
-            validTest("abc123", strings.alphaNumericUnicode);
-            validTest("Åß١٢3", strings.alphaNumericUnicode); // letters + digits (unicode digits too)
+            validTest("", strings.alphaNumericUnicode());
+            validTest("abc", strings.alphaNumericUnicode());
+            validTest("abc123", strings.alphaNumericUnicode());
+            validTest("Åß١٢3", strings.alphaNumericUnicode()); // letters + digits (unicode digits too)
         }
 
         @Test
         void invalid() {
-            invalidTest("a_b", strings.alphaNumericUnicode, "must.be.unicode.alphanumeric");
-            invalidTest("a b", strings.alphaNumericUnicode, "must.be.unicode.alphanumeric");
-            invalidTest("!", strings.alphaNumericUnicode, "must.be.unicode.alphanumeric");
-            invalidTest(null, strings.alphaNumericUnicode, "must.not.be.null");
+            invalidTest("a_b", strings.alphaNumericUnicode(), "must.be.unicode.alphanumeric");
+            invalidTest("a b", strings.alphaNumericUnicode(), "must.be.unicode.alphanumeric");
+            invalidTest("!", strings.alphaNumericUnicode(), "must.be.unicode.alphanumeric");
+            invalidTest(null, strings.alphaNumericUnicode(), "must.not.be.null");
         }
     }
 
@@ -427,17 +427,17 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("", strings.onlyUnicodeDigits);
-            validTest("0123", strings.onlyUnicodeDigits);
-            validTest("١٢٣", strings.onlyUnicodeDigits); // unicode digits are allowed by Character.isDigit
+            validTest("", strings.onlyUnicodeDigits());
+            validTest("0123", strings.onlyUnicodeDigits());
+            validTest("١٢٣", strings.onlyUnicodeDigits()); // unicode digits are allowed by Character.isDigit
         }
 
         @Test
         void invalid() {
-            invalidTest("12a", strings.onlyUnicodeDigits, "must.be.unicode.digits.only");
-            invalidTest("12 3", strings.onlyUnicodeDigits, "must.be.unicode.digits.only");
-            invalidTest("-", strings.onlyUnicodeDigits, "must.be.unicode.digits.only");
-            invalidTest(null, strings.onlyUnicodeDigits, "must.not.be.null");
+            invalidTest("12a", strings.onlyUnicodeDigits(), "must.be.unicode.digits.only");
+            invalidTest("12 3", strings.onlyUnicodeDigits(), "must.be.unicode.digits.only");
+            invalidTest("-", strings.onlyUnicodeDigits(), "must.be.unicode.digits.only");
+            invalidTest(null, strings.onlyUnicodeDigits(), "must.not.be.null");
         }
     }
 
@@ -855,18 +855,18 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("hello world", strings.singleLine);
-            validTest("", strings.singleLine);
-            validTest("no line breaks here", strings.singleLine);
+            validTest("hello world", strings.singleLine());
+            validTest("", strings.singleLine());
+            validTest("no line breaks here", strings.singleLine());
         }
 
         @Test
         void invalid() {
-            invalidTest("line1\nline2", strings.singleLine, "must.be.single.line");
-            invalidTest("line1\rline2", strings.singleLine, "must.be.single.line");
-            invalidTest("line1\r\nline2", strings.singleLine, "must.be.single.line");
-            invalidTest("\n", strings.singleLine, "must.be.single.line");
-            invalidTest(null, strings.singleLine, "must.not.be.null");
+            invalidTest("line1\nline2", strings.singleLine(), "must.be.single.line");
+            invalidTest("line1\rline2", strings.singleLine(), "must.be.single.line");
+            invalidTest("line1\r\nline2", strings.singleLine(), "must.be.single.line");
+            invalidTest("\n", strings.singleLine(), "must.be.single.line");
+            invalidTest(null, strings.singleLine(), "must.not.be.null");
         }
     }
 
@@ -875,18 +875,18 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("HELLO", strings.uppercase);
-            validTest("ABC123", strings.uppercase);
-            validTest("", strings.uppercase);
-            validTest("123", strings.uppercase);  // digits have no case
+            validTest("HELLO", strings.uppercase());
+            validTest("ABC123", strings.uppercase());
+            validTest("", strings.uppercase());
+            validTest("123", strings.uppercase());  // digits have no case
         }
 
         @Test
         void invalid() {
-            invalidTest("Hello", strings.uppercase, "must.be.uppercase");
-            invalidTest("hello", strings.uppercase, "must.be.uppercase");
-            invalidTest("ABCd", strings.uppercase, "must.be.uppercase");
-            invalidTest(null, strings.uppercase, "must.not.be.null");
+            invalidTest("Hello", strings.uppercase(), "must.be.uppercase");
+            invalidTest("hello", strings.uppercase(), "must.be.uppercase");
+            invalidTest("ABCd", strings.uppercase(), "must.be.uppercase");
+            invalidTest(null, strings.uppercase(), "must.not.be.null");
         }
     }
 
@@ -895,18 +895,18 @@ class StringRulesTest {
 
         @Test
         void valid() {
-            validTest("hello", strings.lowercase);
-            validTest("abc123", strings.lowercase);
-            validTest("", strings.lowercase);
-            validTest("123", strings.lowercase);  // digits have no case
+            validTest("hello", strings.lowercase());
+            validTest("abc123", strings.lowercase());
+            validTest("", strings.lowercase());
+            validTest("123", strings.lowercase());  // digits have no case
         }
 
         @Test
         void invalid() {
-            invalidTest("Hello", strings.lowercase, "must.be.lowercase");
-            invalidTest("HELLO", strings.lowercase, "must.be.lowercase");
-            invalidTest("abcD", strings.lowercase, "must.be.lowercase");
-            invalidTest(null, strings.lowercase, "must.not.be.null");
+            invalidTest("Hello", strings.lowercase(), "must.be.lowercase");
+            invalidTest("HELLO", strings.lowercase(), "must.be.lowercase");
+            invalidTest("abcD", strings.lowercase(), "must.be.lowercase");
+            invalidTest(null, strings.lowercase(), "must.not.be.null");
         }
     }
 

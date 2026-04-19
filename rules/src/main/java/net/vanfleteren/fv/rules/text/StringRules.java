@@ -191,38 +191,48 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.single.line}
      */
-    public Rule<String> singleLine = Rule.notNull().and(Rule.of(s -> !LINE_BREAK.matcher(s).find(), "must.be.single.line"));
+    public Rule<String> singleLine() {
+        return Rule.notNull().and(Rule.of(s -> !LINE_BREAK.matcher(s).find(), "must.be.single.line"));
+    }
 
     /**
      * Fails if the string is empty.
      * <p>
      * Error key: {@code must.not.be.empty}
      */
-    public Rule<String> notEmpty = Rule.notNull().and(Rule.of(s -> !s.isEmpty(), "must.not.be.empty"));
+    public Rule<String> notEmpty() {
+        return Rule.notNull().and(Rule.of(s -> !s.isEmpty(), "must.not.be.empty"));
+    }
 
     /**
      * Fails if the string is empty or contains only whitespace.
      * <p>
      * Error key: {@code must.not.be.blank}
      */
-    public Rule<String> notBlank = Rule.notNull().and(Rule.of(s -> !s.isBlank(), "must.not.be.blank"));
+    public Rule<String> notBlank() {
+        return Rule.notNull().and(Rule.of(s -> !s.isBlank(), "must.not.be.blank"));
+    }
 
     /**
      * Fails if the string has leading or trailing whitespace.
      * <p>
      * Error key: {@code must.be.trimmed}
      */
-    public Rule<String> trimmed = Rule.notNull().and(Rule.of(s -> s.equals(s.trim()), "must.be.trimmed"));
+    public Rule<String> trimmed() {
+        return Rule.notNull().and(Rule.of(s -> s.equals(s.trim()), "must.be.trimmed"));
+    }
 
     /**
      * Fails if the string contains any whitespace anywhere.
      * <p>
      * Error key: {@code must.not.contain.whitespace}
      */
-    public Rule<String> noWhitespace = Rule.notNull().and(Rule.of(
-            s -> s.chars().noneMatch(Character::isWhitespace),
-            "must.not.contain.whitespace"
-    ));
+    public Rule<String> noWhitespace() {
+        return Rule.notNull().and(Rule.of(
+                s -> s.chars().noneMatch(Character::isWhitespace),
+                "must.not.contain.whitespace"
+        ));
+    }
     //endregion
 
     //region case
@@ -234,10 +244,12 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.uppercase}
      */
-    public Rule<String> uppercase = Rule.notNull().and(Rule.of(
-            s -> s.equals(s.toUpperCase()),
-            "must.be.uppercase"
-    ));
+    public Rule<String> uppercase() {
+        return Rule.notNull().and(Rule.of(
+                s -> s.equals(s.toUpperCase()),
+                "must.be.uppercase"
+        ));
+    }
 
     /**
      * Fails if the string contains any uppercase letter.
@@ -246,10 +258,12 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.lowercase}
      */
-    public Rule<String> lowercase = Rule.notNull().and(Rule.of(
-            s -> s.equals(s.toLowerCase()),
-            "must.be.lowercase"
-    ));
+    public Rule<String> lowercase() {
+        return Rule.notNull().and(Rule.of(
+                s -> s.equals(s.toLowerCase()),
+                "must.be.lowercase"
+        ));
+    }
 
     //endregion
 
@@ -619,27 +633,31 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.alpha}
      */
-    public Rule<String> alpha = Rule.notNull().and(Rule.of(
-            s -> s.codePoints().allMatch(Character::isLetter),
-            "must.be.alpha"
-    ));
+    public Rule<String> alpha() {
+        return Rule.notNull().and(Rule.of(
+                s -> s.codePoints().allMatch(Character::isLetter),
+                "must.be.alpha"
+        ));
+    }
 
     /**
      * Fails if the string contains anything other than letters or digits (ASCII).
      * <p>
      * Error key: {@code must.be.alphanumeric}
      */
-    public Rule<String> alphaNumeric = Rule.notNull().and(Rule.of(
-            s -> s.codePoints().allMatch(c ->
-                    // ‘0–9’
-                    (c >= 48 && c <= 57) ||
-                            // ‘A–Z’
-                            (c >= 65 && c <= 90) ||
-                            // ‘a–z’
-                            (c >= 97 && c <= 122)
-            ),
-            "must.be.alphanumeric"
-    ));
+    public Rule<String> alphaNumeric() {
+        return Rule.notNull().and(Rule.of(
+                s -> s.codePoints().allMatch(c ->
+                        // ‘0–9’
+                        (c >= 48 && c <= 57) ||
+                                // ‘A–Z’
+                                (c >= 65 && c <= 90) ||
+                                // ‘a–z’
+                                (c >= 97 && c <= 122)
+                ),
+                "must.be.alphanumeric"
+        ));
+    }
 
     /**
      * Fails if the string contains anything other than letters or digits (Unicode).
@@ -647,10 +665,12 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.unicode.alphanumeric}
      */
-    public Rule<String> alphaNumericUnicode = Rule.notNull().and(Rule.of(
-            s -> s.codePoints().allMatch(Character::isLetterOrDigit),
-            "must.be.unicode.alphanumeric"
-    ));
+    public Rule<String> alphaNumericUnicode() {
+        return Rule.notNull().and(Rule.of(
+                s -> s.codePoints().allMatch(Character::isLetterOrDigit),
+                "must.be.unicode.alphanumeric"
+        ));
+    }
 
     /**
      * Fails if the string contains anything other than digits (Unicode).
@@ -658,10 +678,12 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.unicode.digits.only}
      */
-    public Rule<String> onlyUnicodeDigits = Rule.notNull().and(Rule.of(
-            s -> s.codePoints().allMatch(Character::isDigit),
-            "must.be.unicode.digits.only"
-    ));
+    public Rule<String> onlyUnicodeDigits() {
+        return Rule.notNull().and(Rule.of(
+                s -> s.codePoints().allMatch(Character::isDigit),
+                "must.be.unicode.digits.only"
+        ));
+    }
 
     /**
      * Fails if the string contains anything other than digits (0-9).
