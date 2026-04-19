@@ -45,7 +45,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      * @param predicate    the predicate to test values against.
      * @param errorKey     the error message key to use if the predicate returns {@code false}.
      * @param <T>          the type of the value to be validated.
-     * @return a new {@link Rule} instance.
      */
     static <T> Rule<T> of(Predicate<T> predicate, String errorKey) {
         return of(predicate, ErrorMessage.of(errorKey));
@@ -60,7 +59,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      * @param predicate    the predicate to test values against.
      * @param errorMessage the error message to use if the predicate returns {@code false}.
      * @param <T>          the type of the value to be validated.
-     * @return a new {@link Rule} instance.
      */
     static <T> Rule<T> of(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
@@ -82,8 +80,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      * @param <S>   the target type.
      * @see #andAlso(Rule) 
      * @see #andThen(MappingRule) 
-     * @return a new {@link Rule} instance.
-     * @throws NullPointerException if {@code other} is null.
      */
     default <S extends T> Rule<S> and(Rule<? super S> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
@@ -102,9 +98,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      *
      * @param other the other rule to compose with.
      * @param <S>   the target type.
-     * @see #and(Rule) 
-     * @return a new {@link Rule} instance.
-     * @throws NullPointerException if {@code other} is null.
+     * @see #and(Rule)
      */
     default <S extends T> Rule<S> andAlso(Rule<? super S> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
@@ -122,7 +116,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      *
      * @param other the other rule to compose with.
      * @param <S>   the target type.
-     * @throws NullPointerException if {@code other} is null.
      */
     @SuppressWarnings("unchecked")
     default <S extends T> Rule<S> or(Rule<? super S> other) {
@@ -149,8 +142,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      * {@snippet file="net/vanfleteren/fv/RuleSnippets.java" region="negate-string-example"}
      *
      * @param negatedErrorKey the error message key to use if negation fails.
-     * @return a negated {@link Rule}.
-     * @throws NullPointerException if {@code negatedErrorKey} is null.
      */
     default Rule<T> negate(String negatedErrorKey) {
         Objects.requireNonNull(negatedErrorKey, "negatedErrorKey cannot be null");
@@ -164,8 +155,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      * {@snippet file="net/vanfleteren/fv/RuleSnippets.java" region="negate-error-example"}
      *
      * @param negatedError the error message to use if negation fails.
-     * @return a negated {@link Rule}.
-     * @throws NullPointerException if {@code negatedError} is null.
      */
     default Rule<T> negate(ErrorMessage negatedError) {
         Objects.requireNonNull(negatedError, "negatedError cannot be null");
@@ -226,7 +215,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      * {@snippet file="net/vanfleteren/fv/RuleSnippets.java" region="recover-with-rule-example"}
      *
      * @param other the other rule to use as a fallback if this rule fails
-     * @return a new {@link Rule} that first applies this rule, and if the input is invalid, falls back to the other rule
      */
     default <S extends T> Rule<S> recoverWithRule(Rule<? super S> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
@@ -274,7 +262,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      *
      * @see Rule#requiredOption(Rule) 
      * @see MappingRule#requiredOption(MappingRule) 
-     * @return a new {@link Rule} instance.
      */
     @Override
     default Rule<Option<T>> liftToOption() {
@@ -293,7 +280,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      *
      * @see Rule#requiredOptional(Rule)
      * @see MappingRule#requiredOptional(MappingRule)
-     * @return a new {@link Rule} instance.
      */
     @Override
     default Rule<Optional<T>> liftToOptional() {
@@ -432,7 +418,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * @param first  the first rule.
      * @param second the second rule.
      * @param <T>    the type of the value to be validated.
-     * @return a new {@link Rule} instance.
+     * @see  #andAlso(Rule) 
      */
     static <T> Rule<T> both(Rule<? super T> first, Rule<? super T> second) {
         Objects.requireNonNull(first, "first rule cannot be null");
@@ -450,7 +436,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      *
      * @param rules the rules to combine.
      * @param <T>   the type of the value to be validated.
-     * @return a new {@link Rule} instance.
      */
     @SafeVarargs
     static <T> Rule<T> all(Rule<? super T>... rules) {
@@ -474,14 +459,13 @@ public interface Rule<T> extends MappingRule<T, T> {
      * If all rules fail, all errors are combined.
      * <p>
      * Usage example:
-     * {@snippet file="net/vanfleteren/fv/RuleSnippets.java" region="at-least-one-of-example"}
+     * {@snippet file="net/vanfleteren/fv/RuleSnippets.java" region="any-example"}
      *
      * @param rules the rules to combine.
      * @param <T>   the type of the value to be validated.
-     * @return a new {@link Rule} instance.
      */
     @SafeVarargs
-    static <T> Rule<T> atLeastOneOf(Rule<? super T>... rules) {
+    static <T> Rule<T> any(Rule<? super T>... rules) {
         Objects.requireNonNull(rules, "rules cannot be null");
         List<Rule<? super T>> ruleList = List.of(rules);
         return value -> {
@@ -501,7 +485,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      *
      * @param rule The rule to narrow.
      * @param <T>  The target type.
-     * @return The narrowed rule.
      */
     @SuppressWarnings("unchecked")
     static <T> Rule<T> narrow(Rule<? super T> rule) {
@@ -514,7 +497,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Error key: "must.not.be.null"
      *
      * @param <T> the type of input
-     * @return a Rule that returns valid input only if it's not null
      */
     static <T> Rule<T> notNull() {
         return MappingRule.<T>notNull()::test;
@@ -524,7 +506,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Creates a new {@link Rule} that always returns a valid result for any non-null input.
      *
      * @param <T> the type of object being validated
-     * @return a rule that always returns a valid result
      */
     static <T> Rule<T> ok() {
         return Validation::valid;
@@ -538,7 +519,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      *
      * @param <T>  the type of the value inside the {@link Option}
      * @param rule the rule to apply to the value inside the {@link Option}
-     * @return a new {@link MappingRule} that validates the option and applies the given rule to its value
      */
     static <T> MappingRule<Option<T>, T> requiredOption(Rule<T> rule) {
         return MappingRule.requiredOption(rule);
@@ -552,7 +532,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      *
      * @param <T>  the type of the value inside the {@link Optional}
      * @param rule the rule to apply to the value inside the {@link Optional}
-     * @return a new MappingRule that validates the option and applies the given rule to its value
      */
     static <T> MappingRule<Optional<T>, T> requiredOptional(Rule<T> rule) {
         return MappingRule.requiredOptional(rule);
@@ -568,7 +547,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      * @param <V>      the type of the result produced by the selector function
      * @param selector a function that extracts a value of type V from an input of type T
      * @param rule     the rule to be applied to the extracted value
-     * @return a new rule that tests the applied selector and rule combination
      */
     static <T, V> Rule<T> with(Function<T, V> selector, Rule<V> rule) {
       return input -> rule.test(selector.apply(input)).map(ignore -> input);

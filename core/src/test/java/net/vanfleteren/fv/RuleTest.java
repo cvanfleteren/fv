@@ -240,15 +240,15 @@ class RuleTest {
     }
 
     @Nested
-    class AtLeastOneOf {
+    class Any {
 
         @Test
-        void atLeastOneOf_whenOneRulePasses_returnsValidResult() {
+        void any_whenOneRulePasses_returnsValidResult() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
             Rule<String> rule3 = Rule.of(s -> s.contains("!"), "must.contain.exclamation");
-            Rule<String> combined = Rule.atLeastOneOf(rule1, rule2, rule3);
+            Rule<String> combined = Rule.any(rule1, rule2, rule3);
 
             // Act
             Validation<String> result = combined.test("hi!");
@@ -260,11 +260,11 @@ class RuleTest {
         }
 
         @Test
-        void atLeastOneOf_whenMultipleRulesPass_returnsValidResult() {
+        void any_whenMultipleRulesPass_returnsValidResult() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> combined = Rule.atLeastOneOf(rule1, rule2);
+            Rule<String> combined = Rule.any(rule1, rule2);
 
             // Act
             Validation<String> result = combined.test("hello");
@@ -276,11 +276,11 @@ class RuleTest {
         }
 
         @Test
-        void atLeastOneOf_whenAllRulesFail_returnsInvalidWithAllErrors() {
+        void any_whenAllRulesFail_returnsInvalidWithAllErrors() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> combined = Rule.atLeastOneOf(rule1, rule2);
+            Rule<String> combined = Rule.any(rule1, rule2);
 
             // Act
             Validation<String> result = combined.test("a");

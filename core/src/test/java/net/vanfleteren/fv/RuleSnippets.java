@@ -5,8 +5,6 @@ import io.vavr.collection.Map;
 import io.vavr.collection.HashMap;
 import io.vavr.control.Option;
 import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public class RuleSnippets {
 
@@ -315,11 +313,11 @@ public class RuleSnippets {
         // @end
     }
 
-    void atLeastOneOfExample() {
-        // @start region="at-least-one-of-example"
+    void anyExample() {
+        // @start region="any-example"
         Rule<String> hasAt = Rule.of(s -> s.contains("@"), "missing.at");
         Rule<String> hasDot = Rule.of(s -> s.contains("."), "missing.dot");
-        Rule<String> combined = Rule.atLeastOneOf(hasAt, hasDot);
+        Rule<String> combined = Rule.any(hasAt, hasDot);
 
         combined.test("abc"); // Returns Invalid("missing.at", "missing.dot")
         combined.test("a.b"); // Returns Valid("a.b")
