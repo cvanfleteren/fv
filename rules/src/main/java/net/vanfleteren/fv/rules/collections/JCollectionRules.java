@@ -443,22 +443,13 @@ public class JCollectionRules {
      * @param <T> the type of elements in the collection.
      * @param rule the rule to apply to each element.
      * @return a {@link Rule} that applies the given rule to all elements in the list.
+     * @see Rule#liftToJList()
      */
     public <T> Rule<List<T>> validateValuesWith(Rule<? super T> rule) {
         return Rule.notNull().and(list -> {
-            var validations = IntStream.range(0, list.size()).mapToObj(idx ->
-                    rule.test(list.get(idx))
-                            .mapErrors(errors ->
-                                    errors.map(e -> e.atIndex(idx))
-                            )
-            ).toList();
-
-            var invalidValidations = validations.stream().filter(v -> !v.isValid()).toList();
-            if (!invalidValidations.isEmpty()) {
-                return Validation.invalid(io.vavr.collection.List.ofAll(invalidValidations).flatMap(Validation::errors));
-            } else {
-                return Validation.valid(list);
-            }
+            Rule<T> castedRule = Rule.narrow(rule);
+            Rule<List<T>> rule2 = castedRule.liftToJList();
+            return rule2.test(list);
         });
     }
 
