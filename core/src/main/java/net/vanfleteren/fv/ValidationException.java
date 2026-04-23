@@ -16,6 +16,7 @@ public class ValidationException extends RuntimeException {
      * @param errors the list of validation errors.
      */
     public ValidationException(List<ErrorMessage> errors) {
+        super(errors.map(ErrorMessage::message).mkString(", "));
         this.errors = errors;
     }
 
@@ -26,5 +27,10 @@ public class ValidationException extends RuntimeException {
      */
     public List<ErrorMessage> errors() {
         return errors;
+    }
+
+    @Override
+    public String getMessage() {
+        return super.getMessage();
     }
 }

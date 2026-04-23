@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static net.vanfleteren.fv.API.validateThat;
+import static net.vanfleteren.fv.dsl.DSL.validateThat;
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import static net.vanfleteren.fv.rules.collections.MapRules.*;
 import static net.vanfleteren.fv.rules.RulesTest.invalidTest;

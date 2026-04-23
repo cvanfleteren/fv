@@ -7,7 +7,6 @@ import io.vavr.collection.Seq;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
-import org.jspecify.annotations.NonNull;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -1240,12 +1239,17 @@ public sealed interface Validation<T> extends Value<T> {
      * @throws NullPointerException if {@code action} is null.
      */
     @Override
-    default Validation<T> peek(@NonNull Consumer<? super T> action) {
+    default Validation<T> peek(Consumer<? super T> action) {
         Objects.requireNonNull(action, "action cannot be null");
         if (isValid()) {
             action.accept(get());
         }
         return this;
+    }
+
+    @Override
+    default <U> Validation<U> mapTo(U value) {
+        return map(ignored -> value);
     }
 
     @Override
@@ -1299,7 +1303,7 @@ public sealed interface Validation<T> extends Value<T> {
         }
 
         @Override
-        public @NonNull Iterator<T> iterator() {
+        public Iterator<T> iterator() {
             return Iterator.of(value);
         }
     }
@@ -1324,7 +1328,7 @@ public sealed interface Validation<T> extends Value<T> {
         }
 
         @Override
-        public @NonNull Iterator<Object> iterator() {
+        public Iterator<Object> iterator() {
             return Iterator.empty();
         }
 

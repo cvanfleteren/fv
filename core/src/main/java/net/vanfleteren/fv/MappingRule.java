@@ -9,6 +9,7 @@ import io.vavr.collection.Map;
 import io.vavr.collection.Seq;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -35,7 +36,7 @@ public interface MappingRule<T, R> {
      *         with the successfully transformed value or an {@link net.vanfleteren.fv.Validation.Invalid containing }the errors encountered during
      *         mapping or validation.
      */
-    Validation<R> test(T value);
+    Validation<R> test(@Nullable T value);
 
     /**
      * Creates a new MappingRule that applies the given mapper function to the input.

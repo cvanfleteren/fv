@@ -9,28 +9,24 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>testing</artifactId>
-    <name>Functional Validation - Testing</name>
+    <artifactId>dsl</artifactId>
+    <name>Functional Validation - DSL</name>
 
     <dependencies>
         <dependency>
             <groupId>net.vanfleteren.fv</groupId>
-            <artifactId>dsl</artifactId>
+            <artifactId>core</artifactId>
             <version>${revision}</version>
-            <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>net.vanfleteren.fv</groupId>
-            <artifactId>rules</artifactId>
-            <version>${revision}</version>
-            <scope>test</scope>
-        </dependency>
+
         <dependency>
             <groupId>net.vanfleteren.fv</groupId>
             <artifactId>core</artifactId>
             <version>${revision}</version>
+            <classifier>tests</classifier>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
     </dependencies>
+
 </project>

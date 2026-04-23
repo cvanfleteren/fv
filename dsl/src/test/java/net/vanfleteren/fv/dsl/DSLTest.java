@@ -1,9 +1,13 @@
-package net.vanfleteren.fv;
+package net.vanfleteren.fv.dsl;
 
+import net.vanfleteren.fv.ErrorMessage;
+import net.vanfleteren.fv.Rule;
+import net.vanfleteren.fv.Validation;
+import net.vanfleteren.fv.ValidationException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static net.vanfleteren.fv.API.*;
+import static net.vanfleteren.fv.dsl.DSL.*;
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import static org.assertj.core.api.Assertions.*;
 
@@ -11,7 +15,7 @@ import io.vavr.collection.List;
 
 import java.math.BigDecimal;
 
-public class ApiTest {
+public class DSLTest {
 
     record Person(String name, int age) {
     }
@@ -152,7 +156,7 @@ public class ApiTest {
             Validation<Integer> v2 = Validation.valid(123);
 
             // Act & Assert
-            assertThatCode(() -> API.assertAllValid(v1, v2))
+            assertThatCode(() -> DSL.assertAllValid(v1, v2))
                     .doesNotThrowAnyException();
         }
 
@@ -163,7 +167,7 @@ public class ApiTest {
             Validation<Integer> v2 = Validation.valid(123);
 
             // Act
-            var result = API.assertAllValid(v1, v2);
+            var result = DSL.assertAllValid(v1, v2);
 
             // Assert
             assertThat(result).isEqualTo(io.vavr.Tuple.of("ok", 123));
@@ -177,7 +181,7 @@ public class ApiTest {
             Validation<Double> v3 = Validation.valid(1.0);
 
             // Act
-            var result = API.assertAllValid(v1, v2, v3);
+            var result = DSL.assertAllValid(v1, v2, v3);
 
             // Assert
             assertThat(result).isEqualTo(io.vavr.Tuple.of("ok", 123, 1.0));
@@ -192,7 +196,7 @@ public class ApiTest {
             Validation<String> v4 = Validation.valid("v4");
 
             // Act
-            var result = API.assertAllValid(v1, v2, v3, v4);
+            var result = DSL.assertAllValid(v1, v2, v3, v4);
 
             // Assert
             assertThat(result).isEqualTo(io.vavr.Tuple.of("v1", "v2", "v3", "v4"));
@@ -208,7 +212,7 @@ public class ApiTest {
             Validation<String> v5 = Validation.valid("v5");
 
             // Act
-            var result = API.assertAllValid(v1, v2, v3, v4, v5);
+            var result = DSL.assertAllValid(v1, v2, v3, v4, v5);
 
             // Assert
             assertThat(result).isEqualTo(io.vavr.Tuple.of("v1", "v2", "v3", "v4", "v5"));
@@ -225,7 +229,7 @@ public class ApiTest {
             Validation<String> v6 = Validation.valid("v6");
 
             // Act
-            var result = API.assertAllValid(v1, v2, v3, v4, v5, v6);
+            var result = DSL.assertAllValid(v1, v2, v3, v4, v5, v6);
 
             // Assert
             assertThat(result).isEqualTo(io.vavr.Tuple.of("v1", "v2", "v3", "v4", "v5", "v6"));
@@ -243,7 +247,7 @@ public class ApiTest {
             Validation<String> v7 = Validation.valid("v7");
 
             // Act
-            var result = API.assertAllValid(v1, v2, v3, v4, v5, v6, v7);
+            var result = DSL.assertAllValid(v1, v2, v3, v4, v5, v6, v7);
 
             // Assert
             assertThat(result).isEqualTo(io.vavr.Tuple.of("v1", "v2", "v3", "v4", "v5", "v6", "v7"));
@@ -262,7 +266,7 @@ public class ApiTest {
             Validation<String> v8 = Validation.valid("v8");
 
             // Act
-            var result = API.assertAllValid(v1, v2, v3, v4, v5, v6, v7, v8);
+            var result = DSL.assertAllValid(v1, v2, v3, v4, v5, v6, v7, v8);
 
             // Assert
             assertThat(result).isEqualTo(io.vavr.Tuple.of("v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8"));
@@ -276,7 +280,7 @@ public class ApiTest {
             Validation<String> v3 = Validation.invalid("error2");
 
             // Act & Assert
-            assertThatThrownBy(() -> API.assertAllValid(v1, v2, v3))
+            assertThatThrownBy(() -> DSL.assertAllValid(v1, v2, v3))
                     .isInstanceOf(ValidationException.class)
                     .satisfies(ex -> {
                         ValidationException ve = (ValidationException) ex;
@@ -288,7 +292,7 @@ public class ApiTest {
         @Test
         void assertAllValid_whenNoValidationsProvided_doesNotThrow() {
             // Act & Assert
-            assertThatCode(API::assertAllValid).doesNotThrowAnyException();
+            assertThatCode(DSL::assertAllValid).doesNotThrowAnyException();
         }
     }
 }

@@ -5,6 +5,7 @@ import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Seq;
 import io.vavr.control.Option;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -34,7 +35,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * @param value the value to be validated.
      * @return a {@link Validation} object indicating the result of the test.
      */
-    Validation<T> test(T value);
+    Validation<T> test(@Nullable T value);
 
     /**
      * Creates a {@link Rule} from the given predicate and error message key.

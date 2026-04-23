@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static net.vanfleteren.fv.API.validateThat;
+import static net.vanfleteren.fv.dsl.DSL.validateThat;
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import static net.vanfleteren.fv.rules.collections.CollectionRules.collections;
 import static net.vanfleteren.fv.rules.collections.JCollectionRules.*;

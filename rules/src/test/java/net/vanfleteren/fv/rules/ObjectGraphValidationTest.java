@@ -8,7 +8,8 @@ import net.vanfleteren.fv.rules.collections.CollectionRules;
 import net.vanfleteren.fv.rules.text.StringRules;
 import org.junit.jupiter.api.Test;
 
-import static net.vanfleteren.fv.API.*;
+import static io.vavr.API.Map;
+import static net.vanfleteren.fv.dsl.DSL.*;
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import static net.vanfleteren.fv.rules.ObjectRules.objects;
 import static net.vanfleteren.fv.rules.text.StringRules.strings;
@@ -27,9 +28,9 @@ class ObjectGraphValidationTest {
     record Address(String street, String city, String zipCode) {
     }
 
-   enum Role {
-        USER,ADMIN
-   }
+    enum Role {
+        USER, ADMIN
+    }
 
     record Username(String value) {
         Username {
@@ -168,4 +169,5 @@ class ObjectGraphValidationTest {
                 .isInvalid()
                 .hasErrorMessage("address.address.must.not.be.null");
     }
+
 }

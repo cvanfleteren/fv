@@ -5,7 +5,8 @@ import net.vanfleteren.fv.Validation;
 
 import java.util.Map;
 
-import static net.vanfleteren.fv.API.validateThat;
+import static net.vanfleteren.fv.dsl.DSL.validateThat;
+
 
 public class JMapRulesSnippets {
 

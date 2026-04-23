@@ -11,11 +11,10 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.function.Predicate;
 
-import static net.vanfleteren.fv.API.validateThat;
+import static net.vanfleteren.fv.dsl.DSL.validateThat;
 import static net.vanfleteren.fv.rules.RulesTest.invalidTest;
 import static net.vanfleteren.fv.rules.RulesTest.validTest;
-
-import static net.vanfleteren.fv.rules.collections.CollectionRules.*;
+import static net.vanfleteren.fv.rules.collections.CollectionRules.collections;
 import static net.vanfleteren.fv.rules.numbers.IntegerRules.ints;
 import static net.vanfleteren.fv.rules.text.StringRules.strings;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

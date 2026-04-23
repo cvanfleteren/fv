@@ -1,8 +1,9 @@
-package net.vanfleteren.fv;
+package net.vanfleteren.fv.dsl;
 
 import io.vavr.*;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
+import net.vanfleteren.fv.*;
 
 import java.util.Objects;
 
@@ -11,31 +12,17 @@ import java.util.Objects;
  * This class provides static factory methods to create and execute validations.
  *
  * <h2>Example: Constructor validation using {@code assertAllValid}</h2>
- * <pre>{@code
- * public record Person(String name, int age) {
- *     private static final Rule<String> minLength = Rule.of(s -> s.length() > 3, "too.short");
- *     private static final Rule<Integer> minAge = Rule.of(i -> i >= 18, "too.young");
- *
- *     public Person {
- *         // validate and assign results (e.g. if you want to trim the name)
- *         // will throw ValidationException if any validation fails
- *         var values = assertAllValid(
- *                 validateThat(name, "name").map(String::trim).is(minLength),
- *                 validateThat(age, "age").is(minAge)
- *         );
- *         name = values._1;
- *         age = values._2;
- *     }
- * }
- * }</pre>
+ * {@snippet file="net/vanfleteren/fv/dsl/DSLSnippets.java" region="assert-all-tuple-example"}
  */
-public class API {
-
+public class DSL {
 
     /**
      * Asserts that all provided validations are valid, otherwise throws a {@link ValidationException} with all errors.
      * This method is useful in constructors or at the boundaries of your application where you want to ensure
-     * that data is valid before proceeding.
+     * that data is valid before proceeding
+     * <p>
+     * <b>Example:</b>
+     * {@snippet file="net/vanfleteren/fv/dsl/DSLSnippets.java" region="assert-all-valid-example"}
      *
      * @param validations the validations to check.
      * @throws ValidationException if any validation is invalid.
@@ -246,6 +233,10 @@ public class API {
         return validateThat(value, name).is(Rule.notNull());
     }
 
+    public static <T,V> Validation<T> notNull(T value, PropertySelector<V, T> selector) {
+        return validateThat(value, selector).is(Rule.notNull());
+    }
+
     /**
      * Starts a validation process for a collection of values.
      *
@@ -306,6 +297,10 @@ public class API {
         return new ValidationDSL<>(value, name);
     }
 
+    public static <T,V> ValidationDSL<V> validateThat(V value, PropertySelector<T, V> name) {
+        return new ValidationDSL<>(value, name.getPropertyName());
+    }
+
     public static <T> ListValidationDSL<T> validateThatList(List<T> value, String name) {
         return new ListValidationDSL<>(value, name);
     }
@@ -326,7 +321,7 @@ public class API {
 
         public ValidationDSL(T value, String name) {
             if (value == null) {
-                this.validation = (Validation<T>) Validation.invalid(ErrorMessage.of("must.not.be.null")).at(name);
+                this.validation = Validation.<T>invalid(ErrorMessage.of("must.not.be.null")).at(name);
             } else {
                 this.validation = Validation.valid(value).at(name);
             }
@@ -543,5 +538,4 @@ public class API {
             return Validation.mapN(v1, v2, (a, b) -> a);
         }
     }
-
 }

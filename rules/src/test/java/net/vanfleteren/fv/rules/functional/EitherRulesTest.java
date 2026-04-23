@@ -7,7 +7,7 @@ import net.vanfleteren.fv.rules.text.StringRules;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static net.vanfleteren.fv.API.validateThat;
+import static net.vanfleteren.fv.dsl.DSL.validateThat;
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import static net.vanfleteren.fv.rules.functional.EitherRules.eithers;
 import static net.vanfleteren.fv.rules.RulesTest.invalidTest;

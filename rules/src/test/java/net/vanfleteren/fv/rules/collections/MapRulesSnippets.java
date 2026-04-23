@@ -5,8 +5,7 @@ import io.vavr.collection.Map;
 import net.vanfleteren.fv.Rule;
 import net.vanfleteren.fv.Validation;
 
-
-import static net.vanfleteren.fv.API.validateThat;
+import static net.vanfleteren.fv.dsl.DSL.validateThat;
 
 public class MapRulesSnippets {
 

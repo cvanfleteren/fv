@@ -59,13 +59,13 @@ Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "string.cannot.be.empty");
 
 ### Fluent DSL Examples
 
-The `net.vanfleteren.fv.API` class provides a readable way to define validations.
+The `net.vanfleteren.fv.dsl.DSL` class provides a readable way to define validations.
 
-#### 1. Constructor Validation (The Recommended Pattern)
+#### 1. Constructor Validation
 Use `assertAllValid` inside a Java Record constructor to ensure that only valid objects can ever be instantiated.
 
 ```java
-import static net.vanfleteren.fv.API.*;
+import static net.vanfleteren.fv.dsl.DSL.*;
 
 public record User(String username, int age) {
     public User {

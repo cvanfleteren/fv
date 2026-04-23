@@ -6,6 +6,7 @@ import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import lombok.EqualsAndHashCode;
 import lombok.With;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -66,7 +67,7 @@ public class ErrorMessage {
      * @return a new {@link ErrorMessage} instance.
      * @throws NullPointerException if {@code message} or {@code key} is null.
      */
-    public static ErrorMessage of(String message, String key, Object value) {
+    public static ErrorMessage of(String message, String key, @Nullable Object value) {
         return of(message, HashMap.of(key, value));
     }
 

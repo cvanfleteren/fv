@@ -6,7 +6,7 @@ import net.vanfleteren.fv.Rule;
 import net.vanfleteren.fv.Validation;
 import net.vanfleteren.fv.assertj.InvalidValidationAssert;
 
-import static net.vanfleteren.fv.API.validateThat;
+import static net.vanfleteren.fv.dsl.DSL.validateThat;
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 
 public class RulesTest {

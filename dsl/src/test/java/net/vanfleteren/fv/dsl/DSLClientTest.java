@@ -1,13 +1,15 @@
-package net.vanfleteren.fv;
+package net.vanfleteren.fv.dsl;
 
+import net.vanfleteren.fv.Rule;
+import net.vanfleteren.fv.Validation;
 import org.junit.jupiter.api.Test;
 
-import static net.vanfleteren.fv.API.assertAllValid;
-import static net.vanfleteren.fv.API.validateThat;
+import static net.vanfleteren.fv.dsl.DSL.assertAllValid;
+import static net.vanfleteren.fv.dsl.DSL.validateThat;
 import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ClientViewTest {
+public class DSLClientTest {
 
     static Rule<String> minLength = Rule.of(s -> s.length() > 3, "too.short");
     static Rule<Integer> minAge = Rule.of(i -> i >= 18, "too.young");
@@ -32,7 +34,6 @@ public class ClientViewTest {
                 .isValid()
                 .hasValue(new Person("John", 30));
     }
-
 
     @Test
     void constructorValidation_whenMappingValues_returnsTupleWithValidValues() {
