@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>net.vanfleteren.fv</groupId>
+        <groupId>be.iffy.fv</groupId>
         <artifactId>fv-parent</artifactId>
         <version>${revision}</version>
     </parent>
@@ -15,20 +15,20 @@
 
     <dependencies>
         <dependency>
-            <groupId>net.vanfleteren.fv</groupId>
+            <groupId>be.iffy.fv</groupId>
             <artifactId>core</artifactId>
             <version>${revision}</version>
         </dependency>
 
         <dependency>
-            <groupId>net.vanfleteren.fv</groupId>
+            <groupId>be.iffy.fv</groupId>
             <artifactId>dsl</artifactId>
             <version>${revision}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>net.vanfleteren.fv</groupId>
+            <groupId>be.iffy.fv</groupId>
             <artifactId>core</artifactId>
             <version>${revision}</version>
             <classifier>tests</classifier>

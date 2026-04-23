@@ -1,4 +1,4 @@
-[![Maven Central](https://img.shields.io/maven-central/v/net.vanfleteren.fv/fv-parent.svg?label=Maven%20Central)](https://central.sonatype.com/search?q=net.vanfleteren.fv)
+[![Maven Central](https://img.shields.io/maven-central/v/be.iffy.fv/fv-parent.svg?label=Maven%20Central)](https://central.sonatype.com/search?q=be.iffy.fv)
 
 FV is a lightweight, type-safe, and functional validation library for Java 21+. It is designed with a focus on immutability, side-effect-free functions, and seamless integration with [Vavr](https://www.vavr.io/).
 
@@ -13,13 +13,13 @@ To use FV in your project, add the following dependencies to your `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>net.vanfleteren.fv</groupId>
+    <groupId>be.iffy.fv</groupId>
     <artifactId>fv-core</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 </dependency>
 <!-- Optional: predefined rules for common types -->
 <dependency>
-    <groupId>net.vanfleteren.fv</groupId>
+    <groupId>be.iffy.fv</groupId>
     <artifactId>fv-rules</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 </dependency>
@@ -29,7 +29,7 @@ To use FV in your project, add the following dependencies to your `pom.xml`:
 
 ### Core vs. Rules Module
 
-*   **`fv-core`**: The heartbeat of the library. It contains the `Validation` functor, the `Rule` interface, and the fluent `API` entry point. It has minimal dependencies (primarily Vavr).
+*   **`fv-core`**: The core datatypes of the library. It contains the `Validation` functor, the `Rule` and `MappingRule` interfaces. It has minimal dependencies (primarily Vavr).
 *   **`fv-rules`**: A collection of reusable `Rule` instances for common Java types (Strings, Integers, Collections, BigDecimals, etc.), allowing you to compose complex validations quickly.
 
 ---
@@ -39,7 +39,7 @@ To use FV in your project, add the following dependencies to your `pom.xml`:
 #### `Rule<T>`
 A functional interface representing a check on a value of type `T`. Rules can be easily composed:
 ```java
-import static net.vanfleteren.fv.rules.StringRules.strings;
+import static be.iffy.fv.rules.text.StringRules.strings;
 
 Rule<String> myRule = strings().minLength(3)
     .and(strings().contains("@").or(strings().contains("|")));
@@ -59,19 +59,19 @@ Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "string.cannot.be.empty");
 
 ### Fluent DSL Examples
 
-The `net.vanfleteren.fv.dsl.DSL` class provides a readable way to define validations.
+The `dsl.fv.be.iffy.DSL` class provides a readable way to define validations.
 
 #### 1. Constructor Validation
 Use `assertAllValid` inside a Java Record constructor to ensure that only valid objects can ever be instantiated.
 
 ```java
-import static net.vanfleteren.fv.dsl.DSL.*;
+
 
 public record User(String username, int age) {
     public User {
         var values = assertAllValid(
-            validateThat(username, "username").map(String::trim).is(StringRules.minLength(3)),
-            validateThat(age, "age").is(IntegerRules.min(18))
+                validateThat(username, "username").map(String::trim).is(StringRules.minLength(3)),
+                validateThat(age, "age").is(IntegerRules.min(18))
         );
         this.username = values._1(); // Use the trimmed value from the validation chain
     }
@@ -121,7 +121,7 @@ FV is built from the ground up to be functional:
 The project includes **AssertJ** integrations to make writing tests for your validations clean and expressive:
 
 ```java
-import static net.vanfleteren.fv.assertj.ValidationAssert.assertThatValidation;
+import static assertj.fv.be.iffy.ValidationAssert.assertThatValidation;
 
 @Test
 void validateUser_whenAgeIsTooLow_shouldHaveError() {

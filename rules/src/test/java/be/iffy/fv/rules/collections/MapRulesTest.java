@@ -1,0 +1,141 @@
+package be.iffy.fv.rules.collections;
+
+import io.vavr.collection.HashMap;
+import io.vavr.collection.HashSet;
+import io.vavr.collection.Map;
+import be.iffy.fv.Rule;
+import be.iffy.fv.Validation;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+
+import static be.iffy.fv.dsl.DSL.validateThat;
+import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
+import static be.iffy.fv.rules.collections.MapRules.*;
+import static be.iffy.fv.rules.RulesTest.invalidTest;
+import static be.iffy.fv.rules.RulesTest.validTest;
+
+class MapRulesTest {
+
+    @Nested
+    class NotEmpty {
+
+        @Test
+        void valid() {
+            validTest(HashMap.of("a", 1), notEmpty());
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, notEmpty(), "must.not.be.null");
+            invalidTest(HashMap.empty(), notEmpty(), "must.not.be.empty");
+        }
+    }
+
+    @Nested
+    class ContainsKey {
+
+        @Test
+        void valid() {
+            validTest(HashMap.of("a", 1, "b", 2), containsKey("a"));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, containsKey("a"), "must.not.be.null");
+            invalidTest(
+                    HashMap.of("a", 1),
+                    containsKey("b"),
+                    "must.contain.key",
+                    HashMap.of("key", "b")
+            );
+        }
+    }
+
+    @Nested
+    class ValuesNotNull {
+
+        @Test
+        void valid() {
+            validTest(HashMap.empty(), valuesNotNull());
+            validTest(HashMap.of("a", 1, "b", 2), valuesNotNull());
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, valuesNotNull(), "must.not.be.null");
+            invalidTest(
+                    HashMap.of("a", 1, "b", null, "c", null),
+                    valuesNotNull(),
+                    "must.not.contain.null.values",
+                    HashMap.of("keys", HashSet.of("b", "c"))
+            );
+        }
+    }
+
+    @Nested
+    class ValidateValuesWith {
+
+        @Test
+        void validateValuesWith_whenSomeValuesFail_accumulatesErrorsAndAddsKeyToPath() {
+            // Arrange: validate string length >= 3 for each map value
+            Rule<Number> rule = Rule.of(b -> b.doubleValue() > 0, "must.be.positive");
+            Rule<Map<String, BigDecimal>> mapRule = MapRules.validateValuesWith(rule);
+
+            Map<String,BigDecimal> input = HashMap.of(
+                    "a", BigDecimal.valueOf(-1),
+                    "b", BigDecimal.TEN,
+                    "c", BigDecimal.ZERO
+            );
+
+            // Act
+            Validation<Map<String, BigDecimal>> result = validateThat(input, "value").is(mapRule);
+
+            // Assert: failures are attributed to their keys in the path
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("value[a].must.be.positive", "value[c].must.be.positive");
+        }
+    }
+
+    @Nested
+    class ContainsKeys {
+
+        @Test
+        void valid() {
+            // The map contains all requested keys.
+            validTest(
+                    HashMap.of("a", 1, "b", 2),
+                    containsKeys("a", "b")
+            );
+        }
+
+        @Test
+        void invalid() {
+            // A null map should trigger the universal "must.not.be.null" message.
+            invalidTest(
+                    null,
+                    containsKeys("a", "b"),
+                    "must.not.be.null"
+            );
+            // The map is missing key "b".
+            invalidTest(
+                    HashMap.of("a", 1),
+                    containsKeys("a", "b"),
+                    "must.contain.keys",
+                    HashMap.of("keys", HashSet.of("a","b"))
+            );
+            // The map is missing both "b" and "c".  The error message contains the
+            // first missing key (because the current implementation returns the last
+            // key that fails the containsAll check).
+            invalidTest(
+                    HashMap.of("a", 1),
+                    containsKeys("a", "b", "c"),
+                    "must.contain.keys",
+                    HashMap.of("keys", HashSet.of("a","b","c"))
+            );
+        }
+    }
+
+}
