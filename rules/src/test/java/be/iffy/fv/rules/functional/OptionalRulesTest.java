@@ -32,13 +32,13 @@ class OptionalRulesTest {
         @Test
         void valid() {
             Optional<String> some = Optional.of("value");
-            validTest(some, optionals().requiredOptional());
+            validTest(some, optionals().notEmpty());
         }
 
         @Test
         void invalid() {
-            invalidTest(Optional.empty(), optionals().requiredOptional(), "must.not.be.empty");
-            invalidTest(null, optionals().requiredOptional(), "must.not.be.null");
+            invalidTest(Optional.empty(), optionals().notEmpty(), "must.not.be.empty");
+            invalidTest(null, optionals().notEmpty(), "must.not.be.null");
         }
     }
 

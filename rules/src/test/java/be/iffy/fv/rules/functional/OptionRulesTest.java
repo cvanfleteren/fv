@@ -31,13 +31,13 @@ class OptionRulesTest {
         @Test
         void valid() {
             Option<String> some = Option.of("value");
-            validTest(some, options().requiredOption());
+            validTest(some, options().notEmpty());
         }
 
         @Test
         void invalid() {
-            invalidTest(Option.none(), options().requiredOption(), "must.not.be.empty");
-            invalidTest(null, options().requiredOption(), "must.not.be.null");
+            invalidTest(Option.none(), options().notEmpty(), "must.not.be.empty");
+            invalidTest(null, options().notEmpty(), "must.not.be.null");
         }
     }
 

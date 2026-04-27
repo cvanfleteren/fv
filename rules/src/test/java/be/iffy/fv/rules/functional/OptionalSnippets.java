@@ -20,8 +20,8 @@ public class OptionalSnippets {
     }
 
     void requiredOptionExample() {
-        // @start region="required-option-example"
-        Rule<Optional<String>> rule = optionals().requiredOptional();
+        // @start region="not-empty-example"
+        Rule<Optional<String>> rule = optionals().notEmpty();
 
         Validation<Optional<String>> result1 = rule.test(Optional.of("hello")); // Valid(Some("hello"))
         Validation<Optional<String>> result2 = rule.test(Optional.empty());      // Invalid("must.not.be.empty")

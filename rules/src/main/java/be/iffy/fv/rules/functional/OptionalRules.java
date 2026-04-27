@@ -42,11 +42,11 @@ public class OptionalRules {
      * Error key: {@code must.not.be.empty}
      * <p>
      * Usage example:
-     * {@snippet file = "be/iffy/fv/rules/functional/OptionalSnippets.java" region = "required-option-example"}
+     * {@snippet file = "be/iffy/fv/rules/functional/OptionalSnippets.java" region = "not-empty-example"}
      *
      * @param <T> the type of the value contained in the Optional
      */
-    public <T> Rule<Optional<T>> requiredOptional() {
+    public <T> Rule<Optional<T>> notEmpty() {
         return Rule.notNull().and(input ->
                 input.isEmpty() ? Validation.invalid("must.not.be.empty") : Validation.valid(input)
         );
