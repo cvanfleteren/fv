@@ -11,7 +11,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <name>Functional Validation core</name>
+    <name>Functional Validation - Core</name>
     <artifactId>core</artifactId>
     <description>Functional Validaton core modules.</description>
 
