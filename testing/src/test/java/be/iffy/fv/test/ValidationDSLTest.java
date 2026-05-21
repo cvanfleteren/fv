@@ -10,7 +10,7 @@ import java.time.Instant;
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static be.iffy.fv.dsl.DSL.*;
 import static be.iffy.fv.dsl.experimental.ValidatingDSL.validating;
-import static be.iffy.fv.rules.collections.CollectionRules.collections;
+import static be.iffy.fv.rules.collections.VavrCollectionRules.collections;
 import static be.iffy.fv.rules.time.InstantRules.instants;
 import static be.iffy.fv.rules.functional.OptionRules.options;
 import static be.iffy.fv.rules.text.StringRules.*;

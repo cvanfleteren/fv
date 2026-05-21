@@ -1,13 +1,12 @@
 package be.iffy.fv.test;
 
-import be.iffy.fv.Rule;
-import io.vavr.Function2;
-import io.vavr.Function3;
-import io.vavr.control.Option;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Validation;
 import be.iffy.fv.dsl.DSL;
 import be.iffy.fv.dsl.PropertySelector;
+import io.vavr.Function2;
+import io.vavr.Function3;
+import io.vavr.control.Option;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -22,7 +21,6 @@ import static be.iffy.fv.dsl.experimental.ValidatingDSL.validating;
 import static be.iffy.fv.dsl.experimental.Validator.validatorFor;
 import static be.iffy.fv.rules.BooleanRules.booleans;
 import static be.iffy.fv.rules.ObjectRules.objects;
-import static be.iffy.fv.rules.functional.OptionRules.options;
 import static be.iffy.fv.rules.text.StringRules.strings;
 
 public class ClientViewTest {

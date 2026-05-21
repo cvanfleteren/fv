@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static be.iffy.fv.dsl.DSL.*;
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
-import static be.iffy.fv.rules.collections.CollectionRules.collections;
+import static be.iffy.fv.rules.collections.VavrCollectionRules.collections;
 import static be.iffy.fv.rules.text.StringRules.strings;
 
 public class ListValidationDslTest {
