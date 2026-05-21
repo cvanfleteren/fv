@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static be.iffy.fv.dsl.DSL.validateThat;
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static be.iffy.fv.rules.collections.MapRules.*;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
@@ -90,7 +89,7 @@ class MapRulesTest {
             );
 
             // Act
-            Validation<Map<String, BigDecimal>> result = validateThat(input, "value").is(mapRule);
+            Validation<Map<String, BigDecimal>> result = mapRule.test(input).at("value");
 
             // Assert: failures are attributed to their keys in the path
             assertThatValidation(result)

@@ -12,14 +12,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static be.iffy.fv.dsl.DSL.validateThat;
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
-import static be.iffy.fv.rules.collections.CollectionRules.collections;
 import static be.iffy.fv.rules.collections.JCollectionRules.*;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
 import static be.iffy.fv.rules.numbers.IntegerRules.ints;
-import static be.iffy.fv.rules.text.StringRules.strings;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class JCollectionRulesTest {
@@ -150,7 +147,7 @@ class JCollectionRulesTest {
 
         @Test
         void invalid() {
-            assertThatValidation(validateThat(Arrays.asList("a", null, "c"), "value").is(jCollections.noNullElements()))
+            assertThatValidation(jCollections.noNullElements().test(Arrays.asList("a", null, "c")).at("value"))
                     .isInvalid()
                     .hasErrorMessages("value[1].must.not.be.null");
         }
@@ -187,9 +184,9 @@ class JCollectionRulesTest {
         }
 
         @Test
-        void throws_whenPredicateIsNull_andRuleIsEvaluated() {
+        void throws_whenPredicateIsNull() {
             assertThatThrownBy(() ->
-                    validateThat(List.of(1), "value").is(jCollections.allMatch(null)).getOrElseThrow()
+                    jCollections.allMatch(null)
             ).isInstanceOf(NullPointerException.class);
         }
     }
@@ -209,8 +206,7 @@ class JCollectionRulesTest {
             invalidTest(null, jCollections.noneMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
             invalidTest(List.of(1, 2, 3), jCollections.noneMatch(n -> n % 2 == 0), "must.none.match");
             assertThatValidation(
-                    validateThat(List.of("a", "bb", "c"), "value")
-                            .is(jCollections.noneMatch(s -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")))
+                    jCollections.noneMatch((Predicate<String>) s -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")).test(List.of("a", "bb", "c")).at("value")
             )
                     .isInvalid()
                     .hasErrorMessages("value[1].len.must.not.be.two");
@@ -223,11 +219,10 @@ class JCollectionRulesTest {
         }
 
         @Test
-        void throws_whenPredicateIsNull_andRuleIsEvaluated() {
-            assertThatThrownBy(() -> {
-                Rule<List<Integer>> rule = jCollections.noneMatch(null);
-                validateThat(List.of(1), "value").is(rule).getOrElseThrow();
-            }).isInstanceOf(NullPointerException.class);
+        void throws_whenPredicateIsNull() {
+            assertThatThrownBy(() ->
+                    jCollections.noneMatch(null)
+            ).isInstanceOf(NullPointerException.class);
         }
     }
 
@@ -427,7 +422,7 @@ class JCollectionRulesTest {
             List<Integer> input = List.of(-1, 10, 0);
 
             // Act
-            var result = validateThat(input, "value").is(listRule);
+            var result = listRule.test(input).at("value");
 
             // Assert: failures are attributed to their indices in the path
             assertThatValidation(result)

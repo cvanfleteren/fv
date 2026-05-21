@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="fv in rules" type="JUnit" factoryName="JUnit">
     <module name="rules" />
-    <option name="PACKAGE_NAME" value="net.vanfleteren.fv" />
+    <option name="PACKAGE_NAME" value="be.iffy" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="package" />

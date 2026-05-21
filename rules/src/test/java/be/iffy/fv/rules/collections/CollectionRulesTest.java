@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.function.Predicate;
 
-import static be.iffy.fv.dsl.DSL.validateThat;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
 import static be.iffy.fv.rules.collections.CollectionRules.collections;
@@ -188,17 +187,13 @@ class CollectionRulesTest {
         }
 
         @Test
-        void throws_whenPredicateIsNull_andRuleIsEvaluated() {
-            assertThatThrownBy(() ->
-                    validateThat(List.of(1), "value").is(collections.allMatch(null)).getOrElseThrow()
-            ).isInstanceOf(NullPointerException.class);
+        void throws_whenPredicateIsNull() {
+            assertThatThrownBy(() -> collections.allMatch(null)).isInstanceOf(NullPointerException.class);
         }
 
         @Test
-        void throws_whenRuleIsNull_andRuleIsEvaluated() {
-            assertThatThrownBy(() ->
-                    validateThat(List.of("x"), "value").is(collections.allMatchRule(null)).getOrElseThrow()
-            ).isInstanceOf(NullPointerException.class);
+        void throws_whenRuleIsNull() {
+                assertThatThrownBy(() -> collections.allMatchRule(null)).isInstanceOf(NullPointerException.class);
         }
     }
 
@@ -238,16 +233,16 @@ class CollectionRulesTest {
         }
 
         @Test
-        void throws_whenPredicateIsNull_andRuleIsEvaluated() {
+        void throws_whenPredicateIsNull() {
             assertThatThrownBy(() ->
-                    validateThat(List.of(1), "value").is(collections.noneMatch(null)).getOrElseThrow()
+                    collections.noneMatch(null)
             ).isInstanceOf(NullPointerException.class);
         }
 
         @Test
-        void throws_whenRuleIsNull_andRuleIsEvaluated() {
+        void throws_whenRuleIsNull() {
             assertThatThrownBy(() ->
-                    validateThat(List.of("x"), "value").is(collections.noneMatchRule(null)).getOrElseThrow()
+                    collections.noneMatchRule(null)
             ).isInstanceOf(NullPointerException.class);
         }
     }

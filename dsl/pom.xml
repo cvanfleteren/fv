@@ -21,6 +21,12 @@
 
         <dependency>
             <groupId>be.iffy.fv</groupId>
+            <artifactId>rules</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>be.iffy.fv</groupId>
             <artifactId>core</artifactId>
             <version>${revision}</version>
             <classifier>tests</classifier>

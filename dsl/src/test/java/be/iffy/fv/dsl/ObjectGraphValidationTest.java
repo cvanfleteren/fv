@@ -1,4 +1,4 @@
-package be.iffy.fv.rules;
+package be.iffy.fv.dsl;
 
 import io.vavr.collection.List;
 import be.iffy.fv.MappingRule;
@@ -8,10 +8,8 @@ import be.iffy.fv.rules.collections.CollectionRules;
 import be.iffy.fv.rules.text.StringRules;
 import org.junit.jupiter.api.Test;
 
-import static io.vavr.API.Map;
 import static be.iffy.fv.dsl.DSL.*;
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
-import static be.iffy.fv.rules.ObjectRules.objects;
 import static be.iffy.fv.rules.text.StringRules.strings;
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -1,4 +1,4 @@
-package be.iffy.fv.rules;
+package be.iffy.fv.dsl;
 
 import io.vavr.collection.List;
 import be.iffy.fv.Validation;
