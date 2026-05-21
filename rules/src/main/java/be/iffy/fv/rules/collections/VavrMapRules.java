@@ -10,18 +10,18 @@ import be.iffy.fv.Validation;
 /**
  * Validation rules for {@link Map} values.
  */
-public class MapRules {
+public class VavrMapRules {
 
     /**
-     * Singleton instance of {@link MapRules}.
+     * Singleton instance of {@link VavrMapRules}.
      */
-    public static final MapRules maps = new MapRules();
+    public static final VavrMapRules vavrMaps = new VavrMapRules();
 
     /**
-     * Returns the singleton instance of {@link MapRules}.
+     * Returns the singleton instance of {@link VavrMapRules}.
      */
-    public static MapRules maps() {
-        return maps;
+    public static VavrMapRules vavrMaps() {
+        return vavrMaps;
     }
 
     /**

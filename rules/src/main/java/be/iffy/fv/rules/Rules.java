@@ -1,9 +1,6 @@
 package be.iffy.fv.rules;
 
-import be.iffy.fv.rules.collections.CollectionRules;
-import be.iffy.fv.rules.collections.JCollectionRules;
-import be.iffy.fv.rules.collections.JMapRules;
-import be.iffy.fv.rules.collections.MapRules;
+import be.iffy.fv.rules.collections.*;
 import be.iffy.fv.rules.functional.EitherRules;
 import be.iffy.fv.rules.functional.OptionRules;
 import be.iffy.fv.rules.functional.OptionalRules;
@@ -77,20 +74,20 @@ public class Rules {
         return ZonedDateTimeRules.zonedDateTimes;
     }
 
-    public static CollectionRules vavrCollections() {
+    public static VavrCollectionRules vavrCollections() {
+        return VavrCollectionRules.vavrCollections;
+    }
+
+    public static CollectionRules collections() {
         return CollectionRules.collections;
     }
 
-    public static JCollectionRules collections() {
-        return JCollectionRules.jCollections;
+    public static VavrMapRules vavrMaps() {
+        return VavrMapRules.vavrMaps;
     }
 
-    public static MapRules vavrMaps() {
+    public static MapRules maps() {
         return MapRules.maps;
-    }
-
-    public static JMapRules maps() {
-        return JMapRules.jMaps;
     }
 
     public static OptionRules options() {

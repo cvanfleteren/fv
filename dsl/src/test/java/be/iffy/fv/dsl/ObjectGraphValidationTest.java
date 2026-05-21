@@ -1,10 +1,10 @@
 package be.iffy.fv.dsl;
 
+import be.iffy.fv.rules.collections.VavrCollectionRules;
 import io.vavr.collection.List;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
-import be.iffy.fv.rules.collections.CollectionRules;
 import be.iffy.fv.rules.text.StringRules;
 import org.junit.jupiter.api.Test;
 
@@ -70,7 +70,7 @@ class ObjectGraphValidationTest {
 
     static class UserValidator {
         private static final StringRules strings = strings();
-        private static final CollectionRules collections = CollectionRules.collections();
+        private static final VavrCollectionRules collections = VavrCollectionRules.vavrCollections();
 
         static Validation<Address> validateAddress(AddressDTO addressDTO) {
 

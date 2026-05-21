@@ -11,18 +11,18 @@ import java.util.Map;
 /**
  * Validation rules for {@link java.util.Map} values.
  */
-public class JMapRules {
+public class MapRules {
 
     /**
-     * Singleton instance of {@link JMapRules}.
+     * Singleton instance of {@link MapRules}.
      */
-    public static final JMapRules jMaps = new JMapRules();
+    public static final MapRules maps = new MapRules();
 
     /**
-     * Returns the singleton instance of {@link JMapRules}.
+     * Returns the singleton instance of {@link MapRules}.
      */
-    public static JMapRules jMaps() {
-        return jMaps;
+    public static MapRules maps() {
+        return maps;
     }
 
     /**

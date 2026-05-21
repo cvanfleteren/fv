@@ -11,11 +11,11 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
-import static be.iffy.fv.rules.collections.MapRules.*;
+import static be.iffy.fv.rules.collections.VavrMapRules.*;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
 
-class MapRulesTest {
+class VavrMapRulesTest {
 
     @Nested
     class NotEmpty {
@@ -80,7 +80,7 @@ class MapRulesTest {
         void validateValuesWith_whenSomeValuesFail_accumulatesErrorsAndAddsKeyToPath() {
             // Arrange: validate string length >= 3 for each map value
             Rule<Number> rule = Rule.of(b -> b.doubleValue() > 0, "must.be.positive");
-            Rule<Map<String, BigDecimal>> mapRule = MapRules.validateValuesWith(rule);
+            Rule<Map<String, BigDecimal>> mapRule = VavrMapRules.validateValuesWith(rule);
 
             Map<String,BigDecimal> input = HashMap.of(
                     "a", BigDecimal.valueOf(-1),

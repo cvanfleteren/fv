@@ -16,18 +16,18 @@ import static be.iffy.fv.rules.ObjectRules.objects;
 /**
  * Validation rules for {@link Traversable} and {@link Iterable} collections.
  */
-public class CollectionRules {
+public class VavrCollectionRules {
 
     /**
-     * Singleton instance of {@link CollectionRules}.
+     * Singleton instance of {@link VavrCollectionRules}.
      */
-    public static final CollectionRules collections = new CollectionRules();
+    public static final VavrCollectionRules vavrCollections = new VavrCollectionRules();
 
     /**
-     * Returns the singleton instance of {@link CollectionRules}.
+     * Returns the singleton instance of {@link VavrCollectionRules}.
      */
-    public static CollectionRules collections() {
-        return collections;
+    public static VavrCollectionRules vavrCollections() {
+        return vavrCollections;
     }
 
     /**
@@ -171,7 +171,7 @@ public class CollectionRules {
      * Fails if any element does not conform to the passed {@link Rule}.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/rules/collections/CollectionRulesSnippets.java" region="all-match-rule-example"}
+     * {@snippet file="be/iffy/fv/rules/collections/VavrCollectionRulesSnippets.java" region="all-match-rule-example"}
      *
      * @param <T> the type of elements in the collection.
      * @param rule the {@link Rule} to validate each element against.

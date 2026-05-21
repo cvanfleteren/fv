@@ -11,11 +11,11 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
-import static be.iffy.fv.rules.collections.JMapRules.*;
+import static be.iffy.fv.rules.collections.MapRules.*;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
 
-class JMapRulesTest {
+class MapRulesTest {
 
     @Nested
     class NotEmpty {
@@ -85,7 +85,7 @@ class JMapRulesTest {
         @Test
         void validateValuesWith_whenSomeValuesFail_accumulatesErrorsAndAddsKeyToPath() {
             Rule<Number> rule = Rule.of(b -> b.doubleValue() > 0, "must.be.positive");
-            Rule<Map<String, BigDecimal>> mapRule = JMapRules.validateValuesWith(rule);
+            Rule<Map<String, BigDecimal>> mapRule = MapRules.validateValuesWith(rule);
 
             Map<String, BigDecimal> input = Map.of(
                     "a", BigDecimal.valueOf(-1),

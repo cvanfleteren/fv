@@ -20,18 +20,18 @@ import static be.iffy.fv.rules.ObjectRules.objects;
 /**
  * Validation rules for {@link Collection} and {@link List} values.
  */
-public class JCollectionRules {
+public class CollectionRules {
 
     /**
-     * Singleton instance of {@link JCollectionRules}.
+     * Singleton instance of {@link CollectionRules}.
      */
-    public static final JCollectionRules jCollections = new JCollectionRules();
+    public static final CollectionRules collections = new CollectionRules();
 
     /**
-     * Returns the singleton instance of {@link JCollectionRules}.
+     * Returns the singleton instance of {@link CollectionRules}.
      */
-    public static JCollectionRules jCollections() {
-        return jCollections;
+    public static CollectionRules collections() {
+        return collections;
     }
 
     /**
@@ -201,7 +201,7 @@ public class JCollectionRules {
      * Fails if one of the elements in the list does not match the passed {@link Rule}.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/rules/collections/JCollectionRulesSnippets.java" region="all-match-rule-example"}
+     * {@snippet file="be/iffy/fv/rules/collections/CollectionRulesSnippets.java" region="all-match-rule-example"}
      *
      * @param <T> the type of elements in the collection.
      * @param rule the {@link Rule} to validate each element against.
@@ -378,7 +378,7 @@ public class JCollectionRules {
      * @param key the label for the key (e.g., "email").
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/rules/collections/JCollectionRulesSnippets.java" region="unique-by-example"}
+     * {@snippet file="be/iffy/fv/rules/collections/CollectionRulesSnippets.java" region="unique-by-example"}
      *
      * @return a {@link Rule} checking for uniqueness by key.
      */

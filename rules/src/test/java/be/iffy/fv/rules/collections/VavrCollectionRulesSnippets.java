@@ -1,15 +1,14 @@
 package be.iffy.fv.rules.collections;
 
+import io.vavr.collection.List;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 
-import java.util.Collection;
-import java.util.List;
-
-import static be.iffy.fv.rules.collections.JCollectionRules.jCollections;
+import static be.iffy.fv.rules.Rules.collections;
+import static be.iffy.fv.rules.Rules.vavrCollections;
 import static be.iffy.fv.rules.text.StringRules.strings;
 
-class JCollectionRulesSnippets {
+class VavrCollectionRulesSnippets {
 
     void uniqueByExample() {
         // @start region="unique-by-example"
@@ -21,15 +20,15 @@ class JCollectionRulesSnippets {
                 new Person("alice@example.com", "Alicia")
         );
 
-        Rule<Collection<Person>> rule = jCollections().uniqueBy(Person::email, "email");
-        Validation<Collection<Person>> result = rule.test(people); // Invalid("must.be.unique.by.key")
+        Rule<Iterable<Person>> rule = vavrCollections().uniqueBy(Person::email, "email");
+        Validation<Iterable<Person>> result = rule.test(people); // Invalid("must.be.unique.by.key")
         // @end
     }
 
     void allMatchRuleExample() {
         // @start region="all-match-rule-example"
         List<String> names = List.of("Alice", "Bob", "Charlie");
-        Rule<List<String>> rule = jCollections().allMatchRule(strings().minLength(3));
+        Rule<List<String>> rule = vavrCollections().allMatchRule(strings().minLength(3));
 
         Validation<List<String>> result = rule.test(names); // Valid
         // @end

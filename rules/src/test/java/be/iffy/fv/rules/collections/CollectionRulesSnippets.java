@@ -1,10 +1,11 @@
 package be.iffy.fv.rules.collections;
 
-import io.vavr.collection.List;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 
-import static be.iffy.fv.rules.collections.CollectionRules.collections;
+import java.util.Collection;
+import java.util.List;
+
 import static be.iffy.fv.rules.text.StringRules.strings;
 
 class CollectionRulesSnippets {
@@ -19,15 +20,15 @@ class CollectionRulesSnippets {
                 new Person("alice@example.com", "Alicia")
         );
 
-        Rule<Iterable<Person>> rule = collections().uniqueBy(Person::email, "email");
-        Validation<Iterable<Person>> result = rule.test(people); // Invalid("must.be.unique.by.key")
+        Rule<Collection<Person>> rule = CollectionRules.collections().uniqueBy(Person::email, "email");
+        Validation<Collection<Person>> result = rule.test(people); // Invalid("must.be.unique.by.key")
         // @end
     }
 
     void allMatchRuleExample() {
         // @start region="all-match-rule-example"
         List<String> names = List.of("Alice", "Bob", "Charlie");
-        Rule<List<String>> rule = collections().allMatchRule(strings().minLength(3));
+        Rule<List<String>> rule = CollectionRules.collections().allMatchRule(strings().minLength(3));
 
         Validation<List<String>> result = rule.test(names); // Valid
         // @end
