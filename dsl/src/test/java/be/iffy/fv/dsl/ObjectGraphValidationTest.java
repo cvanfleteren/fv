@@ -91,7 +91,7 @@ class ObjectGraphValidationTest {
                     validateThat(dto.username, "username").mapsTo(Username::new),
                     validateThat(dto.email, "email").is(canBeEmail),
                     validateAddress(dto.address).at("address"),
-                    validateThatList(dto.roles, "roles").satisfying(collections.notEmpty()).each(canBeRole).mapsTo(Role::valueOf),
+                    validateThatList(dto.roles, "roles").satisfies(collections.notEmpty()).each(canBeRole).mapsTo(Role::valueOf),
                     User::new
             );
         }

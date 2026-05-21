@@ -477,7 +477,7 @@ public class DSL {
          * @return a {@link Validation} result.
          */
         public Validation<List<T>> is(Rule<? super List<T>> listRule, Rule<? super T> elementRule) {
-            return satisfying(listRule).each(elementRule).validation;
+            return satisfies(listRule).each(elementRule).validation;
         }
 
         /**
@@ -491,7 +491,7 @@ public class DSL {
          * @return a {@link Validation} result.
          */
         public <Z> Validation<List<Z>> is(Rule<? super List<T>> listRule, Rule<? super T> elementRule, Function1<? super T, Z> mapper) {
-            return satisfying(listRule).each(elementRule).mapsTo(mapper);
+            return satisfies(listRule).each(elementRule).mapsTo(mapper);
         }
 
         /**
@@ -530,7 +530,7 @@ public class DSL {
          * @param rule the rule for the list.
          * @return a {@link ListValidationDSL} for chaining.
          */
-        public ListValidationDSL<T> satisfying(Rule<? super List<T>> rule) {
+        public ListValidationDSL<T> satisfies(Rule<? super List<T>> rule) {
             return passes(rule);
         }
 

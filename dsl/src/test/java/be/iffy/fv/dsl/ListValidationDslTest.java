@@ -18,7 +18,7 @@ public class ListValidationDslTest {
         
         // Act
         Validation<List<String>> result = validateThatList(roles, "roles")
-                .satisfying(collections().minSize(2))
+                .satisfies(collections().minSize(2))
                 .each(strings().minLength(2))
                 .mapsTo(s -> s);
 
