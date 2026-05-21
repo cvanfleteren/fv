@@ -3,6 +3,7 @@ package be.iffy.fv.rules.functional;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
+import io.vavr.control.Option;
 
 import java.util.Optional;
 
@@ -34,6 +35,18 @@ public class OptionalRules {
         return MappingRule.<Optional<T>>notNull().andThen(input ->
                 input.map(Validation::valid).orElse(Validation.invalid("must.not.be.empty"))
         );
+    }
+
+    /**
+     * Fails is the {@link Optional} is empty while or doesn't contain a value that passes the passed rule.
+     * <p>
+     * Error key: {@code must.not.be.empty} or the key of the passed rule
+     * <p>
+     * Usage example:
+     * {@snippet file = "be/iffy/fv/rules/functional/OptionalSnippets.java" region = "contains-example"}
+     */
+    public <T> Rule<Optional<T>> contains(Rule<T> rule) {
+        return Rule.both(notEmpty(), rule.liftToOptional());
     }
 
     /**

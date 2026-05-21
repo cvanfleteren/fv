@@ -1,12 +1,14 @@
 package be.iffy.fv.rules.functional;
 
 import io.vavr.control.Option;
+import be.iffy.fv.MappingRule;
+import be.iffy.fv.Rule;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static be.iffy.fv.rules.Rules.strings;
 import static be.iffy.fv.rules.functional.OptionRules.options;
-import static be.iffy.fv.rules.RulesTest.invalidTest;
-import static be.iffy.fv.rules.RulesTest.validTest;
+import static be.iffy.fv.rules.RulesTest.*;
 
 class OptionRulesTest {
 
@@ -54,6 +56,21 @@ class OptionRulesTest {
         void invalid() {
             invalidTest(Option.of("value"), options().empty(), "must.be.empty");
             invalidTest(null, options().empty(), "must.not.be.null");
+        }
+    }
+
+    @Nested
+    class Contains {
+
+        @Test
+        void valid() {
+            validTest(Option.of("value"), options().contains(strings().notBlank()));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(Option.of(""), options().contains(strings().notBlank()),"must.not.be.blank");
+            invalidTest(Option.none(), options().contains(strings().notBlank()),"must.not.be.empty");
         }
     }
 }

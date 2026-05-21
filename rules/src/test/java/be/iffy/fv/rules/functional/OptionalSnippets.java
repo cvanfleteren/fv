@@ -3,9 +3,12 @@ package be.iffy.fv.rules.functional;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
+import io.vavr.control.Option;
 
 import java.util.Optional;
 
+import static be.iffy.fv.rules.Rules.strings;
+import static be.iffy.fv.rules.functional.OptionRules.options;
 import static be.iffy.fv.rules.functional.OptionalRules.optionals;
 
 public class OptionalSnippets {
@@ -25,6 +28,16 @@ public class OptionalSnippets {
 
         Validation<Optional<String>> result1 = rule.test(Optional.of("hello")); // Valid(Some("hello"))
         Validation<Optional<String>> result2 = rule.test(Optional.empty());      // Invalid("must.not.be.empty")
+        // @end
+    }
+
+    void containsExample() {
+        // @start region="contains-example"
+        Rule<Optional<String>> rule = optionals().contains(strings().notBlank());
+
+        Validation<Optional<String>> result1 = rule.test(Optional.of("hello")); // Valid("hello")
+        Validation<Optional<String>> result2 = rule.test(Optional.of(""));      // Invalid("must.not.be.blank")
+        Validation<Optional<String>> result3 = rule.test(Optional.empty());      // Invalid("must.not.be.empty")
         // @end
     }
 }
