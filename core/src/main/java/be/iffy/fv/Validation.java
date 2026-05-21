@@ -57,7 +57,7 @@ import java.util.function.Supplier;
  *
  * @param <T> the type of the value being validated.
  */
-public sealed interface Validation<T> extends Value<T> {
+public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Indicates whether the validation is successful.
@@ -1238,38 +1238,16 @@ public sealed interface Validation<T> extends Value<T> {
      * @return this {@code Validation} instance.
      * @throws NullPointerException if {@code action} is null.
      */
-    @Override
     default Validation<T> peek(Consumer<? super T> action) {
         Objects.requireNonNull(action, "action cannot be null");
         if (isValid()) {
-            action.accept(get());
+            action.accept(((Valid<T>)this).get());
         }
         return this;
     }
 
-    @Override
     default <U> Validation<U> mapTo(U value) {
         return map(ignored -> value);
-    }
-
-    @Override
-    default boolean isAsync() {
-        return false;
-    }
-
-    @Override
-    default boolean isEmpty() {
-        return !isValid();
-    }
-
-    @Override
-    default boolean isLazy() {
-        return false;
-    }
-
-    @Override
-    default boolean isSingleValued() {
-        return true;
     }
 
     //endregion
@@ -1292,17 +1270,10 @@ public sealed interface Validation<T> extends Value<T> {
             return true;
         }
 
-        @Override
         public T get() {
             return value;
         }
 
-        @Override
-        public String stringPrefix() {
-            return "Valid";
-        }
-
-        @Override
         public Iterator<T> iterator() {
             return Iterator.of(value);
         }
@@ -1330,16 +1301,6 @@ public sealed interface Validation<T> extends Value<T> {
         @Override
         public Iterator<Object> iterator() {
             return Iterator.empty();
-        }
-
-        @Override
-        public String stringPrefix() {
-            return "Invalid";
-        }
-
-        @Override
-        public Object get() {
-            throw new NoSuchElementException("No value present");
         }
     }
 }

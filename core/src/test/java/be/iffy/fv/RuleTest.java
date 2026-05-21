@@ -346,7 +346,7 @@ class RuleTest {
 
             // 4. The result: since and maps the result of the second Rule back to the value of the first Rule,
             // we're protected from the misbehaving second rule
-            String result = combinedRule.test("some input").get();
+            String result = combinedRule.test("some input").getOrElseThrow();
             assertThat(result).isEqualTo("some input");
         }
 
