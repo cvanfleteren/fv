@@ -516,22 +516,12 @@ public class DSL {
          * @param rule the rule for the list.
          * @return a {@link ListValidationDSL} for chaining.
          */
-        public ListValidationDSL<T> passes(Rule<? super List<T>> rule) {
+        public ListValidationDSL<T> satisfies(Rule<? super List<T>> rule) {
             if (value == null) {
                 return this;
             }
             Validation<List<T>> ruleValidation = Rule.<List<T>>narrow(rule).test(value).at(this.name);
             return new ListValidationDSL<>(combine(validation, ruleValidation), value, this.name);
-        }
-
-        /**
-         * Alias for {@link #passes(Rule)}.
-         *
-         * @param rule the rule for the list.
-         * @return a {@link ListValidationDSL} for chaining.
-         */
-        public ListValidationDSL<T> satisfies(Rule<? super List<T>> rule) {
-            return passes(rule);
         }
 
         private static <T> Validation<T> combine(Validation<T> v1, Validation<T> v2) {
