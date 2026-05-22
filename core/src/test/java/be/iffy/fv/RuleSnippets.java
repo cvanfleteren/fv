@@ -181,12 +181,12 @@ public class RuleSnippets {
     }
 
     void liftToListExample() {
-        // @start region="lift-to-list-example"
+        // @start region="lift-to-vavrlist-example"
         // 1. Define a rule for a single element
         Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
 
         // 2. Lift it to apply to a list
-        Rule<List<String>> listRule = notEmpty.liftToList();
+        Rule<List<String>> listRule = notEmpty.liftToVavrList();
 
         // 3. Usage
         listRule.test(List.of("a", "b")); // Returns Valid(List("a", "b"))
@@ -195,12 +195,12 @@ public class RuleSnippets {
     }
 
     void liftToJListExample() {
-        // @start region="lift-to-jlist-example"
+        // @start region="lift-to-list-example"
         // 1. Define a rule for a single element
         Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
 
         // 2. Lift it to apply to a list
-        Rule<java.util.List<String>> listRule = notEmpty.liftToJList();
+        Rule<java.util.List<String>> listRule = notEmpty.liftToList();
 
         // 3. Usage
         listRule.test(java.util.List.of("a", "b")); // Returns Valid(List("a", "b"))
@@ -239,12 +239,12 @@ public class RuleSnippets {
     }
 
     void liftToMapExample() {
-        // @start region="lift-to-map-example"
+        // @start region="lift-to-vavrmap-example"
         // 1. Define a rule for a single element
         Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
 
         // 2. Lift it to apply to a map
-        Rule<Map<String, String>> mapRule = notEmpty.liftToMap();
+        Rule<Map<String, String>> mapRule = notEmpty.liftToVavrMap();
 
         // 3. Usage
         mapRule.test(HashMap.of("key1", "val1")); // Returns Valid(Map("key1", "val1"))
@@ -253,12 +253,12 @@ public class RuleSnippets {
     }
 
     void liftToMapExtractorExample() {
-        // @start region="lift-to-map-extractor-example"
+        // @start region="lift-to-vavrmap-extractor-example"
         // 1. Define a rule for a single element
         Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
 
         // 2. Lift it to apply to a map with a custom key extractor for the error path
-        Rule<Map<Integer, String>> mapRule = notEmpty.liftToMap(key -> "item-" + key);
+        Rule<Map<Integer, String>> mapRule = notEmpty.liftToVavrMap(key -> "item-" + key);
 
         // 3. Usage
         mapRule.test(HashMap.of(1, "")); // Returns Invalid(ErrorMessage("must.not.be.empty").atIndex("item-1"))
@@ -266,12 +266,12 @@ public class RuleSnippets {
     }
 
     void liftToJMapExample() {
-        // @start region="lift-to-jmap-example"
+        // @start region="lift-to-map-example"
         // 1. Define a rule for a single element
         Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
 
         // 2. Lift it to apply to a map
-        Rule<java.util.Map<String, String>> mapRule = notEmpty.liftToJMap();
+        Rule<java.util.Map<String, String>> mapRule = notEmpty.liftToMap();
 
         // 3. Usage
         mapRule.test(java.util.Map.of("key1", "val1")); // Returns Valid(Map("key1", "val1"))
@@ -280,12 +280,12 @@ public class RuleSnippets {
     }
 
     void liftToJMapExtractorExample() {
-        // @start region="lift-to-jmap-extractor-example"
+        // @start region="lift-to-map-extractor-example"
         // 1. Define a rule for a single element
         Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
 
         // 2. Lift it to apply to a map with a custom key extractor for the error path
-        Rule<java.util.Map<Integer, String>> mapRule = notEmpty.liftToJMap(key -> "item-" + key);
+        Rule<java.util.Map<Integer, String>> mapRule = notEmpty.liftToMap(key -> "item-" + key);
 
         // 3. Usage
         mapRule.test(java.util.Map.of(1, "")); // Returns Invalid(ErrorMessage("must.not.be.empty").atIndex("item-1"))

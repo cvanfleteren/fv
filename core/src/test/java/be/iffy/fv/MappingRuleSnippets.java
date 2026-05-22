@@ -126,12 +126,12 @@ public class MappingRuleSnippets {
     }
 
     void liftToListExample() {
-        // @start region="lift-to-list-example"
+        // @start region="lift-to-vavrlist-example"
         // 1. Define a mapping rule
         MappingRule<String, Integer> toInt =  MappingRule.of(Integer::parseInt, "not.a.number");
 
         // 2. Lift it to apply to a list
-        MappingRule<List<String>, List<Integer>> listRule = toInt.liftToList();
+        MappingRule<List<String>, List<Integer>> listRule = toInt.liftToVavrList();
 
         // 3. Usage
         listRule.test(List.of("1", "2")); // Returns Valid(List(1, 2))
@@ -140,12 +140,12 @@ public class MappingRuleSnippets {
     }
 
     void liftToJListExample() {
-        // @start region="lift-to-jlist-example"
+        // @start region="lift-to-list-example"
         // 1. Define a mapping rule
         MappingRule<String, Integer> toInt =  MappingRule.of(Integer::parseInt, "not.a.number");
 
         // 2. Lift it to apply to a list
-        MappingRule<java.util.List<String>, java.util.List<Integer>> listRule = toInt.liftToJList();
+        MappingRule<java.util.List<String>, java.util.List<Integer>> listRule = toInt.liftToList();
 
         // 3. Usage
         listRule.test(java.util.List.of("1", "2")); // Returns Valid(List(1, 2))
@@ -178,10 +178,10 @@ public class MappingRuleSnippets {
     }
 
     void liftToMapExample() {
-        // @start region="lift-to-map-example"
+        // @start region="lift-to-vavrmap-example"
         MappingRule<String, Integer> toInt =  MappingRule.of(Integer::parseInt, "not.a.number");
 
-        MappingRule<Map<String, String>, Map<String, Integer>> mapRule = toInt.liftToMap();
+        MappingRule<Map<String, String>, Map<String, Integer>> mapRule = toInt.liftToVavrMap();
 
         mapRule.test(HashMap.of("k1", "1")); // Returns Valid(Map("k1", 1))
         mapRule.test(HashMap.of("k1", "a")); // Returns Invalid(ErrorMessage("not.a.number").atIndex("k1"))
@@ -189,20 +189,20 @@ public class MappingRuleSnippets {
     }
 
     void liftToMapExtractorExample() {
-        // @start region="lift-to-map-extractor-example"
+        // @start region="lift-to-vavrmap-extractor-example"
         MappingRule<String, Integer> toInt =  MappingRule.of(Integer::parseInt, "not.a.number");
 
-        MappingRule<Map<Integer, String>, Map<Integer, Integer>> mapRule = toInt.liftToMap(k -> "item-" + k);
+        MappingRule<Map<Integer, String>, Map<Integer, Integer>> mapRule = toInt.liftToVavrMap(k -> "item-" + k);
 
         mapRule.test(HashMap.of(1, "a")); // Returns Invalid(ErrorMessage("not.a.number").atIndex("item-1"))
         // @end
     }
 
     void liftToJMapExample() {
-        // @start region="lift-to-jmap-example"
+        // @start region="lift-to-map-example"
         MappingRule<String, Integer> toInt =  MappingRule.of(Integer::parseInt, "not.a.number");
 
-        MappingRule<java.util.Map<String, String>, java.util.Map<String, Integer>> mapRule = toInt.liftToJMap();
+        MappingRule<java.util.Map<String, String>, java.util.Map<String, Integer>> mapRule = toInt.liftToMap();
 
         mapRule.test(java.util.Map.of("k1", "1")); // Returns Valid(Map("k1", 1))
         mapRule.test(java.util.Map.of("k1", "a")); // Returns Invalid(ErrorMessage("not.a.number").atIndex("k1"))
@@ -210,10 +210,10 @@ public class MappingRuleSnippets {
     }
 
     void liftToJMapExtractorExample() {
-        // @start region="lift-to-jmap-extractor-example"
+        // @start region="lift-to-map-extractor-example"
         MappingRule<String, Integer> toInt =  MappingRule.of(Integer::parseInt, "not.a.number");
 
-        MappingRule<java.util.Map<Integer, String>, java.util.Map<Integer, Integer>> mapRule = toInt.liftToJMap(k -> "item-" + k);
+        MappingRule<java.util.Map<Integer, String>, java.util.Map<Integer, Integer>> mapRule = toInt.liftToMap(k -> "item-" + k);
 
         mapRule.test(java.util.Map.of(1, "a")); // Returns Invalid(ErrorMessage("not.a.number").atIndex("item-1"))
         // @end

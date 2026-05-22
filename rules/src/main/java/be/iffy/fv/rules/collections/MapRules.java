@@ -34,7 +34,7 @@ public class MapRules {
      * @param <V> the type of values in the map.
      * @return a {@link Rule} checking if the map is not empty.
      */
-    public static <K, V> Rule<Map<K, V>> notEmpty() {
+    public <K, V> Rule<Map<K, V>> notEmpty() {
         return Rule.notNull().and(map -> {
             if (map.isEmpty()) {
                 return Validation.invalid(ErrorMessage.of("must.not.be.empty"));
@@ -59,7 +59,7 @@ public class MapRules {
      * @param key the required key.
      * @return a {@link Rule} checking for the presence of the key.
      */
-    public static <K, V> Rule<Map<K, V>> containsKey(K key) {
+    public <K, V> Rule<Map<K, V>> containsKey(K key) {
         return Rule.notNull().and(map -> {
             if (map.containsKey(key)) {
                 return Validation.valid(map);
@@ -84,8 +84,7 @@ public class MapRules {
      * @param keys the required keys.
      * @return a {@link Rule} checking for the presence of all specified keys.
      */
-    @SafeVarargs
-    public static <K, V> Rule<Map<K, V>> containsKeys(K... keys) {
+    public <K, V> Rule<Map<K, V>> containsKeys(K... keys) {
         Set<K> keySet = HashSet.of(keys);
         return Rule.notNull().and(map -> {
             if (map.keySet().containsAll(keySet.toJavaSet())) {
@@ -110,7 +109,7 @@ public class MapRules {
      * @param <V> the type of values in the map.
      * @return a {@link Rule} checking that all values in the map are non-null.
      */
-    public static <K, V> Rule<Map<K, V>> valuesNotNull() {
+    public <K, V> Rule<Map<K, V>> valuesNotNull() {
         return Rule.notNull().and(map -> {
             Set<K> keysWithNulls = HashSet.ofAll(
                     map.entrySet()
@@ -131,16 +130,16 @@ public class MapRules {
      * Fails if not all values pass the {@code rule}.
      * <p>
      * Usage example:
-     * {@snippet file = "be/iffy/fv/rules/collections/JMapRulesSnippets.java" region = "validate-values-with-example"}
+     * {@snippet file = "be/iffy/fv/rules/collections/MapRulesSnippets.java" region = "validate-values-with-example"}
      *
      * @param <K>  the type of keys in the map.
      * @param <V>  the type of values in the map.
      * @param rule the rule to apply to each value.
      */
-    public static <K, V> Rule<Map<K, V>> validateValuesWith(Rule<? super V> rule) {
+    public <K, V> Rule<Map<K, V>> validateValuesWith(Rule<? super V> rule) {
         return Rule.notNull().and(map -> {
             Rule<V> castedRule = (Rule<V>) rule;
-            Rule<Map<K, V>> rule2 = castedRule.liftToJMap();
+            Rule<Map<K, V>> rule2 = castedRule.liftToMap();
             return rule2.test(map);
         });
     }

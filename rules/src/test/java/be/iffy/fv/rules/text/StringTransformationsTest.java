@@ -83,7 +83,7 @@ class StringTransformationsTest {
 
         @Test
         void truncateWithEllipsis_usesAsciiWhenUnicodeDoesNotFitButThreeDotsDo() {
-            // String starts with a surrogate pair; with maxLen 3 and unicode ellipsis, there is no safe room
+            // String starts with a surrogate pair; with maxLen 3 and Unicode ellipsis, there is no safe room
             // for content (room=2 but safeCutIndex=0). In that case, fall back to ASCII '...'.
             validTest("😀Hello", "😀…", stringTransforms().truncateWithEllipsis(3));
         }

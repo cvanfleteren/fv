@@ -164,7 +164,7 @@ public class VavrCollectionRules {
      * @return a {@link Rule} that validates if the collection has no null elements.
      */
     public <T> Rule<List<T>> noNullElements() {
-        return objects.<T>notNull().liftToList();
+        return objects.<T>notNull().liftToVavrList();
     }
 
     /**
@@ -178,7 +178,7 @@ public class VavrCollectionRules {
      * @return a {@link Rule} that validates if all elements match the {@link Rule}.
      */
     public <T> Rule<List<T>> allMatchRule(Rule<T> rule) {
-        return Rule.notNull().and(rule.liftToList());
+        return Rule.notNull().and(rule.liftToVavrList());
     }
 
     /**
@@ -205,7 +205,7 @@ public class VavrCollectionRules {
      */
     public <T> Rule<List<T>> allMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
-        return Rule.notNull().and(value -> Rule.of(predicate, errorMessage).liftToList().test(value));
+        return Rule.notNull().and(value -> Rule.of(predicate, errorMessage).liftToVavrList().test(value));
     }
 
     /**
@@ -242,7 +242,7 @@ public class VavrCollectionRules {
      */
     public <T> Rule<List<T>> noneMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
-        return Rule.notNull().and(value -> Rule.of(predicate.negate(), errorMessage).liftToList().test(value));
+        return Rule.notNull().and(value -> Rule.of(predicate.negate(), errorMessage).liftToVavrList().test(value));
     }
 
     /**
@@ -438,7 +438,7 @@ public class VavrCollectionRules {
     public <T> Rule<List<T>> validateValuesWith(Rule<? super T> rule) {
         return Rule.notNull().and(list -> {
             Rule<T> castedRule = Rule.narrow(rule);
-            Rule<List<T>> rule2 = castedRule.liftToList();
+            Rule<List<T>> rule2 = castedRule.liftToVavrList();
             return rule2.test(list);
         });
     }

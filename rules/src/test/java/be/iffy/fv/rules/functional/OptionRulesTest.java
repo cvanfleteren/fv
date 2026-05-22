@@ -1,8 +1,6 @@
 package be.iffy.fv.rules.functional;
 
 import io.vavr.control.Option;
-import be.iffy.fv.MappingRule;
-import be.iffy.fv.Rule;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 

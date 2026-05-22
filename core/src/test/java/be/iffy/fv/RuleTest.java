@@ -696,7 +696,7 @@ class RuleTest {
         void liftToList_whenAllElementsAreValid_returnsValidResult() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<List<String>> listRule = rule.liftToList();
+            Rule<List<String>> listRule = rule.liftToVavrList();
 
             // Act
             Validation<List<String>> result = listRule.test(List.of("hello", "world"));
@@ -711,7 +711,7 @@ class RuleTest {
         void liftToList_whenSomeElementsAreInvalid_accumulatesErrorsWithCorrectIndices() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<List<String>> listRule = rule.liftToList();
+            Rule<List<String>> listRule = rule.liftToVavrList();
 
             // Act
             Validation<List<String>> result = listRule.test(List.of("hello", "hi", "yo"));
@@ -728,7 +728,7 @@ class RuleTest {
             Rule<String> rule = s -> s.length() > 3
                     ? Validation.valid(s)
                     : Validation.invalid(ErrorMessage.of("too.short"), ErrorMessage.of("must.be.longer"));
-            Rule<List<String>> listRule = rule.liftToList();
+            Rule<List<String>> listRule = rule.liftToVavrList();
 
             // Act
             Validation<List<String>> result = listRule.test(List.of("hi", "hello"));
@@ -826,7 +826,7 @@ class RuleTest {
         void liftToMap_whenAllValuesAreValid_returnsValidResult() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<Map<String, String>> mapRule = rule.liftToMap();
+            Rule<Map<String, String>> mapRule = rule.liftToVavrMap();
 
             Map<String, String> input = LinkedHashMap.of(
                     "a", "hello",
@@ -846,7 +846,7 @@ class RuleTest {
         void liftToMap_whenSomeValuesAreInvalid_addsKeyToPathAndAccumulatesErrors() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<Map<String, String>> mapRule = rule.liftToMap();
+            Rule<Map<String, String>> mapRule = rule.liftToVavrMap();
 
             Map<String, String> input = HashMap.of(
                     "a", "hi",
@@ -867,7 +867,7 @@ class RuleTest {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
 
-            Rule<Map<Integer, String>> mapRule = rule.liftToMap(k -> "k" + k);
+            Rule<Map<Integer, String>> mapRule = rule.liftToVavrMap(k -> "k" + k);
 
             Map<Integer, String> input = HashMap.of(
                     10, "hi",
@@ -887,7 +887,7 @@ class RuleTest {
         void liftToMap_whenMapIsEmpty_returnsValidResult() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<Map<String, String>> mapRule = rule.liftToMap();
+            Rule<Map<String, String>> mapRule = rule.liftToVavrMap();
 
             Map<String, String> input = HashMap.empty();
 
@@ -905,7 +905,7 @@ class RuleTest {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
 
-            Rule<Map<Integer, String>> mapRule = rule.liftToMap(k -> "id-" + k);
+            Rule<Map<Integer, String>> mapRule = rule.liftToVavrMap(k -> "id-" + k);
 
             Map<Integer, String> input = LinkedHashMap.of(
                     1, "hello",
@@ -925,7 +925,7 @@ class RuleTest {
         void liftToMap_withKeyExtractor_whenKeyExtractorIsNull_throwsNullPointerExceptionOnTest() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<Map<Integer, String>> mapRule = rule.liftToMap((Function1<Integer, Object>) null);
+            Rule<Map<Integer, String>> mapRule = rule.liftToVavrMap((Function1<Integer, Object>) null);
 
             Map<Integer, String> input = HashMap.of(1, "hi");
 

@@ -128,7 +128,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     }
 
     /**
-     * Fails if the string is not a valid LocalDateTime in ISO format ( eg. 2011-12-03T10:15:30)
+     * Fails if the string is not a valid LocalDateTime in ISO format (e.g. 2011-12-03T10:15:30)
      *
      * <p>
      * Error key: {@code must.be.localdatetime}
@@ -142,7 +142,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     }
 
     /**
-     * Fails if the string is not a valid LocalDate in ISO format ( eg. 2011-12-03)
+     * Fails if the string is not a valid LocalDate in ISO format (e.g. 2011-12-03)
      *
      * <p>
      * Error key: {@code must.be.localdate}
@@ -156,7 +156,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     }
 
     /**
-     * Fails if the string is not a valid Instant in ISO format ( eg. 2011-12-03T10:15:30Z)
+     * Fails if the string is not a valid Instant in ISO format (e.g. 2011-12-03T10:15:30Z)
      *
      * <p>
      * Error key: {@code must.be.instant}
@@ -661,7 +661,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
 
     /**
      * Fails if the string contains anything other than letters or digits (Unicode).
-     * Uses {@link Character#isLetterOrDigit(int)} so it supports unicode letters/digits.
+     * Uses {@link Character#isLetterOrDigit(int)} so it supports Unicode letters/digits.
      * <p>
      * Error key: {@code must.be.unicode.alphanumeric}
      */

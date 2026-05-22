@@ -3,7 +3,6 @@ package be.iffy.fv.rules.functional;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
-import io.vavr.control.Option;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -41,7 +40,6 @@ public class OptionalRules {
     /**
      * Fails is the {@link Optional} is empty while or doesn't contain a value that passes the passed rule.
      * Return a {@link be.iffy.fv.Validation.Valid} with the contained value otherwise.
-     * <p>
      *
      * @param rule the rule to apply to the value inside the {@link Optional}
      */

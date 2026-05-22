@@ -3,12 +3,10 @@ package be.iffy.fv.rules.functional;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
-import io.vavr.control.Option;
 
 import java.util.Optional;
 
 import static be.iffy.fv.rules.Rules.strings;
-import static be.iffy.fv.rules.functional.OptionRules.options;
 import static be.iffy.fv.rules.functional.OptionalRules.optionals;
 
 public class OptionalSnippets {

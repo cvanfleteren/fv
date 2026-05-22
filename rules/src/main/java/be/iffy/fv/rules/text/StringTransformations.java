@@ -418,7 +418,7 @@ public class StringTransformations {
                     return ellipsis;
                 }
                 case 2 -> {
-                    // Prefer one char + unicode ellipsis if safe; else best two code units without ellipsis
+                    // Prefer one char + Unicode ellipsis if safe; else best two code units without ellipsis
                     int cut1 = safeCutIndex(s, 1);
                     if (cut1 > 0) {
                         return s.substring(0, cut1) + ellipsis;

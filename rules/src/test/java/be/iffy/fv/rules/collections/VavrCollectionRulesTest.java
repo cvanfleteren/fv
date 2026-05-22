@@ -260,7 +260,7 @@ class VavrCollectionRulesTest {
         void invalid() {
             invalidTest(null, vavrCollections.anyMatch((Integer n) -> n % 2 == 0), "must.not.be.null");
             invalidTest(List.of(1, 3, 5), vavrCollections.anyMatch((Integer n) -> n % 2 == 0), "must.at.least.one.match");
-            invalidTest(List.<Integer>of(), vavrCollections.anyMatch((Integer n) -> n % 2 == 0), "must.at.least.one.match");
+            invalidTest(List.of(), vavrCollections.anyMatch((Integer n) -> n % 2 == 0), "must.at.least.one.match");
             invalidTest(
                     List.of("a", "bb", "ccc"),
                     vavrCollections.anyMatch((String s) -> s.length() == 4, ErrorMessage.of("len.must.be.four")),

@@ -4,7 +4,6 @@ import io.vavr.collection.List;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 
-import static be.iffy.fv.rules.Rules.collections;
 import static be.iffy.fv.rules.Rules.vavrCollections;
 import static be.iffy.fv.rules.text.StringRules.strings;
 

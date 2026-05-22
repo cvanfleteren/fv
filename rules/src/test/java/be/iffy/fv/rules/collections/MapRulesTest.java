@@ -14,6 +14,7 @@ import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static be.iffy.fv.rules.collections.MapRules.*;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
+import static be.iffy.fv.rules.collections.VavrMapRules.vavrMaps;
 
 class MapRulesTest {
 
@@ -22,13 +23,13 @@ class MapRulesTest {
 
         @Test
         void valid() {
-            validTest(Map.of("a", 1), notEmpty());
+            validTest(Map.of("a", 1), maps().notEmpty());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, notEmpty(), "must.not.be.null");
-            invalidTest(Map.of(), notEmpty(), "must.not.be.empty");
+            invalidTest(null, maps().notEmpty(), "must.not.be.null");
+            invalidTest(Map.of(), maps().notEmpty(), "must.not.be.empty");
         }
     }
 
@@ -37,15 +38,15 @@ class MapRulesTest {
 
         @Test
         void valid() {
-            validTest(Map.of("a", 1, "b", 2), containsKey("a"));
+            validTest(Map.of("a", 1, "b", 2), maps().containsKey("a"));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, containsKey("a"), "must.not.be.null");
+            invalidTest(null, maps().containsKey("a"), "must.not.be.null");
             invalidTest(
                     Map.of("a", 1),
-                    containsKey("b"),
+                    maps().containsKey("b"),
                     "must.contain.key",
                     HashMap.of("key", "b")
             );
@@ -57,13 +58,13 @@ class MapRulesTest {
 
         @Test
         void valid() {
-            validTest(Map.of(), valuesNotNull());
-            validTest(Map.of("a", 1, "b", 2), valuesNotNull());
+            validTest(Map.of(), maps().valuesNotNull());
+            validTest(Map.of("a", 1, "b", 2), maps().valuesNotNull());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, valuesNotNull(), "must.not.be.null");
+            invalidTest(null, maps().valuesNotNull(), "must.not.be.null");
 
             java.util.Map<String, Integer> input = new java.util.HashMap<>();
             input.put("a", 1);
@@ -72,7 +73,7 @@ class MapRulesTest {
 
             invalidTest(
                     input,
-                    valuesNotNull(),
+                    maps().valuesNotNull(),
                     "must.not.contain.null.values",
                     HashMap.of("keys", HashSet.of("b", "c"))
             );
@@ -85,7 +86,7 @@ class MapRulesTest {
         @Test
         void validateValuesWith_whenSomeValuesFail_accumulatesErrorsAndAddsKeyToPath() {
             Rule<Number> rule = Rule.of(b -> b.doubleValue() > 0, "must.be.positive");
-            Rule<Map<String, BigDecimal>> mapRule = MapRules.validateValuesWith(rule);
+            Rule<Map<String, BigDecimal>> mapRule = maps().validateValuesWith(rule);
 
             Map<String, BigDecimal> input = Map.of(
                     "a", BigDecimal.valueOf(-1),
@@ -110,7 +111,7 @@ class MapRulesTest {
         void valid() {
             validTest(
                     Map.of("a", 1, "b", 2),
-                    containsKeys("a", "b")
+                    maps().containsKeys("a", "b")
             );
         }
 
@@ -118,18 +119,18 @@ class MapRulesTest {
         void invalid() {
             invalidTest(
                     null,
-                    containsKeys("a", "b"),
+                    maps().containsKeys("a", "b"),
                     "must.not.be.null"
             );
             invalidTest(
                     Map.of("a", 1),
-                    containsKeys("a", "b"),
+                    maps().containsKeys("a", "b"),
                     "must.contain.keys",
                     HashMap.of("keys", HashSet.of("a", "b"))
             );
             invalidTest(
                     Map.of("a", 1),
-                    containsKeys("a", "b", "c"),
+                    maps().containsKeys("a", "b", "c"),
                     "must.contain.keys",
                     HashMap.of("keys", HashSet.of("a", "b", "c"))
             );

@@ -505,7 +505,7 @@ public class DSL {
             if (value == null) {
                 return this;
             }
-            Validation<List<T>> ruleValidation = Rule.<T>narrow(rule).liftToList().test(value).at(this.name);
+            Validation<List<T>> ruleValidation = Rule.<T>narrow(rule).liftToVavrList().test(value).at(this.name);
             return new ListValidationDSL<>(combine(validation, ruleValidation), value, this.name);
         }
 

@@ -29,13 +29,13 @@ class EitherRulesTest {
 
         @Test
         void isRightWithRule_whenRightMatchesRule_succeeds() {
-            validTest(Either.<String, Integer>right(10), EitherRules.<String, Integer>eithers().isRight(IntegerRules.ints().positive()));
+            validTest(Either.right(10), EitherRules.<String, Integer>eithers().isRight(IntegerRules.ints().positive()));
         }
 
         @Test
         void isRightWithRule_whenRightFailsRule_fails() {
             Rule<Either<String, Integer>> rule = EitherRules.<String, Integer>eithers().isRight(IntegerRules.ints().positive());
-            assertThatValidation(rule.test(Either.<String, Integer>right(-1)).at("value"))
+            assertThatValidation(rule.test(Either.right(-1)).at("value"))
                     .isInvalid()
                     .hasErrorMessages("value.must.be.positive");
         }
@@ -62,13 +62,13 @@ class EitherRulesTest {
 
         @Test
         void isLeftWithRule_whenLeftMatchesRule_succeeds() {
-            validTest(Either.<String, Integer>left("error"), EitherRules.<String, Integer>eithers().isLeft(StringRules.strings().notEmpty()));
+            validTest(Either.left("error"), EitherRules.<String, Integer>eithers().isLeft(StringRules.strings().notEmpty()));
         }
 
         @Test
         void isLeftWithRule_whenLeftFailsRule_fails() {
             Rule<Either<String, Integer>> rule = EitherRules.<String, Integer>eithers().isLeft(StringRules.strings().notEmpty());
-            assertThatValidation(rule.test(Either.<String, Integer>left("")).at("value"))
+            assertThatValidation(rule.test(Either.left("")).at("value"))
                     .isInvalid()
                     .hasErrorMessages("value.must.not.be.empty");
         }
@@ -84,18 +84,18 @@ class EitherRulesTest {
     class ValidateLeftWithTests {
         @Test
         void validateLeftWith_whenRight_succeeds() {
-            validTest(Either.<String, Integer>right(10), EitherRules.<String, Integer>eithers().validateLeftWith(StringRules.strings().notEmpty()));
+            validTest(Either.right(10), EitherRules.<String, Integer>eithers().validateLeftWith(StringRules.strings().notEmpty()));
         }
 
         @Test
         void validateLeftWith_whenLeftMatchesRule_succeeds() {
-            validTest(Either.<String, Integer>left("error"), EitherRules.<String, Integer>eithers().validateLeftWith(StringRules.strings().notEmpty()));
+            validTest(Either.left("error"), EitherRules.<String, Integer>eithers().validateLeftWith(StringRules.strings().notEmpty()));
         }
 
         @Test
         void validateLeftWith_whenLeftFailsRule_fails() {
             Rule<Either<String, Integer>> rule = EitherRules.<String, Integer>eithers().validateLeftWith(StringRules.strings().notEmpty());
-            assertThatValidation(rule.test(Either.<String, Integer>left("")).at("value"))
+            assertThatValidation(rule.test(Either.left("")).at("value"))
                     .isInvalid()
                     .hasErrorMessages("value.must.not.be.empty");
             invalidTest(null, rule, "must.not.be.null");
@@ -106,18 +106,18 @@ class EitherRulesTest {
     class ValidateRightWithTests {
         @Test
         void validateRightWith_whenLeft_succeeds() {
-            validTest(Either.<String, Integer>left("error"), EitherRules.<String, Integer>eithers().validateRightWith(IntegerRules.ints().positive()));
+            validTest(Either.left("error"), EitherRules.<String, Integer>eithers().validateRightWith(IntegerRules.ints().positive()));
         }
 
         @Test
         void validateRightWith_whenRightMatchesRule_succeeds() {
-            validTest(Either.<String, Integer>right(10), EitherRules.<String, Integer>eithers().validateRightWith(IntegerRules.ints().positive()));
+            validTest(Either.right(10), EitherRules.<String, Integer>eithers().validateRightWith(IntegerRules.ints().positive()));
         }
 
         @Test
         void validateRightWith_whenRightFailsRule_fails() {
             Rule<Either<String, Integer>> rule = EitherRules.<String, Integer>eithers().validateRightWith(IntegerRules.ints().positive());
-            assertThatValidation(rule.test(Either.<String, Integer>right(-1)).at("value"))
+            assertThatValidation(rule.test(Either.right(-1)).at("value"))
                     .isInvalid()
                     .hasErrorMessages("value.must.be.positive");
             invalidTest(null, rule, "must.not.be.null");

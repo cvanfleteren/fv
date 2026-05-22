@@ -158,7 +158,7 @@ class CollectionRulesTest {
 
         @Test
         void valid() {
-            Rule<List<Integer>> even = collections.allMatch((Predicate<Integer>) (n -> n % 2 == 0));
+            Rule<List<Integer>> even = collections.allMatch(n -> n % 2 == 0);
             validTest(List.of(2, 4, 6), even);
             validTest(List.of(), collections.allMatch((Predicate<Integer>) (n -> n % 2 == 0)));
             validTest(List.of(), collections.allMatchRule(ints().even()));
@@ -171,13 +171,13 @@ class CollectionRulesTest {
 
             invalidTest(
                     List.of("a", "bb", "c"),
-                    collections.allMatch((Predicate<String>) (s -> s.length() == 1), ErrorMessage.of("len.must.be.one")),
+                    collections.allMatch(s -> s.length() == 1, ErrorMessage.of("len.must.be.one")),
                     "len.must.be.one"
             ).hasErrorMessages("value[1].len.must.be.one");
 
             invalidTest(
                     List.of("a", "bb"),
-                    collections.allMatch((Predicate<String>) (s -> s.length() == 1), ErrorMessage.of("len.must.be", "len", 1)),
+                    collections.allMatch(s -> s.length() == 1, ErrorMessage.of("len.must.be", "len", 1)),
                     "len.must.be",
                     HashMap.of("len", 1)
             );

@@ -1,6 +1,5 @@
 package be.iffy.fv.rules.functional;
 
-import io.vavr.control.Option;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +8,6 @@ import java.util.Optional;
 import static be.iffy.fv.rules.Rules.strings;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
-import static be.iffy.fv.rules.functional.OptionRules.options;
 import static be.iffy.fv.rules.functional.OptionalRules.optionals;
 
 class OptionalRulesTest {

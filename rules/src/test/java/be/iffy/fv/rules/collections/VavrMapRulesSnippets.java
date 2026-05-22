@@ -2,21 +2,22 @@ package be.iffy.fv.rules.collections;
 
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
-
-import java.util.Map;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.Map;
 
 import static be.iffy.fv.rules.Rules.strings;
+import static be.iffy.fv.rules.Rules.vavrMaps;
 
 
-public class JMapRulesSnippets {
+public class VavrMapRulesSnippets {
 
     void validateValuesWithExample() {
         // @start region="validate-values-with-example"
-        Rule<Map<String, String>> mapRule = MapRules.validateValuesWith(strings().notEmpty());
+        Rule<Map<String, String>> mapRule = vavrMaps().validateValuesWith(strings().notEmpty());
 
-        Map<String, String> input = Map.of(
-            "key1", "value1",
-            "key2", ""
+        Map<String, String> input = HashMap.of(
+                "key1", "value1",
+                "key2", ""
         );
 
         Validation<Map<String, String>> result = mapRule.test(input).at("myMap");

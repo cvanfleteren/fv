@@ -229,9 +229,9 @@ public interface MappingRule<T, R> {
      *
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-list-example"}
+     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-vavrlist-example"}
      */
-    default MappingRule<List<T>, List<R>> liftToList() {
+    default MappingRule<List<T>, List<R>> liftToVavrList() {
         return values -> {
             List<Validation<R>> validations = values.map(this::test);
             // Validation.sequence already adds the [index] path segment, so we don't do it here.
@@ -245,9 +245,9 @@ public interface MappingRule<T, R> {
      *
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-list-example"}
+     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-vavrlist-example"}
      */
-    default MappingRule<java.util.List<T>, java.util.List<R>> liftToJList() {
+    default MappingRule<java.util.List<T>, java.util.List<R>> liftToList() {
         return values -> {
             java.util.List<Validation<R>> validations = values.stream().map(this::test).toList();
             // Validation.sequence already adds the [index] path segment, so we don't do it here.
@@ -294,7 +294,7 @@ public interface MappingRule<T, R> {
      * <p>
      * Be careful, the key {@code key.toString()} will be used as part of the path segment.
      * Make sure to have a key that has a meaningful string representation for this.
-     * If you can't guarantee this, use the version of {@link #liftToMap(Function)} that takes a keyExtractor function instead.
+     * If you can't guarantee this, use the version of {@link #liftToVavrMap(Function)} that takes a keyExtractor function instead.
      * <p>
      * Semantics:
      * - Each value in the map is validated, and the resulting validations are collected.
@@ -302,18 +302,18 @@ public interface MappingRule<T, R> {
      * - If all validations pass, the map is considered valid.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-map-example"}
+     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-vavrmap-example"}
      *
      * @param <K> the key type.
      */
-    default <K> MappingRule<Map<K, T>, Map<K, R>> liftToMap() {
-        return liftToMap(Objects::toString);
+    default <K> MappingRule<Map<K, T>, Map<K, R>> liftToVavrMap() {
+        return liftToVavrMap(Objects::toString);
     }
 
     /**
      * Lifts this {@link MappingRule} so it applies to a {@link Map} of K to T.
      * <p>
-     * Behaves the same as {@link #liftToMap()}, but uses the keyExtractor function to generate the path segment.
+     * Behaves the same as {@link #liftToVavrMap()}, but uses the keyExtractor function to generate the path segment.
      * <p>
      * Semantics:
      * - If the Map is empty, the map is considered valid.
@@ -322,12 +322,12 @@ public interface MappingRule<T, R> {
      * - If all validations pass, the map is considered valid.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-map-extractor-example"}
+     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-vavrmap-extractor-example"}
      *
      * @param keyExtractor the function to extract a path segment from the key.
      * @param <K>          the key type.
      */
-    default <K> MappingRule<Map<K, T>, Map<K, R>> liftToMap(Function<K, Object> keyExtractor) {
+    default <K> MappingRule<Map<K, T>, Map<K, R>> liftToVavrMap(Function<K, Object> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
         return map -> {
             Seq<Tuple2<K, Validation<R>>> validations = map.map(tuple ->
@@ -350,7 +350,7 @@ public interface MappingRule<T, R> {
      * <p>
      * Be careful, the key {@code key.toString()} will be used as part of the path segment.
      * Make sure to have a key that has a meaningful string representation for this.
-     * If you can't guarantee this, use the version of {@link #liftToJMap(Function)} that takes a keyExtractor function instead.
+     * If you can't guarantee this, use the version of {@link #liftToMap(Function)} that takes a keyExtractor function instead.
      * <p>
      * Semantics:
      * - Each value in the map is validated, and the resulting validations are collected.
@@ -358,18 +358,18 @@ public interface MappingRule<T, R> {
      * - If all validations pass, the map is considered valid.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-jmap-example"}
+     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-map-example"}
      *
      * @param <K> the key type.
      */
-    default <K> MappingRule<java.util.Map<K, T>, java.util.Map<K, R>> liftToJMap() {
-        return liftToJMap(Objects::toString);
+    default <K> MappingRule<java.util.Map<K, T>, java.util.Map<K, R>> liftToMap() {
+        return liftToMap(Objects::toString);
     }
 
     /**
      * Lifts this {@link MappingRule} so it applies to a {@link java.util.Map} of K to T.
      * <p>
-     * Behaves the same as {@link #liftToJMap()}, but uses the keyExtractor function to generate the path segment.
+     * Behaves the same as {@link #liftToMap()}, but uses the keyExtractor function to generate the path segment.
      * <p>
      * Semantics:
      * - If the Map is empty, the map is considered valid.
@@ -378,14 +378,14 @@ public interface MappingRule<T, R> {
      * - If all validations pass, the map is considered valid.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-jmap-extractor-example"}
+     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-map-extractor-example"}
      *
      * @param keyExtractor the function to extract a path segment from the key.
      * @param <K>          the key type.
      */
-    default <K> MappingRule<java.util.Map<K, T>, java.util.Map<K, R>> liftToJMap(Function<K, Object> keyExtractor) {
+    default <K> MappingRule<java.util.Map<K, T>, java.util.Map<K, R>> liftToMap(Function<K, Object> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
-        return value -> liftToMap(keyExtractor).test(HashMap.ofAll(value)).map(Map::toJavaMap);
+        return value -> liftToVavrMap(keyExtractor).test(HashMap.ofAll(value)).map(Map::toJavaMap);
     }
 
     /**

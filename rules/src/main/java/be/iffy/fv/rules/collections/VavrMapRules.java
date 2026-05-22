@@ -33,7 +33,7 @@ public class VavrMapRules {
      * @param <V> the type of values in the map.
      * @return a {@link Rule} checking if the map is not empty.
      */
-    public static <K,V> Rule<Map<K,V>> notEmpty() {
+    public <K,V> Rule<Map<K,V>> notEmpty() {
         return Rule.notNull().and(map -> {
             if (map.isEmpty()) {
                 return Validation.invalid(ErrorMessage.of("must.not.be.empty"));
@@ -58,7 +58,7 @@ public class VavrMapRules {
      * @param key the required key.
      * @return a {@link Rule} checking for the presence of the key.
      */
-    public static <K,V> Rule<Map<K,V>> containsKey(K key) {
+    public <K,V> Rule<Map<K,V>> containsKey(K key) {
         return Rule.notNull().and(map -> {
             if (map.containsKey(key)) {
                 return Validation.valid(map);
@@ -83,8 +83,7 @@ public class VavrMapRules {
      * @param keys the required keys.
      * @return a {@link Rule} checking for the presence of all specified keys.
      */
-    @SafeVarargs
-    public static <K,V> Rule<Map<K,V>> containsKeys(K... keys) {
+    public <K,V> Rule<Map<K,V>> containsKeys(K... keys) {
         Set<K> keySet = HashSet.of(keys);
         return Rule.notNull().and(map -> {
             if (map.keySet().containsAll(keySet)) {
@@ -109,7 +108,7 @@ public class VavrMapRules {
      * @param <V> the type of values in the map.
      * @return a {@link Rule} checking that all values in the map are non-null.
      */
-    public static <K,V> Rule<Map<K,V>> valuesNotNull() {
+    public <K,V> Rule<Map<K,V>> valuesNotNull() {
         return Rule.notNull().and(map -> {
             Set<K> keysWithNulls = map.filter((key, value) -> value == null).keySet();
             if (keysWithNulls.nonEmpty()) {
@@ -131,10 +130,10 @@ public class VavrMapRules {
      * @param rule the rule to apply to each value.
      * @return a {@link Rule} that validates all map values.
      */
-    public static <K,V> Rule<Map<K,V>> validateValuesWith(Rule<? super V> rule) {
+    public <K,V> Rule<Map<K,V>> validateValuesWith(Rule<? super V> rule) {
         return Rule.notNull().and(map -> {
             Rule<V> castedRule = (Rule<V>) rule;
-            Rule<Map<K, V>> rule2 = castedRule.liftToMap();
+            Rule<Map<K, V>> rule2 = castedRule.liftToVavrMap();
             return rule2.test(map);
         });
     }

@@ -233,22 +233,22 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Lifts this {@link Rule} so it applies to a {@link List} of T instead of a single T.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-list-example"}
+     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-vavrlist-example"}
      */
     @Override
-    default Rule<List<T>> liftToList() {
-        return values -> MappingRule.super.liftToList().test(values);
+    default Rule<List<T>> liftToVavrList() {
+        return values -> MappingRule.super.liftToVavrList().test(values);
     }
 
     /**
      * Lifts this {@link Rule} so it applies to a {@link java.util.List} of T instead of a single T.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-jlist-example"}
+     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-list-example"}
      */
     @Override
-    default Rule<java.util.List<T>> liftToJList() {
-        return values -> MappingRule.super.liftToJList().test(values);
+    default Rule<java.util.List<T>> liftToList() {
+        return values -> MappingRule.super.liftToList().test(values);
     }
 
     /**
@@ -288,7 +288,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * <p>
      * Be careful, the key {@code value.toString()} will be used as part of the path segment.
      * Make sure to have a key that has a meaningful string representation for this.
-     * If you can't guarantee this, use the version of {@link #liftToMap(Function)} that takes a keyExtractor function instead.
+     * If you can't guarantee this, use the version of {@link #liftToVavrMap(Function)} that takes a keyExtractor function instead.
      * <p>
      * Semantics:
      * - If the Map is empty, the map is considered valid.
@@ -297,33 +297,33 @@ public interface Rule<T> extends MappingRule<T, T> {
      * - If all validations pass, the map is considered valid.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-map-example"}
+     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-vavrmap-example"}
      *
      * @param <K> the key type.
      */
     @Override
-    default <K> Rule<Map<K, T>> liftToMap() {
-        return liftToMap(Objects::toString);
+    default <K> Rule<Map<K, T>> liftToVavrMap() {
+        return liftToVavrMap(Objects::toString);
     }
 
 
     /**
      * Lifts this {@link Rule} so it applies to a {@link Map} of K to T.
      * <p>
-     * Behaves the same as {@link #liftToMap()}, but uses the keyExtractor function to generate the path segment.
+     * Behaves the same as {@link #liftToVavrMap()}, but uses the keyExtractor function to generate the path segment.
      * <p>
      * Semantics:
      * - If any validation fails, the entire map is considered invalid.
      * - If all validations pass, the map is considered valid.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-map-extractor-example"}
+     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-vavrmap-extractor-example"}
      *
      * @param keyExtractor the function to extract a path segment from the key.
      * @param <K>          the key type.
      */
     @Override
-    default <K> Rule<Map<K, T>> liftToMap(Function<K, Object> keyExtractor) {
+    default <K> Rule<Map<K, T>> liftToVavrMap(Function<K, Object> keyExtractor) {
         // this version can work a bit more efficiently since we know we can return
         // the original map if all entries are valid
         // as the values cannot change type in a Rule (as opposed to a MappingRule)
@@ -349,7 +349,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * <p>
      * Be careful, the key {@code value.toString()} will be used as part of the path segment.
      * Make sure to have a key that has a meaningful string representation for this.
-     * If you can't guarantee this, use the version of {@link #liftToJMap(Function)} that takes a keyExtractor function instead.
+     * If you can't guarantee this, use the version of {@link #liftToMap(Function)} that takes a keyExtractor function instead.
      * <p>
      * Semantics:
      * - If the Map is empty, the map is considered valid.
@@ -358,32 +358,32 @@ public interface Rule<T> extends MappingRule<T, T> {
      * - If all validations pass, the map is considered valid.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-jmap-example"}
+     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-map-example"}
      *
      * @param <K> the key type.
      */
     @Override
-    default <K> Rule<java.util.Map<K, T>> liftToJMap() {
-        return liftToJMap(Objects::toString);
+    default <K> Rule<java.util.Map<K, T>> liftToMap() {
+        return liftToMap(Objects::toString);
     }
 
     /**
      * Lifts this {@link Rule} so it applies to a {@link java.util.Map} of K to T.
      * <p>
-     * Behaves the same as {@link #liftToJMap()}, but uses the keyExtractor function to generate the path segment.
+     * Behaves the same as {@link #liftToMap()}, but uses the keyExtractor function to generate the path segment.
      * <p>
      * Semantics:
      * - If any validation fails, the entire map is considered invalid.
      * - If all validations pass, the map is considered valid.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-jmap-extractor-example"}
+     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-map-extractor-example"}
      *
      * @param keyExtractor the function to extract a path segment from the key.
      * @param <K>          the key type.
      */
     @Override
-    default <K> Rule<java.util.Map<K, T>> liftToJMap(Function<K, Object> keyExtractor) {
+    default <K> Rule<java.util.Map<K, T>> liftToMap(Function<K, Object> keyExtractor) {
         // this version can work a bit more efficiently since we know we can return
         // the original map if all entries are valid
         // as the values cannot change type in a Rule (as opposed to a MappingRule)

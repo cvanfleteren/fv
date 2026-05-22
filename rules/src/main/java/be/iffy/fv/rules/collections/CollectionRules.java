@@ -167,7 +167,7 @@ public class CollectionRules {
      * @param <T> the type of elements in the collection.
      */
     public <T> Rule<List<T>> noNullElements() {
-        return objects.<T>notNull().liftToJList();
+        return objects.<T>notNull().liftToList();
     }
 
     /**
@@ -207,7 +207,7 @@ public class CollectionRules {
      * @param rule the {@link Rule} to validate each element against.
      */
     public <T> Rule<List<T>> allMatchRule(Rule<T> rule) {
-        return Rule.notNull().and(rule.liftToJList());
+        return Rule.notNull().and(rule.liftToList());
     }
 
     /**
@@ -443,12 +443,12 @@ public class CollectionRules {
      * @param <T> the type of elements in the collection.
      * @param rule the rule to apply to each element.
      * @return a {@link Rule} that applies the given rule to all elements in the list.
-     * @see Rule#liftToJList()
+     * @see Rule#liftToList()
      */
     public <T> Rule<List<T>> validateValuesWith(Rule<? super T> rule) {
         return Rule.notNull().and(list -> {
             Rule<T> castedRule = Rule.narrow(rule);
-            Rule<List<T>> rule2 = castedRule.liftToJList();
+            Rule<List<T>> rule2 = castedRule.liftToList();
             return rule2.test(list);
         });
     }
