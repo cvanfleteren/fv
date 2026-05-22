@@ -324,34 +324,6 @@ public class RuleSnippets {
         // @end
     }
 
-    void requiredOptionExample() {
-        // @start region="required-option-example"
-        // 1. A rule that checks if a string is not empty
-        Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "not.empty");
-
-        // 2. A rule that requires the Option to be present before applying the rule
-        MappingRule<Option<String>, String> requiredString = Rule.requiredOption(notEmpty);
-
-        // 3. Usage
-        requiredString.test(Option.of("hello")); // Returns Valid("hello")
-        requiredString.test(Option.none());      // Returns Invalid("must.not.be.empty")
-        // @end
-    }
-
-    void requiredOptionalExample() {
-        // @start region="required-optional-example"
-        // 1. A rule that checks if a string is not empty
-        Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "not.empty");
-
-        // 2. A rule that requires the Optional to be present before applying the rule
-        MappingRule<Optional<String>, String> requiredString = Rule.requiredOptional(notEmpty);
-
-        // 3. Usage
-        requiredString.test(Optional.of("hello")); // Returns Valid("hello")
-        requiredString.test(Optional.empty());      // Returns Invalid("must.not.be.empty")
-        // @end
-    }
-
     record User(String name) {}
 
     void withExample() {

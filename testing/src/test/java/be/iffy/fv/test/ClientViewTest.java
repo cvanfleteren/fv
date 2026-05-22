@@ -14,13 +14,13 @@ import java.time.LocalDate;
 import java.util.function.Function;
 
 import static be.iffy.fv.MappingRule.requiredOption;
-import static be.iffy.fv.Rule.requiredOption;
 import static be.iffy.fv.dsl.DSL.assertAllValid;
 import static be.iffy.fv.dsl.DSL.validateThat;
 import static be.iffy.fv.dsl.experimental.ValidatingDSL.validating;
 import static be.iffy.fv.dsl.experimental.Validator.validatorFor;
 import static be.iffy.fv.rules.BooleanRules.booleans;
 import static be.iffy.fv.rules.ObjectRules.objects;
+import static be.iffy.fv.rules.Rules.options;
 import static be.iffy.fv.rules.text.StringRules.strings;
 
 public class ClientViewTest {
@@ -73,7 +73,7 @@ public class ClientViewTest {
                             validateThat(testDto.originalValue).is(originalValueRule)
                     ).map(MandateInfo::new).map(Option::of);
 
-                    validateThat(testDto.originalValue).is(requiredOption(strings().notBlank()));
+                    validateThat(testDto.originalValue).is(options().required(strings().notBlank()));
 
                     return validating(
                             validateThat(testDTO.date).is(objects.notNull()),
@@ -95,8 +95,8 @@ public class ClientViewTest {
 
 
         Function<TestDTO, Validation<Mandate>> mapper = testDto -> {
-            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = requiredOption(objects().isEnum(MandateInfo.AmendmentType.class));
-            MappingRule<Option<String>, String> originalValueRule = MappingRule.requiredOption(strings().notBlank());
+            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = options().required(objects().isEnum(MandateInfo.AmendmentType.class));
+            MappingRule<Option<String>, String> originalValueRule =  options().required((strings().notBlank()));
 
 
             MappingRule<TestDTO, Option<MandateInfo>> withMandateInfo = properties(

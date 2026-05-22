@@ -261,8 +261,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Usage example:
      * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-option-example"}
      *
-     * @see Rule#requiredOption(Rule) 
-     * @see MappingRule#requiredOption(MappingRule) 
      */
     @Override
     default Rule<Option<T>> liftToOption() {
@@ -279,8 +277,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Usage example:
      * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-optional-example"}
      *
-     * @see Rule#requiredOptional(Rule)
-     * @see MappingRule#requiredOptional(MappingRule)
      */
     @Override
     default Rule<Optional<T>> liftToOptional() {
@@ -510,32 +506,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      */
     static <T> Rule<T> ok() {
         return Validation::valid;
-    }
-
-    /**
-     * Fails if the input {@link Option} is empty. Otherwise, applies the given rule to its value.
-     * <p>
-     * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="required-option-example"}
-     *
-     * @param <T>  the type of the value inside the {@link Option}
-     * @param rule the rule to apply to the value inside the {@link Option}
-     */
-    static <T> MappingRule<Option<T>, T> requiredOption(Rule<T> rule) {
-        return MappingRule.requiredOption(rule);
-    }
-
-    /**
-     * Fails if the input {@link Optional} is empty. Otherwise, applies the given rule to its value.
-     * <p>
-     * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="required-optional-example"}
-     *
-     * @param <T>  the type of the value inside the {@link Optional}
-     * @param rule the rule to apply to the value inside the {@link Optional}
-     */
-    static <T> MappingRule<Optional<T>, T> requiredOptional(Rule<T> rule) {
-        return MappingRule.requiredOptional(rule);
     }
 
     /**

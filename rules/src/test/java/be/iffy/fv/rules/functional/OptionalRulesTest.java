@@ -1,12 +1,15 @@
 package be.iffy.fv.rules.functional;
 
+import io.vavr.control.Option;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
+import static be.iffy.fv.rules.Rules.strings;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
+import static be.iffy.fv.rules.functional.OptionRules.options;
 import static be.iffy.fv.rules.functional.OptionalRules.optionals;
 
 class OptionalRulesTest {
@@ -27,7 +30,26 @@ class OptionalRulesTest {
     }
 
     @Nested
-    class RequiredOption {
+    class RequiredRule {
+
+        @Test
+        void valid() {
+            validTest(Optional.of("value"), "value", optionals().required(strings().notBlank()));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(Optional.empty(), optionals().required(strings().notBlank()), "must.not.be.empty");
+            invalidTest(Optional.empty(), optionals().required(strings().notBlank()), "must.not.be.empty");
+            invalidTest(null, optionals().required(), "must.not.be.null");
+        }
+    }
+
+
+
+
+    @Nested
+    class NotEmpty {
 
         @Test
         void valid() {
@@ -55,6 +77,21 @@ class OptionalRulesTest {
         void invalid() {
             invalidTest(Optional.of("value"), optionals().empty(), "must.be.empty");
             invalidTest(null, optionals().empty(), "must.not.be.null");
+        }
+    }
+
+    @Nested
+    class Contains {
+
+        @Test
+        void valid() {
+            validTest(Optional.of("value"), optionals().contains(strings().notBlank()));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(Optional.of(""), optionals().contains(strings().notBlank()),"must.not.be.blank");
+            invalidTest(Optional.empty(), optionals().contains(strings().notBlank()),"must.not.be.empty");
         }
     }
 }

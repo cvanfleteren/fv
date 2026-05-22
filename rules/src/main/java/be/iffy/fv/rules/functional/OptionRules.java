@@ -41,6 +41,18 @@ public class OptionRules {
 
     /**
      * Fails is the {@link Option} is empty while or doesn't contain a value that passes the passed rule.
+     * Return a {@link be.iffy.fv.Validation.Valid} with the contained value otherwise.
+     * <p>
+     *
+     * @param rule the rule to apply to the value inside the {@link Option}
+     */
+    public <T,Z> MappingRule<Option<T>, Z> required(MappingRule<T,Z> rule) {
+        Objects.requireNonNull(rule, "rule cannot be null");
+        return rule.liftToOption().andThen(opt -> opt.fold(() -> Validation.invalid("must.not.be.empty"), Validation::valid));
+    }
+
+    /**
+     * Fails is the {@link Option} is empty while or doesn't contain a value that passes the passed rule.
      * <p>
      * Error key: {@code must.not.be.empty} or the key of the passed rule
      * <p>
@@ -49,18 +61,6 @@ public class OptionRules {
      */
     public <T> Rule<Option<T>> contains(Rule<T> rule) {
         return Rule.both(notEmpty(), rule.liftToOption());
-    }
-
-    /**
-     * Fails is the {@link Option} is empty while or doesn't contain a value that passes the passed rule.
-     * Return a {@link be.iffy.fv.Validation.Valid} with the contained value otherwise.
-     * <p>
-     *
-     * @param rule the rule to apply to the value inside the {@link Option}
-     */
-   public <T> MappingRule<Option<T>, T> required(Rule<T> rule) {
-       Objects.requireNonNull(rule, "rule cannot be null");
-       return rule.liftToOption().andThen(opt -> opt.fold(() -> Validation.invalid("must.not.be.empty"), Validation::valid));
     }
 
     /**

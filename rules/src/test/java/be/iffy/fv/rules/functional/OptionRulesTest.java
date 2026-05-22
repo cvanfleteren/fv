@@ -28,7 +28,23 @@ class OptionRulesTest {
     }
 
     @Nested
-    class RequiredOption {
+    class RequiredRule {
+
+        @Test
+        void valid() {
+            validTest(Option.of("value"), "value", options().required(strings().notBlank()));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(Option.none(), options().required(strings().notBlank()), "must.not.be.empty");
+            invalidTest(Option.none(), options().required(strings().notBlank()), "must.not.be.empty");
+            invalidTest(null, options().required(), "must.not.be.null");
+        }
+    }
+
+    @Nested
+    class NotEmpty {
 
         @Test
         void valid() {
