@@ -23,7 +23,7 @@ public class OptionRules {
     }
 
     /**
-     * Fails is the {@link Option} is empty while extracting the value from the {@link Option}.
+     * Fails if the {@link Option} is empty while extracting the value from the {@link Option}.
      * <p>
      * Error key: {@code must.not.be.empty}
      * <p>
@@ -40,7 +40,7 @@ public class OptionRules {
     }
 
     /**
-     * Fails is the {@link Option} is empty while or doesn't contain a value that passes the passed rule.
+     * Fails if the {@link Option} is empty while or doesn't contain a value that passes the passed rule.
      * Return a {@link be.iffy.fv.Validation.Valid} with the contained value otherwise.
      *
      * @param rule the rule to apply to the value inside the {@link Option}
@@ -51,7 +51,7 @@ public class OptionRules {
     }
 
     /**
-     * Fails is the {@link Option} is empty while or doesn't contain a value that passes the passed rule.
+     * Fails if the {@link Option} is empty while or doesn't contain a value that passes the passed rule.
      * <p>
      * Error key: {@code must.not.be.empty} or the key of the passed rule
      * <p>
@@ -63,7 +63,7 @@ public class OptionRules {
     }
 
     /**
-     * Fails is the {@link Optional} is empty.
+     * Fails if the {@link Optional} is empty.
      * <p>
      * Error key: {@code must.not.be.empty}
      * <p>
@@ -79,7 +79,7 @@ public class OptionRules {
     }
 
     /**
-     * Fails is the {@link Option} is not empty.
+     * Fails if the {@link Option} is not empty.
      * <p>
      * Error key: {@code must.be.empty}
      *
