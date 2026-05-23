@@ -24,7 +24,7 @@ public class SepaRules {
 
     public static Rule<String> sepaSafe(int maxLength) {
         return after(trim()).is(Rule.all(
-                strings().maxLength(maxLength),
+                strings.maxLength(maxLength),
                 sepaSafe
         ));
     }

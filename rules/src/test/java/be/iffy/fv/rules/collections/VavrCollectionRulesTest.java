@@ -25,14 +25,14 @@ class VavrCollectionRulesTest {
 
         @Test
         void valid() {
-            validTest(List.of("x"), vavrCollections().notEmpty());
-            validTest(HashSet.of(1), vavrCollections().notEmpty());
+            validTest(List.of("x"), vavrCollections.notEmpty());
+            validTest(HashSet.of(1), vavrCollections.notEmpty());
         }
 
         @Test
         void invalid() {
-            invalidTest(new ArrayList<>(), vavrCollections().notEmpty(), "must.not.be.empty");
-            invalidTest(HashSet.of(), vavrCollections().notEmpty(), "must.not.be.empty");
+            invalidTest(new ArrayList<>(), vavrCollections.notEmpty(), "must.not.be.empty");
+            invalidTest(HashSet.of(), vavrCollections.notEmpty(), "must.not.be.empty");
         }
     }
 
@@ -41,14 +41,14 @@ class VavrCollectionRulesTest {
 
         @Test
         void valid() {
-            validTest(new ArrayList<>(), vavrCollections().empty());
-            validTest(HashSet.of(), vavrCollections().empty());
+            validTest(new ArrayList<>(), vavrCollections.empty());
+            validTest(HashSet.of(), vavrCollections.empty());
         }
 
         @Test
         void invalid() {
-            invalidTest(List.of("x"), vavrCollections().empty(), "must.be.empty");
-            invalidTest(HashSet.of(1), vavrCollections().empty(), "must.be.empty");
+            invalidTest(List.of("x"), vavrCollections.empty(), "must.be.empty");
+            invalidTest(HashSet.of(1), vavrCollections.empty(), "must.be.empty");
         }
     }
 
@@ -158,7 +158,7 @@ class VavrCollectionRulesTest {
             Rule<List<Integer>> even = vavrCollections.allMatch(n -> n % 2 == 0);
             validTest(List.of(2, 4, 6), even);
             validTest(List.<Integer>of(), vavrCollections.allMatch(n -> n % 2 == 0));
-            validTest(List.of("a", "b", "c"), vavrCollections.allMatchRule(strings().exactLength(1)));
+            validTest(List.of("a", "b", "c"), vavrCollections.allMatchRule(strings.exactLength(1)));
         }
 
         @Test
@@ -181,7 +181,7 @@ class VavrCollectionRulesTest {
 
             invalidTest(
                     List.of("a", "bb", "c"),
-                    vavrCollections.allMatchRule(strings().exactLength(1)),
+                    vavrCollections.allMatchRule(strings.exactLength(1)),
                     "must.have.exact.length"
             ).hasErrorMessage("value[1].must.have.exact.length");
         }
@@ -227,7 +227,7 @@ class VavrCollectionRulesTest {
 
             invalidTest(
                     List.of("a", "bb", "c"),
-                    vavrCollections.noneMatchRule(strings().exactLength(2)),
+                    vavrCollections.noneMatchRule(strings.exactLength(2)),
                     "must.none.match"
             ).hasErrorMessages("value[1].must.none.match");
         }

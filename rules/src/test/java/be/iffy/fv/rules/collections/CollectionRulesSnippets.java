@@ -28,7 +28,7 @@ class CollectionRulesSnippets {
     void allMatchRuleExample() {
         // @start region="all-match-rule-example"
         List<String> names = List.of("Alice", "Bob", "Charlie");
-        Rule<List<String>> rule = CollectionRules.collections().allMatchRule(strings().minLength(3));
+        Rule<List<String>> rule = CollectionRules.collections().allMatchRule(strings.minLength(3));
 
         Validation<List<String>> result = rule.test(names); // Valid
         // @end

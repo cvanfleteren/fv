@@ -19,7 +19,7 @@ class VavrCollectionRulesSnippets {
                 new Person("alice@example.com", "Alicia")
         );
 
-        Rule<Iterable<Person>> rule = vavrCollections().uniqueBy(Person::email, "email");
+        Rule<Iterable<Person>> rule = vavrCollections.uniqueBy(Person::email, "email");
         Validation<Iterable<Person>> result = rule.test(people); // Invalid("must.be.unique.by.key")
         // @end
     }
@@ -27,7 +27,7 @@ class VavrCollectionRulesSnippets {
     void allMatchRuleExample() {
         // @start region="all-match-rule-example"
         List<String> names = List.of("Alice", "Bob", "Charlie");
-        Rule<List<String>> rule = vavrCollections().allMatchRule(strings().minLength(3));
+        Rule<List<String>> rule = vavrCollections.allMatchRule(strings.minLength(3));
 
         Validation<List<String>> result = rule.test(names); // Valid
         // @end

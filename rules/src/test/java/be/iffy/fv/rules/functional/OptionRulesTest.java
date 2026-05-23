@@ -15,13 +15,13 @@ class OptionRulesTest {
 
         @Test
         void valid() {
-            validTest(Option.of("value"), "value", options().required());
+            validTest(Option.of("value"), "value", options.required());
         }
 
         @Test
         void invalid() {
-            invalidTest(Option.none(), options().required(), "must.not.be.empty");
-            invalidTest(null, options().required(), "must.not.be.null");
+            invalidTest(Option.none(), options.required(), "must.not.be.empty");
+            invalidTest(null, options.required(), "must.not.be.null");
         }
     }
 
@@ -30,14 +30,14 @@ class OptionRulesTest {
 
         @Test
         void valid() {
-            validTest(Option.of("value"), "value", options().required(strings().notBlank()));
+            validTest(Option.of("value"), "value", options.required(strings.notBlank()));
         }
 
         @Test
         void invalid() {
-            invalidTest(Option.none(), options().required(strings().notBlank()), "must.not.be.empty");
-            invalidTest(Option.none(), options().required(strings().notBlank()), "must.not.be.empty");
-            invalidTest(null, options().required(), "must.not.be.null");
+            invalidTest(Option.none(), options.required(strings.notBlank()), "must.not.be.empty");
+            invalidTest(Option.none(), options.required(strings.notBlank()), "must.not.be.empty");
+            invalidTest(null, options.required(), "must.not.be.null");
         }
     }
 
@@ -47,13 +47,13 @@ class OptionRulesTest {
         @Test
         void valid() {
             Option<String> some = Option.of("value");
-            validTest(some, options().notEmpty());
+            validTest(some, options.notEmpty());
         }
 
         @Test
         void invalid() {
-            invalidTest(Option.none(), options().notEmpty(), "must.not.be.empty");
-            invalidTest(null, options().notEmpty(), "must.not.be.null");
+            invalidTest(Option.none(), options.notEmpty(), "must.not.be.empty");
+            invalidTest(null, options.notEmpty(), "must.not.be.null");
         }
     }
 
@@ -63,13 +63,13 @@ class OptionRulesTest {
         @Test
         void valid() {
             Option<String> none = Option.none();
-            validTest(none, options().empty());
+            validTest(none, options.empty());
         }
 
         @Test
         void invalid() {
-            invalidTest(Option.of("value"), options().empty(), "must.be.empty");
-            invalidTest(null, options().empty(), "must.not.be.null");
+            invalidTest(Option.of("value"), options.empty(), "must.be.empty");
+            invalidTest(null, options.empty(), "must.not.be.null");
         }
     }
 
@@ -78,13 +78,13 @@ class OptionRulesTest {
 
         @Test
         void valid() {
-            validTest(Option.of("value"), options().contains(strings().notBlank()));
+            validTest(Option.of("value"), options.contains(strings.notBlank()));
         }
 
         @Test
         void invalid() {
-            invalidTest(Option.of(""), options().contains(strings().notBlank()),"must.not.be.blank");
-            invalidTest(Option.none(), options().contains(strings().notBlank()),"must.not.be.empty");
+            invalidTest(Option.of(""), options.contains(strings.notBlank()),"must.not.be.blank");
+            invalidTest(Option.none(), options.contains(strings.notBlank()),"must.not.be.empty");
         }
     }
 }

@@ -22,13 +22,13 @@ class VavrMapRulesTest {
 
         @Test
         void valid() {
-            validTest(HashMap.of("a", 1), vavrMaps().notEmpty());
+            validTest(HashMap.of("a", 1), vavrMaps.notEmpty());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, vavrMaps().notEmpty(), "must.not.be.null");
-            invalidTest(HashMap.empty(), vavrMaps().notEmpty(), "must.not.be.empty");
+            invalidTest(null, vavrMaps.notEmpty(), "must.not.be.null");
+            invalidTest(HashMap.empty(), vavrMaps.notEmpty(), "must.not.be.empty");
         }
     }
 
@@ -37,15 +37,15 @@ class VavrMapRulesTest {
 
         @Test
         void valid() {
-            validTest(HashMap.of("a", 1, "b", 2), vavrMaps().containsKey("a"));
+            validTest(HashMap.of("a", 1, "b", 2), vavrMaps.containsKey("a"));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, vavrMaps().containsKey("a"), "must.not.be.null");
+            invalidTest(null, vavrMaps.containsKey("a"), "must.not.be.null");
             invalidTest(
                     HashMap.of("a", 1),
-                    vavrMaps().containsKey("b"),
+                    vavrMaps.containsKey("b"),
                     "must.contain.key",
                     HashMap.of("key", "b")
             );
@@ -57,16 +57,16 @@ class VavrMapRulesTest {
 
         @Test
         void valid() {
-            validTest(HashMap.empty(), vavrMaps().valuesNotNull());
-            validTest(HashMap.of("a", 1, "b", 2), vavrMaps().valuesNotNull());
+            validTest(HashMap.empty(), vavrMaps.valuesNotNull());
+            validTest(HashMap.of("a", 1, "b", 2), vavrMaps.valuesNotNull());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, vavrMaps().valuesNotNull(), "must.not.be.null");
+            invalidTest(null, vavrMaps.valuesNotNull(), "must.not.be.null");
             invalidTest(
                     HashMap.of("a", 1, "b", null, "c", null),
-                    vavrMaps().valuesNotNull(),
+                    vavrMaps.valuesNotNull(),
                     "must.not.contain.null.values",
                     HashMap.of("keys", HashSet.of("b", "c"))
             );
@@ -80,7 +80,7 @@ class VavrMapRulesTest {
         void validateValuesWith_whenSomeValuesFail_accumulatesErrorsAndAddsKeyToPath() {
             // Arrange: validate string length >= 3 for each map value
             Rule<Number> rule = Rule.of(b -> b.doubleValue() > 0, "must.be.positive");
-            Rule<Map<String, BigDecimal>> mapRule = vavrMaps().validateValuesWith(rule);
+            Rule<Map<String, BigDecimal>> mapRule = vavrMaps.validateValuesWith(rule);
 
             Map<String,BigDecimal> input = HashMap.of(
                     "a", BigDecimal.valueOf(-1),
@@ -106,7 +106,7 @@ class VavrMapRulesTest {
             // The map contains all requested keys.
             validTest(
                     HashMap.of("a", 1, "b", 2),
-                    vavrMaps().containsKeys("a", "b")
+                    vavrMaps.containsKeys("a", "b")
             );
         }
 
@@ -115,13 +115,13 @@ class VavrMapRulesTest {
             // A null map should trigger the universal "must.not.be.null" message.
             invalidTest(
                     null,
-                    vavrMaps().containsKeys("a", "b"),
+                    vavrMaps.containsKeys("a", "b"),
                     "must.not.be.null"
             );
             // The map is missing key "b".
             invalidTest(
                     HashMap.of("a", 1),
-                    vavrMaps().containsKeys("a", "b"),
+                    vavrMaps.containsKeys("a", "b"),
                     "must.contain.keys",
                     HashMap.of("keys", HashSet.of("a","b"))
             );
@@ -130,7 +130,7 @@ class VavrMapRulesTest {
             // key that fails the containsAll check).
             invalidTest(
                     HashMap.of("a", 1),
-                    vavrMaps().containsKeys("a", "b", "c"),
+                    vavrMaps.containsKeys("a", "b", "c"),
                     "must.contain.keys",
                     HashMap.of("keys", HashSet.of("a","b","c"))
             );

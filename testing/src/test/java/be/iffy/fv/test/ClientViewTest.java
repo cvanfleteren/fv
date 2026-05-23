@@ -61,7 +61,7 @@ public class ClientViewTest {
 
         Function<TestDTO, Validation<Mandate>> mapper = testDto -> {
             MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = requiredOption(objects().isEnum(MandateInfo.AmendmentType.class));
-            MappingRule<Option<String>, String> originalValueRule = MappingRule.requiredOption(strings().notBlank());
+            MappingRule<Option<String>, String> originalValueRule = MappingRule.requiredOption(strings.notBlank());
 
             Validation<Boolean> amendmentV = objects().<Boolean>notNull().test(testDTO.amendment);
 
@@ -73,7 +73,7 @@ public class ClientViewTest {
                             validateThat(testDto.originalValue).is(originalValueRule)
                     ).map(MandateInfo::new).map(Option::of);
 
-                    validateThat(testDto.originalValue).is(options().required(strings().notBlank()));
+                    validateThat(testDto.originalValue).is(options.required(strings.notBlank()));
 
                     return validating(
                             validateThat(testDTO.date).is(objects.notNull()),
@@ -95,8 +95,8 @@ public class ClientViewTest {
 
 
         Function<TestDTO, Validation<Mandate>> mapper = testDto -> {
-            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = options().required(objects().isEnum(MandateInfo.AmendmentType.class));
-            MappingRule<Option<String>, String> originalValueRule =  options().required((strings().notBlank()));
+            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = options.required(objects().isEnum(MandateInfo.AmendmentType.class));
+            MappingRule<Option<String>, String> originalValueRule =  options.required((strings.notBlank()));
 
 
             MappingRule<TestDTO, Option<MandateInfo>> withMandateInfo = properties(
@@ -129,7 +129,7 @@ public class ClientViewTest {
 
         Function<TestDTO, Validation<Mandate>> mapper = testDto -> {
             MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = requiredOption(objects().isEnum(MandateInfo.AmendmentType.class));
-            MappingRule<Option<String>, String> originalValueRule = MappingRule.requiredOption(strings().notBlank());
+            MappingRule<Option<String>, String> originalValueRule = MappingRule.requiredOption(strings.notBlank());
 
             MappingRule<TestDTO, Option<MandateInfo>> withMandateInfo = validatorFor(TestDTO.class)
                     .when(property(TestDTO::amendment).is(booleans().isTrue()))

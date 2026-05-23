@@ -36,7 +36,7 @@ public class ValidationDSLTest {
                 case READY -> assertAllValid(
                         validateThat(startedAt, SomeClass::startedAt).is(options.empty()),
                         validateThat(finishedAt, SomeClass::finishedAt).is(options.empty()),
-                        validateThat(errors, SomeClass::errors).is(vavrCollections().empty())
+                        validateThat(errors, SomeClass::errors).is(vavrCollections.empty())
                 );
 
                 case SUCCESS -> assertAllValid(
@@ -44,7 +44,7 @@ public class ValidationDSLTest {
                                 validateThat(startedAt, SomeClass::startedAt).is(options.required()),
                                 validateThat(finishedAt, SomeClass::finishedAt).is(options.required())
                         ).flatMap((s, f) -> validateThat(s).is(instants.isBefore(f))),
-                        validateThat(errors, SomeClass::errors).is(vavrCollections().empty())
+                        validateThat(errors, SomeClass::errors).is(vavrCollections.empty())
                 );
 
                 case FAILURE -> assertAllValid(
@@ -53,7 +53,7 @@ public class ValidationDSLTest {
                                 validateThat(finishedAt, SomeClass::finishedAt).is(options.required())
                         ).flatMap((s, f) -> validateThat(s).is(instants.isBefore(f))),
                         validateThat(errors, SomeClass::errors).is(
-                                vavrCollections().notEmpty().and(vavrCollections().allMatchRule(strings().notEmpty()))
+                                vavrCollections.notEmpty().and(vavrCollections.allMatchRule(strings.notEmpty()))
                         )
                 );
             }

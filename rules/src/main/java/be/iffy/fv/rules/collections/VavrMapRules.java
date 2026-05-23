@@ -18,13 +18,6 @@ public class VavrMapRules {
     public static final VavrMapRules vavrMaps = new VavrMapRules();
 
     /**
-     * Returns the singleton instance of {@link VavrMapRules}.
-     */
-    public static VavrMapRules vavrMaps() {
-        return vavrMaps;
-    }
-
-    /**
      * Fails if the map is {@code null} or empty.
      * <p>
      * Error key: {@code must.not.be.empty}

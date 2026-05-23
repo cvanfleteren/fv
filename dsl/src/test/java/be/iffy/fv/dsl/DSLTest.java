@@ -197,10 +197,9 @@ public class DSLTest {
         @Test
         void assertThat_withPropertySelector_whenInvalid_throwsValidationException() {
             // Arrange
-            Person p = new Person(null, 30);
-
+            String name = null;
             // Act & Assert
-            assertThatThrownBy(() -> DSL.assertThat(p, Person::name).is(Rule.notNull()))
+            assertThatThrownBy(() -> DSL.assertThat(name, Person::name).is(Rule.notNull()))
                     .isInstanceOf(ValidationException.class)
                     .satisfies(ex -> {
                         ValidationException ve = (ValidationException) ex;

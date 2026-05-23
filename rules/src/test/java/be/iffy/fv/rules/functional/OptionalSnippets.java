@@ -31,7 +31,7 @@ public class OptionalSnippets {
 
     void containsExample() {
         // @start region="contains-example"
-        Rule<Optional<String>> rule = optionals().contains(strings().notBlank());
+        Rule<Optional<String>> rule = optionals().contains(strings.notBlank());
 
         Validation<Optional<String>> result1 = rule.test(Optional.of("hello")); // Valid("hello")
         Validation<Optional<String>> result2 = rule.test(Optional.of(""));      // Invalid("must.not.be.blank")

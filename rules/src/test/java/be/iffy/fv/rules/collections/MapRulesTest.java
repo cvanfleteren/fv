@@ -23,13 +23,13 @@ class MapRulesTest {
 
         @Test
         void valid() {
-            validTest(Map.of("a", 1), maps().notEmpty());
+            validTest(Map.of("a", 1), maps.notEmpty());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, maps().notEmpty(), "must.not.be.null");
-            invalidTest(Map.of(), maps().notEmpty(), "must.not.be.empty");
+            invalidTest(null, maps.notEmpty(), "must.not.be.null");
+            invalidTest(Map.of(), maps.notEmpty(), "must.not.be.empty");
         }
     }
 
@@ -38,15 +38,15 @@ class MapRulesTest {
 
         @Test
         void valid() {
-            validTest(Map.of("a", 1, "b", 2), maps().containsKey("a"));
+            validTest(Map.of("a", 1, "b", 2), maps.containsKey("a"));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, maps().containsKey("a"), "must.not.be.null");
+            invalidTest(null, maps.containsKey("a"), "must.not.be.null");
             invalidTest(
                     Map.of("a", 1),
-                    maps().containsKey("b"),
+                    maps.containsKey("b"),
                     "must.contain.key",
                     HashMap.of("key", "b")
             );
@@ -58,13 +58,13 @@ class MapRulesTest {
 
         @Test
         void valid() {
-            validTest(Map.of(), maps().valuesNotNull());
-            validTest(Map.of("a", 1, "b", 2), maps().valuesNotNull());
+            validTest(Map.of(), maps.valuesNotNull());
+            validTest(Map.of("a", 1, "b", 2), maps.valuesNotNull());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, maps().valuesNotNull(), "must.not.be.null");
+            invalidTest(null, maps.valuesNotNull(), "must.not.be.null");
 
             java.util.Map<String, Integer> input = new java.util.HashMap<>();
             input.put("a", 1);
@@ -73,7 +73,7 @@ class MapRulesTest {
 
             invalidTest(
                     input,
-                    maps().valuesNotNull(),
+                    maps.valuesNotNull(),
                     "must.not.contain.null.values",
                     HashMap.of("keys", HashSet.of("b", "c"))
             );
@@ -86,7 +86,7 @@ class MapRulesTest {
         @Test
         void validateValuesWith_whenSomeValuesFail_accumulatesErrorsAndAddsKeyToPath() {
             Rule<Number> rule = Rule.of(b -> b.doubleValue() > 0, "must.be.positive");
-            Rule<Map<String, BigDecimal>> mapRule = maps().validateValuesWith(rule);
+            Rule<Map<String, BigDecimal>> mapRule = maps.validateValuesWith(rule);
 
             Map<String, BigDecimal> input = Map.of(
                     "a", BigDecimal.valueOf(-1),
@@ -111,7 +111,7 @@ class MapRulesTest {
         void valid() {
             validTest(
                     Map.of("a", 1, "b", 2),
-                    maps().containsKeys("a", "b")
+                    maps.containsKeys("a", "b")
             );
         }
 
@@ -119,18 +119,18 @@ class MapRulesTest {
         void invalid() {
             invalidTest(
                     null,
-                    maps().containsKeys("a", "b"),
+                    maps.containsKeys("a", "b"),
                     "must.not.be.null"
             );
             invalidTest(
                     Map.of("a", 1),
-                    maps().containsKeys("a", "b"),
+                    maps.containsKeys("a", "b"),
                     "must.contain.keys",
                     HashMap.of("keys", HashSet.of("a", "b"))
             );
             invalidTest(
                     Map.of("a", 1),
-                    maps().containsKeys("a", "b", "c"),
+                    maps.containsKeys("a", "b", "c"),
                     "must.contain.keys",
                     HashMap.of("keys", HashSet.of("a", "b", "c"))
             );

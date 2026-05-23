@@ -18,8 +18,8 @@ public class ListValidationDslTest {
         
         // Act
         Validation<List<String>> result = validateThatList(roles, "roles")
-                .satisfies(vavrCollections().minSize(2))
-                .each(strings().minLength(2))
+                .satisfies(vavrCollections.minSize(2))
+                .each(strings.minLength(2))
                 .mapsTo(s -> s);
 
         // Assert
@@ -38,7 +38,7 @@ public class ListValidationDslTest {
 
         // Act
         Validation<List<Role>> result = validateThatList(roles, "roles")
-                .is(vavrCollections().minSize(2), strings().minLength(2), Role::new);
+                .is(vavrCollections.minSize(2), strings.minLength(2), Role::new);
 
         // Assert
         assertThatValidation(result)

@@ -13,7 +13,7 @@ public class MapRulesSnippets {
 
     void validateValuesWithExample() {
         // @start region="validate-values-with-example"
-        Rule<Map<String, String>> mapRule = maps().validateValuesWith(strings().notEmpty());
+        Rule<Map<String, String>> mapRule = maps.validateValuesWith(strings.notEmpty());
 
         Map<String, String> input = Map.of(
             "key1", "value1",

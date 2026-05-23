@@ -13,7 +13,7 @@ public class VavrMapRulesSnippets {
 
     void validateValuesWithExample() {
         // @start region="validate-values-with-example"
-        Rule<Map<String, String>> mapRule = vavrMaps().validateValuesWith(strings().notEmpty());
+        Rule<Map<String, String>> mapRule = vavrMaps.validateValuesWith(strings.notEmpty());
 
         Map<String, String> input = HashMap.of(
                 "key1", "value1",

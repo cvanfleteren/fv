@@ -8,6 +8,7 @@ import static be.iffy.fv.dsl.DSL.assertAllValid;
 import static be.iffy.fv.dsl.DSL.validateThat;
 import static be.iffy.fv.dsl.DSLSnippets.ExampleIntRules.ints;
 import static be.iffy.fv.dsl.DSLSnippets.ExampleStringRules.strings;
+import static be.iffy.fv.rules.Rules.strings;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class DSLSnippets {
@@ -47,7 +48,7 @@ public class DSLSnippets {
                 // validate and assign results (e.g. if you want to trim the name)
                 // will throw ValidationException with all errors if any Validation was invalid.
                 var values = assertAllValid(
-                        validateThat(name, "name").map(String::trim).is(strings().minLength(3)),
+                        validateThat(name, "name").map(String::trim).is(strings.minLength(3)),
                         validateThat(age, "age").is(ints().min(18))
                 );
                 name = values._1;
@@ -66,7 +67,7 @@ public class DSLSnippets {
 
             Person {
                 assertAllValid(
-                        validateThat(name, Person::name).is(strings().notEmpty()),
+                        validateThat(name, Person::name).is(strings.notEmpty()),
                         validateThat(age, Person::age).is(ints().min(18))
                 );
             }
