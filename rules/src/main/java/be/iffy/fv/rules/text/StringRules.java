@@ -343,7 +343,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     /**
      * Fails if the string length is not equal to the specified length.
      * <p>
-     * Error key: {@code must.have.exact.length}
+     * Error key: {@code must.have.length}
      * <p>
      * Parameters:
      * <ul>
@@ -353,11 +353,11 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @param length the required length.
      * @return a {@link Rule} checking the exact length.
      */
-    public Rule<String> exactLength(int length) {
+    public Rule<String> length(int length) {
         if (length < 0) {
             throw new IllegalArgumentException("length must be >= 0");
         }
-        return Rule.notNull().and(Rule.of(s -> s.length() == length, ErrorMessage.of("must.have.exact.length", "len", length)));
+        return Rule.notNull().and(Rule.of(s -> s.length() == length, ErrorMessage.of("must.have.length", "len", length)));
     }
     //endregion
 

@@ -152,20 +152,20 @@ class StringRulesTest {
     }
 
     @Nested
-    class ExactLength {
+    class Length {
 
         @Test
         void valid() {
-            validTest("", strings.exactLength(0));
-            validTest("1", strings.exactLength(1));
-            validTest("12", strings.exactLength(2));
+            validTest("", strings.length(0));
+            validTest("1", strings.length(1));
+            validTest("12", strings.length(2));
         }
 
         @Test
         void invalid() {
-            invalidTest("", strings.exactLength(1), "must.have.exact.length", HashMap.of("len", 1));
-            invalidTest("12", strings.exactLength(1), "must.have.exact.length", HashMap.of("len", 1));
-            invalidTest(null, strings.exactLength(1), "must.not.be.null");
+            invalidTest("", strings.length(1), "must.have.length", HashMap.of("len", 1));
+            invalidTest("12", strings.length(1), "must.have.length", HashMap.of("len", 1));
+            invalidTest(null, strings.length(1), "must.not.be.null");
         }
     }
 

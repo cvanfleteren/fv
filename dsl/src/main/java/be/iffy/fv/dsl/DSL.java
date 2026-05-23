@@ -283,9 +283,10 @@ public class DSL {
     }
 
     /**
-     * For any given Rule<T>, returns a Rule that can work on an Optional<T> instead.
+     * For any given {@code Rule<T>}, returns a Rule that can work on an {@code Optional<T>} instead.
      * An empty {@link Optional} is considered to be valid.
      *
+     * @param <T> the type of the value the Rule is validating.
      * @see OptionalRules#required()
      */
     public static <T> Rule<Optional<T>> optional(Rule<T> rule) {
@@ -293,10 +294,11 @@ public class DSL {
     }
 
     /**
-     * For any given Rule<T>, returns a Rule that can work on an Optional<T> instead.
+     * For any given {@code Rule<T>}, returns a Rule that can work on an {@code Option<T>} instead.
      * An empty {@link Option} is considered to be valid.
      *
-     * @see OptionRules#required()
+     * @param <T> the type of the value the Rule is validating.
+     * @see be.iffy.fv.rules.functional.OptionRules#required()
      */
     public static <T> Rule<Option<T>> option(Rule<T> rule) {
         return rule.liftToOption();

@@ -21,8 +21,8 @@ public record Bic(String value) {
 
     static Rule<String> validBic = after(StringOps.removeWhitespace()).is(
             Rule.any(
-                    strings.exactLength(8),
-                    strings.exactLength(11)
+                    strings.length(8),
+                    strings.length(11)
             ).describe("length.must.be.8.or.11").and(followsBicPattern)
     );
 

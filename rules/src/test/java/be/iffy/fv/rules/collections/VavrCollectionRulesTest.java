@@ -158,7 +158,7 @@ class VavrCollectionRulesTest {
             Rule<List<Integer>> even = vavrCollections.allMatch(n -> n % 2 == 0);
             validTest(List.of(2, 4, 6), even);
             validTest(List.<Integer>of(), vavrCollections.allMatch(n -> n % 2 == 0));
-            validTest(List.of("a", "b", "c"), vavrCollections.allMatchRule(strings.exactLength(1)));
+            validTest(List.of("a", "b", "c"), vavrCollections.allMatchRule(strings.length(1)));
         }
 
         @Test
@@ -181,9 +181,9 @@ class VavrCollectionRulesTest {
 
             invalidTest(
                     List.of("a", "bb", "c"),
-                    vavrCollections.allMatchRule(strings.exactLength(1)),
-                    "must.have.exact.length"
-            ).hasErrorMessage("value[1].must.have.exact.length");
+                    vavrCollections.allMatchRule(strings.length(1)),
+                    "must.have.length"
+            ).hasErrorMessage("value[1].must.have.length");
         }
 
         @Test
@@ -205,7 +205,7 @@ class VavrCollectionRulesTest {
             Rule<List<Integer>> noEvens = vavrCollections.noneMatch(ints().even().toPredicate());
             validTest(List.of(1, 3, 5), noEvens);
             validTest(List.of(), vavrCollections.noneMatch(ints().even().toPredicate()));
-            validTest(List.of("a", "bbb", "cccc"), vavrCollections.noneMatchRule(strings.exactLength(2)));
+            validTest(List.of("a", "bbb", "cccc"), vavrCollections.noneMatchRule(strings.length(2)));
         }
 
         @Test
@@ -227,7 +227,7 @@ class VavrCollectionRulesTest {
 
             invalidTest(
                     List.of("a", "bb", "c"),
-                    vavrCollections.noneMatchRule(strings.exactLength(2)),
+                    vavrCollections.noneMatchRule(strings.length(2)),
                     "must.none.match"
             ).hasErrorMessages("value[1].must.none.match");
         }
