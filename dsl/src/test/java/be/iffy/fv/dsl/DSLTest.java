@@ -163,6 +163,56 @@ public class DSLTest {
     }
 
     @Nested
+    class AssertThat {
+
+        @Test
+        void assertThat_whenValid_returnsValue() {
+            // Act
+            String result = DSL.assertThat("ok", "field").is(Rule.notNull());
+
+            // Assert
+            assertThat(result).isEqualTo("ok");
+        }
+
+        @Test
+        void assertThat_whenInvalid_throwsValidationException() {
+            // Act & Assert
+            assertThatThrownBy(() -> DSL.assertThat((String) null, "field").is(Rule.notNull()))
+                    .isInstanceOf(ValidationException.class)
+                    .satisfies(ex -> {
+                        ValidationException ve = (ValidationException) ex;
+                        assertThat(ve.errors().head().message()).isEqualTo("field.must.not.be.null");
+                    });
+        }
+
+        @Test
+        void assertThat_withPropertySelector_whenValid_returnsValue() {
+            // Arrange
+            Person p = new Person("john", 30);
+
+            // Act
+            String result = DSL.assertThat(p, Person::name).is(Rule.notNull());
+
+            // Assert
+            assertThat(result).isEqualTo("john");
+        }
+
+        @Test
+        void assertThat_withPropertySelector_whenInvalid_throwsValidationException() {
+            // Arrange
+            Person p = new Person(null, 30);
+
+            // Act & Assert
+            assertThatThrownBy(() -> DSL.assertThat(p, Person::name).is(Rule.notNull()))
+                    .isInstanceOf(ValidationException.class)
+                    .satisfies(ex -> {
+                        ValidationException ve = (ValidationException) ex;
+                        assertThat(ve.errors().head().message()).isEqualTo("name.must.not.be.null");
+                    });
+        }
+    }
+
+    @Nested
     class AssertAllValid {
 
         @Test

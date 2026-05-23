@@ -45,6 +45,20 @@ public class DSL {
     }
 
     /**
+     * Build a Validation that asserts that the valid is {@link be.iffy.fv.Validation.Valid}, throwing a {@link ValidationException} otherwise.
+     */
+    public static <T> AssertDSL<T> assertThat(T value, String name) {
+        return new AssertDSL<>(value, name);
+    }
+
+    /**
+     * Build a Validation that asserts that the valid is {@link be.iffy.fv.Validation.Valid}, throwing a {@link ValidationException} otherwise.
+     */
+    public static <T,V> AssertDSL<V> assertThat(T value, PropertySelector<T,V> selector) {
+        return new AssertDSL<>(selector.apply(value), selector.getPropertyName());
+    }
+
+    /**
      * Asserts that all provided validations are valid, otherwise throws a {@link ValidationException} with all errors.
      * This method is useful in constructors or at the boundaries of your application where you want to ensure
      * that data is valid before proceeding
@@ -551,6 +565,20 @@ public class DSL {
 
         private static <T> Validation<T> combine(Validation<T> v1, Validation<T> v2) {
             return Validation.mapN(v1, v2, (a, b) -> a);
+        }
+    }
+
+    public static class AssertDSL<T> {
+        private final String name;
+        private final T value;
+
+        public AssertDSL(T value, String name) {
+            this.value = value;
+            this.name = name;
+        }
+
+        public T is(Rule<? super T> rule) {
+            return validateThat(value, name).is(rule).getOrElseThrow();
         }
     }
 }
