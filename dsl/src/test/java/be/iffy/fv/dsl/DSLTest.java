@@ -57,6 +57,22 @@ public class DSLTest {
 
     @Nested
     class ValidateThat {
+
+        @Nested
+        class IsNotNull {
+            @Test
+            void isNotNull_whenValueIsNotNull_returnsValid() {
+                Validation<String> v = validateThat("test").isNotNull();
+                assertThatValidation(v).isValid().hasValue("test");
+            }
+
+            @Test
+            void isNotNull_whenValueIsNull_returnsInvalid() {
+                Validation<String> v = validateThat((String) null).isNotNull();
+                assertThatValidation(v).isInvalid().hasErrorMessage("must.not.be.null");
+            }
+        }
+
         @Test
         public void test() {
             Rule<String> startsWithH = Rule.of(s -> s.startsWith("h"), "must.start.with.h");

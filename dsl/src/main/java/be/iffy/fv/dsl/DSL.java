@@ -344,7 +344,7 @@ public class DSL {
         private String name = "";
 
         public ValidationDSL(T value) {
-            this.validation = Validation.valid(value);
+            this.validation = value == null ? Validation.invalid(ErrorMessage.of("must.not.be.null")) : Validation.valid(value);
         }
 
         public ValidationDSL(T value, String name) {
@@ -412,18 +412,15 @@ public class DSL {
         }
 
         /**
-         * Validates that the value satisfies the given rule.
+         * Validates that the value is not null.
          * If the value is {@code null}, an error "must.not.be.null" is automatically added.
          *
-         * @param rule the rule to check.
          * @return a {@link Validation} result.
+         * @see DSL#notNull(Object, String)
          */
-        public ValidationDSL<T> passes(Rule<T> rule) {
-            if (validation.isValid()) {
-                return new ValidationDSL<>(rule.test(validation.getOrElseThrow()).at(this.name), this.name);
-            } else {
-                return this;
-            }
+        public Validation<T> isNotNull() {
+            return validation
+                    .flatMap(v -> Validation.narrowSuper(Rule.notNull().test(v).at(name)));
         }
     }
 
