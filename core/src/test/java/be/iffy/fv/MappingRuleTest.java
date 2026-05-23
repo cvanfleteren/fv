@@ -855,4 +855,40 @@ class MappingRuleTest {
                     .hasErrorMessage("not.a.number");
         }
     }
+    @Nested
+    class Describe {
+
+        @Test
+        void describe_whenRuleIsInvalid_replacesErrorsWithNewErrorKey() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "not.a.number");
+            MappingRule<String, Integer> describedRule = rule.describe("invalid.input");
+
+            // Act
+            Validation<Integer> result = describedRule.test("abc");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorKeys("invalid.input");
+
+            assertThat(result.errors().map(ErrorMessage::key))
+                    .doesNotContain("not.a.number");
+        }
+
+        @Test
+        void describe_whenRuleIsValid_preservesValidResult() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "not.a.number");
+            MappingRule<String, Integer> describedRule = rule.describe("invalid.input");
+
+            // Act
+            Validation<Integer> result = describedRule.test("123");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(123);
+        }
+    }
 }

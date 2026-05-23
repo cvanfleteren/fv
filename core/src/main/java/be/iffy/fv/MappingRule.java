@@ -214,6 +214,13 @@ public interface MappingRule<T, R> {
     }
 
     /**
+     * Returns a new {@link MappingRule} that, when invalid, uses the passed errorKey as single ErrorMessage.
+     */
+    default MappingRule<T, R> describe(String errorKey) {
+        return input -> this.test(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
+    }
+
+    /**
      * Turns this rule (back) into a {@link Predicate}.
      *
      * @param <S> the target type.

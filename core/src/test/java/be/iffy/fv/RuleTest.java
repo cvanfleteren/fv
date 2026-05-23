@@ -1090,4 +1090,41 @@ class RuleTest {
                     .hasErrorMessage("too.short");
         }
     }
+
+    @Nested
+    class Describe {
+
+        @Test
+        void describe_whenRuleIsInvalid_replacesErrorsWithNewErrorKey() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 5, "too.short");
+            Rule<String> describedRule = rule.describe("invalid.input");
+
+            // Act
+            Validation<String> result = describedRule.test("abc");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorKeys("invalid.input");
+
+            assertThat(result.errors().map(ErrorMessage::key))
+                    .doesNotContain("too.short");
+        }
+
+        @Test
+        void describe_whenRuleIsValid_preservesValidResult() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 5, "too.short");
+            Rule<String> describedRule = rule.describe("invalid.input");
+
+            // Act
+            Validation<String> result = describedRule.test("abcdef");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("abcdef");
+        }
+    }
 }
