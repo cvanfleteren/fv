@@ -1,11 +1,14 @@
 package be.iffy.fv.dsl;
 
 import be.iffy.fv.*;
+import be.iffy.fv.rules.functional.OptionalRules;
 import io.vavr.*;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -277,6 +280,26 @@ public class DSL {
 
     public static <T,V> Validation<T> notNull(T value, PropertySelector<V, T> selector) {
         return validateThat(value, selector).is(Rule.notNull());
+    }
+
+    /**
+     * For any given Rule<T>, returns a Rule that can work on an Optional<T> instead.
+     * An empty {@link Optional} is considered to be valid.
+     *
+     * @see OptionalRules#required()
+     */
+    public static <T> Rule<Optional<T>> optional(Rule<T> rule) {
+        return rule.liftToOptional();
+    }
+
+    /**
+     * For any given Rule<T>, returns a Rule that can work on an Optional<T> instead.
+     * An empty {@link Option} is considered to be valid.
+     *
+     * @see OptionRules#required()
+     */
+    public static <T> Rule<Option<T>> option(Rule<T> rule) {
+        return rule.liftToOption();
     }
 
     /**
