@@ -187,11 +187,8 @@ public class DSLTest {
 
         @Test
         void assertThat_withPropertySelector_whenValid_returnsValue() {
-            // Arrange
-            Person p = new Person("john", 30);
-
             // Act
-            String result = DSL.assertThat(p, Person::name).is(Rule.notNull());
+            String result = DSL.assertThat("john", Person::name).is(Rule.notNull());
 
             // Assert
             assertThat(result).isEqualTo("john");

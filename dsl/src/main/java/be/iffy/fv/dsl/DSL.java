@@ -54,8 +54,8 @@ public class DSL {
     /**
      * Build a Validation that asserts that the valid is {@link be.iffy.fv.Validation.Valid}, throwing a {@link ValidationException} otherwise.
      */
-    public static <T,V> AssertDSL<V> assertThat(T value, PropertySelector<T,V> selector) {
-        return new AssertDSL<>(selector.apply(value), selector.getPropertyName());
+    public static <T, Z> AssertDSL<T> assertThat(T value, PropertySelector<Z, T> selector) {
+        return new AssertDSL<>(value, selector.getPropertyName());
     }
 
     /**
