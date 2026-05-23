@@ -6,6 +6,8 @@ import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Entry point for the functional validation API.
@@ -15,6 +17,32 @@ import java.util.Objects;
  * {@snippet file="be/iffy/fv/dsl/DSLSnippets.java" region="assert-all-tuple-example"}
  */
 public class DSL {
+
+    public static <T> Transformation<T> after(Function<T,T> transformation) {
+        return new Transformation<>(transformation);
+    }
+
+    public static <T> Transformation<T> after(Supplier<Function<T,T>> transformation) {
+        return new Transformation<>(transformation.get());
+    }
+
+    public static class Transformation<T> {
+        private final Function<T,T> transformer;
+
+        public Transformation(Function<T,T> transformer) {
+            this.transformer = in -> {
+                if(in == null) {
+                    return null;
+                } else {
+                    return transformer.apply(in);
+                }
+            };
+        }
+
+        public Rule<T> is(Rule<T> rule) {
+            return Rule.with(transformer, rule);
+        }
+    }
 
     /**
      * Asserts that all provided validations are valid, otherwise throws a {@link ValidationException} with all errors.

@@ -1,7 +1,6 @@
 package be.iffy.fv.rules.text;
 
 import be.iffy.fv.MappingRule;
-import be.iffy.fv.Validation;
 
 import java.text.Normalizer;
 import java.util.Locale;
@@ -9,29 +8,13 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-public class StringTransformations {
-
-
-    /**
-     * Singleton instance of {@link StringTransformations}.
-     */
-    public static final StringTransformations strings = new StringTransformations();
-
-    /**
-     * Returns the singleton instance of {@link StringTransformations}.
-     */
-    public static StringTransformations stringTransforms() {
-        return strings;
-    }
+public class StringOps {
 
     /**
      * Trims leading and trailing whitespace from the input string.
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
-     *
-     * @return a {@link MappingRule} that maps {@code "  hello  "} to {@code "hello"}.
+     * Example: {@code "  hello  " ->  "hello"}.
      */
-    public MappingRule<String,String> trim() {
+    public static Function<String, String> trim() {
         return nullSafe(String::trim);
     }
 
@@ -39,12 +22,8 @@ public class StringTransformations {
      * Replaces all newline sequences with a single space and trims the result.
      * <p>
      * Example: {@code "hello\nworld" -> "hello world"}.
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
-     *
-     * @return a {@link MappingRule} that normalizes line breaks to spaces and trims.
      */
-    public MappingRule<String, String> removeNewlines() {
+    public static Function<String, String> removeNewlines() {
         return nullSafe(s -> s.replaceAll("\\R", " ").trim());
     }
 
@@ -53,12 +32,8 @@ public class StringTransformations {
      * This method does not trim leading or trailing spaces.
      * <p>
      * Example: {@code "a \n\t b" -> "a b"}.
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
-     *
-     * @return a {@link MappingRule} that collapses all runs of whitespace to a single space.
      */
-    public MappingRule<String, String> collapseWhitespace() {
+    public static Function<String, String> collapseWhitespace() {
         // Collapse any consecutive whitespace (including newlines and tabs) to a single space
         return nullSafe(s -> s.replaceAll("\\s+", " "));
     }
@@ -67,12 +42,8 @@ public class StringTransformations {
      * Removes all whitespace characters from the input (spaces, tabs, newlines, etc.).
      * <p>
      * Example: {@code " a b c " -> "abc"}.
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
-     *
-     * @return a {@link MappingRule} that strips all whitespace.
      */
-    public MappingRule<String, String> removeWhitespace() {
+    public static Function<String, String> removeWhitespace() {
         return nullSafe(s -> s.replaceAll("\\s+", ""));
     }
 
@@ -80,12 +51,8 @@ public class StringTransformations {
      * Keeps only digit characters (0-9) and removes all others.
      * <p>
      * Example: {@code "abc123def456" -> "123456"}.
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
-     *
-     * @return a {@link MappingRule} that filters the input to digits only.
      */
-    public MappingRule<String, String> digits() {
+    public static Function<String, String> digits() {
         return nullSafe(s -> s.replaceAll("\\D+", ""));
     }
 
@@ -93,12 +60,10 @@ public class StringTransformations {
      * Removes all digit characters (0-9), keeping only non-digits.
      * <p>
      * Example: {@code "abc123def456" -> "abcdef"}.
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @return a {@link MappingRule} that removes digits from the input.
      */
-    public MappingRule<String, String> nonDigits() {
+    public static Function<String, String> nonDigits() {
         return nullSafe(s -> s.replaceAll("\\d+", ""));
     }
 
@@ -106,12 +71,8 @@ public class StringTransformations {
      * Keeps only alphanumeric ASCII characters (letters A-Z/a-z and digits 0-9).
      * <p>
      * Example: {@code "abc@#123" -> "abc123"}.
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
-     *
-     * @return a {@link MappingRule} that filters the input to letters and digits.
      */
-    public MappingRule<String, String> alphanumeric() {
+    public static Function<String, String> alphanumeric() {
         return nullSafe(s -> s.replaceAll("[^A-Za-z0-9]+", ""));
     }
 
@@ -121,12 +82,8 @@ public class StringTransformations {
      * Uses the Unicode category {@code \p{L}} to detect letters across all scripts.
      * <p>
      * Example: {@code "H3llo, 世界!" -> "Hllo世界"}.
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
-     *
-     * @return a {@link MappingRule} that filters the input to letters only.
      */
-    public MappingRule<String, String> lettersOnly() {
+    public static Function<String, String> lettersOnly() {
         return nullSafe(s -> s.replaceAll("[^\\p{L}]+", ""));
     }
 
@@ -137,12 +94,8 @@ public class StringTransformations {
      * Example: {@code "Hello, 世界! 123" -> "Hello 世界"}.
      * <p>
      * Note: This preserves existing spacing but does not trim. Use {@link #trim()} or {@link #collapseWhitespace()} if needed.
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
-     *
-     * @return a {@link MappingRule} that filters the input to letters and spaces only.
      */
-    public MappingRule<String, String> lettersAndSpacesOnly() {
+    public static Function<String, String> lettersAndSpacesOnly() {
         // Preserve only \p{L} (letters) and literal space. Remove everything else, including other whitespace kinds.
         return nullSafe(s -> s.replaceAll("[^\\p{L} ]+", ""));
     }
@@ -151,12 +104,8 @@ public class StringTransformations {
      * Converts the input to lower case using {@link Locale#ROOT}.
      * <p>
      * Example: {@code "HeLLo" -> "hello"}.
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
-     *
-     * @return a {@link MappingRule} that lowercases the input with locale-independent semantics.
      */
-    public MappingRule<String, String> lowercase() {
+    public static Function<String, String> lowercase() {
         return nullSafe(s -> s.toLowerCase(Locale.ROOT));
     }
 
@@ -164,13 +113,8 @@ public class StringTransformations {
      * Converts the input to lower case using the provided {@link Locale}.
      * <p>
      * Example: {@code "HeLLo" -> "hello"} (actual output may depend on the locale).
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
-     *
-     * @param locale the {@link Locale} to use for case conversion; must not be {@code null}.
-     * @return a {@link MappingRule} that lowercases the input with the given locale.
      */
-    public MappingRule<String, String> lowercase(Locale locale) {
+    public static Function<String, String> lowercase(Locale locale) {
         return nullSafe(s -> s.toLowerCase(locale));
     }
 
@@ -178,12 +122,8 @@ public class StringTransformations {
      * Converts the input to upper case using {@link Locale#ROOT}.
      * <p>
      * Example: {@code "HeLLo" -> "HELLO"}.
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
-     *
-     * @return a {@link MappingRule} that uppercases the input with locale-independent semantics.
      */
-    public MappingRule<String, String> uppercase() {
+    public static Function<String, String> uppercase() {
         return nullSafe(s -> s.toUpperCase(Locale.ROOT));
     }
 
@@ -191,13 +131,8 @@ public class StringTransformations {
      * Converts the input to upper case using the provided {@link Locale}.
      * <p>
      * Example: {@code "HeLLo" -> "HELLO"} (actual output may depend on the locale).
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
-     *
-     * @param locale the {@link Locale} to use for case conversion; must not be {@code null}.
-     * @return a {@link MappingRule} that uppercases the input with the given locale.
      */
-    public MappingRule<String, String> uppercase(Locale locale) {
+    public static Function<String, String> uppercase(Locale locale) {
         return nullSafe(s -> s.toUpperCase(locale));
     }
 
@@ -208,13 +143,10 @@ public class StringTransformations {
      * to form a character class. If {@code chars} is {@code null} or empty, the input is returned unchanged.
      * <p>
      * Example: {@code removeCharacters("-").apply("a-b-c") -> "abc"}.
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @param chars characters to remove; if {@code null}, nothing is removed.
-     * @return a {@link MappingRule} that strips the specified characters from the input.
      */
-    public MappingRule<String, String> removeCharacters(String chars) {
+    public static Function<String, String> removeCharacters(String chars) {
         final String toRemove = Objects.requireNonNullElse(chars, "");
         // Build a character class from the provided characters
         final String characterClass = toRemove
@@ -234,11 +166,11 @@ public class StringTransformations {
         return input -> {
             if (input != null) {
                 if (toRemove.isEmpty()) {
-                    return Validation.valid(input);
+                    return input;
                 }
-                return Validation.valid(input.replaceAll(characterClass, ""));
+                return input.replaceAll(characterClass, "");
             } else {
-                return Validation.invalid("must.not.be.null");
+                return null;
             }
         };
     }
@@ -251,22 +183,19 @@ public class StringTransformations {
      * If {@code regex} or {@code replacement} is {@code null}, they are treated as empty strings.
      * Invalid patterns will throw {@link java.util.regex.PatternSyntaxException} at creation time,
      * The regex gets compiled into a {@link Pattern} for efficient reuse.
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @param regex        the regular expression to which the input is to be matched.
      * @param replacement  the string to be substituted for each match.
-     * @return a {@link MappingRule} that performs {@link java.util.regex.Matcher#replaceAll(String)}.
      */
-    public MappingRule<String, String> replaceAll(String regex, String replacement) {
+    public static Function<String, String> replaceAll(String regex, String replacement) {
         final String rx = Objects.requireNonNullElse(regex, "");
         final String repl = Objects.requireNonNullElse(replacement, "");
         final Pattern pattern = Pattern.compile(rx);
         return input -> {
             if (input != null) {
-                return Validation.valid(pattern.matcher(input).replaceAll(repl));
+                return pattern.matcher(input).replaceAll(repl);
             } else {
-                return Validation.invalid("must.not.be.null");
+                return null;
             }
         };
     }
@@ -283,18 +212,16 @@ public class StringTransformations {
      *     <li>{@code keepChars("0123456789").apply("abc123-45")} → {@code "12345"}</li>
      *     <li>{@code keepChars("-[]").apply("a-]b[")} → {@code "-]["}</li>
      * </ul>
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @param allowed the characters to keep; if {@code null} or empty, nothing is kept (result becomes empty string)
      * @return a {@link MappingRule} that filters the input to the provided character set.
      */
-    public MappingRule<String, String> keepChars(String allowed) {
+    public static Function<String, String> keepChars(String allowed) {
         final String toKeep = Objects.requireNonNullElse(allowed, "");
 
         if (toKeep.isEmpty()) {
             // For any non-null input, return empty string
-            return input -> input != null ? Validation.valid("") : Validation.invalid("must.not.be.null");
+            return input -> input != null ? "" : null;
         }
 
         // Build a safe character class content from the provided characters
@@ -314,9 +241,9 @@ public class StringTransformations {
 
         return input -> {
             if (input != null) {
-                return Validation.valid(notAllowed.matcher(input).replaceAll(""));
+                return notAllowed.matcher(input).replaceAll("");
             } else {
-                return Validation.invalid("must.not.be.null");
+                return null;
             }
         };
     }
@@ -328,12 +255,8 @@ public class StringTransformations {
      * re-normalizes to {@link java.text.Normalizer.Form#NFC}.
      * <p>
      * Example: {@code "Café naïve" -> "Cafe naive"}.
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
-     *
-     * @return a {@link MappingRule} that strips diacritics while keeping base letters.
      */
-    public MappingRule<String, String> stripDiacritics() {
+    public static Function<String, String> stripDiacritics() {
         return nullSafe(s -> {
             String nfd = Normalizer.normalize(s, Normalizer.Form.NFD);
             String stripped = nfd.replaceAll("\\p{M}+", "");
@@ -350,12 +273,8 @@ public class StringTransformations {
      * Example: {@code "A\u0000B\u200BC" -> "ABC"}.
      * <p>
      * Note: This will also remove line breaks since they are control characters.
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
-     *
-     * @return a {@link MappingRule} that strips control and zero-width formatting characters.
      */
-    public MappingRule<String, String> stripControlChars() {
+    public static Function<String, String> stripControlChars() {
         // \p{Cc}: control chars. Additionally strip zero-width/formatting characters.
         return nullSafe(s -> s.replaceAll("[\\p{Cc}\\u200B-\\u200D\\u2060\\uFEFF]+", ""));
     }
@@ -366,14 +285,11 @@ public class StringTransformations {
      * If the input length is less than or equal to {@code maxLen}, the input is returned unchanged.
      * If cutting at {@code maxLen} would split a surrogate pair (i.e. the character boundary falls between
      * a high and low surrogate), the cut index is moved one position to the left to preserve the pair.
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @param maxLen maximum length of the resulting string, must be {@code >= 0}
-     * @return a {@link MappingRule} that truncates strings safely.
      * @throws IllegalArgumentException when {@code maxLen} is negative
      */
-    public MappingRule<String, String> truncate(int maxLen) {
+    public static Function<String, String> truncate(int maxLen) {
         if (maxLen < 0) {
             throw new IllegalArgumentException("maxLen must be >= 0");
         }
@@ -394,14 +310,11 @@ public class StringTransformations {
      *   do, falls back to ASCII {@code ...}. For very small {@code maxLen}, returns as much as possible without
      *   appending ellipsis when even the shortest ellipsis can't fit.
      * - Never splits surrogate pairs at the cut point.
-     * <p>
-     * Null handling: returns {@code Validation.invalid("must.not.be.null")} when the input is {@code null}.
      *
      * @param maxLen maximum total length including the ellipsis, must be {@code >= 0}
-     * @return a {@link MappingRule} that truncates with ellipsis safely.
      * @throws IllegalArgumentException when {@code maxLen} is negative
      */
-    public MappingRule<String, String> truncateWithEllipsis(int maxLen) {
+    public static Function<String, String> truncateWithEllipsis(int maxLen) {
         if (maxLen < 0) {
             throw new IllegalArgumentException("maxLen must be >= 0");
         }
@@ -462,12 +375,12 @@ public class StringTransformations {
         return cut;
     }
 
-    private MappingRule<String,String> nullSafe(Function<String,String> op) {
+    private static <T> Function<T,T> nullSafe(Function<T,T> op) {
         return input -> {
             if (input != null) {
-                return Validation.valid(op.apply(input));
+                return op.apply(input);
             } else {
-                return Validation.invalid("must.not.be.null");
+                return null;
             }
         };
     }

@@ -22,6 +22,8 @@ public class Rules {
         return StringRules.strings;
     }
 
+    public static final StringRules strings = StringRules.strings;
+
     public static BigDecimalRules bigDecimals() {
         return BigDecimalRules.bigDecimals;
     }
