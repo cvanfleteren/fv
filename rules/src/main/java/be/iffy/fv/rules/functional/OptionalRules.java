@@ -38,6 +38,19 @@ public class OptionalRules {
     }
 
     /**
+     * Acts the same as {@link #required()}, but takes a Class parameter to help the java compiler
+     * with type inference. Can be used to use something like
+     * {@code Validation<Bic> bic = validateThat(bicHolder.bic()).is(optionals.required(String.class).andThen(Bic::validate));}
+     * instead of
+     * {@code Validation<Bic> bic = validateThat(bicHolder.bic()).is(optionals.<String>required().andThen(Bic::validate));}
+     * which some people prefer.
+     *
+     */
+    public <T> MappingRule<Optional<T>, T> required(Class<T> clazz) {
+        return required();
+    }
+
+    /**
      * Fails if the {@link Optional} is empty while or doesn't contain a value that passes the passed rule.
      * Return a {@link be.iffy.fv.Validation.Valid} with the contained value otherwise.
      *

@@ -29,14 +29,24 @@ public class OptionRules {
      * <p>
      * Usage example:
      * {@snippet file = "be/iffy/fv/rules/functional/OptionSnippets.java" region = "required-example"}
-     *
-     * @param <T> the type of the value contained in the Option
      */
     public <T> MappingRule<Option<T>, T> required() {
         return MappingRule.<Option<T>>notNull().andThen(input -> input.fold(
                 () -> Validation.invalid("must.not.be.empty"),
                 Validation::valid
         ));
+    }
+
+    /**
+     * Acts the same as {@link #required()}, but takes a Class parameter to help the java compiler
+     * with type inference. Can be used to use something like
+     * {@code Validation<Bic> bic = validateThat(bicHolder.bic()).is(options.required(String.class).andThen(Bic::validate));}
+     * instead of
+     * {@code Validation<Bic> bic = validateThat(bicHolder.bic()).is(options.<String>required().andThen(Bic::validate));}
+     * which some people prefer.
+     */
+    public <T> MappingRule<Option<T>, T> required(Class<T> clazz) {
+        return required();
     }
 
     /**

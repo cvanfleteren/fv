@@ -1,13 +1,34 @@
 package be.iffy.fv.test.examples;
 
+import be.iffy.fv.MappingRule;
 import be.iffy.fv.Validation;
+import io.vavr.API;
+
+import java.util.Optional;
+import java.util.function.Function;
+
+import static be.iffy.fv.dsl.DSL.validateThat;
+import static be.iffy.fv.rules.Rules.optionals;
 
 public class BicHolder {
 
+
+    public <T,R> MappingRule<T,R> valid(Function<T, Validation<R>> validationFunction) {
+        return API.TODO();
+    }
+
     record HasBic(Bic bic){}
+
+    record HasOptionalBicString(Optional<String> bic){}
 
     public void foo() {
         Validation<Bic> bicV = Bic.validate("123").at(HasBic::bic);
+
+        MappingRule<String, Bic> b = Bic::validate;
+
+        var bicHolder = new HasOptionalBicString(Optional.empty());
+
+        Validation<Bic> bicV2 = validateThat(bicHolder.bic()).is(optionals.required(String.class).andThen(Bic::validate));
     }
 
 }
