@@ -1,4 +1,4 @@
-package be.iffy.fv.dsl;
+package be.iffy.fv;
 
 import java.io.Serializable;
 import java.util.function.Function;

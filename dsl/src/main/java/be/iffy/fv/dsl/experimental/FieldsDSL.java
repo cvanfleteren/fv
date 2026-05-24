@@ -5,7 +5,7 @@ import io.vavr.Lazy;
 import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
-import be.iffy.fv.dsl.PropertySelector;
+import be.iffy.fv.PropertySelector;
 
 import java.util.Objects;
 import java.util.function.Function;

@@ -411,6 +411,15 @@ public sealed interface Validation<T> extends Iterable<T> {
     default Validation<T> at(String name) {
         return mapErrors(errors -> errors.map(error -> error.prepend(ErrorMessage.Path.of(name))));
     }
+
+    /**
+     * Maps error messages by prepending the propertyName for the given selector to the segments of each error message.
+     *
+     * @param selector  The selector for the value that was validated (e.g., SomeRecord::someField or SomeBean::getProperty).
+     */
+    default Validation<T> at(PropertySelector<?,T> selector) {
+        return mapErrors(errors -> errors.map(error -> error.prepend(ErrorMessage.Path.of(selector.getPropertyName()))));
+    }
     //endregion
 
     //region common functional operations on multiple validations

@@ -1,5 +1,6 @@
 package be.iffy.fv.dsl;
 
+import be.iffy.fv.PropertySelector;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 

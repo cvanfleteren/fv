@@ -9,7 +9,7 @@ import io.vavr.Function7;
 import io.vavr.Function8;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Validation;
-import be.iffy.fv.dsl.PropertySelector;
+import be.iffy.fv.PropertySelector;
 
 import java.util.function.Function;
 import java.util.function.Predicate;

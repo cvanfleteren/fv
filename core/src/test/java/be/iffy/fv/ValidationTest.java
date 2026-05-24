@@ -879,6 +879,38 @@ public class ValidationTest {
     @Nested
     class At {
 
+        private record TestBean(String name) {}
+
+        @Test
+        void at_withPropertySelector_whenValid_returnsSameValidValidation() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+            PropertySelector<TestBean, String> selector = TestBean::name;
+
+            // Act
+            Validation<String> result = valid.at(selector);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue("Success");
+        }
+
+        @Test
+        void at_withPropertySelector_whenInvalid_prependsPropertyName() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("must.not.be.null");
+            PropertySelector<TestBean, String> selector = TestBean::name;
+
+            // Act
+            Validation<String> result = invalid.at(selector);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("name.must.not.be.null");
+        }
+
         @Test
         void at_whenValid_returnsSameValidValidation() {
             // Arrange

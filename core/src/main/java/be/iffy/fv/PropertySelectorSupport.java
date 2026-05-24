@@ -1,4 +1,4 @@
-package be.iffy.fv.dsl;
+package be.iffy.fv;
 
 import lombok.SneakyThrows;
 
