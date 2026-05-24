@@ -43,7 +43,10 @@ public class DSL {
         }
 
         public Rule<T> is(Rule<T> rule) {
-            return input -> rule.test(transformer.apply(input));
+            return input -> {
+                T transformed = transformer.apply(input);
+                return rule.test(transformed);
+            };
         }
     }
 
@@ -434,7 +437,7 @@ public class DSL {
         public Validation<T> is(Rule<? super T> rule) {
             Objects.requireNonNull(rule, "rule cannot be null");
             return validation
-                    .flatMap(v -> Validation.narrowSuper(Rule.notNull().and(rule).test(v).at(name)));
+                    .flatMap(v -> Validation.narrowSuper(rule.test(v).at(name)));
         }
 
         /**

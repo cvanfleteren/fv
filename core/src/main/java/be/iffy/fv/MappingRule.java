@@ -436,7 +436,8 @@ public interface MappingRule<T, R> {
      * @return a MappingRule that returns valid input only if it's not null
      */
     static <T> MappingRule<T, T> notNull() {
-        return input -> input == null ? Validation.invalid("must.not.be.null") : Validation.valid(input);
+        return input ->
+                input == null ? Validation.invalid("must.not.be.null") : Validation.valid(input);
     }
 
     /**

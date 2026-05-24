@@ -18,8 +18,17 @@ import java.util.function.Supplier;
  *
  * <p>A Rule is essentially a {@link java.util.function.Predicate} that returns a {@link Validation}
  * object containing either the valid value or a structured {@link ErrorMessage}.
+ * <p>
+ * When making your own Rules, keep the following in mind:
+ * <ul>
+ *     <li>
+ *         Rules are <em>not automatically nullSafe</em> (meaning the value they test might be null), but a Rule created with the
+ *         {@code Rule.of(Predicate, ...)} factories will never pass the null to the predicate.
+ *     </li>
+ *     <li>Rules are <em>not supposed to change their input</em>, the value in the returned {@link be.iffy.fv.Validation.Valid} should be the <em>same instance</em> as the input. To change the input (type or value), use a {@link MappingRule}</li>
+ * </ul>
  *
- * <h2>Example: Defining and using a simple rule</h2>
+ * Example: Defining and using a simple rule
  * {@snippet file="be/iffy/fv/RuleSnippets.java" region="rule-example"}
  *
  * @param <T> the type of the value to be validated.
@@ -66,7 +75,13 @@ public interface Rule<T> extends MappingRule<T, T> {
     static <T> Rule<T> of(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
-        return value -> predicate.test(value) ? Validation.valid(value) : Validation.invalid(errorMessage);
+        return value ->  {
+                if(value == null) {
+                    return Validation.invalid("must.not.be.null");
+                } else {
+                    return predicate.test(value) ? Validation.valid(value) : Validation.invalid(errorMessage);
+                }
+        };
     }
 
     /**
@@ -514,7 +529,8 @@ public interface Rule<T> extends MappingRule<T, T> {
      * @param <T> the type of input
      */
     static <T> Rule<T> notNull() {
-        return MappingRule.<T>notNull()::test;
+        return input ->
+                input == null ? Validation.invalid("must.not.be.null") : Validation.valid(input);
     }
 
     /**
@@ -527,7 +543,8 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
-     * Applies the specified {@link Rule} to the result of applying the selector function to the input. Aka <code>contramap</code>.
+     * Applies the specified {@link Rule} to the result of applying the selector function to the input..
+     * Be careful, even if T and V are the same type, the returned value will be the original input, not the value retrieved from the selector.
      * <p>
      * Usage example:
      * {@snippet file="be/iffy/fv/RuleSnippets.java" region="with-example"}

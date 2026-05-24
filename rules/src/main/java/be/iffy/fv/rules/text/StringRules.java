@@ -359,7 +359,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         if (length < 0) {
             throw new IllegalArgumentException("length must be >= 0");
         }
-        return Rule.notNull().and(Rule.of(s -> s.length() == length, ErrorMessage.of("must.have.length", "len", length)));
+        return Rule.of(s -> s.length() == length, ErrorMessage.of("must.have.length", "len", length));
     }
     //endregion
 
@@ -379,10 +379,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     public Rule<String> startsWith(String... prefixes) {
         Objects.requireNonNull(prefixes, "prefixes cannot be null");
 
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> Arrays.stream(prefixes).anyMatch(s::startsWith),
                 ErrorMessage.of("must.start.with", "prefixes", List.of(prefixes))
-        ));
+        );
     }
 
     /**
@@ -400,10 +400,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> startsWithIgnoreCase(String... prefixes) {
         Objects.requireNonNull(prefixes, "prefixes cannot be null");
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> Arrays.stream(prefixes).anyMatch(prefix -> s.regionMatches(true, 0, prefix, 0, prefix.length())),
                 ErrorMessage.of("must.start.with.ignorecase", "prefixes", List.of(prefixes))
-        ));
+        );
     }
 
     /**
@@ -422,10 +422,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     public Rule<String> endsWith(String... suffixes) {
         Objects.requireNonNull(suffixes, "suffixes cannot be null");
 
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> Arrays.stream(suffixes).anyMatch(s::endsWith),
-               ErrorMessage.of("must.end.with", "suffixes", List.of(suffixes))
-        ));
+                ErrorMessage.of("must.end.with", "suffixes", List.of(suffixes))
+        );
     }
 
     /**
@@ -440,11 +440,11 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> endsWithIgnoreCase(String... suffixes) {
         Objects.requireNonNull(suffixes, "suffixes cannot be null");
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> Arrays.stream(suffixes).anyMatch(suffix -> s.length() >= suffix.length()
                         && s.regionMatches(true, s.length() - suffix.length(), suffix, 0, suffix.length())),
                 ErrorMessage.of("must.end.with.ignorecase", "suffixes", List.of(suffixes))
-        ));
+        );
     }
 
     /**
@@ -462,10 +462,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> contains(String fragment) {
         Objects.requireNonNull(fragment, "fragment cannot be null");
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> s.contains(fragment),
                 ErrorMessage.of("must.contain", "fragment", fragment)
-        ));
+        );
     }
 
     /**
@@ -484,7 +484,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     public Rule<String> containsIgnoreCase(String fragment) {
         Objects.requireNonNull(fragment, "fragment cannot be null");
 
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> {
                     int needleLen = fragment.length();
                     if (needleLen == 0) {
@@ -504,7 +504,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
                     return false;
                 },
                 ErrorMessage.of("must.contain.ignorecase", "fragment", fragment)
-        ));
+        );
     }
 
     /**
@@ -517,10 +517,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> containsPattern(Pattern pattern) {
         Objects.requireNonNull(pattern, "pattern cannot be null");
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> pattern.matcher(s).find(),
                 ErrorMessage.of("must.contain.regex", "regex", pattern.pattern())
-        ));
+        );
     }
 
     /**
@@ -538,10 +538,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> doesNotContain(String fragment) {
         Objects.requireNonNull(fragment, "fragment cannot be null");
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> !s.contains(fragment),
                 ErrorMessage.of("must.not.contain", "fragment", fragment)
-        ));
+        );
     }
 
     /**
@@ -559,10 +559,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     public Rule<String> notIn(Set<String> forbidden) {
         Objects.requireNonNull(forbidden, "forbidden cannot be null");
 
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> !forbidden.contains(s),
                 ErrorMessage.of("must.not.be.in", "forbidden", forbidden)
-        ));
+        );
     }
 
     /**
@@ -579,10 +579,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> isIn(Set<String> allowed) {
         Objects.requireNonNull(allowed, "allowed cannot be null");
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 allowed::contains,
                 ErrorMessage.of("must.be.in", "allowed", allowed)
-        ));
+        );
     }
 
     /**
@@ -600,10 +600,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     public Rule<String> matches(String regex) {
         Objects.requireNonNull(regex, "regex cannot be null");
         Pattern pattern = Pattern.compile(regex);
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> pattern.matcher(s).matches(),
                 ErrorMessage.of("must.match.regex", "regex", regex)
-        ));
+        );
     }
 
     /**
@@ -620,10 +620,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> matches(Pattern regex) {
         Objects.requireNonNull(regex, "regex cannot be null");
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> regex.matcher(s).matches(),
                 ErrorMessage.of("must.match.regex", "regex", regex)
-        ));
+        );
     }
 
     /**
@@ -636,10 +636,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      */
     public Rule<String> equalsIgnoreCase(String expected) {
-            return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> s.equalsIgnoreCase(expected),
                 ErrorMessage.of("must.equal.ignoreCase", "value", expected)
-            ));
+        );
     }
 
     /**
@@ -652,11 +652,11 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      */
     public Rule<String> notEqualsIgnoreCase(String... forbidden) {
-        Objects.requireNonNull(forbidden,"forbidden can not be null");
-            return Rule.notNull().and(Rule.of(
+        Objects.requireNonNull(forbidden, "forbidden can not be null");
+        return Rule.of(
                 s -> Arrays.stream(forbidden).noneMatch(s::equalsIgnoreCase),
                 ErrorMessage.of("must.not.equal.ignoreCase", "value", List.of(forbidden))
-            ));
+        );
     }
 
     /**
@@ -666,10 +666,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Error key: {@code must.be.alpha}
      */
     public Rule<String> alpha() {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> s.codePoints().allMatch(Character::isLetter),
                 "must.be.alpha"
-        ));
+        );
     }
 
     /**
@@ -678,7 +678,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Error key: {@code must.be.alphanumeric}
      */
     public Rule<String> alphaNumeric() {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> s.codePoints().allMatch(c ->
                         // ‘0–9’
                         (c >= 48 && c <= 57) ||
@@ -688,7 +688,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
                                 (c >= 97 && c <= 122)
                 ),
                 "must.be.alphanumeric"
-        ));
+        );
     }
 
     /**
@@ -698,10 +698,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Error key: {@code must.be.unicode.alphanumeric}
      */
     public Rule<String> alphaNumericUnicode() {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> s.codePoints().allMatch(Character::isLetterOrDigit),
                 "must.be.unicode.alphanumeric"
-        ));
+        );
     }
 
     /**
@@ -711,10 +711,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Error key: {@code must.be.unicode.digits.only}
      */
     public Rule<String> onlyUnicodeDigits() {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> s.codePoints().allMatch(Character::isDigit),
                 "must.be.unicode.digits.only"
-        ));
+        );
     }
 
     /**
@@ -725,15 +725,16 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link Rule} checking if the string contains only digits.
      */
     public Rule<String> onlyDigits() {
-        return Rule.notNull().and(Rule.of(s -> s.codePoints().allMatch(c ->
+        return Rule.of(s -> s.codePoints().allMatch(c ->
                         // ‘0–9’
                         (c >= 48 && c <= 57)
                 ),
                 "must.be.digits.only"
-        ));
+        );
     }
 
     private static final Pattern HEXADECIMAL_PATTERN = Pattern.compile("[0-9a-f]*", Pattern.CASE_INSENSITIVE);
+
     /**
      * Fails if the string contains anything other than hexadecimal characters.
      * <p>
@@ -742,7 +743,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link Rule} checking if the string is hexadecimal.
      */
     public Rule<String> hexadecimal() {
-        return Rule.notNull().and(Rule.of(s -> HEXADECIMAL_PATTERN.matcher(s).matches(), ErrorMessage.of("must.be.hexadecimal")));
+        return Rule.of(s -> HEXADECIMAL_PATTERN.matcher(s).matches(), ErrorMessage.of("must.be.hexadecimal"));
     }
 
     // Regex for standard Base64
@@ -761,7 +762,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link Rule} checking if the string is Base64.
      */
     public Rule<String> base64() {
-        return Rule.notNull().and(Rule.of(s -> STANDARD_BASE64_PATTERN.matcher(s).matches(), ErrorMessage.of("must.be.base64")));
+        return Rule.of(s -> STANDARD_BASE64_PATTERN.matcher(s).matches(), ErrorMessage.of("must.be.base64"));
     }
 
     /**
@@ -772,10 +773,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link Rule} checking if the string is URL-safe Base64.
      */
     public Rule<String> base64UrlSafe() {
-        return Rule.notNull().and(Rule.of(s -> URL_SAFE_BASE64_PATTERN.matcher(s).matches(), ErrorMessage.of("must.be.base64.urlsafe")));
+        return Rule.of(s -> URL_SAFE_BASE64_PATTERN.matcher(s).matches(), ErrorMessage.of("must.be.base64.urlsafe"));
     }
-
-
 
     private static final Pattern IS_EMAIL_PATTERN = Pattern.compile(
             // local part
@@ -794,10 +793,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Error key: {@code must.be.email}
      */
     public Rule<String> looksLikeEmailAddress() {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> IS_EMAIL_PATTERN.matcher(s).matches(),
                 "must.be.email"
-        ));
+        );
     }
 
     //endregion
