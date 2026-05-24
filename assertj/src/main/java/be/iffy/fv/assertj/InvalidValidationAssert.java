@@ -6,6 +6,7 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
+import org.assertj.core.api.ListAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,6 +15,22 @@ public class InvalidValidationAssert<SELF extends InvalidValidationAssert<SELF, 
 
     protected InvalidValidationAssert(VALID actual) {
         super(actual, InvalidValidationAssert.class);
+    }
+
+    public ListAssert<String> errorMessages() {
+        return Assertions.assertThat(actual.errors().map(ErrorMessage::message).toJavaList());
+    }
+
+    public ListAssert<String> errorKeys() {
+        return Assertions.assertThat(actual.errors().map(ErrorMessage::key).toJavaList());
+    }
+
+    public ListAssert<String> formattedMessages() {
+        return Assertions.assertThat(actual.errors().map(ErrorMessage::formatted).toJavaList());
+    }
+
+    public ListAssert<ErrorMessage> errors() {
+        return Assertions.assertThat(actual.errors().toJavaList());
     }
 
     /**
