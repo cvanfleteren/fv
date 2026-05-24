@@ -1082,6 +1082,20 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Creates a {@link Validation} from a {@link Try}.
      * If the {@link Try} is successful, the returned validation will be valid with the value.
+     * If the {@link Try} is failed, the returned validation will be invalid with the provided error message.
+     *
+     * @param _try         the try instance.
+     * @param errorKey     the errorKey to use if failed.
+     * @param <T>          the value type.
+     * @return a {@link Validation} instance.
+     */
+    static <T> Validation<T> from(Try<? extends T> _try, String errorKey) {
+        return from(_try, ErrorMessage.of(errorKey));
+    }
+
+    /**
+     * Creates a {@link Validation} from a {@link Try}.
+     * If the {@link Try} is successful, the returned validation will be valid with the value.
      * If the {@link Try} is failed, the returned validation will be invalid with the message of the thrown exception.
      *
      * @param _try the try instance.
