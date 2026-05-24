@@ -359,6 +359,26 @@ class StringRulesTest {
     }
 
     @Nested
+    class NotEqualsIgnoreCase {
+
+        @Test
+        void valid() {
+            validTest("hello", strings.notEqualsIgnoreCase("world","hola"));
+            validTest("world", strings.notEqualsIgnoreCase("HELLO"));
+            validTest("", strings.notEqualsIgnoreCase("x"));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("hello", strings.notEqualsIgnoreCase("HELLO","HOLA"), "must.not.equal.ignoreCase", HashMap.of("value", List.of("HELLO","HOLA")));
+            invalidTest("HELLO", strings.notEqualsIgnoreCase("HOLA","hello"), "must.not.equal.ignoreCase", HashMap.of("value", List.of("HOLA","hello")));
+            invalidTest("HeLlO", strings.notEqualsIgnoreCase("hElLo"), "must.not.equal.ignoreCase", HashMap.of("value", List.of("hElLo")));
+            invalidTest("", strings.notEqualsIgnoreCase(""), "must.not.equal.ignoreCase", HashMap.of("value", List.of("")));
+            invalidTest(null, strings.notEqualsIgnoreCase("x"), "must.not.be.null");
+        }
+    }
+
+    @Nested
     class NotIn {
 
         @Test

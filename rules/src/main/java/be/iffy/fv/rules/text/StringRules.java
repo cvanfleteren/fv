@@ -642,6 +642,22 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
             ));
     }
 
+    /**
+     * Fails if the string is equal ignoring case the specified value.
+     * <p>
+     * Error key: {@code must.not.equal.ignoreCase}
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the values must not match (({@link List<String>})</li>
+     * </ul>
+     */
+    public Rule<String> notEqualsIgnoreCase(String... forbidden) {
+        Objects.requireNonNull(forbidden,"forbidden can not be null");
+            return Rule.notNull().and(Rule.of(
+                s -> Arrays.stream(forbidden).noneMatch(s::equalsIgnoreCase),
+                ErrorMessage.of("must.not.equal.ignoreCase", "value", List.of(forbidden))
+            ));
+    }
 
     /**
      * Fails if the string contains anything other than letters.
