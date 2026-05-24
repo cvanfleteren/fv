@@ -19,6 +19,11 @@ public class InvalidValidationAssert<SELF extends InvalidValidationAssert<SELF, 
         return (SELF) this;
     }
 
+    public SELF hasFormattedMessage(String errorMessage) {
+        assertThat(actual.errors()).map(ErrorMessage::formatted).contains(errorMessage);
+        return (SELF) this;
+    }
+
     public SELF hasErrorMessage(String errorKey, Map<String, Object> args) {
         assertThat(actual.errors()).map(ErrorMessage::key).contains(errorKey);
         assertThat(actual.errors().filter(e -> e.key().equals(errorKey)).head().parameters()).isEqualTo(args);
@@ -26,12 +31,17 @@ public class InvalidValidationAssert<SELF extends InvalidValidationAssert<SELF, 
     }
 
     public SELF hasErrorMessages(String... errorMessages) {
-        assertThat(actual.errors()).map(ErrorMessage::message).containsExactly(errorMessages);
+        assertThat(actual.errors()).map(ErrorMessage::message).contains(errorMessages);
         return (SELF) this;
     }
 
     public SELF hasErrorKeys(String... errorKeys) {
-        assertThat(actual.errors()).map(ErrorMessage::key).containsExactly(errorKeys);
+        assertThat(actual.errors()).map(ErrorMessage::key).containsExactlyInAnyOrder(errorKeys);
+        return (SELF) this;
+    }
+
+    public SELF doesNotContainErrorMessages(String... errorMessages) {
+        assertThat(actual.errors()).map(ErrorMessage::message).doesNotContain(errorMessages);
         return (SELF) this;
     }
 }

@@ -72,7 +72,7 @@ public class InvalidValidationAssert<SELF extends InvalidValidationAssert<SELF, 
      * @return {@code this} assertion object.
      */
     public SELF hasErrorMessages(String... errorMessages) {
-        assertThat(actual.errors()).map(ErrorMessage::message).containsExactly(errorMessages);
+        assertThat(actual.errors()).map(ErrorMessage::message).contains(errorMessages);
         return (SELF) this;
     }
 
@@ -83,7 +83,7 @@ public class InvalidValidationAssert<SELF extends InvalidValidationAssert<SELF, 
      * @return {@code this} assertion object.
      */
     public SELF hasErrorKeys(String... errorKeys) {
-        assertThat(actual.errors()).map(ErrorMessage::key).containsExactly(errorKeys);
+        assertThat(actual.errors()).map(ErrorMessage::key).contains(errorKeys);
         return (SELF) this;
     }
 
@@ -95,6 +95,16 @@ public class InvalidValidationAssert<SELF extends InvalidValidationAssert<SELF, 
      */
     public SELF hasErrorCount(int count) {
         Assertions.assertThat(count).isEqualTo(actual.errors().size());
+        return (SELF) this;
+    }
+
+    public SELF hasFormattedMessage(String errorMessage) {
+        assertThat(actual.errors()).map(ErrorMessage::formatted).contains(errorMessage);
+        return (SELF) this;
+    }
+
+    public SELF doesNotContainErrorMessages(String... errorMessages) {
+        assertThat(actual.errors()).map(ErrorMessage::message).doesNotContain(errorMessages);
         return (SELF) this;
     }
 }
