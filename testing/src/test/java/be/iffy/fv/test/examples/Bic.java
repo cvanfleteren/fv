@@ -6,7 +6,8 @@ import be.iffy.fv.rules.text.StringOps;
 
 import java.util.regex.Pattern;
 
-import static be.iffy.fv.dsl.DSL.*;
+import static be.iffy.fv.dsl.DSL.after;
+import static be.iffy.fv.dsl.DSL.assertThat;
 import static be.iffy.fv.rules.Rules.strings;
 
 public record Bic(String value) {
@@ -20,10 +21,11 @@ public record Bic(String value) {
     );
 
     static Rule<String> validBic = after(StringOps.removeWhitespace()).is(
-            Rule.any(
-                    strings.length(8),
-                    strings.length(11)
-            ).describe("length.must.be.8.or.11").and(followsBicPattern)
+                Rule.any(
+                        strings.length(8),
+                        strings.length(11)
+                ).withErrorKey("length.must.be.8.or.11")
+                .and(followsBicPattern)
     );
 
     public Bic {
