@@ -1,6 +1,9 @@
 package be.iffy.fv;
 
 import io.vavr.collection.List;
+import io.vavr.control.Option;
+
+import java.util.Optional;
 
 public class ValidationSnippets {
 
@@ -125,32 +128,58 @@ public class ValidationSnippets {
         // @end
     }
 
-    void sequence_seq() {
-        // @start region="sequence_seq"
+    void transpose_seq() {
+        // @start region="transpose_seq"
         io.vavr.collection.List<Validation<Integer>> list = io.vavr.collection.List.of(
             Validation.valid(1),
             Validation.valid(2),
             Validation.valid(3)
         );
-        Validation<io.vavr.collection.List<Integer>> result = Validation.sequence(list); // returns Valid(List(1, 2, 3))
+        Validation<io.vavr.collection.List<Integer>> result = Validation.transpose(list); // returns Valid(List(1, 2, 3))
 
         io.vavr.collection.List<Validation<Integer>> mixed = io.vavr.collection.List.of(
             Validation.valid(1),
             Validation.invalid("error.1"),
             Validation.invalid("error.2")
         );
-        Validation<io.vavr.collection.List<Integer>> mixedResult = Validation.sequence(mixed); // returns Invalid("error.1", "error.2")
+        Validation<io.vavr.collection.List<Integer>> mixedResult = Validation.transpose(mixed); // returns Invalid("error.1", "error.2")
         List<String> errors = mixedResult.errors().map(ErrorMessage::message); // List([1].error.1, [2].error.2)
         // @end
     }
 
-    void sequence_collection() {
-        // @start region="sequence_collection"
+    void transpose_collection() {
+        // @start region="transpose_collection"
         java.util.List<Validation<Integer>> list = java.util.List.of(
             Validation.valid(1),
             Validation.valid(2)
         );
-        Validation<java.util.List<Integer>> result = Validation.sequence(list); // returns Valid(java.util.List.of(1, 2))
+        Validation<java.util.List<Integer>> result = Validation.transpose(list); // returns Valid(java.util.List.of(1, 2))
+        // @end
+    }
+
+    void transpose_option() {
+        // @start region="transpose_option"
+        Option<Validation<Integer>> option = Option.of(Validation.valid(42));
+        Validation<Option<Integer>> result = Validation.transpose(option); // returns Valid(Some(42))
+
+        Option<Validation<Integer>> emptyOption = Option.none();
+        Validation<Option<Integer>> emptyResult = Validation.transpose(emptyOption); // returns Valid(None)
+
+        Option<Validation<Integer>> invalidOption = Option.of(Validation.invalid("error"));
+        Validation<Option<Integer>> invalidResult = Validation.transpose(invalidOption); // returns Invalid("error")
+        // @end
+    }
+
+    void transpose_optional() {
+        // @start region="transpose_optional"
+        Optional<Validation<Integer>> optional = Optional.of(Validation.valid(42));
+        Validation<Optional<Integer>> result = Validation.transpose(optional); // returns Valid(Optional[42])
+
+        Optional<Validation<Integer>> emptyOptional = Optional.empty();
+        Validation<Optional<Integer>> emptyResult = Validation.transpose(emptyOptional); // returns Valid(Optional.empty)
+
+        Optional<Validation<Integer>> invalidOptional = Optional.of(Validation.invalid("error"));
+        Validation<Optional<Integer>> invalidResult = Validation.transpose(invalidOptional); // returns Invalid("error")
         // @end
     }
 

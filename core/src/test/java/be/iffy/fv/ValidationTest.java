@@ -629,10 +629,10 @@ public class ValidationTest {
     }
 
     @Nested
-    class Sequence {
+    class Transpose {
 
         @Test
-        void sequence_whenAllValid_returnsValidValidationWithList() {
+        void transpose_whenAllValid_returnsValidValidationWithList() {
             // Arrange
             List<Validation<Integer>> validations = List.of(
                     Validation.valid(1),
@@ -641,7 +641,7 @@ public class ValidationTest {
             );
 
             // Act
-            Validation<List<Integer>> result = Validation.sequence(validations);
+            Validation<List<Integer>> result = Validation.transpose(validations);
 
             // Assert
             assertThatValidation(result)
@@ -650,7 +650,7 @@ public class ValidationTest {
         }
 
         @Test
-        void sequence_whenOneIsInvalid_returnsInvalidValidation() {
+        void transpose_whenOneIsInvalid_returnsInvalidValidation() {
             // Arrange
             List<Validation<Integer>> validations = List.of(
                     Validation.valid(1),
@@ -659,7 +659,7 @@ public class ValidationTest {
             );
 
             // Act
-            Validation<List<Integer>> result = Validation.sequence(validations);
+            Validation<List<Integer>> result = Validation.transpose(validations);
 
             // Assert
             assertThatValidation(result)
@@ -668,7 +668,7 @@ public class ValidationTest {
         }
 
         @Test
-        void sequence_whenMultipleAreInvalid_returnsInvalidValidationWithAllErrors() {
+        void transpose_whenMultipleAreInvalid_returnsInvalidValidationWithAllErrors() {
             // Arrange
             List<Validation<Integer>> validations = List.of(
                     Validation.valid(1),
@@ -677,7 +677,7 @@ public class ValidationTest {
             );
 
             // Act
-            Validation<List<Integer>> result = Validation.sequence(validations);
+            Validation<List<Integer>> result = Validation.transpose(validations);
 
             // Assert
             assertThatValidation(result)
@@ -686,12 +686,12 @@ public class ValidationTest {
         }
 
         @Test
-        void sequence_whenEmptyList_returnsValidValidationWithEmptyList() {
+        void transpose_whenEmptyList_returnsValidValidationWithEmptyList() {
             // Arrange
             List<Validation<Integer>> validations = List.empty();
 
             // Act
-            Validation<List<Integer>> result = Validation.sequence(validations);
+            Validation<List<Integer>> result = Validation.transpose(validations);
 
             // Assert
             assertThatValidation(result)
@@ -701,12 +701,12 @@ public class ValidationTest {
 
 
         @Test
-        void sequence_variance() {
+        void transpose_variance() {
             // Arrange
             Validation<Integer> intV = Validation.valid(1);
 
             // Act
-            Validation<List<Number>> result = Validation.sequence(List.of(intV));
+            Validation<List<Number>> result = Validation.transpose(List.of(intV));
 
             // Assert
             assertThatValidation(result)
@@ -716,15 +716,15 @@ public class ValidationTest {
     }
 
     @Nested
-    class SequenceOption {
+    class TransposeOption {
 
         @Test
-        void sequence_whenSomeValid_returnsValidValidationWithSome() {
+        void transpose_whenSomeValid_returnsValidValidationWithSome() {
             // Arrange
             Option<Validation<Integer>> option = Option.some(Validation.valid(1));
 
             // Act
-            Validation<Option<Integer>> result = Validation.sequence(option.map(v -> v));
+            Validation<Option<Integer>> result = Validation.transpose(option.map(v -> v));
 
             // Assert
             assertThatValidation(result)
@@ -733,12 +733,12 @@ public class ValidationTest {
         }
 
         @Test
-        void sequence_whenSomeInvalid_returnsInvalidValidation() {
+        void transpose_whenSomeInvalid_returnsInvalidValidation() {
             // Arrange
             Option<Validation<Integer>> option = Option.some(Validation.invalid(ErrorMessage.of("error")));
 
             // Act
-            Validation<Option<Integer>> result = Validation.sequence(option.map(v -> v));
+            Validation<Option<Integer>> result = Validation.transpose(option.map(v -> v));
 
             // Assert
             assertThatValidation(result)
@@ -747,12 +747,12 @@ public class ValidationTest {
         }
 
         @Test
-        void sequence_whenNone_returnsValidValidationWithNone() {
+        void transpose_whenNone_returnsValidValidationWithNone() {
             // Arrange
             Option<Validation<Integer>> option = Option.none();
 
             // Act
-            Validation<Option<Integer>> result = Validation.sequence(option.map(v -> v));
+            Validation<Option<Integer>> result = Validation.transpose(option.map(v -> v));
 
             // Assert
             assertThatValidation(result)
@@ -761,12 +761,12 @@ public class ValidationTest {
         }
 
         @Test
-        void sequence_variance() {
+        void transpose_variance() {
             // Arrange
             Option<Validation<Integer>> option = Option.some(Validation.valid(1));
 
             // Act
-            Validation<Option<Number>> result = Validation.sequence(option.map(v -> v));
+            Validation<Option<Number>> result = Validation.transpose(option.map(v -> v));
 
             // Assert
             assertThatValidation(result)
@@ -776,15 +776,15 @@ public class ValidationTest {
     }
 
     @Nested
-    class SequenceOptional {
+    class TransposeOptional {
 
         @Test
-        void sequence_whenPresentValid_returnsValidValidationWithPresent() {
+        void transpose_whenPresentValid_returnsValidValidationWithPresent() {
             // Arrange
             Optional<Validation<Integer>> optional = Optional.of(Validation.valid(1));
 
             // Act
-            Validation<Optional<Integer>> result = Validation.sequence(optional);
+            Validation<Optional<Integer>> result = Validation.transpose(optional);
 
             // Assert
             assertThatValidation(result)
@@ -793,12 +793,12 @@ public class ValidationTest {
         }
 
         @Test
-        void sequence_whenPresentInvalid_returnsInvalidValidation() {
+        void transpose_whenPresentInvalid_returnsInvalidValidation() {
             // Arrange
             Optional<Validation<Integer>> optional = Optional.of(Validation.invalid(ErrorMessage.of("error")));
 
             // Act
-            Validation<Optional<Integer>> result = Validation.sequence(optional);
+            Validation<Optional<Integer>> result = Validation.transpose(optional);
 
             // Assert
             assertThatValidation(result)
@@ -807,12 +807,12 @@ public class ValidationTest {
         }
 
         @Test
-        void sequence_whenEmpty_returnsValidValidationWithEmpty() {
+        void transpose_whenEmpty_returnsValidValidationWithEmpty() {
             // Arrange
             Optional<Validation<Integer>> optional = Optional.empty();
 
             // Act
-            Validation<Optional<Integer>> result = Validation.sequence(optional);
+            Validation<Optional<Integer>> result = Validation.transpose(optional);
 
             // Assert
             assertThatValidation(result)
@@ -821,12 +821,12 @@ public class ValidationTest {
         }
 
         @Test
-        void sequence_variance() {
+        void transpose_variance() {
             // Arrange
             Optional<Validation<Integer>> optional = Optional.of(Validation.valid(1));
 
             // Act
-            Validation<Optional<Number>> result = Validation.sequence(optional);
+            Validation<Optional<Number>> result = Validation.transpose(optional);
 
             // Assert
             assertThatValidation(result)
@@ -1094,7 +1094,7 @@ public class ValidationTest {
             Validation<String> invalid2 = Validation.invalid(ErrorMessage.of("error1"), ErrorMessage.of("error2"));
 
             // Act
-            Validation<List<String>> result = Validation.sequence(List.of(invalid, invalid2)).at("field");
+            Validation<List<String>> result = Validation.transpose(List.of(invalid, invalid2)).at("field");
 
             // Assert
             assertThatValidation(result)
@@ -2152,10 +2152,10 @@ public class ValidationTest {
     }
 
     @Nested
-    class SequenceJavaCollection {
+    class TransposeJavaCollection {
 
         @Test
-        void sequence_whenAllAreValid_returnsValidWithListOfValues() {
+        void transpose_whenAllAreValid_returnsValidWithListOfValues() {
             // Arrange
             java.util.List<Validation<String>> validations = java.util.List.of(
                     Validation.valid("a"),
@@ -2163,7 +2163,7 @@ public class ValidationTest {
             );
 
             // Act
-            Validation<java.util.List<String>> result = Validation.sequence(validations);
+            Validation<java.util.List<String>> result = Validation.transpose(validations);
 
             // Assert
             assertThatValidation(result)
@@ -2172,7 +2172,7 @@ public class ValidationTest {
         }
 
         @Test
-        void sequence_whenSomeAreInvalid_returnsInvalidWithAllErrors() {
+        void transpose_whenSomeAreInvalid_returnsInvalidWithAllErrors() {
             // Arrange
             java.util.List<Validation<String>> validations = java.util.List.of(
                     Validation.valid("a"),
@@ -2181,7 +2181,7 @@ public class ValidationTest {
             );
 
             // Act
-            Validation<java.util.List<String>> result = Validation.sequence(validations);
+            Validation<java.util.List<String>> result = Validation.transpose(validations);
 
             // Assert
             assertThatValidation(result)

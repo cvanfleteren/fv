@@ -242,7 +242,7 @@ public interface MappingRule<T, R> {
         return values -> {
             List<Validation<R>> validations = values.map(this::test);
             // Validation.sequence already adds the [index] path segment, so we don't do it here.
-            return Validation.sequence(validations);
+            return Validation.transpose(validations);
         };
     }
 
@@ -258,7 +258,7 @@ public interface MappingRule<T, R> {
         return values -> {
             java.util.List<Validation<R>> validations = values.stream().map(this::test).toList();
             // Validation.sequence already adds the [index] path segment, so we don't do it here.
-            return Validation.sequence(validations);
+            return Validation.transpose(validations);
         };
     }
 

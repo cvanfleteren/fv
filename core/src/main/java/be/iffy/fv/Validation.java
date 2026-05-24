@@ -429,13 +429,13 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If any validation is invalid, the result will contain all accumulated errors.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="sequence_seq"}
+     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="transpose_seq"}
      *
      * @param validations the sequence of validations to sequence.
      * @param <T>         the value type.
      * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
      */
-    static <T> Validation<List<T>> sequence(Seq<? extends Validation<? extends T>> validations) {
+    static <T> Validation<List<T>> transpose(Seq<? extends Validation<? extends T>> validations) {
         return validations
                 .zipWithIndex()
                 .foldLeft(
@@ -465,10 +465,10 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the Option is empty, the resulting Validation is considered to be {@link Valid}
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="sequence_option"}
+     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="transpose_option"}
      *
      */
-    static <T> Validation<Option<T>> sequence(Option<Validation<? extends T>> option) {
+    static <T> Validation<Option<T>> transpose(Option<? extends Validation<? extends T>> option) {
         return option.fold(
                 () -> Validation.valid(Option.none()),
                 validation -> validation.map(Option::of)
@@ -480,10 +480,10 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the Optional is empty, the resulting Validation is considered to be {@link Valid}
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="sequence_optional"}
+     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="transpose_optional"}
      *
      */
-    static <T> Validation<Optional<T>> sequence(Optional<? extends Validation<? extends T>> option) {
+    static <T> Validation<Optional<T>> transpose(Optional<? extends Validation<? extends T>> option) {
         return option.<Validation<Optional<T>>>map(validation -> validation.map(Optional::ofNullable))
                 .orElseGet(() -> Validation.valid(Optional.empty()));
     }
@@ -493,14 +493,14 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If any validation is invalid, the result will contain all accumulated errors.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="sequence_collection"}
+     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="transpose_collection"}
      *
      * @param validations the collection of validations to sequence.
      * @param <T>         the value type.
      * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
      */
-    static <T> Validation<java.util.List<T>> sequence(java.util.Collection<Validation<T>> validations) {
-        return sequence(List.ofAll(validations))
+    static <T> Validation<java.util.List<T>> transpose(java.util.Collection<Validation<T>> validations) {
+        return transpose(List.ofAll(validations))
                 .map(List::asJava);
     }
     //endregion

@@ -336,7 +336,7 @@ public class DSL {
          */
         public Validation<List<T>> areAll(Rule<? super T> rule) {
             Objects.requireNonNull(rule, "Rule cannot be null");
-            return Validation.sequence(List.ofAll(values).map(v -> Validation.narrowSuper(rule.test(v))));
+            return Validation.transpose(List.ofAll(values).map(v -> Validation.narrowSuper(rule.test(v))));
         }
     }
 
@@ -530,7 +530,7 @@ public class DSL {
         public Validation<List<T>> is(Rule<? super T> rule) {
             Objects.requireNonNull(rule, "rule cannot be null");
             return Validation.narrowSuper(validation
-                    .flatMap(v -> Validation.sequence(v.map(rule::test))));
+                    .flatMap(v -> Validation.transpose(v.map(rule::test))));
         }
 
         /**
