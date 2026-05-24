@@ -43,7 +43,7 @@ public class DSL {
         }
 
         public Rule<T> is(Rule<T> rule) {
-            return Rule.with(transformer, rule);
+            return input -> rule.test(transformer.apply(input));
         }
     }
 
