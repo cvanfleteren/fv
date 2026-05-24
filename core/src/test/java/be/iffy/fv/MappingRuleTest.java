@@ -856,13 +856,13 @@ class MappingRuleTest {
         }
     }
     @Nested
-    class Describe {
+    class WithErrorKey {
 
         @Test
-        void describe_whenRuleIsInvalid_replacesErrorsWithNewErrorKey() {
+        void withErrorKey_whenRuleIsInvalid_replacesErrorsWithNewErrorKey() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "not.a.number");
-            MappingRule<String, Integer> describedRule = rule.describe("invalid.input");
+            MappingRule<String, Integer> describedRule = rule.withErrorKey("invalid.input");
 
             // Act
             Validation<Integer> result = describedRule.test("abc");
@@ -877,10 +877,10 @@ class MappingRuleTest {
         }
 
         @Test
-        void describe_whenRuleIsValid_preservesValidResult() {
+        void withErrorKey_whenRuleIsValid_preservesValidResult() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.of(Integer::parseInt, "not.a.number");
-            MappingRule<String, Integer> describedRule = rule.describe("invalid.input");
+            MappingRule<String, Integer> describedRule = rule.withErrorKey("invalid.input");
 
             // Act
             Validation<Integer> result = describedRule.test("123");

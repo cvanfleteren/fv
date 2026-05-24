@@ -140,6 +140,22 @@ class RuleTest {
         }
 
         @Test
+        void of_whenTestedWithNull_isInvalidAndDoesNotCallPredicate() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> {
+                throw new RuntimeException("Should not be called");
+            }, "some.error");
+
+            // Act
+            Validation<String> result = rule.test(null);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("must.not.be.null");
+        }
+
+        @Test
         void ok_whenCalled_returnsValidResult() {
             // Arrange
             Rule<String> rule = Rule.ok();
@@ -1129,13 +1145,13 @@ class RuleTest {
     }
 
     @Nested
-    class Describe {
+    class WithErrorKey {
 
         @Test
-        void describe_whenRuleIsInvalid_replacesErrorsWithNewErrorKey() {
+        void withErrorKey_whenRuleIsInvalid_replacesErrorsWithNewErrorKey() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 5, "too.short");
-            Rule<String> describedRule = rule.describe("invalid.input");
+            Rule<String> describedRule = rule.withErrorKey("invalid.input");
 
             // Act
             Validation<String> result = describedRule.test("abc");
@@ -1150,10 +1166,10 @@ class RuleTest {
         }
 
         @Test
-        void describe_whenRuleIsValid_preservesValidResult() {
+        void withErrorKey_whenRuleIsValid_preservesValidResult() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 5, "too.short");
-            Rule<String> describedRule = rule.describe("invalid.input");
+            Rule<String> describedRule = rule.withErrorKey("invalid.input");
 
             // Act
             Validation<String> result = describedRule.test("abcdef");

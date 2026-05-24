@@ -249,7 +249,7 @@ public interface Rule<T> extends MappingRule<T, T> {
     /**
      * Returns a new {@link Rule} that, when invalid, uses the passed errorKey as single ErrorMessage.
      */
-    default Rule<T> describe(String errorKey) {
+    default Rule<T> withErrorKey(String errorKey) {
         return input -> this.test(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
     }
 
