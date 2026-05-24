@@ -404,11 +404,15 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Maps error messages by prepending the given name to the segments of each error message.
+     * Empty / null names will be ignored.
      *
      * @param name a logical name for the value being validated (e.g., the name of the field).
      * @return a new {@link Validation} instance.
      */
     default Validation<T> at(String name) {
+        if(name == null || name.isEmpty()) {
+            return this;
+        }
         return mapErrors(errors -> errors.map(error -> error.prepend(ErrorMessage.Path.of(name))));
     }
 

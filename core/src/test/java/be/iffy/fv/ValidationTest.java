@@ -1101,6 +1101,30 @@ public class ValidationTest {
                     .isInvalid()
                     .hasErrorMessages("field[0].error1", "field[0].error2", "field[1].error1", "field[1].error2");
         }
+
+        @Test
+        void at_whenNameIsNull_returnsSameValidation() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("error");
+
+            // Act
+            Validation<String> result = invalid.at((String) null);
+
+            // Assert
+            assertThat(result).isSameAs(invalid);
+        }
+
+        @Test
+        void at_whenNameIsEmpty_returnsSameValidation() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("error");
+
+            // Act
+            Validation<String> result = invalid.at("");
+
+            // Assert
+            assertThat(result).isSameAs(invalid);
+        }
     }
 
     @Nested
