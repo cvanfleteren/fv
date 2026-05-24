@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.With;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -146,8 +147,15 @@ public class ErrorMessage {
         if(parameters.isEmpty()) {
             return message();
         } else {
-            return message()+":"+ parameters.map(tuple  -> tuple._1+":"+tuple._2).mkString("{",",","}");
+            return message()+":"+ parameters.map(tuple  -> tuple._1+":"+formatValues(tuple._2)).mkString("{",",","}");
         }
+    }
+
+    private String formatValues(Object values) {
+        return switch(values) {
+            case List<?> l -> l.mkString("[",",","]");
+            default -> values.toString();
+        };
     }
 
     @Override
