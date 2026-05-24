@@ -3,6 +3,7 @@ package be.iffy.fv.assertj;
 import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Validation;
 import io.vavr.collection.HashMap;
+import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -108,6 +109,20 @@ class ValidationAssertTest {
         void assertInvalid_whenInvalid_shouldPass() {
             Validation<String> invalid = Validation.invalid("error");
             ValidationAssert.assertInvalid(invalid).hasErrorMessage("error");
+        }
+
+        @Test
+        void assertInvalid_withSupplier_whenThrowsValidationException_shouldPass() {
+            ValidationAssert.assertInvalid(() -> {
+                throw new be.iffy.fv.ValidationException(List.of(ErrorMessage.of("error")));
+            }).hasErrorMessage("error");
+        }
+
+        @Test
+        void assertInvalid_withSupplier_whenReturnsValue_shouldFail() {
+            assertThatCode(() -> ValidationAssert.assertInvalid(() -> "test"))
+                    .isInstanceOf(AssertionError.class)
+                    .hasMessageContaining("Expected validation to be invalid but was valid");
         }
     }
 }

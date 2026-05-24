@@ -3,6 +3,8 @@ package be.iffy.fv.assertj;
 import be.iffy.fv.Validation;
 import org.assertj.core.api.AbstractAssert;
 
+import java.util.function.Supplier;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ValidationAssert<SELF extends ValidationAssert<SELF, VALIDATION, T>, VALIDATION extends Validation<T>, T>
@@ -66,6 +68,15 @@ public class ValidationAssert<SELF extends ValidationAssert<SELF, VALIDATION, T>
     public static <T> InvalidValidationAssert<?, Validation.Invalid, T> assertInvalid(Validation<T> actual) {
         assertThat(actual.isValid()).as("Expected validation to be invalid but was valid").isFalse();
         return new InvalidValidationAssert<>((Validation.Invalid) actual);
+    }
+
+    /**
+     * Asserts that code passed will throw a ValidationException.
+     */
+    public static <T> InvalidValidationAssert<?, Validation.Invalid, T> assertInvalid(Supplier<T> codeThrowingValidationException) {
+        Validation<T> validation = Validation.from(codeThrowingValidationException);
+        assertThat(validation.isInvalid()).as("Expected validation to be invalid but was valid").isTrue();
+        return new InvalidValidationAssert<>((Validation.Invalid) validation);
     }
 
 }
