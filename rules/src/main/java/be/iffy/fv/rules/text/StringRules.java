@@ -1,6 +1,7 @@
 package be.iffy.fv.rules.text;
 
 import io.vavr.collection.HashMap;
+import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import io.vavr.control.Try;
 import be.iffy.fv.ErrorMessage;
@@ -16,6 +17,7 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -364,65 +366,65 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     //region contains / starts / ends / matches
 
     /**
-     * Fails if the string does not start with the specified prefix.
+     * Fails if the string does not start with any of the specified prefixes.
      * <p>
      * Error key: {@code must.start.with}
      * <p>
      * Parameters:
      * <ul>
-     *     <li>{@code prefix}: the required prefix ({@link String})</li>
+     *     <li>{@code prefixes}: the allowed prefixes ({@link List<String>})</li>
      * </ul>
      *
-     * @param prefix the required prefix.
-     * @return a {@link Rule} checking the prefix.
      */
-    public Rule<String> startsWith(String prefix) {
-        Objects.requireNonNull(prefix, "prefix cannot be null");
+    public Rule<String> startsWith(String... prefixes) {
+        Objects.requireNonNull(prefixes, "prefixes cannot be null");
+
         return Rule.notNull().and(Rule.of(
-                s -> s.startsWith(prefix),
-                ErrorMessage.of("must.start.with", "prefix", prefix)
+                s -> Arrays.stream(prefixes).anyMatch(s::startsWith),
+                ErrorMessage.of("must.start.with", "prefixes", List.of(prefixes))
         ));
     }
 
     /**
-     * Fails if the string does not start with the specified prefix (ignoring case).
+     * Fails if the string does not start with any of the specified prefixes (ignoring case).
      * <p>
      * Error key: {@code must.start.with.ignorecase}
      * <p>
      * Parameters:
      * <ul>
-     *     <li>{@code prefix}: the required prefix ({@link String})</li>
+     *     <li>{@code prefixes}: the allowed prefixes ({@link List<String>})</li>
      * </ul>
      *
-     * @param prefix the required prefix.
+     * @param prefixes the allowed prefixes.
      * @return a {@link Rule} checking the prefix (ignoring case).
      */
-    public Rule<String> startsWithIgnoreCase(String prefix) {
-        Objects.requireNonNull(prefix, "prefix cannot be null");
+    public Rule<String> startsWithIgnoreCase(String... prefixes) {
+        Objects.requireNonNull(prefixes, "prefixes cannot be null");
         return Rule.notNull().and(Rule.of(
-                s -> s.regionMatches(true, 0, prefix, 0, prefix.length()),
-                ErrorMessage.of("must.start.with.ignorecase", "prefix", prefix)
+                s -> Arrays.stream(prefixes).anyMatch(prefix -> s.regionMatches(true, 0, prefix, 0, prefix.length())),
+                ErrorMessage.of("must.start.with.ignorecase", "prefixes", List.of(prefixes))
         ));
     }
 
     /**
-     * Fails if the string does not end with the specified suffix.
+     * Fails if the string does not end with any of the specified suffixes.
      * <p>
      * Error key: {@code must.end.with}
      * <p>
      * Parameters:
      * <ul>
-     *     <li>{@code suffix}: the required suffix ({@link String})</li>
+     *     <li>{@code suffixes}: the allowed suffixes ({@link List<String>})</li>
      * </ul>
      *
-     * @param suffix the required suffix.
+     * @param suffixes allowed suffixes.
      * @return a {@link Rule} checking the suffix.
      */
-    public Rule<String> endsWith(String suffix) {
-        Objects.requireNonNull(suffix, "suffix cannot be null");
+    public Rule<String> endsWith(String... suffixes) {
+        Objects.requireNonNull(suffixes, "suffixes cannot be null");
+
         return Rule.notNull().and(Rule.of(
-                s -> s.endsWith(suffix),
-                ErrorMessage.of("must.end.with", "suffix", suffix)
+                s -> Arrays.stream(suffixes).anyMatch(s::endsWith),
+               ErrorMessage.of("must.end.with", "suffixes", List.of(suffixes))
         ));
     }
 
@@ -433,18 +435,15 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Parameters:
      * <ul>
-     *     <li>{@code suffix}: the required suffix ({@link String})</li>
+     *     <li>{@code suffixes}: the allowed suffixes ({@link List<String>})</li>
      * </ul>
-     *
-     * @param suffix the required suffix.
-     * @return a {@link Rule} checking the suffix (ignoring case).
      */
-    public Rule<String> endsWithIgnoreCase(String suffix) {
-        Objects.requireNonNull(suffix, "suffix cannot be null");
+    public Rule<String> endsWithIgnoreCase(String... suffixes) {
+        Objects.requireNonNull(suffixes, "suffixes cannot be null");
         return Rule.notNull().and(Rule.of(
-                s -> s.length() >= suffix.length()
-                        && s.regionMatches(true, s.length() - suffix.length(), suffix, 0, suffix.length()),
-                ErrorMessage.of("must.end.with.ignorecase", "suffix", suffix)
+                s -> Arrays.stream(suffixes).anyMatch(suffix -> s.length() >= suffix.length()
+                        && s.regionMatches(true, s.length() - suffix.length(), suffix, 0, suffix.length())),
+                ErrorMessage.of("must.end.with.ignorecase", "suffixes", List.of(suffixes))
         ));
     }
 

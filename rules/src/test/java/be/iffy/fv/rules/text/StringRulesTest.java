@@ -2,6 +2,7 @@ package be.iffy.fv.rules.text;
 
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
+import io.vavr.collection.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -237,13 +238,21 @@ class StringRulesTest {
             validTest("hello", strings.startsWith("he"));
             validTest("hello", strings.startsWith(""));
             validTest("", strings.startsWith(""));
+            validTest("hello", strings.startsWith("he", "xy"));
+            validTest("world", strings.startsWith("he", "wo"));
         }
 
         @Test
         void invalid() {
-            invalidTest("hello", strings.startsWith("xy"), "must.start.with", HashMap.of("prefix", "xy"));
-            invalidTest("", strings.startsWith("x"), "must.start.with", HashMap.of("prefix", "x"));
+            invalidTest("hello", strings.startsWith("xy"), "must.start.with", HashMap.of("prefixes", List.of("xy")));
+            invalidTest("", strings.startsWith("x"), "must.start.with", HashMap.of("prefixes", List.of("x")));
+            invalidTest("hello", strings.startsWith("xy", "ab"), "must.start.with", HashMap.of("prefixes", List.of("xy", "ab")));
             invalidTest(null, strings.startsWith("x"), "must.not.be.null");
+        }
+
+        @Test
+        void nullPrefix_throwsException() {
+            assertThrows(NullPointerException.class, () -> strings.startsWith((String[]) null));
         }
     }
 
@@ -257,13 +266,21 @@ class StringRulesTest {
             validTest("HeLlO", strings.startsWithIgnoreCase("hEl"));
             validTest("hello", strings.startsWithIgnoreCase(""));
             validTest("", strings.startsWithIgnoreCase(""));
+            validTest("hello", strings.startsWithIgnoreCase("HE", "XY"));
+            validTest("world", strings.startsWithIgnoreCase("HE", "WO"));
         }
 
         @Test
         void invalid() {
-            invalidTest("hello", strings.startsWithIgnoreCase("XY"), "must.start.with.ignorecase", HashMap.of("prefix", "XY"));
-            invalidTest("", strings.startsWithIgnoreCase("x"), "must.start.with.ignorecase", HashMap.of("prefix", "x"));
+            invalidTest("hello", strings.startsWithIgnoreCase("XY"), "must.start.with.ignorecase", HashMap.of("prefixes", List.of("XY")));
+            invalidTest("", strings.startsWithIgnoreCase("x"), "must.start.with.ignorecase", HashMap.of("prefixes", List.of("x")));
+            invalidTest("hello", strings.startsWithIgnoreCase("XY", "AB"), "must.start.with.ignorecase", HashMap.of("prefixes", List.of("XY", "AB")));
             invalidTest(null, strings.startsWithIgnoreCase("x"), "must.not.be.null");
+        }
+
+        @Test
+        void nullPrefix_throwsException() {
+            assertThrows(NullPointerException.class, () -> strings.startsWithIgnoreCase((String[]) null));
         }
     }
 
@@ -275,13 +292,21 @@ class StringRulesTest {
             validTest("hello", strings.endsWith("lo"));
             validTest("hello", strings.endsWith(""));
             validTest("", strings.endsWith(""));
+            validTest("hello", strings.endsWith("lo", "xy"));
+            validTest("world", strings.endsWith("lo", "ld"));
         }
 
         @Test
         void invalid() {
-            invalidTest("hello", strings.endsWith("xy"), "must.end.with", HashMap.of("suffix", "xy"));
-            invalidTest("", strings.endsWith("x"), "must.end.with", HashMap.of("suffix", "x"));
+            invalidTest("hello", strings.endsWith("xy"), "must.end.with", HashMap.of("suffixes", List.of("xy")));
+            invalidTest("", strings.endsWith("x"), "must.end.with", HashMap.of("suffixes", List.of("x")));
+            invalidTest("hello", strings.endsWith("xy", "ab"), "must.end.with", HashMap.of("suffixes", List.of("xy", "ab")));
             invalidTest(null, strings.endsWith("x"), "must.not.be.null");
+        }
+
+        @Test
+        void nullSuffix_throwsException() {
+            assertThrows(NullPointerException.class, () -> strings.endsWith((String[]) null));
         }
     }
 
@@ -295,14 +320,22 @@ class StringRulesTest {
             validTest("HeLlO", strings.endsWithIgnoreCase("LlO"));
             validTest("hello", strings.endsWithIgnoreCase(""));
             validTest("", strings.endsWithIgnoreCase(""));
+            validTest("hello", strings.endsWithIgnoreCase("LO", "XY"));
+            validTest("world", strings.endsWithIgnoreCase("LO", "LD"));
         }
 
         @Test
         void invalid() {
-            invalidTest("hello", strings.endsWithIgnoreCase("XY"), "must.end.with.ignorecase", HashMap.of("suffix", "XY"));
-            invalidTest("", strings.endsWithIgnoreCase("x"), "must.end.with.ignorecase", HashMap.of("suffix", "x"));
-            invalidTest("hi", strings.endsWithIgnoreCase("LONGER"), "must.end.with.ignorecase", HashMap.of("suffix", "LONGER"));
+            invalidTest("hello", strings.endsWithIgnoreCase("XY"), "must.end.with.ignorecase", HashMap.of("suffixes", List.of("XY")));
+            invalidTest("", strings.endsWithIgnoreCase("x"), "must.end.with.ignorecase", HashMap.of("suffixes", List.of("x")));
+            invalidTest("hi", strings.endsWithIgnoreCase("LONGER"), "must.end.with.ignorecase", HashMap.of("suffixes", List.of("LONGER")));
+            invalidTest("hello", strings.endsWithIgnoreCase("XY", "AB"), "must.end.with.ignorecase", HashMap.of("suffixes", List.of("XY", "AB")));
             invalidTest(null, strings.endsWithIgnoreCase("x"), "must.not.be.null");
+        }
+
+        @Test
+        void nullSuffix_throwsException() {
+            assertThrows(NullPointerException.class, () -> strings.endsWithIgnoreCase((String[]) null));
         }
     }
 
