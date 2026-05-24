@@ -194,7 +194,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Error key: {@code must.be.single.line}
      */
     public Rule<String> singleLine() {
-        return Rule.notNull().and(Rule.of(s -> !LINE_BREAK.matcher(s).find(), "must.be.single.line"));
+        return Rule.of(
+                s -> !LINE_BREAK.matcher(s).find(),
+                "must.be.single.line"
+        );
     }
 
     /**
@@ -203,7 +206,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Error key: {@code must.not.be.empty}
      */
     public Rule<String> notEmpty() {
-        return Rule.notNull().and(Rule.of(s -> !s.isEmpty(), "must.not.be.empty"));
+        return Rule.of(
+                s -> !s.isEmpty(),
+                "must.not.be.empty"
+        );
     }
 
     /**
@@ -212,7 +218,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Error key: {@code must.not.be.blank}
      */
     public Rule<String> notBlank() {
-        return Rule.notNull().and(Rule.of(s -> !s.isBlank(), "must.not.be.blank"));
+        return Rule.of(
+                s -> !s.isBlank(),
+                "must.not.be.blank"
+        );
     }
 
     /**
@@ -221,7 +230,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Error key: {@code must.be.trimmed}
      */
     public Rule<String> trimmed() {
-        return Rule.notNull().and(Rule.of(s -> s.equals(s.trim()), "must.be.trimmed"));
+        return Rule.of(
+                s -> s.equals(s.trim()),
+                "must.be.trimmed"
+        );
     }
 
     /**
@@ -230,10 +242,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Error key: {@code must.not.contain.whitespace}
      */
     public Rule<String> noWhitespace() {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> s.chars().noneMatch(Character::isWhitespace),
                 "must.not.contain.whitespace"
-        ));
+        );
     }
     //endregion
 
@@ -247,10 +259,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Error key: {@code must.be.uppercase}
      */
     public Rule<String> uppercase() {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> s.equals(s.toUpperCase()),
                 "must.be.uppercase"
-        ));
+        );
     }
 
     /**
@@ -261,10 +273,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Error key: {@code must.be.lowercase}
      */
     public Rule<String> lowercase() {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 s -> s.equals(s.toLowerCase()),
                 "must.be.lowercase"
-        ));
+        );
     }
 
     //endregion
@@ -288,7 +300,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         if (minLength < 0) {
             throw new IllegalArgumentException("minLength must be >= 0");
         }
-        return Rule.notNull().and(Rule.of(s -> s.length() >= minLength, ErrorMessage.of("must.have.min.length", "min", minLength)));
+        return Rule.of(
+                s -> s.length() >= minLength,
+                ErrorMessage.of("must.have.min.length", "min", minLength)
+        );
     }
 
     /**
@@ -308,7 +323,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         if (maxLength < 0) {
             throw new IllegalArgumentException("maxLength must be >= 0");
         }
-        return Rule.notNull().and(Rule.of(s -> s.length() <= maxLength, ErrorMessage.of("must.have.max.length", "max", maxLength)));
+        return Rule.of(
+                s -> s.length() <= maxLength,
+                ErrorMessage.of("must.have.max.length", "max", maxLength)
+        );
     }
 
     /**
@@ -359,7 +377,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         if (length < 0) {
             throw new IllegalArgumentException("length must be >= 0");
         }
-        return Rule.of(s -> s.length() == length, ErrorMessage.of("must.have.length", "length", length));
+        return Rule.of(
+                s -> s.length() == length,
+                ErrorMessage.of("must.have.length", "length", length)
+        );
     }
     //endregion
 
@@ -725,7 +746,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link Rule} checking if the string contains only digits.
      */
     public Rule<String> onlyDigits() {
-        return Rule.of(s -> s.codePoints().allMatch(c ->
+        return Rule.of(
+                s -> s.codePoints().allMatch(c ->
                         // ‘0–9’
                         (c >= 48 && c <= 57)
                 ),
@@ -743,7 +765,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link Rule} checking if the string is hexadecimal.
      */
     public Rule<String> hexadecimal() {
-        return Rule.of(s -> HEXADECIMAL_PATTERN.matcher(s).matches(), ErrorMessage.of("must.be.hexadecimal"));
+        return Rule.of(
+                s -> HEXADECIMAL_PATTERN.matcher(s).matches(),
+                ErrorMessage.of("must.be.hexadecimal")
+        );
     }
 
     // Regex for standard Base64
@@ -762,7 +787,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link Rule} checking if the string is Base64.
      */
     public Rule<String> base64() {
-        return Rule.of(s -> STANDARD_BASE64_PATTERN.matcher(s).matches(), ErrorMessage.of("must.be.base64"));
+        return Rule.of(
+                s -> STANDARD_BASE64_PATTERN.matcher(s).matches(),
+                ErrorMessage.of("must.be.base64")
+        );
     }
 
     /**
@@ -773,7 +801,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link Rule} checking if the string is URL-safe Base64.
      */
     public Rule<String> base64UrlSafe() {
-        return Rule.of(s -> URL_SAFE_BASE64_PATTERN.matcher(s).matches(), ErrorMessage.of("must.be.base64.urlsafe"));
+        return Rule.of(
+                s -> URL_SAFE_BASE64_PATTERN.matcher(s).matches(),
+                ErrorMessage.of("must.be.base64.urlsafe")
+        );
     }
 
     private static final Pattern IS_EMAIL_PATTERN = Pattern.compile(

@@ -101,7 +101,9 @@ public interface Rule<T> extends MappingRule<T, T> {
      */
     default <S extends T> Rule<S> and(Rule<? super S> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
-        return input -> test(input).flatMap(v -> other.test(input).map(ignored -> input));
+        return input -> test(input).flatMap(v ->
+                other.test(input).map(ignored -> input)
+        );
     }
 
     /**
