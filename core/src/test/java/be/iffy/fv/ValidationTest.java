@@ -716,6 +716,126 @@ public class ValidationTest {
     }
 
     @Nested
+    class SequenceOption {
+
+        @Test
+        void sequence_whenSomeValid_returnsValidValidationWithSome() {
+            // Arrange
+            Option<Validation<Integer>> option = Option.some(Validation.valid(1));
+
+            // Act
+            Validation<Option<Integer>> result = Validation.sequence(option.map(v -> v));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(Option.some(1));
+        }
+
+        @Test
+        void sequence_whenSomeInvalid_returnsInvalidValidation() {
+            // Arrange
+            Option<Validation<Integer>> option = Option.some(Validation.invalid(ErrorMessage.of("error")));
+
+            // Act
+            Validation<Option<Integer>> result = Validation.sequence(option.map(v -> v));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("error");
+        }
+
+        @Test
+        void sequence_whenNone_returnsValidValidationWithNone() {
+            // Arrange
+            Option<Validation<Integer>> option = Option.none();
+
+            // Act
+            Validation<Option<Integer>> result = Validation.sequence(option.map(v -> v));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(Option.none());
+        }
+
+        @Test
+        void sequence_variance() {
+            // Arrange
+            Option<Validation<Integer>> option = Option.some(Validation.valid(1));
+
+            // Act
+            Validation<Option<Number>> result = Validation.sequence(option.map(v -> v));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(Option.some(1));
+        }
+    }
+
+    @Nested
+    class SequenceOptional {
+
+        @Test
+        void sequence_whenPresentValid_returnsValidValidationWithPresent() {
+            // Arrange
+            Optional<Validation<Integer>> optional = Optional.of(Validation.valid(1));
+
+            // Act
+            Validation<Optional<Integer>> result = Validation.sequence(optional);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(Optional.of(1));
+        }
+
+        @Test
+        void sequence_whenPresentInvalid_returnsInvalidValidation() {
+            // Arrange
+            Optional<Validation<Integer>> optional = Optional.of(Validation.invalid(ErrorMessage.of("error")));
+
+            // Act
+            Validation<Optional<Integer>> result = Validation.sequence(optional);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("error");
+        }
+
+        @Test
+        void sequence_whenEmpty_returnsValidValidationWithEmpty() {
+            // Arrange
+            Optional<Validation<Integer>> optional = Optional.empty();
+
+            // Act
+            Validation<Optional<Integer>> result = Validation.sequence(optional);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(Optional.empty());
+        }
+
+        @Test
+        void sequence_variance() {
+            // Arrange
+            Optional<Validation<Integer>> optional = Optional.of(Validation.valid(1));
+
+            // Act
+            Validation<Optional<Number>> result = Validation.sequence(optional);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(Optional.of(1));
+        }
+    }
+
+    @Nested
     class Refine {
 
         @Test

@@ -461,6 +461,34 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
+     * Transforms a {@code Option<Validation<T>>} into a {@code Validation<Option<T>>}.
+     * If the Option is empty, the resulting Validation is considered to be {@link Valid}
+     * <p>
+     * Usage example:
+     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="sequence_option"}
+     *
+     */
+    static <T> Validation<Option<T>> sequence(Option<Validation<? extends T>> option) {
+        return option.fold(
+                () -> Validation.valid(Option.none()),
+                validation -> validation.map(Option::of)
+        );
+    }
+
+    /**
+     * Transforms a {@code Optional<Validation<T>>} into a {@code Validation<Optional<T>>}.
+     * If the Optional is empty, the resulting Validation is considered to be {@link Valid}
+     * <p>
+     * Usage example:
+     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="sequence_optional"}
+     *
+     */
+    static <T> Validation<Optional<T>> sequence(Optional<? extends Validation<? extends T>> option) {
+        return option.<Validation<Optional<T>>>map(validation -> validation.map(Optional::ofNullable))
+                .orElseGet(() -> Validation.valid(Optional.empty()));
+    }
+
+    /**
      * Transforms a {@link java.util.Collection} of {@link Validation}s into a single {@code Validation} of a {@link java.util.List}.
      * If any validation is invalid, the result will contain all accumulated errors.
      * <p>
