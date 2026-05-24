@@ -1,4 +1,4 @@
-package be.iffy.fv.test;
+package be.iffy.fv.test.examples;
 
 import be.iffy.fv.Rule;
 
