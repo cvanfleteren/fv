@@ -39,6 +39,7 @@ public interface Rule<T> extends MappingRule<T, T> {
 
     /**
      * Creates a {@link Rule} from the given predicate and error message key.
+     * If the Predicate resolves to {@code true}, the Rule is considered {@link be.iffy.fv.Validation.Valid}
      * <p>
      * Usage example:
      * {@snippet file="be/iffy/fv/RuleSnippets.java" region="of-string-example"}
@@ -53,6 +54,7 @@ public interface Rule<T> extends MappingRule<T, T> {
 
     /**
      * Creates a {@link Rule} from the given predicate and {@link ErrorMessage}.
+     * If the Predicate resolves to {@code true}, the Rule is considered {@link be.iffy.fv.Validation.Valid}
      * <p>
      * Usage example:
      * {@snippet file="be/iffy/fv/RuleSnippets.java" region="of-error-example"}
