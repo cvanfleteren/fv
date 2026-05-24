@@ -26,6 +26,17 @@ public class InvalidValidationAssert<SELF extends InvalidValidationAssert<SELF, 
     }
 
     /**
+     * Asserts that the validation contains an error witch partially matches the specified message.
+     *
+     * @param errorMessage the error message.
+     * @return {@code this} assertion object.
+     */
+    public SELF hasErrorMessageContaining(String errorMessage) {
+        assertThat(actual.errors()).map(ErrorMessage::message).anyMatch(e -> e.contains(errorMessage));
+        return (SELF) this;
+    }
+
+    /**
      * Asserts that the validation contains an error with the specified key and arguments.
      *
      * @param errorKey the error key.
