@@ -1092,6 +1092,43 @@ class RuleTest {
     }
 
     @Nested
+    class Given {
+
+        record StringHolder(String value) {
+        }
+
+        @Test
+        void given_whenRulePasses_returnsValidResult() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<StringHolder> givenRule = rule.given(StringHolder::value);
+
+            // Act
+            Validation<StringHolder> result = givenRule.test(new StringHolder("1234"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .hasValue(new StringHolder("1234"));
+        }
+
+        @Test
+        void given_whenRuleFails_returnsInvalidWithRuleErrors() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<StringHolder> givenRule = rule.given(StringHolder::value);
+
+            // Act
+            Validation<StringHolder> result = givenRule.test(new StringHolder("12"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("too.short");
+        }
+    }
+
+    @Nested
     class Describe {
 
         @Test

@@ -413,6 +413,14 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
+     * Lift a Rule to work on a type V instead of T. You need to supply a Function that can get a T from the V.
+     * @see Rule#with(Function, Rule) 
+     */
+    default <V> Rule<V> given(Function<V,T> selector) {
+        return Rule.with(selector, this);
+    }
+
+    /**
      * Composes two rules using "non-short-circuiting and" logic.
      * The combined rule is successful only if both rules are successful.
      * If both rules fail, the errors are combined.
