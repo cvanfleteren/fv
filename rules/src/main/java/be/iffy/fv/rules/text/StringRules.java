@@ -239,7 +239,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
 
     /**
      * Fails if the string contains any lowercase letter.
-     * Uses {@link String#toUpperCase()} for comparison, so locale-sensitive characters are supported.
+     * Uses {@link String#toUpperCase()} for comparison.
      * Empty strings pass.
      * <p>
      * Error key: {@code must.be.uppercase}
@@ -253,7 +253,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
 
     /**
      * Fails if the string contains any uppercase letter.
-     * Uses {@link String#toLowerCase()} for comparison, so locale-sensitive characters are supported.
+     * Uses {@link String#toLowerCase()} for comparison.
      * Empty strings pass.
      * <p>
      * Error key: {@code must.be.lowercase}
@@ -470,22 +470,6 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     }
 
     /**
-     * Fails if the string does not contain a match for the specified pattern.
-     * <p>
-     * Error key: {@code must.contain.regex}
-     *
-     * @param pattern the pattern to find.
-     * @return a {@link Rule} checking if the pattern is found.
-     */
-    public Rule<String> containsPattern(Pattern pattern) {
-        Objects.requireNonNull(pattern, "pattern cannot be null");
-        return Rule.notNull().and(Rule.of(
-                s -> pattern.matcher(s).find(),
-                ErrorMessage.of("must.contain.regex", "regex", pattern.pattern())
-        ));
-    }
-
-    /**
      * Fails if the string does not contain the specified fragment (ignoring case).
      * <p>
      * Error key: {@code must.contain.ignorecase}
@@ -521,6 +505,22 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
                     return false;
                 },
                 ErrorMessage.of("must.contain.ignorecase", "fragment", fragment)
+        ));
+    }
+
+    /**
+     * Fails if the string does not contain a match for the specified pattern.
+     * <p>
+     * Error key: {@code must.contain.regex}
+     *
+     * @param pattern the pattern to find.
+     * @return a {@link Rule} checking if the pattern is found.
+     */
+    public Rule<String> containsPattern(Pattern pattern) {
+        Objects.requireNonNull(pattern, "pattern cannot be null");
+        return Rule.notNull().and(Rule.of(
+                s -> pattern.matcher(s).find(),
+                ErrorMessage.of("must.contain.regex", "regex", pattern.pattern())
         ));
     }
 
@@ -626,6 +626,23 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
                 ErrorMessage.of("must.match.regex", "regex", regex)
         ));
     }
+
+    /**
+     * Fails if the string is not equal ignoring case the specified value.
+     * <p>
+     * Error key: {@code must.equal.ignoreCase}
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the value it should match</li>
+     * </ul>
+     */
+    public Rule<String> equalsIgnoreCase(String expected) {
+            return Rule.notNull().and(Rule.of(
+                s -> s.equalsIgnoreCase(expected),
+                ErrorMessage.of("must.equal.ignoreCase", "value", expected)
+            ));
+    }
+
 
     /**
      * Fails if the string contains anything other than letters.
