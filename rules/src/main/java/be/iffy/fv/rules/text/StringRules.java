@@ -349,7 +349,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Parameters:
      * <ul>
-     *     <li>{@code len}: the required length ({@code int})</li>
+     *     <li>{@code length}: the required length ({@code int})</li>
      * </ul>
      *
      * @param length the required length.
@@ -359,7 +359,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         if (length < 0) {
             throw new IllegalArgumentException("length must be >= 0");
         }
-        return Rule.of(s -> s.length() == length, ErrorMessage.of("must.have.length", "len", length));
+        return Rule.of(s -> s.length() == length, ErrorMessage.of("must.have.length", "length", length));
     }
     //endregion
 

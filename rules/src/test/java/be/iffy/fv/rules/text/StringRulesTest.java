@@ -164,8 +164,8 @@ class StringRulesTest {
 
         @Test
         void invalid() {
-            invalidTest("", strings.length(1), "must.have.length", HashMap.of("len", 1));
-            invalidTest("12", strings.length(1), "must.have.length", HashMap.of("len", 1));
+            invalidTest("", strings.length(1), "must.have.length", HashMap.of("length", 1));
+            invalidTest("12", strings.length(1), "must.have.length", HashMap.of("length", 1));
             invalidTest(null, strings.length(1), "must.not.be.null");
         }
     }
