@@ -4,6 +4,7 @@ import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Validation;
 import io.vavr.collection.Map;
 import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.api.Assertions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -68,6 +69,17 @@ public class InvalidValidationAssert<SELF extends InvalidValidationAssert<SELF, 
      */
     public SELF hasErrorKeys(String... errorKeys) {
         assertThat(actual.errors()).map(ErrorMessage::key).containsExactly(errorKeys);
+        return (SELF) this;
+    }
+
+    /**
+     * Asserts that the validation contains exactly the specified number of errors.
+     *
+     * @param count the expected number of errors.
+     * @return this assertion object.
+     */
+    public SELF hasErrorCount(int count) {
+        Assertions.assertThat(count).isEqualTo(actual.errors().size());
         return (SELF) this;
     }
 }

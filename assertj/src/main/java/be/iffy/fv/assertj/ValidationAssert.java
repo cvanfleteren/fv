@@ -2,6 +2,7 @@ package be.iffy.fv.assertj;
 
 import be.iffy.fv.Validation;
 import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.api.ObjectAssert;
 
 import java.util.function.Supplier;
 
@@ -17,11 +18,11 @@ public class ValidationAssert<SELF extends ValidationAssert<SELF, VALIDATION, T>
     /**
      * Asserts that the validation is valid.
      *
-     * @return a {@link ValidValidationAssert} for further assertions.
+     * @return a {@link ObjectAssert} for further assertions.
      */
-    public ValidValidationAssert<?, Validation.Valid<T>, T> isValid() {
+    public ObjectAssert<T> isValid() {
         assertThat(actual.isValid()).as("Expected validation to be valid but was invalid").isTrue();
-        return new ValidValidationAssert<>((Validation.Valid<T>) actual);
+        return new ObjectAssert<>(actual.getOrElseThrow());
     }
 
     /**
@@ -29,7 +30,6 @@ public class ValidationAssert<SELF extends ValidationAssert<SELF, VALIDATION, T>
      *
      * @return an {@link InvalidValidationAssert} for further assertions.
      */
-    @SuppressWarnings("unchecked")
     public InvalidValidationAssert<?, Validation.Invalid, T> isInvalid() {
         assertThat(actual.isValid()).as("Expected validation to be invalid but was valid").isFalse();
         return new InvalidValidationAssert<>((Validation.Invalid) actual);
@@ -51,11 +51,11 @@ public class ValidationAssert<SELF extends ValidationAssert<SELF, VALIDATION, T>
      *
      * @param actual the actual value.
      * @param <T> the type of the value.
-     * @return a {@link ValidValidationAssert} for further assertions.
+     * @return a {@link ObjectAssert} with the value inside the Validation for further assertions.
      */
-    public static <T> ValidValidationAssert<?, Validation.Valid<T>, T> assertValid(Validation<T> actual) {
+    public static <T> ObjectAssert<T> assertValid(Validation<T> actual) {
         assertThat(actual.isValid()).as("Expected validation to be valid but was invalid").isTrue();
-        return new ValidValidationAssert<>((Validation.Valid<T>) actual);
+        return new ObjectAssert<>(actual.getOrElseThrow());
     }
 
     /**

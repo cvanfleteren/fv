@@ -33,13 +33,13 @@ class ValidationAssertTest {
         @Test
         void hasValue_whenValidationHasExpectedValue_shouldPass() {
             Validation<String> valid = Validation.valid("test");
-            assertThatValidation(valid).isValid().hasValue("test");
+            assertThatValidation(valid).isValid().isEqualTo("test");
         }
 
         @Test
         void hasValue_whenValidationHasDifferentValue_shouldFail() {
             Validation<String> valid = Validation.valid("test");
-            assertThatCode(() -> assertThatValidation(valid).isValid().hasValue("wrong"))
+            assertThatCode(() -> assertThatValidation(valid).isValid().isEqualTo("wrong"))
                     .isInstanceOf(AssertionError.class);
         }
     }
@@ -102,7 +102,7 @@ class ValidationAssertTest {
         @Test
         void assertValid_whenValid_shouldPass() {
             Validation<String> valid = Validation.valid("test");
-            ValidationAssert.assertValid(valid).hasValue("test");
+            ValidationAssert.assertValid(valid).isEqualTo("test");
         }
 
         @Test
