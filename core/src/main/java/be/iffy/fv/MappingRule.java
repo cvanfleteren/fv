@@ -398,6 +398,9 @@ public interface MappingRule<T, R> {
     /**
      * Fails if the input {@link Option} is empty. Otherwise, applies the given rule to its value.
      * <p>
+     * Error key: {@code must.not.be.empty}
+     *
+     * <p>
      * Usage example:
      * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="required-option-example"}
      *
@@ -413,6 +416,9 @@ public interface MappingRule<T, R> {
 
     /**
      * Fails if the input {@link Optional} is empty. Otherwise, applies the given rule to its value.
+     * <p>
+     * Error key: {@code must.not.be.empty}
+     *
      * <p>
      * Usage example:
      * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="required-optional-example"}

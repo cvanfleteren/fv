@@ -216,6 +216,9 @@ public sealed interface Validation<T> extends Iterable<T> {
      * <p>
      * {@link ValidationException}s that are thrown are handled cleanly, accumulating the errors present.
      *
+     * <p>
+     * Error key: {@code could.not.be.mapped} but not if the mapper threw a {@link ValidationException}, in that case it's errors are used.
+     *
      * <p>Example: successful mapping
      * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="mapCatching_success"}
      *
@@ -1185,10 +1188,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the {@link Option} is defined, the returned validation will be valid with the value.
      * If the {@link Option} is empty, the returned validation will be invalid with the provided error message.
      *
-     * @param option       the option instance.
-     * @param errorMessage the error message to use if empty.
-     * @param <T>          the value type.
-     * @return a {@link Validation} instance.
      */
     static <T> Validation<T> from(Option<? extends T> option, ErrorMessage errorMessage) {
         return option.fold(
@@ -1201,11 +1200,8 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Creates a {@link Validation} from an {@link Option}.
      * If the {@link Option} is defined, the returned validation will be valid with the value.
      * If the {@link Option} is empty, the returned validation will be invalid with the provided error message key.
-     *
-     * @param option       the option instance.
-     * @param errorMessage the error message key to use if empty.
-     * @param <T>          the value type.
-     * @return a {@link Validation} instance.
+     * <p>
+     * Error key: {@code value.is.none}
      */
     static <T> Validation<T> from(Option<? extends T> option, String errorMessage) {
         return from(option, ErrorMessage.of(errorMessage));
@@ -1215,10 +1211,9 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Creates a {@link Validation} from an {@link Option}.
      * If the {@link Option} is defined, the returned validation will be valid with the value.
      * If the {@link Option} is empty, the returned validation will be invalid with the default error message {@code "value.is.none"}.
+     * <p>
+     * Error key: {@code value.is.none}
      *
-     * @param option the option instance.
-     * @param <T>    the value type.
-     * @return a {@link Validation} instance.
      */
     static <T> Validation<T> from(Option<? extends T> option) {
         return from(option, "value.is.none");
@@ -1229,10 +1224,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the {@link Either} is right, the returned validation will be valid with the value.
      * If the {@link Either} is left, the returned validation will be invalid with the error message mapped from the left value.
      *
-     * @param either      the either instance.
      * @param errorMapper the function to map the left value to an error message.
-     * @param <L>         the left type.
-     * @param <R>         the right type (value type).
      * @return a {@link Validation} instance.
      */
     static <L, R> Validation<R> from(Either<L, ? extends R> either, Function1<? super L, ErrorMessage> errorMapper) {
@@ -1247,9 +1239,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the optional is present, the returned validation will be valid with the value.
      * If the optional is empty, the returned validation will be invalid with the default error message {@code "value.is.none"}.
      *
-     * @param optional the optional instance.
-     * @param <T>      the value type.
-     * @return a {@link Validation} instance.
      */
     static <T> Validation<T> from(Optional<? extends T> optional) {
         return from(Option.ofOptional(optional));
@@ -1260,10 +1249,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the optional is present, the returned validation will be valid with the value.
      * If the optional is empty, the returned validation will be invalid with the provided error message key.
      *
-     * @param optional     the optional instance.
-     * @param errorMessage the error message key to use if empty.
-     * @param <T>          the value type.
-     * @return a {@link Validation} instance.
      */
     static <T> Validation<T> from(Optional<? extends T> optional, String errorMessage) {
         return from(Option.ofOptional(optional), errorMessage);
@@ -1274,10 +1259,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the optional is present, the returned validation will be valid with the value.
      * If the optional is empty, the returned validation will be invalid with the provided error message.
      *
-     * @param optional     the optional instance.
-     * @param errorMessage the error message to use if empty.
-     * @param <T>          the value type.
-     * @return a {@link Validation} instance.
      */
     static <T> Validation<T> from(Optional<? extends T> optional, ErrorMessage errorMessage) {
         return from(Option.ofOptional(optional), errorMessage);
@@ -1290,9 +1271,6 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Narrows a {@code Validation<? extends T>} to a {@code Validation<T>}.
      *
-     * @param validation the validation to narrow.
-     * @param <T>        the target type.
-     * @return the narrowed validation.
      */
     @SuppressWarnings("unchecked")
     static <T> Validation<T> narrow(Validation<? extends T> validation) {
@@ -1302,9 +1280,6 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Narrows a {@code Validation<? super T>} to a {@code Validation<T>}.
      *
-     * @param validation the validation to narrow.
-     * @param <T>        the target type.
-     * @return the narrowed validation.
      */
     @SuppressWarnings("unchecked")
     static <T> Validation<T> narrowSuper(Validation<? super T> validation) {

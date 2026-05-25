@@ -488,7 +488,7 @@ public interface Rule<T> extends MappingRule<T, T> {
     /**
      * Composes multiple rules using "at least one of" logic.
      * The combined rule is successful if at least one of the rules is successful.
-     * If all rules fail, all errors are combined.
+     * If all rules fail, all errors from all rules are combined.
      * <p>
      * Usage example:
      * {@snippet file="be/iffy/fv/RuleSnippets.java" region="any-example"}
@@ -526,7 +526,7 @@ public interface Rule<T> extends MappingRule<T, T> {
     /**
      * Returns a {@link Rule} that validates the input is not null.
      * <p>
-     * Error key: "must.not.be.null"
+     * Error key: {@code must.not.be.null}
      *
      * @param <T> the type of input
      */
