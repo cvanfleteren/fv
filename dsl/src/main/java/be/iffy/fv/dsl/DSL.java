@@ -411,7 +411,7 @@ public class DSL {
          * @param <Z>    the result type of the mapping.
          * @return a new {@link ValidationDSL} with the mapped value.
          */
-        public <Z> ValidationDSL<Z> map(Function1<T, Z> mapper) {
+        public <Z> ValidationDSL<Z> map(Function<T, Z> mapper) {
             return new ValidationDSL<>(validation.mapCatching(mapper), name);
         }
 
@@ -423,7 +423,7 @@ public class DSL {
          * @param <Z>    the result type of the mapping.
          * @return a new {@link ValidationDSL} with the mapped value.
          */
-        public <Z> Validation<Z> mapsTo(Function1<T, Z> mapper) {
+        public <Z> Validation<Z> mapsTo(Function<T, Z> mapper) {
             return this.validation.mapCatching(mapper).at(name);
         }
 
@@ -504,7 +504,7 @@ public class DSL {
          * @param <Z>    the result type of the mapping.
          * @return a new {@link ListValidationDSL} with the mapped value.
          */
-        public <Z> ListValidationDSL<Z> map(Function1<? super T, Z> mapper) {
+        public <Z> ListValidationDSL<Z> map(Function<? super T, Z> mapper) {
             return new ListValidationDSL<>(
                     validation.mapCatching(l -> l.map(mapper)),
                     value != null ? value.map(mapper) : null,
@@ -520,7 +520,7 @@ public class DSL {
          * @param <Z>    the result type of the mapping.
          * @return a {@link Validation} of the mapped list.
          */
-        public <Z> Validation<List<Z>> mapsTo(Function1<? super T, Z> mapper) {
+        public <Z> Validation<List<Z>> mapsTo(Function<? super T, Z> mapper) {
             return this.validation.mapCatching(l -> l.map(mapper));
         }
 
@@ -598,15 +598,24 @@ public class DSL {
 
     public static class AssertDSL<T> {
         private final String name;
-        private final T value;
+        private final Validation<T> value;
 
         public AssertDSL(T value, String name) {
+            this.value = Rule.<T>notNull().test(value).at(name);
+            this.name = name;
+        }
+
+        AssertDSL(Validation<T> value, String name) {
             this.value = value;
             this.name = name;
         }
 
+        public <R> AssertDSL<R> map(Function<T,R> transform) {
+           return new AssertDSL<>(this.value.mapCatching(transform),name);
+        }
+
         public T is(Rule<? super T> rule) {
-            return validateThat(value, name).is(rule).getOrElseThrow();
+            return value.refine(rule).getOrElseThrow();
         }
     }
 }

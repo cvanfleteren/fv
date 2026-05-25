@@ -102,6 +102,21 @@ public class DSLTest {
         }
 
         @Test
+        public void map_whenNullIsGiven_becomesInvalid() {
+            Rule<String> startsWithH = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+
+
+            Rule<String> compliant = notEmpty.and(startsWithH);
+
+
+            Person p = new Person(null, 30);
+
+            Validation<String> v = validateThat(p.name()).map(String::trim).is(compliant);
+
+            assertThatValidation(v).isInvalid().hasErrorKeys("must.not.be.null");
+        }
+
+        @Test
         public void map_whenMultipleMapsAreChained_appliesAllMappers() {
             // Arrange
             var value = "  123  ";
@@ -169,6 +184,15 @@ public class DSLTest {
         void assertThat_whenValid_returnsValue() {
             // Act
             String result = DSL.assertThat("ok", "field").is(Rule.notNull());
+
+            // Assert
+            assertThat(result).isEqualTo("ok");
+        }
+
+        @Test
+        void assertThat_map_whenValid_returnsMappedValue() {
+            // Act
+            String result = DSL.assertThat(" ok ", "field").map(String::trim).is(Rule.notNull());
 
             // Assert
             assertThat(result).isEqualTo("ok");
