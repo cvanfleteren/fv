@@ -32,7 +32,7 @@ public class DSLClientTest {
 
         assertThatValidation(personV)
                 .isValid()
-                .hasValue(new Person("John", 30));
+                .isEqualTo(new Person("John", 30));
     }
 
     @Test

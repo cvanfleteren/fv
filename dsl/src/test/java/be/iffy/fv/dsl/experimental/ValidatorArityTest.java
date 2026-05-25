@@ -22,7 +22,7 @@ class ValidatorArityTest {
                     .builds(f1 -> f1);
 
             var input = new Input("v1", null, null, null, null, null, null, null);
-            assertThatValidation(validator.test(input)).isValid().hasValue("v1");
+            assertThatValidation(validator.test(input)).isValid().isEqualTo("v1");
         }
     }
 
@@ -36,7 +36,7 @@ class ValidatorArityTest {
                     .builds((f1, f2) -> f1 + f2);
 
             var input = new Input("v1", "v2", null, null, null, null, null, null);
-            assertThatValidation(validator.test(input)).isValid().hasValue("v1v2");
+            assertThatValidation(validator.test(input)).isValid().isEqualTo("v1v2");
         }
     }
 
@@ -51,7 +51,7 @@ class ValidatorArityTest {
                     .builds((f1, f2, f3) -> f1 + f2 + f3);
 
             var input = new Input("v1", "v2", "v3", null, null, null, null, null);
-            assertThatValidation(validator.test(input)).isValid().hasValue("v1v2v3");
+            assertThatValidation(validator.test(input)).isValid().isEqualTo("v1v2v3");
         }
     }
 
@@ -67,7 +67,7 @@ class ValidatorArityTest {
                     .builds((f1, f2, f3, f4) -> f1 + f2 + f3 + f4);
 
             var input = new Input("v1", "v2", "v3", "v4", null, null, null, null);
-            assertThatValidation(validator.test(input)).isValid().hasValue("v1v2v3v4");
+            assertThatValidation(validator.test(input)).isValid().isEqualTo("v1v2v3v4");
         }
     }
 
@@ -84,7 +84,7 @@ class ValidatorArityTest {
                     .builds((f1, f2, f3, f4, f5) -> f1 + f2 + f3 + f4 + f5);
 
             var input = new Input("v1", "v2", "v3", "v4", "v5", null, null, null);
-            assertThatValidation(validator.test(input)).isValid().hasValue("v1v2v3v4v5");
+            assertThatValidation(validator.test(input)).isValid().isEqualTo("v1v2v3v4v5");
         }
     }
 
@@ -102,7 +102,7 @@ class ValidatorArityTest {
                     .builds((f1, f2, f3, f4, f5, f6) -> f1 + f2 + f3 + f4 + f5 + f6);
 
             var input = new Input("v1", "v2", "v3", "v4", "v5", "v6", null, null);
-            assertThatValidation(validator.test(input)).isValid().hasValue("v1v2v3v4v5v6");
+            assertThatValidation(validator.test(input)).isValid().isEqualTo("v1v2v3v4v5v6");
         }
     }
 
@@ -121,7 +121,7 @@ class ValidatorArityTest {
                     .builds((f1, f2, f3, f4, f5, f6, f7) -> f1 + f2 + f3 + f4 + f5 + f6 + f7);
 
             var input = new Input("v1", "v2", "v3", "v4", "v5", "v6", "v7", null);
-            assertThatValidation(validator.test(input)).isValid().hasValue("v1v2v3v4v5v6v7");
+            assertThatValidation(validator.test(input)).isValid().isEqualTo("v1v2v3v4v5v6v7");
         }
     }
 
@@ -141,7 +141,7 @@ class ValidatorArityTest {
                     .builds((f1, f2, f3, f4, f5, f6, f7, f8) -> f1 + f2 + f3 + f4 + f5 + f6 + f7 + f8);
 
             var input = new Input("v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8");
-            assertThatValidation(validator.test(input)).isValid().hasValue("v1v2v3v4v5v6v7v8");
+            assertThatValidation(validator.test(input)).isValid().isEqualTo("v1v2v3v4v5v6v7v8");
         }
     }
 }

@@ -105,7 +105,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("Success");
+                    .isEqualTo("Success");
         }
 
         @Test
@@ -139,7 +139,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(List.of(123, 456));
+                    .isEqualTo(List.of(123, 456));
         }
 
         @Test
@@ -190,7 +190,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(java.util.List.of(123, 456));
+                    .isEqualTo(java.util.List.of(123, 456));
         }
 
         @Test
@@ -241,7 +241,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(Option.none());
+                    .isEqualTo(Option.none());
         }
 
         @Test
@@ -256,7 +256,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(Option.of(123));
+                    .isEqualTo(Option.of(123));
         }
 
         @Test
@@ -290,7 +290,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(java.util.Optional.empty());
+                    .isEqualTo(java.util.Optional.empty());
         }
 
         @Test
@@ -305,7 +305,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(java.util.Optional.of(123));
+                    .isEqualTo(java.util.Optional.of(123));
         }
 
         @Test
@@ -343,7 +343,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(LinkedHashMap.of("a", 123, "b", 456));
+                    .isEqualTo(LinkedHashMap.of("a", 123, "b", 456));
         }
 
         @Test
@@ -403,7 +403,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(HashMap.of(1, 123, 2, 456));
+                    .isEqualTo(HashMap.of(1, 123, 2, 456));
         }
     }
 
@@ -426,7 +426,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(java.util.Map.of("a", 123, "b", 456));
+                    .isEqualTo(java.util.Map.of("a", 123, "b", 456));
         }
 
         @Test
@@ -486,7 +486,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(java.util.Map.of(1, 123, 2, 456));
+                    .isEqualTo(java.util.Map.of(1, 123, 2, 456));
         }
     }
 
@@ -497,7 +497,7 @@ class MappingRuleTest {
             MappingRule<String, String> rule = MappingRule.notNull();
             assertThatValidation(rule.test("hello"))
                     .isValid()
-                    .hasValue("hello");
+                    .isEqualTo("hello");
         }
 
         @Test
@@ -558,7 +558,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(123);
+                    .isEqualTo(123);
         }
 
         @Test
@@ -646,7 +646,7 @@ class MappingRuleTest {
             // Act + Assert
             assertThatValidation(requiredRule.test(Option.of("123")))
                     .isValid()
-                    .hasValue(123);
+                    .isEqualTo(123);
         }
 
         @Test
@@ -686,7 +686,7 @@ class MappingRuleTest {
             // Act + Assert
             assertThatValidation(requiredRule.test(java.util.Optional.of("123")))
                     .isValid()
-                    .hasValue(123);
+                    .isEqualTo(123);
         }
 
         @Test
@@ -718,7 +718,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(123);
+                    .isEqualTo(123);
         }
 
         @Test
@@ -729,7 +729,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(3);
+                    .isEqualTo(3);
         }
 
         @Test
@@ -773,7 +773,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(123);
+                    .isEqualTo(123);
         }
 
         @Test
@@ -789,7 +789,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(3);
+                    .isEqualTo(3);
         }
 
         @Test
@@ -837,7 +837,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(1234);
+                    .isEqualTo(1234);
         }
 
         @Test
@@ -888,7 +888,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(123);
+                    .isEqualTo(123);
         }
     }
 }

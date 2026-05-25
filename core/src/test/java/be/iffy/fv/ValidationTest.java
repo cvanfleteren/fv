@@ -90,7 +90,7 @@ public class ValidationTest {
             // Act & Assert
             assertThatValidation(valid)
                     .isValid()
-                    .hasValue("Success");
+                    .isEqualTo("Success");
         }
 
         @Test
@@ -155,7 +155,7 @@ public class ValidationTest {
             assertThat(narrowedValidation).isSameAs(numberValidation);
             assertThatValidation(narrowedValidation)
                     .isValid()
-                    .hasValue(123);
+                    .isEqualTo(123);
         }
     }
 
@@ -265,7 +265,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(123);
+                    .isEqualTo(123);
         }
 
         @Test
@@ -309,7 +309,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(123);
+                    .isEqualTo(123);
         }
 
         @Test
@@ -352,7 +352,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(123);
+                    .isEqualTo(123);
         }
 
         @Test
@@ -406,7 +406,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(123);
+                    .isEqualTo(123);
         }
 
         @Test
@@ -465,7 +465,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(123);
+                    .isEqualTo(123);
         }
 
         @Test
@@ -646,7 +646,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(List.of(1, 2, 3));
+                    .isEqualTo(List.of(1, 2, 3));
         }
 
         @Test
@@ -671,18 +671,18 @@ public class ValidationTest {
         void transpose_whenMultipleAreInvalid_returnsInvalidValidationWithAllErrors() {
             // Arrange
             List<Validation<Integer>> validations = List.of(
-                    Validation.valid(1),
-                    Validation.invalid(ErrorMessage.of("error 1")),
-                    Validation.invalid(ErrorMessage.of("error 2"))
+                    Validation.valid(1).at("name"),
+                    Validation.<Integer>invalid(ErrorMessage.of("error 1")).at("name"),
+                    Validation.<Integer>invalid(ErrorMessage.of("error 2")).at("name")
             );
 
             // Act
-            Validation<List<Integer>> result = Validation.transpose(validations);
+            Validation<List<Integer>> result = Validation.transpose(validations).at("first");
 
             // Assert
             assertThatValidation(result)
                     .isInvalid()
-                    .hasErrorMessages("[1].error 1", "[2].error 2");
+                    .hasErrorMessages("first[1].name.error 1", "first[2].name.error 2");
         }
 
         @Test
@@ -696,7 +696,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(List.empty());
+                    .isEqualTo(List.empty());
         }
 
 
@@ -711,7 +711,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(List.of(1));
+                    .isEqualTo(List.of(1));
         }
     }
 
@@ -729,7 +729,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(Option.some(1));
+                    .isEqualTo(Option.some(1));
         }
 
         @Test
@@ -757,7 +757,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(Option.none());
+                    .isEqualTo(Option.none());
         }
 
         @Test
@@ -771,7 +771,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(Option.some(1));
+                    .isEqualTo(Option.some(1));
         }
     }
 
@@ -789,7 +789,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(Optional.of(1));
+                    .isEqualTo(Optional.of(1));
         }
 
         @Test
@@ -817,7 +817,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(Optional.empty());
+                    .isEqualTo(Optional.empty());
         }
 
         @Test
@@ -831,7 +831,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(Optional.of(1));
+                    .isEqualTo(Optional.of(1));
         }
     }
 
@@ -850,7 +850,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(BigDecimal.TEN);
+                    .isEqualTo(BigDecimal.TEN);
         }
 
         @Test
@@ -898,7 +898,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("Alice");
+                    .isEqualTo("Alice");
         }
 
         @Test
@@ -926,7 +926,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("Alice");
+                    .isEqualTo("Alice");
         }
 
         @Test
@@ -1013,7 +1013,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("Success");
+                    .isEqualTo("Success");
         }
 
         @Test
@@ -1042,7 +1042,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("Success");
+                    .isEqualTo("Success");
         }
 
         @Test
@@ -1101,30 +1101,6 @@ public class ValidationTest {
                     .isInvalid()
                     .hasErrorMessages("field[0].error1", "field[0].error2", "field[1].error1", "field[1].error2");
         }
-
-        @Test
-        void at_whenNameIsNull_returnsSameValidation() {
-            // Arrange
-            Validation<String> invalid = Validation.invalid("error");
-
-            // Act
-            Validation<String> result = invalid.at((String) null);
-
-            // Assert
-            assertThat(result).isSameAs(invalid);
-        }
-
-        @Test
-        void at_whenNameIsEmpty_returnsSameValidation() {
-            // Arrange
-            Validation<String> invalid = Validation.invalid("error");
-
-            // Act
-            Validation<String> result = invalid.at("");
-
-            // Assert
-            assertThat(result).isSameAs(invalid);
-        }
     }
 
     @Nested
@@ -1142,7 +1118,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("hello5");
+                    .isEqualTo("hello5");
         }
 
         @Test
@@ -1159,7 +1135,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("hello5");
+                    .isEqualTo("hello5");
         }
 
         @Test
@@ -1190,7 +1166,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("abc");
+                    .isEqualTo("abc");
         }
 
         @Test
@@ -1206,7 +1182,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("a1b");
+                    .isEqualTo("a1b");
         }
 
         @Test
@@ -1239,7 +1215,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("a1b2");
+                    .isEqualTo("a1b2");
         }
 
         @Test
@@ -1274,7 +1250,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("a1b2c");
+                    .isEqualTo("a1b2c");
         }
 
         @Test
@@ -1311,7 +1287,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("a1b2c3");
+                    .isEqualTo("a1b2c3");
         }
 
         @Test
@@ -1350,7 +1326,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("a1b2c3d");
+                    .isEqualTo("a1b2c3d");
         }
 
         @Test
@@ -1391,7 +1367,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("a1b2c3d4");
+                    .isEqualTo("a1b2c3d4");
         }
 
         @Test
@@ -1430,7 +1406,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("hello5");
+                    .isEqualTo("hello5");
         }
 
         @Test
@@ -1461,7 +1437,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("abc");
+                    .isEqualTo("abc");
         }
 
         @Test
@@ -1494,7 +1470,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("a1b2");
+                    .isEqualTo("a1b2");
         }
 
         @Test
@@ -1529,7 +1505,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("a1b2c");
+                    .isEqualTo("a1b2c");
         }
 
         @Test
@@ -1566,7 +1542,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("a1b2c3");
+                    .isEqualTo("a1b2c3");
         }
 
         @Test
@@ -1605,7 +1581,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("a1b2c3d");
+                    .isEqualTo("a1b2c3d");
         }
 
         @Test
@@ -1646,7 +1622,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("a1b2c3d4");
+                    .isEqualTo("a1b2c3d4");
         }
 
         @Test
@@ -1686,7 +1662,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("actual");
+                    .isEqualTo("actual");
         }
 
         @Test
@@ -1701,7 +1677,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("fallback");
+                    .isEqualTo("fallback");
         }
 
         @Test
@@ -1731,7 +1707,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(1);
+                    .isEqualTo(1);
         }
 
         @Test
@@ -1750,7 +1726,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("actual");
+                    .isEqualTo("actual");
             assertThat(supplierInvoked).isFalse();
         }
 
@@ -1766,7 +1742,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("fallback");
+                    .isEqualTo("fallback");
         }
 
         @Test
@@ -1782,7 +1758,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(1);
+                    .isEqualTo(1);
         }
 
         @Test
@@ -1878,7 +1854,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("expected");
+                    .isEqualTo("expected");
         }
 
         @Test
@@ -1923,7 +1899,7 @@ public class ValidationTest {
 
             assertThatValidation(v)
                     .isValid()
-                    .hasValue("hello");
+                    .isEqualTo("hello");
         }
 
         @Test
@@ -1975,7 +1951,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("hello");
+                    .isEqualTo("hello");
         }
 
         @Test
@@ -2004,7 +1980,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("hello");
+                    .isEqualTo("hello");
         }
 
         @Test
@@ -2051,7 +2027,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(42);
+                    .isEqualTo(42);
         }
 
         @Test
@@ -2113,7 +2089,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("hello");
+                    .isEqualTo("hello");
         }
 
         @Test
@@ -2142,7 +2118,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("hello");
+                    .isEqualTo("hello");
         }
 
         @Test
@@ -2192,7 +2168,7 @@ public class ValidationTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(java.util.List.of("a", "b"));
+                    .isEqualTo(java.util.List.of("a", "b"));
         }
 
         @Test

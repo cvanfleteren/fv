@@ -410,9 +410,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * @return a new {@link Validation} instance.
      */
     default Validation<T> at(String name) {
-        if(name == null || name.isEmpty()) {
-            return this;
-        }
         return mapErrors(errors -> errors.map(error -> error.prepend(ErrorMessage.Path.of(name))));
     }
 
@@ -440,20 +437,35 @@ public sealed interface Validation<T> extends Iterable<T> {
      * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
      */
     static <T> Validation<List<T>> transpose(Seq<? extends Validation<? extends T>> validations) {
+       return transpose(validations,"");
+    }
+
+    /**
+     * Transforms a {@link Seq} of {@link Validation}s into a single {@code Validation} of a {@link List}.
+     * If any validation is invalid, the result will contain all accumulated errors.
+     * <p>
+     * Usage example:
+     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="transpose_seq"}
+     *
+     * @param validations the sequence of validations to sequence.
+     * @param <T>         the value type.
+     * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
+     */
+    static <T> Validation<List<T>> transpose(Seq<? extends Validation<? extends T>> validations, String at) {
         return validations
                 .zipWithIndex()
                 .foldLeft(
                         Validation.valid(List.empty()),
                         (acc, validationWithIndex) -> {
                             if (acc instanceof Valid<List<T>>(var list)) {
-                                Validation<T> v = Validation.narrow(validationWithIndex._1);
+                                Validation<T> v = Validation.narrow(validationWithIndex._1.at(at));
                                 return switch (v) {
                                     case Valid<T>(var value) -> Validation.valid(list.append(value));
                                     case Invalid(var errors) ->
                                             Validation.invalid(errors.map(error -> error.atIndex(validationWithIndex._2)));
                                 };
                             } else {
-                                Validation<T> v = Validation.narrow(validationWithIndex._1);
+                                Validation<T> v = Validation.narrow(validationWithIndex._1.at(at));
                                 return switch (v) {
                                     case Valid<T>(var value) -> acc;
                                     case Invalid(var errors) ->

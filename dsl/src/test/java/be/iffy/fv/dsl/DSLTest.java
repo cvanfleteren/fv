@@ -37,7 +37,7 @@ public class DSLTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(numbers);
+                    .isEqualTo(numbers);
         }
 
         @Test
@@ -63,7 +63,7 @@ public class DSLTest {
             @Test
             void isNotNull_whenValueIsNotNull_returnsValid() {
                 Validation<String> v = validateThat("test").isNotNull();
-                assertThatValidation(v).isValid().hasValue("test");
+                assertThatValidation(v).isValid().isEqualTo("test");
             }
 
             @Test
@@ -98,7 +98,7 @@ public class DSLTest {
 
             Validation<String> v = validateThat(p.name()).map(String::trim).is(compliant);
 
-            assertThatValidation(v).isValid().hasValue("hugh");
+            assertThatValidation(v).isValid().isEqualTo("hugh");
         }
 
         @Test
@@ -116,7 +116,7 @@ public class DSLTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(246);
+                    .isEqualTo(246);
         }
 
         @Test
@@ -149,7 +149,7 @@ public class DSLTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(123);
+                    .isEqualTo(123);
         }
 
         @Test

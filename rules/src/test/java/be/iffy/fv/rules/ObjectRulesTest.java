@@ -156,7 +156,7 @@ class ObjectRulesTest {
         void isEnum_whenValidEnumValue_returnsValid() {
             assertThatValidation(objects.isEnum(TestEnum.class).test("A"))
                     .isValid()
-                    .hasValue(TestEnum.A);
+                    .isEqualTo(TestEnum.A);
         }
 
         @Test

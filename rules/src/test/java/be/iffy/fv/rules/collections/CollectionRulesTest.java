@@ -173,12 +173,12 @@ class CollectionRulesTest {
                     List.of("a", "bb", "c"),
                     collections.allMatch(s -> s.length() == 1, ErrorMessage.of("len.must.be.one")),
                     "len.must.be.one"
-            ).hasErrorMessages("value[1].len.must.be.one");
+            ).errorMessages().contains("[1].len.must.be.one");
 
             invalidTest(
                     List.of("a", "bb"),
                     collections.allMatch(s -> s.length() == 1, ErrorMessage.of("len.must.be", "len", 1)),
-                    "len.must.be",
+                    "[1].len.must.be",
                     HashMap.of("len", 1)
             );
         }
@@ -213,7 +213,7 @@ class CollectionRulesTest {
             invalidTest(
                     List.of("a", "bb"),
                     collections.noneMatch(s -> s.length() == 2, ErrorMessage.of("len.must.not.be", "len", 2)),
-                    "len.must.not.be",
+                    "[1].len.must.not.be",
                     HashMap.of("len", 2)
             );
         }

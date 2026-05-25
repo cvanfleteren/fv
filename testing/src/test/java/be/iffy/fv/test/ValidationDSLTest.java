@@ -84,7 +84,7 @@ public class ValidationDSLTest {
 
         assertThatValidation(result)
                 .isValid()
-                .hasValue(3);
+                .isEqualTo(3);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class ValidationDSLTest {
 
         assertThatValidation(result)
                 .isValid()
-                .hasValue(6);
+                .isEqualTo(6);
     }
 
 
@@ -114,7 +114,7 @@ public class ValidationDSLTest {
 
         assertThatValidation(result)
                 .isValid()
-                .hasValue(10);
+                .isEqualTo(10);
     }
 
     @Test
@@ -130,7 +130,7 @@ public class ValidationDSLTest {
 
         assertThatValidation(result)
                 .isValid()
-                .hasValue(15);
+                .isEqualTo(15);
     }
 
     @Test
@@ -147,7 +147,7 @@ public class ValidationDSLTest {
 
         assertThatValidation(result)
                 .isValid()
-                .hasValue(21);
+                .isEqualTo(21);
     }
 
     @Test
@@ -165,7 +165,7 @@ public class ValidationDSLTest {
 
         assertThatValidation(result)
                 .isValid()
-                .hasValue(28);
+                .isEqualTo(28);
     }
 
     @Test
@@ -184,7 +184,7 @@ public class ValidationDSLTest {
 
         assertThatValidation(result)
                 .isValid()
-                .hasValue(36);
+                .isEqualTo(36);
     }
 
     @Test
@@ -222,6 +222,6 @@ public class ValidationDSLTest {
 
         assertThatValidation(result)
                 .isValid()
-                .hasValue(36);
+                .isEqualTo(36);
     }
 }

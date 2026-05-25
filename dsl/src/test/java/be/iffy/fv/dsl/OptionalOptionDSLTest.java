@@ -23,14 +23,14 @@ public class OptionalOptionDSLTest {
         void optional_whenEmpty_isValid() {
             Rule<Optional<String>> rule = optional(notEmpty);
             Validation<Optional<String>> result = rule.test(Optional.empty());
-            assertThatValidation(result).isValid().hasValue(Optional.empty());
+            assertThatValidation(result).isValid().isEqualTo(Optional.empty());
         }
 
         @Test
         void optional_whenValueIsValid_isValid() {
             Rule<Optional<String>> rule = optional(notEmpty);
             Validation<Optional<String>> result = rule.test(Optional.of("valid"));
-            assertThatValidation(result).isValid().hasValue(Optional.of("valid"));
+            assertThatValidation(result).isValid().isEqualTo(Optional.of("valid"));
         }
 
         @Test
@@ -48,14 +48,14 @@ public class OptionalOptionDSLTest {
         void option_whenNone_isValid() {
             Rule<Option<String>> rule = option(notEmpty);
             Validation<Option<String>> result = rule.test(Option.none());
-            assertThatValidation(result).isValid().hasValue(Option.none());
+            assertThatValidation(result).isValid().isEqualTo(Option.none());
         }
 
         @Test
         void option_whenSomeIsValid_isValid() {
             Rule<Option<String>> rule = option(notEmpty);
             Validation<Option<String>> result = rule.test(Option.of("valid"));
-            assertThatValidation(result).isValid().hasValue(Option.of("valid"));
+            assertThatValidation(result).isValid().isEqualTo(Option.of("valid"));
         }
 
         @Test

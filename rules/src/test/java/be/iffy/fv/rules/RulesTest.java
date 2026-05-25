@@ -10,27 +10,27 @@ import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 
 public class RulesTest {
     public static <T> void validTest(T value, Rule<? super T> rule) {
-        assertThatValidation(rule.test(value).at("value"))
+        assertThatValidation(rule.test(value))
                 .isValid()
-                .hasValue(value);
+                .isEqualTo(value);
     }
 
     public static <T, R> void validTest(T value, R expected, MappingRule<? super T, R> rule) {
-        assertThatValidation(rule.test(value).at("value"))
+        assertThatValidation(rule.test(value))
                 .isValid()
-                .hasValue(expected);
+                .isEqualTo(expected);
     }
 
     public static <T, R> InvalidValidationAssert<?, Validation.Invalid, R> invalidTest(T value, MappingRule<? super T, R> rule, String... errorKeys) {
-        return assertThatValidation(rule.test(value).at("value"))
+        return assertThatValidation(rule.test(value))
                 .isInvalid()
                 .hasErrorKeys(errorKeys);
     }
 
-    public static <T, R> void invalidTest(T value, MappingRule<? super T, R> rule, String errorKey, Map<String, Object> args) {
-        assertThatValidation(rule.test(value).at("value"))
+    public static <T, R> void invalidTest(T value, MappingRule<? super T, R> rule, String errorMessage, Map<String, Object> args) {
+        assertThatValidation(rule.test(value))
                 .isInvalid()
-                .hasErrorMessage(errorKey, args);
+                .hasErrorMessage(errorMessage, args);
     }
 
 }

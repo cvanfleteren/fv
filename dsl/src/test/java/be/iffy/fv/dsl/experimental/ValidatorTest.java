@@ -34,7 +34,7 @@ class ValidatorTest {
 
         User validUser = new User("John", "Doe", 30, "john.doe@example.com");
         assertThatValidation(validator.test(validUser)).isValid()
-                .hasValue(new ValidatedUser("John Doe", 30, "john.doe@example.com"));
+                .isEqualTo(new ValidatedUser("John Doe", 30, "john.doe@example.com"));
 
         User invalidUser = new User("", "", -1, "");
         assertThatValidation(validator.test(invalidUser)).isInvalid()
@@ -53,7 +53,7 @@ class ValidatorTest {
 
         User validUser = new User("John", "Doe", 30, "john@doe.com");
         assertThatValidation(validator.test(validUser)).isValid()
-                .hasValue("John Doe <john@doe.com>");
+                .isEqualTo("John Doe <john@doe.com>");
     }
 
     @Test
@@ -76,8 +76,8 @@ class ValidatorTest {
 
         var v = adultWhenSubscribed.orElse(notSubscribed);
 
-        assertThatValidation(v.test(new LocalUser(true, 20, "John"))).isValid().hasValue(20);
+        assertThatValidation(v.test(new LocalUser(true, 20, "John"))).isValid().isEqualTo(20);
         assertThatValidation(v.test(new LocalUser(true, 15, "Young John"))).isInvalid().hasErrorMessage("age.too.young");
-        assertThatValidation(v.test(new LocalUser(false, 15, "Young John Unsubscribed"))).isValid().hasValue(15);
+        assertThatValidation(v.test(new LocalUser(false, 15, "Young John Unsubscribed"))).isValid().isEqualTo(15);
     }
 }

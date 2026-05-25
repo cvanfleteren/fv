@@ -106,7 +106,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("hello");
+                    .isEqualTo("hello");
         }
 
         @Test
@@ -166,7 +166,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("any");
+                    .isEqualTo("any");
         }
 
         @Test
@@ -212,7 +212,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("hello");
+                    .isEqualTo("hello");
         }
     }
 
@@ -251,7 +251,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("hello!");
+                    .isEqualTo("hello!");
         }
     }
 
@@ -272,7 +272,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("hi!");
+                    .isEqualTo("hi!");
         }
 
         @Test
@@ -288,7 +288,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("hello");
+                    .isEqualTo("hello");
         }
 
         @Test
@@ -339,7 +339,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("hello");
+                    .isEqualTo("hello");
         }
     }
 
@@ -389,7 +389,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("hello");
+                    .isEqualTo("hello");
         }
 
         @Test
@@ -481,7 +481,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("apple");
+                    .isEqualTo("apple");
         }
 
         @Test
@@ -497,7 +497,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("hi");
+                    .isEqualTo("hi");
         }
 
         @Test
@@ -576,7 +576,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("apple");
+                    .isEqualTo("apple");
         }
 
         @Test
@@ -633,7 +633,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("apple");
+                    .isEqualTo("apple");
         }
 
         @Test
@@ -649,7 +649,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("hi");
+                    .isEqualTo("hi");
         }
 
         @Test
@@ -720,7 +720,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(List.of("hello", "world"));
+                    .isEqualTo(List.of("hello", "world"));
         }
 
         @Test
@@ -730,7 +730,7 @@ class RuleTest {
             Rule<List<String>> listRule = rule.liftToVavrList();
 
             // Act
-            Validation<List<String>> result = listRule.test(List.of("hello", "hi", "yo"));
+            Validation<List<String>> result = listRule.test(List.of("hello", "hi", "yo","a"));
 
             // Assert
             assertThatValidation(result)
@@ -771,7 +771,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(Option.none());
+                    .isEqualTo(Option.none());
         }
 
         @Test
@@ -786,7 +786,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(Option.of("hello"));
+                    .isEqualTo(Option.of("hello"));
         }
 
         @Test
@@ -855,7 +855,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(input);
+                    .isEqualTo(input);
         }
 
         @Test
@@ -913,7 +913,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(input);
+                    .isEqualTo(input);
         }
 
         @Test
@@ -934,7 +934,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(input);
+                    .isEqualTo(input);
         }
 
         @Test
@@ -1009,7 +1009,7 @@ class RuleTest {
 
             assertThatValidation(conditionalRule.test("apple-pie"))
                     .isValid()
-                    .hasValue("apple-pie");
+                    .isEqualTo("apple-pie");
         }
 
         @Test
@@ -1030,7 +1030,7 @@ class RuleTest {
             // "apple" does not start with "b", so rule shouldn't run
             assertThatValidation(conditionalRule.test("apple"))
                     .isValid()
-                    .hasValue("apple");
+                    .isEqualTo("apple");
         }
 
         @Test
@@ -1050,7 +1050,7 @@ class RuleTest {
 
             assertThatValidation(conditionalRule.test("abc"))
                     .isValid()
-                    .hasValue("abc");
+                    .isEqualTo("abc");
         }
 
         @Test
@@ -1088,7 +1088,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(new StringHolder("1234"));
+                    .isEqualTo(new StringHolder("1234"));
         }
 
         @Test
@@ -1125,7 +1125,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue(new StringHolder("1234"));
+                    .isEqualTo(new StringHolder("1234"));
         }
 
         @Test
@@ -1177,7 +1177,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .hasValue("abcdef");
+                    .isEqualTo("abcdef");
         }
     }
 }

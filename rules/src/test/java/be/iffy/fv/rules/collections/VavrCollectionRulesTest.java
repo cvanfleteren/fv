@@ -146,7 +146,7 @@ class VavrCollectionRulesTest {
 
         @Test
         void invalid() {
-            invalidTest(List.of("a", null, "c"), vavrCollections.noNullElements(), "must.not.be.null").hasErrorMessage("value[1].must.not.be.null");
+            invalidTest(List.of("a", null, "c"), vavrCollections.noNullElements(), "must.not.be.null").hasErrorMessage("[1].must.not.be.null");
         }
     }
 
@@ -170,12 +170,12 @@ class VavrCollectionRulesTest {
                     List.of("a", "bb", "c"),
                     vavrCollections.allMatch((String s) -> s.length() == 1, ErrorMessage.of("len.must.be.one")),
                     "len.must.be.one"
-            ).hasErrorMessages("value[1].len.must.be.one");
+            ).hasErrorMessages("[1].len.must.be.one");
 
             invalidTest(
                     List.of("a", "bb"),
                     vavrCollections.allMatch(s -> s.length() == 1, ErrorMessage.of("len.must.be", "len", 1)),
-                    "len.must.be",
+                    "[1].len.must.be",
                     HashMap.of("len", 1)
             );
 
@@ -183,7 +183,7 @@ class VavrCollectionRulesTest {
                     List.of("a", "bb", "c"),
                     vavrCollections.allMatchRule(strings.length(1)),
                     "must.have.length"
-            ).hasErrorMessage("value[1].must.have.length");
+            ).hasErrorMessage("[1].must.have.length");
         }
 
         @Test
@@ -216,12 +216,12 @@ class VavrCollectionRulesTest {
                     List.of("a", "bb", "c"),
                     vavrCollections.noneMatch((String s) -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")),
                     "len.must.not.be.two"
-            ).hasErrorMessage("value[1].len.must.not.be.two");
+            ).hasErrorMessage("[1].len.must.not.be.two");
 
             invalidTest(
                     List.of("a", "bb"),
                     vavrCollections.noneMatch(s -> s.length() == 2, ErrorMessage.of("len.must.not.be", "len", 2)),
-                    "len.must.not.be",
+                    "[1].len.must.not.be",
                     HashMap.of("len", 2)
             );
 
@@ -229,7 +229,7 @@ class VavrCollectionRulesTest {
                     List.of("a", "bb", "c"),
                     vavrCollections.noneMatchRule(strings.length(2)),
                     "must.none.match"
-            ).hasErrorMessages("value[1].must.none.match");
+            ).hasErrorMessages("[1].must.none.match");
         }
 
         @Test
@@ -440,8 +440,8 @@ class VavrCollectionRulesTest {
 
             Rule<List<Integer>> listRule = vavrCollections.validateValuesWith(ints().positive());
 
-            invalidTest(List.of(-1, 10), listRule, "must.be.positive").hasErrorMessages("value[0].must.be.positive");
-            invalidTest(List.of(10, 0), listRule, "must.be.positive").hasErrorMessages("value[1].must.be.positive");
+            invalidTest(List.of(-1, 10), listRule, "must.be.positive").hasErrorMessages("[0].must.be.positive");
+            invalidTest(List.of(10, 0), listRule, "must.be.positive").hasErrorMessages("[1].must.be.positive");
         }
     }
 }
