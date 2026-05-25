@@ -102,9 +102,6 @@ public interface IObjectRules<T> {
      * <ul>
      *     <li>{@code values}: the set of forbidden values ({@link Set})</li>
      * </ul>
-     *
-     * @param values the forbidden values.
-     * @return a {@link Rule} checking if the value is not one of the forbidden values.
      */
     default Rule<T> notOneOf(Set<T> values) {
         return Rule.notNull().and(Rule.of(o -> !values.contains(o), ErrorMessage.of("must.not.be.one.of", HashMap.of("values", values))));
@@ -119,10 +116,6 @@ public interface IObjectRules<T> {
      * <ul>
      *     <li>{@code of}: the required class ({@link Class})</li>
      * </ul>
-     *
-     * @param <U>   the type of the class.
-     * @param clazz the required class.
-     * @return a {@link Rule} checking the object's type.
      */
     default <U> MappingRule<Object, U> instanceOf(Class<U> clazz) {
         return input -> MappingRule.notNull().test(input).flatMap(i -> {
