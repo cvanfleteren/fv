@@ -2188,5 +2188,23 @@ public class ValidationTest {
                     .isInvalid()
                     .hasErrorMessages("[1].error1", "[2].error2");
         }
+
+        @Test
+        void transpose_at_whenSomeAreInvalid_returnsInvalidWithAllErrors() {
+            // Arrange
+            java.util.List<Validation<String>> validations = java.util.List.of(
+                    Validation.valid("a"),
+                    Validation.invalid("error1"),
+                    Validation.invalid("error2")
+            );
+
+            // Act
+            Validation<java.util.List<String>> result = Validation.transpose(validations,"collection");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("collection[1].error1", "collection[2].error2");
+        }
     }
 }

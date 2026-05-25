@@ -448,6 +448,8 @@ public sealed interface Validation<T> extends Iterable<T> {
      * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="transpose_seq"}
      *
      * @param validations the sequence of validations to sequence.
+     * @param at the path entry under which the errors will be mapped. e.g. at "foo" will get erromessages like "foo[1].some.message"
+     *           if the second entry in the list is invalid.
      * @param <T>         the value type.
      * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
      */
@@ -517,6 +519,22 @@ public sealed interface Validation<T> extends Iterable<T> {
      */
     static <T> Validation<java.util.List<T>> transpose(java.util.Collection<Validation<T>> validations) {
         return transpose(List.ofAll(validations))
+                .map(List::asJava);
+    }
+
+    /**
+     * Transforms a {@link java.util.Collection} of {@link Validation}s into a single {@code Validation} of a {@link java.util.List}.
+     * If any validation is invalid, the result will contain all accumulated errors.
+     * <p>
+     * Usage example:
+     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="transpose_collection"}
+     *
+     * @param validations the collection of validations to sequence.
+     * @param <T>         the value type.
+     * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
+     */
+    static <T> Validation<java.util.List<T>> transpose(java.util.Collection<Validation<T>> validations, String at) {
+        return transpose(List.ofAll(validations), at)
                 .map(List::asJava);
     }
     //endregion
