@@ -205,7 +205,9 @@ rule.test("OPEN");    // Valid(Status.OPEN)
 rule.test("UNKNOWN"); // Invalid (must.be.valid.enum.value)
 ```
 
-If the validation fails, it uses the error key `must.be.valid.enum.value` and provides the invalid input as a parameter named `value`.
+If the validation fails, it uses the error key `must.be.valid.enum.value` and provides the invalid input as a parameter named `value`.  
+If you only want to check if the String represents a valid enum value, but keep the String, use `objects.canBeEnum` instead. 
+
 
 ---
 

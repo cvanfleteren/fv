@@ -27,30 +27,49 @@ public class ObjectRules implements IObjectRules<Object> {
      * Fails if the object is {@code null}.
      * <p>
      * Error key: {@code must.not.be.null}
-     *
-     * @param <T> the type of the object.
-     * @return a {@link Rule} checking for non-null values.
      */
     public <T> Rule<T> notNull() {
         return MappingRule.<T>notNull()::test;
     }
 
     /**
-     * Fails if the input string is not a valid enum value for the given enum class.
+     * Fails if the input string is not a valid enum value for the given enum class while mappping to the enum.
      * <p>
      * Usage example:
      * {@snippet file="be/iffy/fv/rules/ObjectRulesSnippets.java" region="is-enum-example"}
      * <p>
      * Error key: {@code must.be.valid.enum.value}
-     *
-     * @param <E> the type of the enum.
-     * @return a {@link MappingRule} checking for valid enum values.
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
      */
     public <E extends Enum<E>> MappingRule<String, E> isEnum(Class<E> clazz) {
         return input -> Try.of(() -> Enum.valueOf(clazz, input))
                 .fold(
                         f -> Validation.invalid(ErrorMessage.of("must.be.valid.enum.value", "value", input)),
                         Validation::valid
+                );
+    }
+
+
+    /**
+     * Fails if the input string is not a valid enum value for the given enum class.
+     * <p>
+     * Error key: {@code must.be.valid.enum.value}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
+     *
+     */
+    public <E extends Enum<E>> Rule<String> canBeEnum(Class<E> clazz) {
+        return input -> Try.of(() -> Enum.valueOf(clazz, input))
+                .fold(
+                        f -> Validation.invalid(ErrorMessage.of("must.be.valid.enum.value", "value", input)),
+                        v -> Validation.valid(input)
                 );
     }
 

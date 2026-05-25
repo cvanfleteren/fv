@@ -166,4 +166,26 @@ class ObjectRulesTest {
                     .hasErrorMessage("must.be.valid.enum.value", HashMap.of("value", "C"));
         }
     }
+
+    @Nested
+    class CanBeEnum {
+
+        enum TestEnum {
+            A, B
+        }
+
+        @Test
+        void canBeEnum_whenValidEnumValue_returnsValid() {
+            assertThatValidation(objects.canBeEnum(TestEnum.class).test("A"))
+                    .isValid()
+                    .isEqualTo("A");
+        }
+
+        @Test
+        void canBeEnum_whenInvalidEnumValue_returnsInvalid() {
+            assertThatValidation(objects.canBeEnum(TestEnum.class).test("C"))
+                    .isInvalid()
+                    .hasErrorMessage("must.be.valid.enum.value", HashMap.of("value", "C"));
+        }
+    }
 }
