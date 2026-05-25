@@ -4,6 +4,7 @@ Welcome to the FAQ for the Iffy Functional Validation (FV) library. If you have 
 
 ### Table of Contents
 - [What is the difference between a `Rule` and a `MappingRule`?](#what-is-the-difference-between-a-rule-and-a-mappingrule)
+- [I have an Invalid validation, how can I know what was wrong?](#i-have-an-invalid-validation-how-can-i-know-what-was-wrong)
 - [How do I combine multiple rules?](#how-do-i-combine-multiple-rules)
 - [Are rules null-safe by default?](#are-rules-null-safe-by-default)
 - [How can I validate a property of an object?](#how-can-i-validate-a-property-of-an-object)
@@ -20,6 +21,8 @@ Welcome to the FAQ for the Iffy Functional Validation (FV) library. If you have 
 - [In my constructor, I want to be liberal with my input, and only validate the value after changing it](#in-my-constructor-i-want-to-be-liberal-with-my-input-and-only-validate-the-value-after-changing-it)
 - [Ok, but can I do the same when defining a Rule?](#ok-but-can-i-do-the-same-when-defining-a-rule)
 - [Ok, but I want to transform multiple fields in my constructor, how do I get their transformed values?](#ok-but-i-want-to-transform-multiple-fields-in-my-constructor-how-do-i-get-their-transformed-values)
+- [I have some type whose constructor throws an exception, how can I make a Validation for this type?](#i-have-some-type-whose-constructor-throws-an-exception-how-can-i-make-a-validation-for-this-type)
+- [I have a Validation, but I want to add an extra check on the value](#i-have-a-validation-but-i-want-to-add-an-extra-check-on-the-value)
 
 
 ---
@@ -42,6 +45,57 @@ In short: A **`Rule<T>`** validates a value without changing it, while a **`Mapp
 
 **When to use which?**
 Use a `Rule` for simple checks on a value. Use a `MappingRule` when you need to change the type of the value or when you want to "materialize" a validated object from a raw input.
+
+---
+
+### I have an Invalid validation, how can I know what was wrong?
+
+When a validation fails, it returns an **`Invalid`** object. You can access the errors using the `getErrors()` method, which returns a `List<ErrorMessage>`.
+
+Each **`ErrorMessage`** contains:
+*   **`errorKey`**: A unique string identifying the type of error (e.g., `"must.have.length.between"`).
+*   **`paths`**: The path to the field that failed validation.
+*   **`parameters`**: A `Map<String, Object>` containing dynamic values that can be used to format a human-readable message.
+
+#### The `formatted()` method
+
+For quick debugging or logging, you can use the **`formatted()`** method. It returns a string that combines the path, the error key, and all parameters in a standardized format: `path.to.field.error.key:{param1:value1,param2:value2}`.
+
+#### Example: Inspecting parameters and using `formatted()`
+
+```java
+import be.iffy.fv.Validation;
+import be.iffy.fv.ErrorMessage;
+import static be.iffy.fv.rules.text.StringRules.strings;
+
+Validation<String> result = strings.lengthBetween(3, 10).test("hi");
+
+if (result.isInvalid()) {
+    ErrorMessage error = result.getErrors().head();
+    
+    // Accessing individual components
+    System.out.println("Error Key: " + error.getErrorKey()); // must.have.length.between
+    System.out.println("Min length: " + error.getParameters().get("min").get()); // 3
+    System.out.println("Max length: " + error.getParameters().get("max").get()); // 10
+
+    // Using formatted() for a quick overview
+    System.out.println("Formatted: " + error.formatted());
+    // Output: must.have.length.between:{min:3,max:10}
+}
+```
+
+#### Where are the parameters and error keys documented?
+
+The parameters available in the `ErrorMessage` are documented in the **Javadoc** of the rule factory methods.
+
+For example, the Javadoc for `strings.lengthBetween(min, max)` explicitly states:
+
+> **Parameters:**
+> - `min`: the minimum allowed length (`int`)
+> - `max`: the maximum allowed length (`int`)
+
+By checking the Javadoc of the rules you are using, you can know exactly which keys to expect in the parameters map.
+It's the same for the error key, it is also documented in the javadoc.
 
 ---
 
@@ -408,3 +462,73 @@ Using a MappingRule for this case would look something like this:
 ```java
 MappingRule<String, String> trimmedMinLength3 = MappingRule.of(String::trim, "can.not.fail").andThen(minLength);
 ```
+
+---
+
+### I have some type whose constructor throws an exception, how can I make a Validation for this type?
+
+If you want to validate a type constructed using a method or constructor that can throw an exception (checked or unchecked), you can use Vavr's **`Try`** in combination with **`Validation.from(Try)`**.
+
+This allows you to wrap the potentially failing construction in a `Try`, and then convert it into a `Validation` object which fits perfectly into the rest of the library's ecosystem.
+
+#### Example: Validating a URL
+
+Since `new URL(String)` throws a checked `MalformedURLException`, it's a perfect candidate for this approach.
+
+```java
+import be.iffy.fv.Validation;
+import io.vavr.control.Try;
+import java.net.URL;
+
+public Validation<URL> validateUrl(String input) {
+    return Validation.from(
+        Try.of(() -> new URL(input)),
+        "invalid.url" // Error key to use if Try fails
+    );
+}
+```
+Note: there's a built-in MappingRule<String, URL> asURL() in StringRules for this.
+
+In this example:
+1. `Try.of(...)` attempts to create the `URL`. If an exception is thrown, it captures it in a `Failure` state.
+2. `Validation.from(tryResult, "invalid.url")` converts the `Try` into a `Validation`. 
+3. If the `Try` was a `Success`, you get a `Valid<URL>`.
+4. If the `Try` was a `Failure`, you get an `Invalid` result with the error key `"invalid.url"`.
+
+---
+
+### I have a Validation, but I want to add an extra check on the value
+
+If you already have a `Validation<T>` object and you want to apply an additional `Rule<T>` to its value (if it's valid), you can use the **`refine()`** method.
+
+This is particularly useful when you've already performed some initial validation or transformation and want to "refine" the result with further constraints.
+
+#### Example: Refining a validation
+
+```java
+import be.iffy.fv.Validation;
+import static be.iffy.fv.rules.text.StringRules.strings;
+
+Validation<String> initialValidation = ...;
+
+// Only if initialValidation is Valid, check if the string is also an email
+Validation<String> refinedValidation = initialValidation.refine(strings.email());
+```
+
+In this case:
+1. If `initialValidation` is `Invalid`, `refine()` does nothing and returns the original `Invalid` result.
+2. If `initialValidation` is `Valid`, the `strings.email()` rule is applied to the value.
+3. If the email rule passes, you get a `Valid` result with the original value.
+4. If the email rule fails, you get an `Invalid` result containing the error from the email rule.
+
+#### Filtering with predicates
+
+If you just want to check a simple condition without creating a full `Rule` object, you can also use **`filter()`**, which uses `refine` internally:
+
+```java
+Validation<String> filtered = initialValidation.filter(
+    s -> s.startsWith("A"), 
+    "must.start.with.A"
+);
+```
+
