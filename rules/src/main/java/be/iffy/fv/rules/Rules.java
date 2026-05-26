@@ -42,7 +42,7 @@ public class Rules {
 
     public static final ZonedDateTimeRules zonedDateTimes = ZonedDateTimeRules.zonedDateTimes;
 
-    public static final VavrCollectionRules vavrCollections = VavrCollectionRules.vavrCollections;
+    public static final VavrListRules vavrLists = VavrListRules.vavrLists;
 
     public static final CollectionRules collections = CollectionRules.collections;
 

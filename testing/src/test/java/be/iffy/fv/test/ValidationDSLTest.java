@@ -10,7 +10,7 @@ import java.time.Instant;
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static be.iffy.fv.dsl.DSL.*;
 import static be.iffy.fv.dsl.experimental.ValidatingDSL.validating;
-import static be.iffy.fv.rules.Rules.vavrCollections;
+import static be.iffy.fv.rules.Rules.vavrLists;
 import static be.iffy.fv.rules.time.InstantRules.instants;
 import static be.iffy.fv.rules.functional.OptionRules.options;
 import static be.iffy.fv.rules.text.StringRules.*;
@@ -36,7 +36,7 @@ public class ValidationDSLTest {
                 case READY -> assertAllValid(
                         validateThat(startedAt, SomeClass::startedAt).is(options.empty()),
                         validateThat(finishedAt, SomeClass::finishedAt).is(options.empty()),
-                        validateThat(errors, SomeClass::errors).is(vavrCollections.empty())
+                        validateThat(errors, SomeClass::errors).is(vavrLists.empty())
                 );
 
                 case SUCCESS -> assertAllValid(
@@ -44,7 +44,7 @@ public class ValidationDSLTest {
                                 validateThat(startedAt, SomeClass::startedAt).is(options.required()),
                                 validateThat(finishedAt, SomeClass::finishedAt).is(options.required())
                         ).flatMap((s, f) -> validateThat(s).is(instants.isBefore(f))),
-                        validateThat(errors, SomeClass::errors).is(vavrCollections.empty())
+                        validateThat(errors, SomeClass::errors).is(vavrLists.empty())
                 );
 
                 case FAILURE -> assertAllValid(
@@ -53,7 +53,7 @@ public class ValidationDSLTest {
                                 validateThat(finishedAt, SomeClass::finishedAt).is(options.required())
                         ).flatMap((s, f) -> validateThat(s).is(instants.isBefore(f))),
                         validateThat(errors, SomeClass::errors).is(
-                                vavrCollections.notEmpty().and(vavrCollections.allMatchRule(strings.notEmpty()))
+                                vavrLists.<String>notEmpty().and(vavrLists.allMatchRule(strings.notEmpty()))
                         )
                 );
             }

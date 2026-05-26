@@ -2,53 +2,75 @@ package be.iffy.fv.rules.collections;
 
 import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Rule;
+import be.iffy.fv.Validation;
 import io.vavr.Function1;
 import io.vavr.collection.Map;
-import io.vavr.collection.Set;
 
-import java.util.Collection;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
- * Validation rules for {@link Collection} values.
+ * Important note: if your set doesn't have a fixed iteration order (e.g., is not a {@link java.util.SequencedSet} implemenation),
+ * the index generated in the errror messages for invalids is not deterministic. Validating the same Set multiple times might lead to
+ * different error messages with different indexes.
  */
-public class CollectionRules {
+public class SetRules {
 
-    private static class InnerRules<T>extends BaseCollectionRules<T, Collection<T>>  {
+    private static class InnerRules<T> extends BaseCollectionRules<T, Set<T>> {
 
         @SuppressWarnings("rawtypes")
-        private static final InnerRules INSTANCE = new CollectionRules.InnerRules();
+        private static final InnerRules INSTANCE = new InnerRules();
 
         @SuppressWarnings("unchecked")
-        public static <T> CollectionRules.InnerRules<T> inner() {
+        public static <T> InnerRules<T> inner() {
             return INSTANCE;
         }
 
         @Override
-        protected int getSize(Collection<T> c) {
+        protected int getSize(Set<T> c) {
             return c.size();
         }
 
         @Override
-        protected boolean isEmpty(Collection<T> ts) {
+        protected boolean isEmpty(Set<T> ts) {
             return ts.isEmpty();
         }
 
         @Override
-        protected boolean contains(Collection<T> ts, T t) {
+        protected boolean contains(Set<T> ts, T t) {
             return ts.contains(t);
+        }
+
+        @Override
+        public Rule<Set<T>> validateValuesWith(Rule<? super T> rule) {
+            return Rule.notNull().and(set -> {
+                Rule<T> castedRule = Rule.narrow(rule);
+
+                io.vavr.collection.List<Validation<T>> validations = io.vavr.collection.List.ofAll(set)
+                        .map(castedRule::test)
+                        .zipWithIndex((validation, index) ->
+                                validation.mapErrors(errors -> errors.map(e -> e.atIndex(index)))
+                        );
+
+                io.vavr.collection.List<ErrorMessage> allErrors = validations.flatMap(Validation::errors);
+                if(allErrors.isEmpty()) {
+                    return Validation.valid(set);
+                } else {
+                    return Validation.invalid(allErrors);
+                }
+            });
         }
     }
 
-    public static final CollectionRules collections = new CollectionRules();
+    public static final SetRules sets = new SetRules();
 
     /**
      * Fails if the collection is null or empty.
      * <p>
      * Error key: {@code must.not.be.empty}
      */
-    public <T> Rule<Collection<T>> notEmpty() {
-        return CollectionRules.InnerRules.<T>inner().notEmpty();
+    public <T> Rule<Set<T>> notEmpty() {
+       return InnerRules.<T>inner().notEmpty();
     }
 
     /**
@@ -56,8 +78,8 @@ public class CollectionRules {
      * <p>
      * Error key: {@code must.be.empty}
      */
-    public <T> Rule<Collection<T>> empty() {
-        return CollectionRules.InnerRules.<T>inner().empty();
+    public <T> Rule<Set<T>> empty() {
+        return InnerRules.<T>inner().empty();
     }
 
     /**
@@ -70,8 +92,8 @@ public class CollectionRules {
      *     <li>{@code min}: the minimum allowed size ({@code int})</li>
      * </ul>
      */
-    public <T> Rule<Collection<T>> minSize(int size) {
-        return CollectionRules.InnerRules.<T>inner().minSize(size);
+    public <T> Rule<Set<T>> minSize(int size) {
+        return InnerRules.<T>inner().minSize(size);
     }
 
     /**
@@ -84,8 +106,8 @@ public class CollectionRules {
      *     <li>{@code max}: the maximum allowed size ({@code int})</li>
      * </ul>
      */
-    public <T> Rule<Collection<T>> maxSize(int size) {
-        return CollectionRules.InnerRules.<T>inner().maxSize(size);
+    public <T> Rule<Set<T>> maxSize(int size) {
+        return InnerRules.<T>inner().maxSize(size);
     }
 
     /**
@@ -98,8 +120,8 @@ public class CollectionRules {
      *     <li>{@code equal}: the required size ({@code int})</li>
      * </ul>
      */
-    public <T> Rule<Collection<T>> sizeEquals(int size) {
-        return CollectionRules.InnerRules.<T>inner().sizeEquals(size);
+    public <T> Rule<Set<T>> sizeEquals(int size) {
+        return InnerRules.<T>inner().sizeEquals(size);
     }
 
     /**
@@ -116,8 +138,8 @@ public class CollectionRules {
      * @param min the minimum allowed size (inclusive).
      * @param max the maximum allowed size (inclusive).
      */
-    public <T> Rule<Collection<T>> sizeBetween(int min, int max) {
-        return CollectionRules.InnerRules.<T>inner().sizeBetween(min, max);
+    public <T> Rule<Set<T>> sizeBetween(int min, int max) {
+        return InnerRules.<T>inner().sizeBetween(min, max);
     }
 
     /**
@@ -125,8 +147,8 @@ public class CollectionRules {
      * <p>
      * Error key: {@code must.not.be.null} (applied to elements)
      */
-    public <T> Rule<Collection<T>> noNullElements() {
-        return CollectionRules.InnerRules.<T>inner().noNullElements();
+    public <T> Rule<Set<T>> noNullElements() {
+        return InnerRules.<T>inner().noNullElements();
     }
 
     /**
@@ -134,15 +156,15 @@ public class CollectionRules {
      * <p>
      * Error key: {@code must.all.match}
      */
-    public <T> Rule<Collection<T>> allMatch(Predicate<T> predicate) {
-        return CollectionRules.InnerRules.<T>inner().allMatch(predicate);
+    public <T> Rule<Set<T>> allMatch(Predicate<T> predicate) {
+        return InnerRules.<T>inner().allMatch(predicate);
     }
 
     /**
      * Fails if any element in the collection does not match the given predicate.
      */
-    public <T> Rule<Collection<T>> allMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
-        return CollectionRules.InnerRules.<T>inner().allMatch(predicate, errorMessage);
+    public <T> Rule<Set<T>> allMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
+        return InnerRules.<T>inner().allMatch(predicate, errorMessage);
     }
 
     /**
@@ -152,8 +174,8 @@ public class CollectionRules {
      * {@snippet file="be/iffy/fv/rules/collections/CollectionRulesSnippets.java" region="all-match-rule-example"}
      *
      */
-    public <T> Rule<Collection<T>> allMatchRule(Rule<T> rule) {
-        return CollectionRules.InnerRules.<T>inner().allMatchRule(rule);
+    public <T> Rule<Set<T>> allMatchRule(Rule<T> rule) {
+        return InnerRules.<T>inner().allMatchRule(rule);
     }
 
     /**
@@ -161,12 +183,9 @@ public class CollectionRules {
      * <p>
      * Error key: {@code must.none.match}
      *
-     * @param <T> the type of elements in the collection.
-     * @param rule the Rule to test each element against.
-     * @return a {@link Rule} that validates if none of the elements match the {@link Rule}.
      */
-    public <T> Rule<Collection<T>> noneMatchRule(Rule<T> rule) {
-        return CollectionRules.InnerRules.<T>inner().noneMatchRule(rule);
+    public <T> Rule<Set<T>> noneMatchRule(Rule<T> rule) {
+        return InnerRules.<T>inner().noneMatchRule(rule);
     }
 
     /**
@@ -174,15 +193,15 @@ public class CollectionRules {
      * <p>
      * Error key: {@code must.none.match}
      */
-    public <T> Rule<Collection<T>> noneMatch(Predicate<T> predicate) {
-        return CollectionRules.InnerRules.<T>inner().noneMatch(predicate);
+    public <T> Rule<Set<T>> noneMatch(Predicate<T> predicate) {
+        return InnerRules.<T>inner().noneMatch(predicate);
     }
 
     /**
      * Fails if any element in the collection matches the given predicate.
      */
-    public <T> Rule<Collection<T>> noneMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
-        return CollectionRules.InnerRules.<T>inner().noneMatch(predicate, errorMessage);
+    public <T> Rule<Set<T>> noneMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
+        return InnerRules.<T>inner().noneMatch(predicate, errorMessage);
     }
 
     /**
@@ -190,15 +209,15 @@ public class CollectionRules {
      * <p>
      * Error key: {@code must.at.least.one.match}
      */
-    public <T> Rule<Collection<T>> anyMatch(Predicate<T> predicate) {
-        return CollectionRules.InnerRules.<T>inner().anyMatch(predicate);
+    public <T> Rule<Set<T>> anyMatch(Predicate<T> predicate) {
+        return InnerRules.<T>inner().anyMatch(predicate);
     }
 
     /**
      * Fails if no elements in the collection match the given predicate.
      */
-    public <T> Rule<Collection<T>> anyMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
-        return CollectionRules.InnerRules.<T>inner().anyMatch(predicate, errorMessage);
+    public <T> Rule<Set<T>> anyMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
+        return InnerRules.<T>inner().anyMatch(predicate, errorMessage);
     }
 
     /**
@@ -211,8 +230,8 @@ public class CollectionRules {
      *     <li>{@code element}: the required element ({@code T})</li>
      * </ul>
      */
-    public <T> Rule<Collection<T>> contains(T element) {
-        return CollectionRules.InnerRules.<T>inner().contains(element);
+    public <T> Rule<Set<T>> contains(T element) {
+        return InnerRules.<T>inner().contains(element);
     }
 
     /**
@@ -226,8 +245,8 @@ public class CollectionRules {
      *     <li>{@code required}: the set of required elements ({@link Set})</li>
      * </ul>
      */
-    public <T> Rule<Collection<T>> containsAll(Iterable<? extends T> required) {
-        return CollectionRules.InnerRules.<T>inner().containsAll(required);
+    public <T> Rule<Set<T>> containsAll(Iterable<? extends T> required) {
+        return InnerRules.<T>inner().containsAll(required);
     }
 
     /**
@@ -241,8 +260,8 @@ public class CollectionRules {
      *     <li>{@code candidates}: the set of candidate elements ({@link Set})</li>
      * </ul>
      */
-    public <T> Rule<Collection<T>> containsAnyOf(Iterable<? extends T> candidates) {
-        return CollectionRules.InnerRules.<T>inner().containsAnyOf(candidates);
+    public <T> Rule<Set<T>> containsAnyOf(Iterable<? extends T> candidates) {
+        return InnerRules.<T>inner().containsAnyOf(candidates);
     }
 
     /**
@@ -261,16 +280,16 @@ public class CollectionRules {
      * @param keyExtractor the function to extract the unique key, e.g., SomeRecord::email
      * @param key the label for the key (e.g., "email").
      */
-    public <T, K> Rule<Collection<T>> uniqueBy(Function1<T, K> keyExtractor, String key) {
-        return CollectionRules.InnerRules.<T>inner().uniqueBy(keyExtractor, key);
+    public <T, K> Rule<Set<T>> uniqueBy(Function1<T, K> keyExtractor, String key) {
+        return InnerRules.<T>inner().uniqueBy(keyExtractor, key);
     }
 
     /**
-     * Creates a rule that validates that all values in a list satisfy a given rule.
+     * Creates a rule that validates that all values in a collection satisfy a given rule.
      * The individual {@link ErrorMessage}s are passed to the final Validation.
      */
-    public <T> Rule<Collection<T>> validateValuesWith(Rule<? super T> rule) {
-        return CollectionRules.InnerRules.<T>inner().validateValuesWith(rule);
+    public <T> Rule<Set<T>> validateValuesWith(Rule<? super T> rule) {
+        return InnerRules.<T>inner().validateValuesWith(rule);
     }
 
 }

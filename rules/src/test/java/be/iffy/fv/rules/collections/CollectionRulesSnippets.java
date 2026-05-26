@@ -20,7 +20,7 @@ class CollectionRulesSnippets {
                 new Person("alice@example.com", "Alicia")
         );
 
-        Rule<Collection<Person>> rule = CollectionRules.collections().uniqueBy(Person::email, "email");
+        Rule<Collection<Person>> rule = CollectionRules.collections.uniqueBy(Person::email, "email");
         Validation<Collection<Person>> result = rule.test(people); // Invalid("must.be.unique.by.key")
         // @end
     }
@@ -28,9 +28,9 @@ class CollectionRulesSnippets {
     void allMatchRuleExample() {
         // @start region="all-match-rule-example"
         List<String> names = List.of("Alice", "Bob", "Charlie");
-        Rule<List<String>> rule = CollectionRules.collections().allMatchRule(strings.minLength(3));
+        Rule<Collection<String>> rule = CollectionRules.collections.allMatchRule(strings.minLength(3));
 
-        Validation<List<String>> result = rule.test(names); // Valid
+        Validation<Collection<String>> result = rule.test(names); // Valid
         // @end
     }
 

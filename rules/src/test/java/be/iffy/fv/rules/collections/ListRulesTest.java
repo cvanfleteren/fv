@@ -1,9 +1,9 @@
 package be.iffy.fv.rules.collections;
 
-import io.vavr.collection.HashMap;
-import io.vavr.collection.HashSet;
 import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Rule;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.HashSet;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -14,27 +14,25 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
-import static be.iffy.fv.rules.collections.CollectionRules.*;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
+import static be.iffy.fv.rules.collections.ListRules.lists;
 import static be.iffy.fv.rules.numbers.IntegerRules.ints;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class CollectionRulesTest {
+class ListRulesTest {
 
     @Nested
     class NotEmpty {
 
         @Test
         void valid() {
-            validTest(List.of("x"), collections.notEmpty());
-            validTest(java.util.Set.of(1), collections.notEmpty());
+            validTest(List.of("x"), lists.notEmpty());
         }
 
         @Test
         void invalid() {
-            invalidTest(new ArrayList<>(), collections.notEmpty(), "must.not.be.empty");
-            invalidTest(java.util.Set.of(), collections.notEmpty(), "must.not.be.empty");
+            invalidTest(new ArrayList<>(), lists.notEmpty(), "must.not.be.empty");
         }
     }
 
@@ -43,14 +41,13 @@ class CollectionRulesTest {
 
         @Test
         void valid() {
-            validTest(List.of(), collections.empty());
-            validTest(new ArrayList<>(), collections.empty());
+            validTest(List.of(), lists.empty());
+            validTest(new ArrayList<>(), lists.empty());
         }
 
         @Test
         void invalid() {
-            invalidTest(List.of("x"), collections.empty(), "must.be.empty");
-            invalidTest(java.util.Set.of(1), collections.empty(), "must.be.empty");
+            invalidTest(List.of("x"), lists.empty(), "must.be.empty");
         }
     }
 
@@ -59,16 +56,16 @@ class CollectionRulesTest {
 
         @Test
         void valid() {
-            validTest(List.of(), collections.minSize(0));
-            validTest(List.of("x"), collections.minSize(1));
-            validTest(List.of("a", "b"), collections.minSize(1));
+            validTest(List.of(), lists.minSize(0));
+            validTest(List.of("x"), lists.minSize(1));
+            validTest(List.of("a", "b"), lists.minSize(1));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, collections.minSize(1), "must.not.be.null");
-            invalidTest(List.of(), collections.minSize(1), "must.have.min.size", HashMap.of("min", 1));
-            invalidTest(List.of("x"), collections.minSize(2), "must.have.min.size", HashMap.of("min", 2));
+            invalidTest(null, lists.minSize(1), "must.not.be.null");
+            invalidTest(List.of(), lists.minSize(1), "must.have.min.size", HashMap.of("min", 1));
+            invalidTest(List.of("x"), lists.minSize(2), "must.have.min.size", HashMap.of("min", 2));
         }
     }
 
@@ -77,16 +74,16 @@ class CollectionRulesTest {
 
         @Test
         void valid() {
-            validTest(List.of(), collections.maxSize(0));
-            validTest(List.of("x"), collections.maxSize(1));
-            validTest(List.of("a", "b"), collections.maxSize(2));
+            validTest(List.of(), lists.maxSize(0));
+            validTest(List.of("x"), lists.maxSize(1));
+            validTest(List.of("a", "b"), lists.maxSize(2));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, collections.maxSize(0), "must.not.be.null");
-            invalidTest(List.of("x"), collections.maxSize(0), "must.have.max.size", HashMap.of("max", 0));
-            invalidTest(List.of("a", "b", "c"), collections.maxSize(2), "must.have.max.size", HashMap.of("max", 2));
+            invalidTest(null, lists.maxSize(0), "must.not.be.null");
+            invalidTest(List.of("x"), lists.maxSize(0), "must.have.max.size", HashMap.of("max", 0));
+            invalidTest(List.of("a", "b", "c"), lists.maxSize(2), "must.have.max.size", HashMap.of("max", 2));
         }
     }
 
@@ -95,16 +92,16 @@ class CollectionRulesTest {
 
         @Test
         void valid() {
-            validTest(List.of(), collections.sizeEquals(0));
-            validTest(List.of("x"), collections.sizeEquals(1));
-            validTest(List.of("a", "b"), collections.sizeEquals(2));
+            validTest(List.of(), lists.sizeEquals(0));
+            validTest(List.of("x"), lists.sizeEquals(1));
+            validTest(List.of("a", "b"), lists.sizeEquals(2));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, collections.sizeEquals(1), "must.not.be.null");
-            invalidTest(List.of(), collections.sizeEquals(1), "must.have.exact.size", HashMap.of("equal", 1));
-            invalidTest(List.of("x"), collections.sizeEquals(0), "must.have.exact.size", HashMap.of("equal", 0));
+            invalidTest(null, lists.sizeEquals(1), "must.not.be.null");
+            invalidTest(List.of(), lists.sizeEquals(1), "must.have.exact.size", HashMap.of("equal", 1));
+            invalidTest(List.of("x"), lists.sizeEquals(0), "must.have.exact.size", HashMap.of("equal", 0));
         }
     }
 
@@ -113,23 +110,23 @@ class CollectionRulesTest {
 
         @Test
         void valid() {
-            validTest(List.of(), collections.sizeBetween(0, 0));
-            validTest(List.of("x"), collections.sizeBetween(0, 1));
-            validTest(List.of("a", "b"), collections.sizeBetween(1, 2));
+            validTest(List.of(), lists.sizeBetween(0, 0));
+            validTest(List.of("x"), lists.sizeBetween(0, 1));
+            validTest(List.of("a", "b"), lists.sizeBetween(1, 2));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, collections.sizeBetween(1, 2), "must.not.be.null");
+            invalidTest(null, lists.sizeBetween(1, 2), "must.not.be.null");
             invalidTest(
                     List.of(),
-                    collections.sizeBetween(1, 2),
+                    lists.sizeBetween(1, 2),
                     "must.have.size.between",
                     HashMap.of("min", 1, "max", 2)
             );
             invalidTest(
                     List.of("a", "b", "c"),
-                    collections.sizeBetween(1, 2),
+                    lists.sizeBetween(1, 2),
                     "must.have.size.between",
                     HashMap.of("min", 1, "max", 2)
             );
@@ -141,14 +138,14 @@ class CollectionRulesTest {
 
         @Test
         void valid() {
-            Rule<Collection<String>> noNulls = collections.noNullElements();
+            Rule<List<String>> noNulls = lists.noNullElements();
             validTest(List.of("a", "b", "c"), noNulls);
-            validTest(List.of(), collections.noNullElements());
+            validTest(List.of(), lists.noNullElements());
         }
 
         @Test
         void invalid() {
-            assertThatValidation(collections.noNullElements().test(Arrays.asList("a", null, "c")).at("value"))
+            assertThatValidation(lists.noNullElements().test(Arrays.asList("a", null, "c")).at("value"))
                     .isInvalid()
                     .hasErrorMessages("value[1].must.not.be.null");
         }
@@ -159,26 +156,26 @@ class CollectionRulesTest {
 
         @Test
         void valid() {
-            Rule<Collection<Integer>> even = collections.allMatch(n -> n % 2 == 0);
+            Rule<List<Integer>> even = lists.allMatch(n -> n % 2 == 0);
             validTest(List.of(2, 4, 6), even);
-            validTest(List.of(), collections.allMatch((Predicate<Integer>) (n -> n % 2 == 0)));
-            validTest(List.of(), collections.allMatchRule(ints().even()));
+            validTest(List.of(), lists.allMatch((Predicate<Integer>) (n -> n % 2 == 0)));
+            validTest(List.of(), lists.allMatchRule(ints().even()));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, collections.allMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
-            invalidTest(List.of(2, 3, 4), collections.allMatchRule(ints().even()), "must.be.even");
+            invalidTest(null, lists.allMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
+            invalidTest(List.of(2, 3, 4), lists.allMatchRule(ints().even()), "must.be.even");
 
             invalidTest(
                     List.of("a", "bb", "c"),
-                    collections.allMatch(s -> s.length() == 1, ErrorMessage.of("len.must.be.one")),
+                    lists.allMatch(s -> s.length() == 1, ErrorMessage.of("len.must.be.one")),
                     "len.must.be.one"
             ).errorMessages().contains("[1].len.must.be.one");
 
             invalidTest(
                     List.of("a", "bb"),
-                    collections.allMatch(s -> s.length() == 1, ErrorMessage.of("len.must.be", "len", 1)),
+                    lists.allMatch(s -> s.length() == 1, ErrorMessage.of("len.must.be", "len", 1)),
                     "[1].len.must.be",
                     HashMap.of("len", 1)
             );
@@ -187,7 +184,7 @@ class CollectionRulesTest {
         @Test
         void throws_whenPredicateIsNull() {
             assertThatThrownBy(() ->
-                    collections.allMatch(null)
+                    lists.allMatch(null)
             ).isInstanceOf(NullPointerException.class);
         }
     }
@@ -197,23 +194,23 @@ class CollectionRulesTest {
 
         @Test
         void valid() {
-            Rule<Collection<Integer>> noEvens = collections.noneMatch(n -> n % 2 == 0);
+            Rule<List<Integer>> noEvens = lists.noneMatch(n -> n % 2 == 0);
             validTest(List.of(1, 3, 5), noEvens);
-            validTest(List.<Integer>of(), collections.noneMatch(n -> n % 2 == 0));
+            validTest(List.<Integer>of(), lists.noneMatch(n -> n % 2 == 0));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, collections.noneMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
-            invalidTest(List.of(1, 2, 3), collections.noneMatch(n -> n % 2 == 0), "must.none.match");
+            invalidTest(null, lists.noneMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
+            invalidTest(List.of(1, 2, 3), lists.noneMatch(n -> n % 2 == 0), "must.none.match");
             assertThatValidation(
-                    collections.noneMatch((Predicate<String>) s -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")).test(List.of("a", "bb", "c")).at("value")
+                    lists.noneMatch((Predicate<String>) s -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")).test(List.of("a", "bb", "c")).at("value")
             )
                     .isInvalid()
                     .hasErrorMessages("value[1].len.must.not.be.two");
             invalidTest(
                     List.of("a", "bb"),
-                    collections.noneMatch(s -> s.length() == 2, ErrorMessage.of("len.must.not.be", "len", 2)),
+                    lists.noneMatch(s -> s.length() == 2, ErrorMessage.of("len.must.not.be", "len", 2)),
                     "[1].len.must.not.be",
                     HashMap.of("len", 2)
             );
@@ -222,7 +219,7 @@ class CollectionRulesTest {
         @Test
         void throws_whenPredicateIsNull() {
             assertThatThrownBy(() ->
-                    collections.noneMatch(null)
+                    lists.noneMatch(null)
             ).isInstanceOf(NullPointerException.class);
         }
     }
@@ -232,23 +229,23 @@ class CollectionRulesTest {
 
         @Test
         void valid() {
-            Rule<Collection<Integer>> hasEven = collections.anyMatch(n -> n % 2 == 0);
+            Rule<List<Integer>> hasEven = lists.anyMatch(n -> n % 2 == 0);
             validTest(List.of(1, 2, 3), hasEven);
         }
 
         @Test
         void invalid() {
-            invalidTest(null, collections.anyMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
-            invalidTest(List.of(1, 3, 5), collections.anyMatch(n -> n % 2 == 0), "must.at.least.one.match");
-            invalidTest(List.<Integer>of(), collections.anyMatch(n -> n % 2 == 0), "must.at.least.one.match");
+            invalidTest(null, lists.anyMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
+            invalidTest(List.of(1, 3, 5), lists.anyMatch(n -> n % 2 == 0), "must.at.least.one.match");
+            invalidTest(List.<Integer>of(), lists.anyMatch(n -> n % 2 == 0), "must.at.least.one.match");
             invalidTest(
                     List.of("a", "bb", "ccc"),
-                    collections.anyMatch(s -> s.length() == 4, ErrorMessage.of("len.must.be.four")),
+                    lists.anyMatch(s -> s.length() == 4, ErrorMessage.of("len.must.be.four")),
                     "len.must.be.four"
             );
             invalidTest(
                     List.of("a", "bb"),
-                    collections.anyMatch(s -> s.length() == 3, ErrorMessage.of("len.must.be", "len", 3)),
+                    lists.anyMatch(s -> s.length() == 3, ErrorMessage.of("len.must.be", "len", 3)),
                     "len.must.be",
                     HashMap.of("len", 3)
             );
@@ -256,7 +253,7 @@ class CollectionRulesTest {
 
         @Test
         void throws_whenPredicateIsNull() {
-            assertThatThrownBy(() -> collections.anyMatch(null))
+            assertThatThrownBy(() -> lists.anyMatch(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("predicate cannot be null");
         }
@@ -267,15 +264,15 @@ class CollectionRulesTest {
 
         @Test
         void valid() {
-            validTest(List.of("a", "b", "c"), collections.contains("b"));
+            validTest(List.of("a", "b", "c"), lists.contains("b"));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, collections.contains("b"), "must.not.be.null");
+            invalidTest(null, lists.contains("b"), "must.not.be.null");
             invalidTest(
                     List.of("a", "b", "c"),
-                    collections.contains("x"),
+                    lists.contains("x"),
                     "must.contain",
                     HashMap.of("element", "x")
             );
@@ -287,17 +284,17 @@ class CollectionRulesTest {
 
         @Test
         void valid() {
-            validTest(List.of("a", "b", "c"), collections.containsAll(List.of("a", "c")));
-            validTest(List.of("a", "b"), collections.containsAll(List.of()));
-            validTest(List.of("a", "b", "c"), collections.containsAll(List.of("a", "a", "c")));
+            validTest(List.of("a", "b", "c"), lists.containsAll(List.of("a", "c")));
+            validTest(List.of("a", "b"), lists.containsAll(List.of()));
+            validTest(List.of("a", "b", "c"), lists.containsAll(List.of("a", "a", "c")));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, collections.containsAll(List.of("a")), "must.not.be.null");
+            invalidTest(null, lists.containsAll(List.of("a")), "must.not.be.null");
             invalidTest(
                     List.of("a", "b"),
-                    collections.containsAll(List.of("a", "c")),
+                    lists.containsAll(List.of("a", "c")),
                     "must.contain.all",
                     HashMap.of("required", HashSet.of("a", "c"))
             );
@@ -305,7 +302,7 @@ class CollectionRulesTest {
 
         @Test
         void throws_whenRequiredIsNull() {
-            assertThatThrownBy(() -> collections.containsAll(null))
+            assertThatThrownBy(() -> lists.containsAll(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("required cannot be null");
         }
@@ -316,21 +313,21 @@ class CollectionRulesTest {
 
         @Test
         void valid() {
-            validTest(List.of("a", "b", "c"), collections.containsAnyOf(List.of("x", "b")));
+            validTest(List.of("a", "b", "c"), lists.containsAnyOf(List.of("x", "b")));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, collections.containsAnyOf(List.of("x")), "must.not.be.null");
+            invalidTest(null, lists.containsAnyOf(List.of("x")), "must.not.be.null");
             invalidTest(
                     List.of("a", "b", "c"),
-                    collections.containsAnyOf(List.of("x", "y")),
+                    lists.containsAnyOf(List.of("x", "y")),
                     "must.contain.any.of",
                     HashMap.of("candidates", HashSet.of("x", "y"))
             );
             invalidTest(
                     List.of("a", "b"),
-                    collections.containsAnyOf(List.of()),
+                    lists.containsAnyOf(List.of()),
                     "must.contain.any.of",
                     HashMap.of("candidates", HashSet.empty())
             );
@@ -338,7 +335,7 @@ class CollectionRulesTest {
 
         @Test
         void throws_whenCandidatesIsNull() {
-            assertThatThrownBy(() -> collections.containsAnyOf(null))
+            assertThatThrownBy(() -> lists.containsAnyOf(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("candidates cannot be null");
         }
@@ -357,12 +354,12 @@ class CollectionRulesTest {
                     new Person("c@example.com", "Carol")
             );
 
-            validTest(people, collections.uniqueBy(Person::email, "email"));
+            validTest(people, lists.uniqueBy(Person::email, "email"));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, collections.uniqueBy(Person::email, "email"), "must.not.be.null");
+            invalidTest(null, lists.uniqueBy(Person::email, "email"), "must.not.be.null");
             List<Person> people = List.of(
                     new Person("a@example.com", "Alice"),   // idx 0
                     new Person("b@example.com", "Bob"),     // idx 1
@@ -372,7 +369,7 @@ class CollectionRulesTest {
 
             invalidTest(
                     people,
-                    collections.uniqueBy(Person::email, "email"),
+                    lists.uniqueBy(Person::email, "email"),
                     "must.be.unique.by.key",
                     HashMap.of(
                             "key", "email",
@@ -392,7 +389,7 @@ class CollectionRulesTest {
 
             invalidTest(
                     morePeople,
-                    collections.uniqueBy(Person::email, "email"),
+                    lists.uniqueBy(Person::email, "email"),
                     "must.be.unique.by.key",
                     HashMap.of(
                             "key", "email",
@@ -410,15 +407,15 @@ class CollectionRulesTest {
         @Test
         void valid() {
             Rule<Number> rule = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
-            validTest(List.of(1, 10, 2), collections.validateValuesWith(rule));
+            validTest(List.of(1, 10, 2), lists.validateValuesWith(rule));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, collections.validateValuesWith(Rule.of(n -> true, "")), "must.not.be.null");
+            invalidTest(null, lists.validateValuesWith(Rule.of(n -> true, "")), "must.not.be.null");
             // Arrange
             Rule<Number> rule = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
-            Rule<Collection<Integer>> listRule = collections.validateValuesWith(rule);
+            Rule<List<Integer>> listRule = lists.validateValuesWith(rule);
 
             List<Integer> input = List.of(-1, 10, 0);
 

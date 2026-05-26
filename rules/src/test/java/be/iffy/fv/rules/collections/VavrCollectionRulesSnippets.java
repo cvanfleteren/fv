@@ -4,7 +4,7 @@ import io.vavr.collection.List;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 
-import static be.iffy.fv.rules.Rules.vavrCollections;
+import static be.iffy.fv.rules.Rules.vavrLists;
 import static be.iffy.fv.rules.text.StringRules.strings;
 
 class VavrCollectionRulesSnippets {
@@ -19,15 +19,15 @@ class VavrCollectionRulesSnippets {
                 new Person("alice@example.com", "Alicia")
         );
 
-        Rule<Iterable<Person>> rule = vavrCollections.uniqueBy(Person::email, "email");
-        Validation<Iterable<Person>> result = rule.test(people); // Invalid("must.be.unique.by.key")
+        Rule<List<Person>> rule = vavrLists.uniqueBy(Person::email, "email");
+        Validation<List<Person>> result = rule.test(people); // Invalid("must.be.unique.by.key")
         // @end
     }
 
     void allMatchRuleExample() {
         // @start region="all-match-rule-example"
         List<String> names = List.of("Alice", "Bob", "Charlie");
-        Rule<List<String>> rule = vavrCollections.allMatchRule(strings.minLength(3));
+        Rule<List<String>> rule = vavrLists.allMatchRule(strings.minLength(3));
 
         Validation<List<String>> result = rule.test(names); // Valid
         // @end

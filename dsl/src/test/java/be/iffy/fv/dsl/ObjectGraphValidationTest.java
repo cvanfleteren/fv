@@ -1,6 +1,6 @@
 package be.iffy.fv.dsl;
 
-import be.iffy.fv.rules.collections.VavrCollectionRules;
+import be.iffy.fv.rules.collections.VavrListRules;
 import io.vavr.collection.List;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
@@ -70,7 +70,7 @@ class ObjectGraphValidationTest {
 
     static class UserValidator {
         private static final StringRules strings = strings();
-        private static final VavrCollectionRules collections = VavrCollectionRules.vavrCollections();
+        private static final VavrListRules collections = VavrListRules.vavrCollections();
 
         static Validation<Address> validateAddress(AddressDTO addressDTO) {
 
