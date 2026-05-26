@@ -528,7 +528,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      * <p>
      * Error key: {@code must.not.be.null}
      *
-     * @param <T> the type of input
      */
     static <T> Rule<T> notNull() {
         return input ->
@@ -536,25 +535,37 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
-     * Creates a new {@link Rule} that always returns a valid result for any non-null input.
-     *
-     * @param <T> the type of object being validated
+     * Returns a {@link Rule} that returns a Valid if the input is null, or the result of the passed Rule otherwise.
+     * Be carefull, once you start combining this resulting Rule with other Rules, (e.g. using {@link #and(Rule)}, the null will be passed to
+     * the other rule and null will once again be considered invalid. So this Rule should always be the "outer rule".
      */
-    static <T> Rule<T> ok() {
-        return Validation::valid;
+    static <T> Rule<T> nullOk(Rule<T> whenNotNull) {
+        return input -> {
+            if(input == null) {
+                return Validation.valid(null);
+            } else {
+                return whenNotNull.test(input);
+            }
+        };
     }
 
     /**
-     * Applies the specified {@link Rule} to the result of applying the selector function to the input..
+     * Creates a new {@link Rule} that always returns a valid result for any non-null input.
+     * If you want to allow null, use {@link Rule#nullOk(Rule)}.
+     */
+    static <T> Rule<T> ok() {
+        return input ->
+                input == null ? Validation.invalid("must.not.be.null") : Validation.valid(input);
+    }
+
+    /**
+     * Applies the specified {@link Rule} to the result of applying the selector function to the input.
      * Be careful, even if T and V are the same type, the returned value will be the original input, not the value retrieved from the selector.
      * <p>
      * Usage example:
      * {@snippet file="be/iffy/fv/RuleSnippets.java" region="with-example"}
      *
-     * @param <T>      the type of the input to be tested
-     * @param <V>      the type of the result produced by the selector function
      * @param selector a function that extracts a value of type V from an input of type T
-     * @param rule     the rule to be applied to the extracted value
      */
     static <T, V> Rule<T> with(Function<T, V> selector, Rule<V> rule) {
       return input -> rule.test(selector.apply(input)).map(ignore -> input);

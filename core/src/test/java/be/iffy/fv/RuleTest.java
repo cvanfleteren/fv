@@ -175,9 +175,8 @@ class RuleTest {
             Rule<String> rule = Rule.ok();
 
             // Act & Assert
-            assertThatCode(() -> rule.test(null))
-                    .isInstanceOf(NullPointerException.class)
-                    .hasMessage("value cannot be null");
+            assertThatValidation(rule.test(null)).isInvalid()
+                    .hasErrorKeys("must.not.be.null");
         }
     }
 

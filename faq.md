@@ -7,6 +7,7 @@ Welcome to the FAQ for the Iffy Functional Validation (FV) library. If you have 
 - [I have an Invalid validation, how can I know what was wrong?](#i-have-an-invalid-validation-how-can-i-know-what-was-wrong)
 - [How do I combine multiple rules?](#how-do-i-combine-multiple-rules)
 - [Are rules null-safe by default?](#are-rules-null-safe-by-default)
+- [Null seems to be an invalid value by default, but I really like null, how can I accept it but still validate if it's not null?](#null-seems-to-be-an-invalid-value-by-default-but-i-really-like-null-how-can-i-accept-it-but-still-validate-if-its-not-null)
 - [How can I validate a property of an object?](#how-can-i-validate-a-property-of-an-object)
 - [Can I use my own error messages?](#can-i-use-my-own-error-messages)
 - [How can I easily make my own rule, e.g., for checking that a string is a palindrome?](#how-can-i-easily-make-my-own-rule-eg-for-checking-that-a-string-is-a-palindrome)
@@ -23,7 +24,6 @@ Welcome to the FAQ for the Iffy Functional Validation (FV) library. If you have 
 - [Ok, but I want to transform multiple fields in my constructor, how do I get their transformed values?](#ok-but-i-want-to-transform-multiple-fields-in-my-constructor-how-do-i-get-their-transformed-values)
 - [I have some type whose constructor throws an exception, how can I make a Validation for this type?](#i-have-some-type-whose-constructor-throws-an-exception-how-can-i-make-a-validation-for-this-type)
 - [I have a Validation, but I want to add an extra check on the value](#i-have-a-validation-but-i-want-to-add-an-extra-check-on-the-value)
-
 
 ---
 
@@ -119,6 +119,34 @@ However, if you implement the `Rule` interface directly or use certain combinato
 
 ---
 
+### Null seems to be an invalid value by default, but I really like null, how can I accept it but still validate if it's not null?
+
+By default, all rules in the library consider `null` to be an invalid value. This is a design choice to encourage safer, more explicit handling of optionality and make implementing rules easier.
+
+However, if you have a scenario where `null` is a perfectly valid state, but you still want to apply validation rules if a value *is* present, you can use **`Rule.nullOk(someOtherRule)`**.
+
+The `nullOk` method wraps another rule. If the input is `null`, it returns a `Valid(null)`. If the input is not null, it applies the wrapped rule.
+
+#### Example: Optional string validation
+
+```java
+Rule<String> optionalDescription = Rule.nullOk(strings.minLength(10));
+
+// Returns Valid(null)
+Validation<String> result1 = optionalDescription.test(null);
+
+// Returns Invalid (too short)
+Validation<String> result2 = optionalDescription.test("too short");
+
+// Returns Valid("a very long description")
+Validation<String> result3 = optionalDescription.test("a very long description");
+```
+
+> [!IMPORTANT]
+> Be careful when combining a `nullOk` rule with other rules using `.and()` or similar methods. If the other rule doesn't handle `null`, you might still end up with a validation error (or a `NullPointerException` if that rule is not null-safe). It is often best to keep `nullOk` as the "outermost" wrapper.  
+> So use something like `Rule.nullOk(strings.minLength(10).and(strings.startsWith("A")))` instead of `Rule.nullOk(strings.minLength(10)).and(strings.startsWith("A"))`.
+---
+
 ### How can I validate a property of an object?
 
 You can use the `Rule.with(selector, rule)` or `MappingRule.with(selector, rule)` methods. This allows you to "focus" a rule on a specific part of an object.
@@ -169,7 +197,8 @@ optionalRule.test(Optional.of("abcdef")); // Valid
 
 ### How can I check that my optional value meets a Rule when it is not empty (but this time empty is NOT allowed)?
 
-If you want to ensure that an `Optional` is **not empty** AND its value satisfies a certain rule, you can use the `MappingRule.requiredOptional(Rule)` or `MappingRule.requiredOption(Rule)` methods.
+If you want to ensure that an `Optional` is **not empty** AND its value satisfies a certain rule, you can use the `MappingRule.requiredOptional(Rule)` or `MappingRule.requiredOption(Rule)` methods.  
+We need a MappingRule because we'll be changing the type of Validation from Optional<T> to T.
 
 Unlike `liftToOptional()`, which returns valid for empty optionals, these methods will return an `Invalid` result with the error key `must.not.be.empty` if the optional is empty. If the optional contains a value, it applies the rule to that value and—importantly—**extracts** the value from the container.
 
@@ -180,6 +209,12 @@ MappingRule<Optional<String>, String> mandatoryRule = MappingRule.requiredOption
 mandatoryRule.test(Optional.empty()); // Invalid (must.not.be.empty)
 mandatoryRule.test(Optional.of("abc")); // Invalid (must be at least 5)
 Validation<String> result = mandatoryRule.test(Optional.of("abcdef")); // Valid("abcdef")
+```
+
+There is also an alternative syntax available using a predefined Rule in OptionRules:
+
+```java
+MappingRule<Optional<String>, String> mandatoryAndMinLength = options.required(strings.minLength(4));
 ```
 
 This is particularly useful when you want to "unwrap" a validated value from an optional as part of a larger validation pipeline.
@@ -531,4 +566,3 @@ Validation<String> filtered = initialValidation.filter(
     "must.start.with.A"
 );
 ```
-

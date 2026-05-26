@@ -7,6 +7,7 @@ import io.vavr.collection.Seq;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -1316,8 +1317,8 @@ public sealed interface Validation<T> extends Iterable<T> {
      */
     record Valid<T>(T value) implements Validation<T> {
         public Valid {
-            Objects.requireNonNull(value, "value cannot be null");
         }
+
 
         @Override
         public List<ErrorMessage> errors() {

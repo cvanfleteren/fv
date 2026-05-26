@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
+import static be.iffy.fv.Rule.nullOk;
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static org.assertj.core.api.Assertions.*;
 
@@ -61,11 +62,20 @@ public class ValidationTest {
         }
 
         @Test
-        void valid_whenGivenNull_throwsNullPointerException() {
+        void valid_whenGivenNull_acceptsNull() {
             // Act & Assert
-            assertThatCode(() -> Validation.valid(null))
-                    .isInstanceOf(NullPointerException.class)
-                    .hasMessage("value cannot be null");
+            Rule<String> minLengthButNullOk = nullOk(Rule.<String>of(s -> s.length() > 3, "length.gt.3").and(Rule.of(s -> s.length() > 4, "length.gt.4")));
+
+            assertThatValidation(minLengthButNullOk.test(null)).isValid();
+        }
+
+        @Test
+        void invalid_whenGivenNull_nullOkButAndWithOtherRule() {
+            // Act & Assert
+            Rule<String> minLengthButNullOk = nullOk(Rule.<String>of(s -> s.length() > 3, "length.gt.3"))
+                    .and(Rule.of(s -> s.length() > 4, "length.gt.4"));
+
+            assertThatValidation(minLengthButNullOk.test(null)).isInvalid().hasErrorKeys("must.not.be.null");
         }
 
         @Test
