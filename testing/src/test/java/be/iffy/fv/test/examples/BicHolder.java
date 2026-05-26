@@ -22,13 +22,13 @@ public class BicHolder {
     record HasOptionalBicString(Optional<String> bic){}
 
     public void foo() {
-        Validation<Bic> bicV = Bic.validate("123").at(HasBic::bic);
+        Validation<Bic> bicV = Bic.from("123").at(HasBic::bic);
 
-        MappingRule<String, Bic> b = Bic::validate;
+        MappingRule<String, Bic> b = Bic::from;
 
         var bicHolder = new HasOptionalBicString(Optional.empty());
 
-        Validation<Bic> bicV2 = validateThat(bicHolder.bic()).is(optionals.required(String.class).andThen(Bic::validate));
+        Validation<Bic> bicV2 = validateThat(bicHolder.bic()).is(optionals.required(String.class).andThen(Bic::from));
     }
 
 }

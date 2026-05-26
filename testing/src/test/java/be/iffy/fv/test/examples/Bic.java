@@ -32,7 +32,7 @@ public record Bic(String value) {
         value = assertThat(value, Bic::value).is(validBic);
     }
 
-    public static Validation<Bic> validate(String value) {
+    public static Validation<Bic> from(String value) {
         return Validation.from(() -> new Bic(value));
     }
 

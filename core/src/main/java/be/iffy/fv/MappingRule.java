@@ -86,12 +86,6 @@ public interface MappingRule<T, R> {
      * <p>
      * Usage example:
      * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="of-try-string-example"}
-     *
-     * @param <T>      the type of input to be mapped
-     * @param <R>      the type of output after mapping
-     * @param mapper   the function that maps T to R
-     * @param errorKey the errorKey to use if the mapping fails.
-     * @return a new {@link MappingRule} that applies the mapper and validates the result
      */
     static <T, R> MappingRule<T, R> ofTry(Function<T, Try<R>> mapper, String errorKey) {
         return ofTry(mapper, ErrorMessage.of(errorKey));
@@ -103,12 +97,6 @@ public interface MappingRule<T, R> {
      * <p>
      * Usage example:
      * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="of-error-example"}
-     *
-     * @param <T>            the type of input to be mapped
-     * @param <R>            the type of output after mapping
-     * @param throwingMapper the function that maps T to R
-     * @param errorMessage   the error message to use if the mapping fails.
-     * @return a new {@link MappingRule} that applies the mapper and validates the result
      */
     static <T, R> MappingRule<T, R> of(Function<T, R> throwingMapper, ErrorMessage errorMessage) {
         Objects.requireNonNull(throwingMapper, "mapper cannot be null");
@@ -120,6 +108,16 @@ public interface MappingRule<T, R> {
                     value -> Validation.valid(value)
             );
         };
+    }
+
+    /**
+     * Creates an explicit {@link MappingRule} from a function that has the same signature.
+     * Use this to easily treat existing functions as MappingRules.
+     *
+     * @param validationFunction The function that converts an input of type T to a validation object of type R.
+     */
+    static <T, R> MappingRule<T, R> asMappingRule(Function<T, Validation<R>> validationFunction) {
+        return validationFunction::apply;
     }
 
     /**

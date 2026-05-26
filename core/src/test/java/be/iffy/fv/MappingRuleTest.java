@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
@@ -889,6 +890,44 @@ class MappingRuleTest {
             assertThatValidation(result)
                     .isValid()
                     .isEqualTo(123);
+        }
+    }
+
+    @Nested
+    class AsMappingRule {
+
+        static Validation<Integer> validator(String input) {
+            return  Validation.from(Try.of(() -> Integer.parseInt(input)));
+        }
+
+        @Test
+        void asMappingRule_whenFunctionReturnsValid_returnsValidResult() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.asMappingRule(AsMappingRule::validator);
+
+            // Act
+            Validation<Integer> result = rule.test("123");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo(123);
+        }
+
+        @Test
+        void asMappingRule_whenFunctionReturnsInvalid_returnsInvalidResult() {
+            // Arrange
+            ErrorMessage error = ErrorMessage.of("invalid.input");
+            Function<String, Validation<Integer>> func = s -> Validation.invalid(error);
+            MappingRule<String, Integer> rule = MappingRule.asMappingRule(func);
+
+            // Act
+            Validation<Integer> result = rule.test("abc");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorKeys("invalid.input");
         }
     }
 }

@@ -27,9 +27,8 @@
         </dependency>
         <dependency>
             <groupId>be.iffy.fv</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>assertj</artifactId>
             <version>${revision}</version>
-            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
     </dependencies>
