@@ -453,6 +453,20 @@ public class DSL {
                     .flatMap(v -> Validation.narrowSuper(MappingRule.<T>notNull().andThen(rule).test(v).at(name)));
         }
 
+
+        /**
+         * Validates that the value satisfies the given rule.
+         * If the value is {@code null}, an error "must.not.be.null" is automatically added.
+         *
+         * @param rule the rule to check.
+         * @return a {@link Validation} result.
+         */
+        public <R> Validation<R> is(Function<? super T, ? extends Validation<R>> rule) {
+            Objects.requireNonNull(rule, "rule cannot be null");
+            return validation
+                    .flatMap(v -> Validation.narrowSuper(MappingRule.<T>notNull().andThen(rule::apply).test(v).at(name)));
+        }
+
         /**
          * Validates that the value is not null.
          * If the value is {@code null}, an error "must.not.be.null" is automatically added.

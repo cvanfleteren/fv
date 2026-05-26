@@ -14,6 +14,7 @@ import static org.assertj.core.api.Assertions.*;
 import io.vavr.collection.List;
 
 import java.math.BigDecimal;
+import java.util.function.Function;
 
 public class DSLTest {
 
@@ -70,6 +71,53 @@ public class DSLTest {
             void isNotNull_whenValueIsNull_returnsInvalid() {
                 Validation<String> v = validateThat((String) null).isNotNull();
                 assertThatValidation(v).isInvalid().hasErrorMessage("must.not.be.null");
+            }
+        }
+
+        @Nested
+        class Is {
+
+            @Test
+            void is_withFunction_whenValid_returnsValid() {
+                // Arrange
+                Function<String, Validation<Integer>> func = s -> Validation.valid(Integer.parseInt(s));
+
+                // Act
+                Validation<Integer> result = validateThat("123").is(func);
+
+                // Assert
+                assertThatValidation(result)
+                        .isValid()
+                        .isEqualTo(123);
+            }
+
+            @Test
+            void is_withFunction_whenInvalid_returnsInvalid() {
+                // Arrange
+                ErrorMessage error = ErrorMessage.of("invalid.input");
+                Function<String, Validation<Integer>> func = s -> Validation.invalid(error);
+
+                // Act
+                Validation<Integer> result = validateThat("abc").is(func);
+
+                // Assert
+                assertThatValidation(result)
+                        .isInvalid()
+                        .hasErrorKeys("invalid.input");
+            }
+
+            @Test
+            void is_withFunction_whenValueIsNull_returnsInvalidWithNullError() {
+                // Arrange
+                Function<String, Validation<Integer>> func = s -> Validation.valid(1);
+
+                // Act
+                Validation<Integer> result = validateThat((String) null).is(func);
+
+                // Assert
+                assertThatValidation(result)
+                        .isInvalid()
+                        .hasErrorMessage("must.not.be.null");
             }
         }
 

@@ -26,7 +26,7 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
                 validateThat(this.debtor, "debtor").is(this::validateDebtor),
                 validateThat(this.kboNumber, "kboNumber").mapsTo(KboNumber::new),
                 validateThat(this.transactions, "transactions").is(
-                        MappingRule.asRule(this::validateTransaction)
+                        MappingRule.asMappingRule(this::validateTransaction)
                                 .liftToList()
                                 .andThen(lists.notEmpty())
                 )
