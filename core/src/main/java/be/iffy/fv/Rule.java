@@ -44,7 +44,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * @param value the value to be validated.
      * @return a {@link Validation} object indicating the result of the test.
      */
-    Validation<T> test(@Nullable T value);
+    Validation<T> test(T value);
 
     /**
      * Creates a {@link Rule} from the given predicate and error message key.
