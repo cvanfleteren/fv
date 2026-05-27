@@ -17,24 +17,24 @@ import java.util.function.Supplier;
  * This class provides static factory methods to create and execute validations.
  *
  * <h2>Example: Constructor validation using {@code assertAllValid}</h2>
- * {@snippet file="be/iffy/fv/dsl/DSLSnippets.java" region="assert-all-tuple-example"}
+ * {@snippet file = "be/iffy/fv/dsl/DSLSnippets.java" region = "assert-all-tuple-example"}
  */
 public class DSL {
 
-    public static <T> Transformation<T> after(Function<T,T> transformation) {
+    public static <T> Transformation<T> after(Function<T, T> transformation) {
         return new Transformation<>(transformation);
     }
 
-    public static <T> Transformation<T> after(Supplier<Function<T,T>> transformation) {
+    public static <T> Transformation<T> after(Supplier<Function<T, T>> transformation) {
         return new Transformation<>(transformation.get());
     }
 
     public static class Transformation<T> {
-        private final Function<T,T> transformer;
+        private final Function<T, T> transformer;
 
-        public Transformation(Function<T,T> transformer) {
+        public Transformation(Function<T, T> transformer) {
             this.transformer = in -> {
-                if(in == null) {
+                if (in == null) {
                     return null;
                 } else {
                     return transformer.apply(in);
@@ -70,7 +70,7 @@ public class DSL {
      * that data is valid before proceeding
      * <p>
      * <b>Example:</b>
-     * {@snippet file="be/iffy/fv/dsl/DSLSnippets.java" region="assert-all-valid-example"}
+     * {@snippet file = "be/iffy/fv/dsl/DSLSnippets.java" region = "assert-all-valid-example"}
      *
      * @param validations the validations to check.
      * @throws ValidationException if any validation is invalid.
@@ -281,7 +281,7 @@ public class DSL {
         return validateThat(value, name).is(Rule.notNull());
     }
 
-    public static <T,V> Validation<T> notNull(T value, PropertySelector<V, T> selector) {
+    public static <T, V> Validation<T> notNull(T value, PropertySelector<V, T> selector) {
         return validateThat(value, selector).is(Rule.notNull());
     }
 
@@ -367,12 +367,16 @@ public class DSL {
         return new ValidationDSL<>(value, name);
     }
 
-    public static <T,V> ValidationDSL<V> validateThat(V value, PropertySelector<T, V> name) {
+    public static <T, V> ValidationDSL<V> validateThat(V value, PropertySelector<T, V> name) {
         return new ValidationDSL<>(value, name.getPropertyName());
     }
 
-    public static <T> ListValidationDSL<T> validateThatList(List<T> value, String name) {
-        return new ListValidationDSL<>(value, name);
+    public static <T> VListValidationDSL<T, T> validateThatList(List<T> value, String name) {
+        return new VListValidationDSL<>(value, name);
+    }
+
+    public static <T> JListValidationDSL<T, T> validateThatList(java.util.List<T> value, String name) {
+        return new JListValidationDSL<>(value, name);
     }
 
     /**
@@ -481,113 +485,52 @@ public class DSL {
     }
 
     /**
-     * DSL class for validating a single value.
-     *
-     * @param <T> the type of the value.
+     * DSL class for validating a vavr List, allowing you to easily express rules on the list itself
+     * and on the elements within the list.
      */
-    public static class ListValidationDSL<T> {
-        private final List<T> value;
-        private final Validation<List<T>> validation;
+    public static class VListValidationDSL<L, E> {
+        private final Validation<List<L>> listValidation;
+        private final Validation<List<E>> elementValidation;
         private final String name;
 
-        public ListValidationDSL(List<T> value) {
-            this(value, "");
-        }
-
-        public ListValidationDSL(List<T> value, String name) {
-            this.value = value;
-            this.name = name;
-            if (value == null) {
-                this.validation = Validation.<List<T>>invalid(ErrorMessage.of("must.not.be.null")).at(name);
-            } else {
-                this.validation = Validation.valid(value).at(name);
-            }
-        }
-
-        private ListValidationDSL(Validation<List<T>> validation, List<T> value, String name) {
-            this.validation = Objects.requireNonNull(validation, "validation cannot be null");
-            this.value = value;
-            this.name = name;
-        }
-
-        /**
-         * Maps the value being validated using the provided mapper function.
-         * If the current validation is already invalid, the mapper is not applied.
-         *
-         * @param mapper the function to apply.
-         * @param <Z>    the result type of the mapping.
-         * @return a new {@link ListValidationDSL} with the mapped value.
-         */
-        public <Z> ListValidationDSL<Z> map(Function<? super T, Z> mapper) {
-            return new ListValidationDSL<>(
-                    validation.mapCatching(l -> l.map(mapper)),
-                    value != null ? value.map(mapper) : null,
+        public VListValidationDSL(List<L> value, String name) {
+            this(
+                    Rule.<List<L>>notNull().test(value),
+                    //E and L start out the same
+                    Rule.<List<E>>notNull().test((List<E>) value),
                     name
             );
         }
 
-        /**
-         * Maps the value being validated using the provided mapper function.
-         * If the current validation is already invalid, the mapper is not applied.
-         *
-         * @param mapper the function to apply.
-         * @param <Z>    the result type of the mapping.
-         * @return a {@link Validation} of the mapped list.
-         */
-        public <Z> Validation<List<Z>> mapsTo(Function<? super T, Z> mapper) {
-            return this.validation.mapCatching(l -> l.map(mapper));
+        private VListValidationDSL(Validation<List<L>> listValidation, Validation<List<E>> elementValidation, String name) {
+            this.listValidation = Objects.requireNonNull(listValidation, "validation cannot be null");
+            this.elementValidation = Objects.requireNonNull(elementValidation, "validation cannot be null");
+            this.name = name;
         }
 
-        /**
-         * Validates that all elements satisfy the given rule.
-         *
-         * @param rule the rule to apply to each element.
-         * @return a {@link Validation} result.
-         */
-        public Validation<List<T>> is(Rule<? super T> rule) {
-            Objects.requireNonNull(rule, "rule cannot be null");
-            return Validation.narrowSuper(validation
-                    .flatMap(v -> Validation.transpose(v.map(rule::test))));
+        public Validation<List<E>> validate() {
+            return Validation
+                    .mapN(listValidation.at(name), elementValidation.at(name), (list, elements) -> elements)
+                    // make errors unique because something like a null list would appear in both validations
+                    .mapErrors(List::distinct);
         }
 
-        /**
-         * Validates that the list satisfies the given rule and all elements satisfy the element rule.
-         *
-         * @param listRule    the rule for the list itself.
-         * @param elementRule the rule for each element.
-         * @return a {@link Validation} result.
-         */
-        public Validation<List<T>> is(Rule<? super List<T>> listRule, Rule<? super T> elementRule) {
-            return satisfies(listRule).each(elementRule).validation;
+        public <Z> VListValidationDSL<Z, Z> eachMapsTo(MappingRule<E, Z> rule) {
+            Validation<List<Z>> newElements = elementValidation.refine(list -> rule.liftToVavrList().test(list));
+            Validation<List<Z>> newList = listValidation.flatMap(ignore -> newElements);
+            return new VListValidationDSL<>(
+                    newList,
+                    newElements,
+                    name
+            );
         }
 
-        /**
-         * Validates that the list satisfies the given rule and all elements satisfy the element rule,
-         * then maps each element.
-         *
-         * @param listRule    the rule for the list itself.
-         * @param elementRule the rule for each element.
-         * @param mapper      the function to map each element.
-         * @param <Z>         the target type.
-         * @return a {@link Validation} result.
-         */
-        public <Z> Validation<List<Z>> is(Rule<? super List<T>> listRule, Rule<? super T> elementRule, Function1<? super T, Z> mapper) {
-            return satisfies(listRule).each(elementRule).mapsTo(mapper);
+        public <Z> VListValidationDSL<Z, Z> each(Function<E, Validation<Z>> rule) {
+            return eachMapsTo(MappingRule.asMappingRule(rule));
         }
 
-        /**
-         * Validates that all elements satisfy the given rule.
-         * This method is non-short-circuiting and will collect errors even if the list is already invalid.
-         *
-         * @param rule the rule to apply to each element.
-         * @return a {@link ListValidationDSL} for chaining.
-         */
-        public ListValidationDSL<T> each(Rule<? super T> rule) {
-            if (value == null) {
-                return this;
-            }
-            Validation<List<T>> ruleValidation = Rule.<T>narrow(rule).liftToVavrList().test(value).at(this.name);
-            return new ListValidationDSL<>(combine(validation, ruleValidation), value, this.name);
+        public VListValidationDSL<E, E> eachIs(Rule<E> rule) {
+            return eachMapsTo(rule);
         }
 
         /**
@@ -595,18 +538,66 @@ public class DSL {
          * This method is non-short-circuiting and will collect errors even if the list is already invalid.
          *
          * @param rule the rule for the list.
-         * @return a {@link ListValidationDSL} for chaining.
+         * @return a {@link VListValidationDSL} for chaining.
          */
-        public ListValidationDSL<T> satisfies(Rule<? super List<T>> rule) {
-            if (value == null) {
-                return this;
-            }
-            Validation<List<T>> ruleValidation = Rule.<List<T>>narrow(rule).test(value).at(this.name);
-            return new ListValidationDSL<>(combine(validation, ruleValidation), value, this.name);
+        public VListValidationDSL<L, E> satisfies(Rule<List<L>> rule) {
+            Validation<List<L>> ruleValidation = Validation.narrowSuper(listValidation.refine(rule));
+            return new VListValidationDSL<>(ruleValidation, elementValidation, name);
+        }
+    }
+
+    /**
+     * DSL class for validating a vavr List, allowing you to easily express rules on the list itself
+     * and on the elements within the list.
+     */
+    public static class JListValidationDSL<L, E> {
+        private final Validation<java.util.List<L>> listValidation;
+        private final Validation<java.util.List<E>> elementValidation;
+        private final String name;
+
+        public JListValidationDSL(java.util.List<L> value, String name) {
+            this.listValidation = Rule.<java.util.List<L>>notNull().test(value);
+            this.elementValidation = listValidation.mapTo((java.util.List<E>) value);
+            this.name = name;
         }
 
-        private static <T> Validation<T> combine(Validation<T> v1, Validation<T> v2) {
-            return Validation.mapN(v1, v2, (a, b) -> a);
+        private JListValidationDSL(Validation<java.util.List<L>> listValidation, Validation<java.util.List<E>> elementValidation, String name) {
+            this.listValidation = Objects.requireNonNull(listValidation, "validation cannot be null");
+            this.elementValidation = Objects.requireNonNull(elementValidation, "validation cannot be null");
+            this.name = name;
+        }
+
+        public Validation<java.util.List<E>> validate() {
+            return Validation
+                    .mapN(listValidation.at(name), elementValidation.at(name), (list, elements) -> elements)
+                    // make errors unique because something like a null list would appear in both validations
+                    .mapErrors(List::distinct);
+        }
+
+        public <Z> JListValidationDSL<Z, Z> eachMapsTo(MappingRule<E, Z> rule) {
+            Validation<java.util.List<Z>> newElements = elementValidation.refine(list -> rule.liftToList().test(list));
+            Validation<java.util.List<Z>> newList = listValidation.flatMap(ignore -> newElements);
+            return new JListValidationDSL<>(
+                    newList,
+                    newElements,
+                    name
+            );
+        }
+
+        public <Z> JListValidationDSL<Z, Z> each(Function<E, Validation<Z>> rule) {
+            return eachMapsTo(MappingRule.asMappingRule(rule));
+        }
+
+        public JListValidationDSL<E, E> eachIs(Rule<E> rule) {
+            return eachMapsTo(rule);
+        }
+
+        /**
+         * Validates that the list satisfies the given rule.
+         */
+        public JListValidationDSL<L, E> satisfies(Rule<java.util.List<L>> rule) {
+            Validation<java.util.List<L>> ruleValidation = Validation.narrowSuper(listValidation.refine(rule));
+            return new JListValidationDSL<>(ruleValidation, elementValidation, name);
         }
     }
 
@@ -615,7 +606,7 @@ public class DSL {
         private final Validation<T> value;
 
         public AssertDSL(T value, String name) {
-            this.value = Rule.<T>notNull().test(value).at(name);
+            this.value = Rule.<T>notNull().test(value);
             this.name = name;
         }
 
@@ -624,12 +615,13 @@ public class DSL {
             this.name = name;
         }
 
-        public <R> AssertDSL<R> map(Function<T,R> transform) {
-           return new AssertDSL<>(this.value.mapCatching(transform),name);
+        public <R> AssertDSL<R> map(Function<T, R> transform) {
+            return new AssertDSL<>(this.value.mapCatching(transform), name);
         }
 
         public T is(Rule<? super T> rule) {
-            return value.refine(rule).getOrElseThrow();
+            Rule<T> narrow = Rule.narrow(rule);
+            return value.refine(narrow).at(name).getOrElseThrow();
         }
     }
 }

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static be.iffy.fv.dsl.DSL.*;
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
-import static be.iffy.fv.rules.collections.VavrListRules.vavrCollections;
+import static be.iffy.fv.rules.collections.VavrListRules.vavrLists;
 import static be.iffy.fv.rules.text.StringRules.strings;
 
 public class ListValidationDslTest {
@@ -18,9 +18,9 @@ public class ListValidationDslTest {
         
         // Act
         Validation<List<String>> result = validateThatList(roles, "roles")
-                .satisfies(vavrCollections.minSize(2))
-                .each(strings.minLength(2))
-                .mapsTo(s -> s);
+                .satisfies(vavrLists.minSize(2))
+                .eachIs(strings.minLength(2))
+                .validate();
 
         // Assert
         assertThatValidation(result)
@@ -36,9 +36,12 @@ public class ListValidationDslTest {
         // Arrange
         List<String> roles = List.of("A");
 
+        //TODO CVF
         // Act
         Validation<List<Role>> result = validateThatList(roles, "roles")
-                .is(vavrCollections.minSize(2), strings.minLength(2), Role::new);
+                .satisfies(vavrLists.minSize(2))
+                .eachMapsTo(strings.minLength(2).map(Role::new))
+                .validate();
 
         // Assert
         assertThatValidation(result)

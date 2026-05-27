@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import static be.iffy.fv.dsl.DSL.*;
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
+import static be.iffy.fv.rules.Rules.objects;
 import static be.iffy.fv.rules.text.StringRules.strings;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -70,7 +71,7 @@ class ObjectGraphValidationTest {
 
     static class UserValidator {
         private static final StringRules strings = strings();
-        private static final VavrListRules collections = VavrListRules.vavrCollections();
+        private static final VavrListRules collections = VavrListRules.vavrLists;
 
         static Validation<Address> validateAddress(AddressDTO addressDTO) {
 
@@ -84,14 +85,14 @@ class ObjectGraphValidationTest {
 
         static Validation<User> fromDto(UserDTO dto) {
 
-            Rule<String> canBeRole = strings.minLength(2);
+            MappingRule<String, Role> canBeRole = objects.isEnum(Role.class);
             MappingRule<String, Email> canBeEmail = strings.minLength(2).and(strings.contains("@")).andThen(MappingRule.of(Email::new, "must.be.email"));
 
             return Validation.mapN(
                     validateThat(dto.username, "username").mapsTo(Username::new),
                     validateThat(dto.email, "email").is(canBeEmail),
                     validateAddress(dto.address).at("address"),
-                    validateThatList(dto.roles, "roles").satisfies(collections.notEmpty()).each(canBeRole).mapsTo(Role::valueOf),
+                    validateThatList(dto.roles, "roles").satisfies(collections.notEmpty()).eachMapsTo(canBeRole).validate(),
                     User::new
             );
         }
@@ -150,7 +151,8 @@ class ObjectGraphValidationTest {
         assertThatValidation(result)
                 .isInvalid()
                 .hasErrorMessages(
-                        "roles[0].must.have.min.length"
+                        "roles[0].must.be.valid.enum.value",
+                        "roles[1].must.be.valid.enum.value"
                 );
     }
 

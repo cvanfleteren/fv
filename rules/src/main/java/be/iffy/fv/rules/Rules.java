@@ -44,7 +44,13 @@ public class Rules {
 
     public static final VavrListRules vavrLists = VavrListRules.vavrLists;
 
+    public static final ListRules lists = ListRules.lists;
+
     public static final CollectionRules collections = CollectionRules.collections;
+
+    public static final SetRules sets = SetRules.sets;
+
+    public static final VavrSetRules vavrSets = VavrSetRules.vavrSets;
 
     public static final VavrMapRules vavrMaps = VavrMapRules.vavrMaps;
 
