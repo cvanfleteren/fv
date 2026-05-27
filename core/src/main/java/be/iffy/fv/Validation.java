@@ -353,14 +353,10 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
-     * Refines this validation allowing a Rule to test its value.
-     * If the resulting Validation is valid, the original Validation is returned.
-     * If the resulting Validation is invalid, that Validation is returned with the refined error messages.
-     *
-     * @param refinement the rule to apply to the validation.
-     * @return a new {@link Validation} containing the refined result.
+     * Refines this validation allowing a {@link MappingRule} to test its value if this Validation was valid.
+     * Similar to {@link Validation#flatMap(Function1)} but taking a MappingRule as the mapping function.
      */
-    default Validation<T> refine(Rule<? super T> refinement) {
+    default <Z> Validation<Z> refine(MappingRule<? super T, ? extends Z> refinement) {
         return narrowSuper(this.flatMap(refinement::test));
     }
 
@@ -373,7 +369,8 @@ public sealed interface Validation<T> extends Iterable<T> {
      * @return a new Validation instance with the applied filter
      */
     default Validation<T> filter(Predicate<? super T> predicate, ErrorMessage errorMessage) {
-        return refine(Rule.of(predicate, errorMessage));
+        Rule<T> rule = Rule.narrow(Rule.of(predicate, errorMessage));
+        return refine(rule);
     }
 
     /**
