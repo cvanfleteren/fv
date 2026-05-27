@@ -4,36 +4,30 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
-import lombok.EqualsAndHashCode;
 import lombok.With;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 /**
  * Represents an error message with a unique key, paths, and optional arguments.
  * It is immutable and provides methods to build structured error paths and include dynamic parameters.
+ *
+ * @param errorKey   the unique key for the error message (e.g., {@code "invalid.input"}).
+ * @param paths      the list of {@link Path} segments leading to the erroneous value.
+ * @param parameters a map of dynamic parameters for the error message.
  */
-@With
-@EqualsAndHashCode
-public class ErrorMessage {
-    private final String errorKey;
-    private final List<Path> paths;
-    private final Map<String,Object> parameters;
+public record ErrorMessage(String errorKey, List<Path> paths, Map<String, Object> parameters) {
 
     /**
      * Creates a new {@link ErrorMessage}.
      *
-     * @param errorKey   the unique key for the error message (e.g., {@code "invalid.input"}).
-     * @param paths      the list of {@link Path} segments leading to the erroneous value.
-     * @param parameters a map of dynamic parameters for the error message.
      * @throws NullPointerException if any argument is null.
      */
-    public ErrorMessage(String errorKey, List<Path> paths, Map<String, Object> parameters) {
-        this.errorKey = Objects.requireNonNull(errorKey, "errorKey cannot be null");
-        this.paths = Objects.requireNonNull(paths, "paths cannot be null");
-        this.parameters = Objects.requireNonNull(parameters, "parameters cannot be null");
+    public ErrorMessage {
+        Objects.requireNonNull(errorKey, "errorKey cannot be null");
+        Objects.requireNonNull(paths, "paths cannot be null");
+        Objects.requireNonNull(parameters, "parameters cannot be null");
     }
 
     /**
@@ -79,7 +73,7 @@ public class ErrorMessage {
      * @return a new {@link ErrorMessage} with the prepended path.
      */
     public ErrorMessage prepend(Path path) {
-        if(!paths.isEmpty() && paths.head().index.isDefined() && paths.head().text.isEmpty() && path.index.isEmpty()) {
+        if (!paths.isEmpty() && paths.head().index.isDefined() && paths.head().text.isEmpty() && path.index.isEmpty()) {
             // previous path was just an index, an this one hasn't got one, combine them
             return this.withPaths(paths.tail().prepend(path.withIndex(paths.head().index).withText(path.text)));
         } else {
@@ -100,15 +94,6 @@ public class ErrorMessage {
         } else {
             return this.withPaths(paths.update(0, paths.head().withIndex(Option.of(index))));
         }
-    }
-
-    /**
-     * Returns the dynamic parameters for this error message.
-     *
-     * @return a {@link Map} of parameters.
-     */
-    public Map<String,Object> parameters() {
-        return parameters;
     }
 
     /**
@@ -144,27 +129,30 @@ public class ErrorMessage {
      * @return the formatted error message with parameters.
      */
     public String formatted() {
-        if(parameters.isEmpty()) {
+        if (parameters.isEmpty()) {
             return message();
         } else {
-            return message()+":"+ parameters.map(tuple  -> tuple._1+":"+formatValues(tuple._2)).mkString("{",",","}");
+            return message() + ":" + parameters.map(tuple -> tuple._1 + ":" + formatValues(tuple._2)).mkString("{", ",", "}");
         }
     }
 
     private String formatValues(Object values) {
-        return switch(values) {
-            case List<?> l -> l.mkString("[",",","]");
+        return switch (values) {
+            case List<?> l -> l.mkString("[", ",", "]");
             default -> values.toString();
         };
     }
 
-    @Override
-    public String toString() {
-        return "ErrorMessage{" +
-                "errorKey='" + errorKey + '\'' +
-                ", paths=" + paths +
-                ", parameters=" + parameters +
-                '}';
+    public ErrorMessage withErrorKey(String errorKey) {
+        return new ErrorMessage(errorKey, this.paths, this.parameters);
+    }
+
+    public ErrorMessage withPaths(List<Path> paths) {
+        return new ErrorMessage(this.errorKey, paths, this.parameters);
+    }
+
+    public ErrorMessage withParameters(Map<String, Object> parameters) {
+        return new ErrorMessage(this.errorKey, this.paths, parameters);
     }
 
     /**
