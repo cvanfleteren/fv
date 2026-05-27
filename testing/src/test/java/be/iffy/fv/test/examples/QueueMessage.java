@@ -1,7 +1,6 @@
 package be.iffy.fv.test.examples;
 
 import be.iffy.fv.ErrorMessage;
-import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 import org.jspecify.annotations.NullMarked;
@@ -11,7 +10,7 @@ import java.util.List;
 
 import static be.iffy.fv.dsl.DSL.validateThat;
 import static be.iffy.fv.dsl.DSL.validateThatList;
-import static be.iffy.fv.dsl.experimental.ValidatingDSL.validating;
+import static be.iffy.fv.dsl.ValidatingDSL.validating;
 import static be.iffy.fv.rules.Rules.*;
 
 @NullMarked

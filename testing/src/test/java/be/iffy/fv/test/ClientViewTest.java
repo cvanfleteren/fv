@@ -16,7 +16,7 @@ import java.util.function.Function;
 import static be.iffy.fv.MappingRule.requiredOption;
 import static be.iffy.fv.dsl.DSL.assertAllValid;
 import static be.iffy.fv.dsl.DSL.validateThat;
-import static be.iffy.fv.dsl.experimental.ValidatingDSL.validating;
+import static be.iffy.fv.dsl.ValidatingDSL.validating;
 import static be.iffy.fv.dsl.experimental.Validator.validatorFor;
 import static be.iffy.fv.rules.BooleanRules.booleans;
 import static be.iffy.fv.rules.ObjectRules.objects;

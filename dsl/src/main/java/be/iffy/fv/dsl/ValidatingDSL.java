@@ -1,10 +1,13 @@
-package be.iffy.fv.dsl.experimental;
+package be.iffy.fv.dsl;
 
 import io.vavr.*;
 import be.iffy.fv.Validation;
 
 import java.util.Objects;
 
+/**
+ * A msmall DSL that's basically just a wrapper around Validation.mapN / Validation.flatmapN
+ */
 public class ValidatingDSL {
 
     public static <T1, T2> ValidatingBuilder2<T1, T2> validating(Validation<T1> v1, Validation<T2> v2) {
