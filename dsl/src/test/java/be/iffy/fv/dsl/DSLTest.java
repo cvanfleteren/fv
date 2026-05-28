@@ -24,6 +24,8 @@ public class DSLTest {
     Rule<Number> positive = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
     Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
 
+
+
     @Nested
     class ValidateAll {
 
@@ -47,12 +49,12 @@ public class DSLTest {
             List<BigDecimal> numbers = List.of(BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.TEN);
 
             // Act
-            var result = validateAll(numbers).areAll(positive);
+            var result = validateThatList(numbers, "numbers").eachIs(positive).validate();
 
             // Assert
             assertThatValidation(result)
                     .isInvalid()
-                    .hasErrorMessages("[0].must.be.positive");
+                    .hasErrorMessages("numbers[0].must.be.positive");
         }
     }
 
@@ -219,7 +221,7 @@ public class DSLTest {
         public void validationDsl_invalid() {
             Person p = new Person("john", 0);
 
-            Validation<Integer> v = validateThat(p.age(),"age").is(positive);
+            Validation<Integer> v = validateThat(p.age(), "age").is(positive);
 
             assertThatValidation(v).isInvalid().hasErrorMessage("age.must.be.positive");
         }

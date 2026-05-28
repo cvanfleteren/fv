@@ -100,7 +100,6 @@ public class DSL {
      * <b>Example:</b>
      * {@snippet file = "be/iffy/fv/dsl/DSLSnippets.java" region = "assert-all-valid-example"}
      *
-     * @param validations the validations to check.
      * @throws ValidationException if any validation is invalid.
      */
     public static void assertAllValid(Validation<?>... validations) {
@@ -116,11 +115,6 @@ public class DSL {
      * Asserts that two validations are valid and returns their values as a {@link Tuple2}.
      * If any validation is invalid, a {@link ValidationException} is thrown.
      *
-     * @param v1   the first validation.
-     * @param v2   the second validation.
-     
-     
-     * @return a {@link Tuple2} containing the valid values.
      * @throws ValidationException if any validation is invalid.
      */
     public static <T1, T2> Tuple2<T1, T2> assertAllValid(Validation<T1> v1, Validation<T2> v2) {
@@ -132,13 +126,6 @@ public class DSL {
     /**
      * Asserts that three validations are valid and returns their values as a {@link Tuple3}.
      *
-     * @param v1   the first validation.
-     * @param v2   the second validation.
-     * @param v3   the third validation.
-     
-     
-     
-     * @return a {@link Tuple3} containing the valid values.
      * @throws ValidationException if any validation is invalid.
      */
     public static <T1, T2, T3> Tuple3<T1, T2, T3> assertAllValid(
@@ -153,15 +140,6 @@ public class DSL {
     /**
      * Asserts that four validations are valid and returns their values as a {@link Tuple4}.
      *
-     * @param v1   the first validation.
-     * @param v2   the second validation.
-     * @param v3   the third validation.
-     * @param v4   the fourth validation.
-     
-     
-     
-     
-     * @return a {@link Tuple4} containing the valid values.
      * @throws ValidationException if any validation is invalid.
      */
     public static <T1, T2, T3, T4> Tuple4<T1, T2, T3, T4> assertAllValid(
@@ -177,17 +155,6 @@ public class DSL {
     /**
      * Asserts that five validations are valid and returns their values as a {@link Tuple5}.
      *
-     * @param v1   the first validation.
-     * @param v2   the second validation.
-     * @param v3   the third validation.
-     * @param v4   the fourth validation.
-     * @param v5   the fifth validation.
-     
-     
-     
-     
-     
-     * @return a {@link Tuple5} containing the valid values.
      * @throws ValidationException if any validation is invalid.
      */
     public static <T1, T2, T3, T4, T5> Tuple5<T1, T2, T3, T4, T5> assertAllValid(
@@ -204,19 +171,6 @@ public class DSL {
     /**
      * Asserts that six validations are valid and returns their values as a {@link Tuple6}.
      *
-     * @param v1   the first validation.
-     * @param v2   the second validation.
-     * @param v3   the third validation.
-     * @param v4   the fourth validation.
-     * @param v5   the fifth validation.
-     * @param v6   the sixth validation.
-     
-     
-     
-     
-     
-     
-     * @return a {@link Tuple6} containing the valid values.
      * @throws ValidationException if any validation is invalid.
      */
     public static <T1, T2, T3, T4, T5, T6> Tuple6<T1, T2, T3, T4, T5, T6> assertAllValid(
@@ -235,21 +189,6 @@ public class DSL {
     /**
      * Asserts that seven validations are valid and returns their values as a {@link Tuple7}.
      *
-     * @param v1   the first validation.
-     * @param v2   the second validation.
-     * @param v3   the third validation.
-     * @param v4   the fourth validation.
-     * @param v5   the fifth validation.
-     * @param v6   the sixth validation.
-     * @param v7   the seventh validation.
-     
-     
-     
-     
-     
-     
-     
-     * @return a {@link Tuple7} containing the valid values.
      * @throws ValidationException if any validation is invalid.
      */
     public static <T1, T2, T3, T4, T5, T6, T7> Tuple7<T1, T2, T3, T4, T5, T6, T7> assertAllValid(
@@ -269,23 +208,6 @@ public class DSL {
     /**
      * Asserts that eight validations are valid and returns their values as a {@link Tuple8}.
      *
-     * @param v1   the first validation.
-     * @param v2   the second validation.
-     * @param v3   the third validation.
-     * @param v4   the fourth validation.
-     * @param v5   the fifth validation.
-     * @param v6   the sixth validation.
-     * @param v7   the seventh validation.
-     * @param v8   the eighth validation.
-     
-     
-     
-     
-     
-     
-     
-     
-     * @return a {@link Tuple8} containing the valid values.
      * @throws ValidationException if any validation is invalid.
      */
     public static <T1, T2, T3, T4, T5, T6, T7, T8> Tuple8<T1, T2, T3, T4, T5, T6, T7, T8> assertAllValid(
@@ -317,7 +239,6 @@ public class DSL {
      * For any given {@code Rule<T>}, returns a Rule that can work on an {@code Optional<T>} instead.
      * An empty {@link Optional} is considered to be valid.
      *
-     
      * @see OptionalRules#required()
      */
     public static <T> Rule<Optional<T>> optional(Rule<T> rule) {
@@ -328,7 +249,6 @@ public class DSL {
      * For any given {@code Rule<T>}, returns a Rule that can work on an {@code Option<T>} instead.
      * An empty {@link Option} is considered to be valid.
      *
-     
      * @see be.iffy.fv.rules.functional.OptionRules#required()
      */
     public static <T> Rule<Option<T>> option(Rule<T> rule) {
@@ -338,8 +258,6 @@ public class DSL {
     /**
      * Starts a validation process for a collection of values.
      *
-     * @param values the values to validate.
-     
      * @return a {@link ValidateAllDSL} instance.
      */
     public static <T> ValidateAllDSL<T> validateAll(Iterable<T> values) {
@@ -349,7 +267,6 @@ public class DSL {
     /**
      * DSL class for validating a collection of values.
      *
-     
      */
     public static class ValidateAllDSL<T> {
         private final Iterable<T> values;
@@ -363,7 +280,6 @@ public class DSL {
          * The result is a validation containing the list of valid values, or all errors encountered.
          *
          * @param rule the rule to apply to each value.
-         * @return a {@link Validation} of the collection.
          */
         public Validation<List<T>> areAll(Rule<? super T> rule) {
             Objects.requireNonNull(rule, "Rule cannot be null");
@@ -374,8 +290,6 @@ public class DSL {
     /**
      * Starts a validation process for a single value.
      *
-     * @param value the value to validate.
-     
      * @return a {@link ValidationDSL} instance.
      */
     public static <T> ValidationDSL<T> validateThat(T value) {
@@ -386,10 +300,7 @@ public class DSL {
      * Starts a validation process for a single value with a logical name.
      * The name will be prepended to any error messages.
      *
-     * @param value the value to validate.
-     * @param name  the name of the value (e.g. field name).
-     
-     * @return a {@link ValidationDSL} instance.
+     * @param name the name of the value (e.g. field name).
      */
     public static <T> ValidationDSL<T> validateThat(T value, String name) {
         return new ValidationDSL<>(value, name);
@@ -410,7 +321,6 @@ public class DSL {
     /**
      * DSL class for validating a single value.
      *
-     
      */
     public static class ValidationDSL<T> {
 
@@ -440,7 +350,6 @@ public class DSL {
          * If the current validation is already invalid, the mapper is not applied.
          *
          * @param mapper the function to apply.
-         
          * @return a new {@link ValidationDSL} with the mapped value.
          */
         public <Z> ValidationDSL<Z> map(Function<T, Z> mapper) {
@@ -452,7 +361,6 @@ public class DSL {
          * If the current validation is already invalid, the mapper is not applied.
          *
          * @param mapper the function to apply.
-         
          * @return a new {@link ValidationDSL} with the mapped value.
          */
         public <Z> Validation<Z> mapsTo(Function<T, Z> mapper) {
@@ -557,8 +465,9 @@ public class DSL {
             return eachMapsTo(MappingRule.asMappingRule(rule));
         }
 
-        public VListValidationDSL<E, E> eachIs(Rule<E> rule) {
-            return eachMapsTo(rule);
+        public VListValidationDSL<E, E> eachIs(Rule<? super E> rule) {
+            Rule<E> e = Rule.narrow(rule);
+            return eachMapsTo(e);
         }
 
         /**
