@@ -16,6 +16,7 @@ public class ValidationException extends RuntimeException {
      * @param errors the list of validation errors.
      */
     public ValidationException(List<ErrorMessage> errors) {
+        // we don't use the formattedMessage because that could potentially become very big
         super(errors.map(ErrorMessage::message).mkString(", "));
         this.errors = errors;
     }
