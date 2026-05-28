@@ -9,11 +9,13 @@ import org.junit.jupiter.api.Test;
 
 import static be.iffy.fv.dsl.DSL.*;
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
+import static be.iffy.fv.rules.Rules.*;
 import static org.assertj.core.api.Assertions.*;
 
 import io.vavr.collection.List;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.function.Function;
 
 public class DSLTest {
@@ -25,6 +27,153 @@ public class DSLTest {
     Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
 
 
+
+    @Nested
+    class ValidateThatListTests {
+
+        @Nested
+        class VavrList {
+            @Test
+            void validate_whenAllValid_returnsValid() {
+                List<Integer> values = List.of(1, 2, 3);
+                var result = validateThatList(values, "values")
+                        .satisfies(vavrLists.notEmpty())
+                        .eachIs(ints.positive())
+                        .validate();
+
+                assertThatValidation(result).isValid().isEqualTo(values);
+            }
+
+            @Test
+            void validate_whenListLevelRuleFails_returnsInvalid() {
+                List<Integer> values = List.empty();
+                var result = validateThatList(values, "values")
+                        .satisfies(vavrLists.notEmpty())
+                        .validate();
+
+                assertThatValidation(result)
+                        .isInvalid()
+                        .hasErrorMessage("values.must.not.be.empty");
+            }
+
+            @Test
+            void validate_whenElementLevelRuleFails_returnsInvalidWithIndexedPath() {
+                List<Integer> values = List.of(1, -1, 2);
+                var result = validateThatList(values, "values")
+                        .eachIs(ints.positive())
+                        .validate();
+
+                assertThatValidation(result)
+                        .isInvalid()
+                        .hasErrorMessage("values[1].must.be.positive");
+            }
+
+            @Test
+            void validate_whenMappingElements_returnsMappedList() {
+                List<String> values = List.of("1", "2");
+                var result = validateThatList(values, "values")
+                        .eachMapsTo(strings.asInteger())
+                        .validate();
+
+                assertThatValidation(result).isValid().isEqualTo(List.of(1, 2));
+            }
+
+            @Test
+            void validate_whenElementMappingFails_returnsInvalidWithIndexedPath() {
+                List<String> values = List.of("1", "abc");
+                var result = validateThatList(values, "values")
+                        .eachMapsTo(strings.asInteger())
+                        .validate();
+
+                assertThatValidation(result)
+                        .isInvalid()
+                        .hasErrorMessage("values[1].must.be.integer");
+            }
+
+            @Test
+            void validate_whenUsingEachWithFunction_returnsMappedList() {
+                List<String> values = List.of("1", "2");
+                var result = validateThatList(values, "values")
+                        .each(s -> Validation.valid(Integer.parseInt(s)))
+                        .validate();
+
+                assertThatValidation(result).isValid().isEqualTo(List.of(1, 2));
+            }
+
+            @Test
+            void validate_whenMultipleRulesFail_accumulatesAllErrors() {
+                List<Integer> values = List.of(-1);
+                var result = validateThatList(values, "values")
+                        .satisfies(vavrLists.minSize(2))
+                        .eachIs(ints.positive())
+                        .validate();
+
+                assertThatValidation(result)
+                        .isInvalid()
+                        .hasErrorMessages("values.must.have.min.size", "values[0].must.be.positive");
+            }
+        }
+
+        @Nested
+        class JavaList {
+            @Test
+            void validate_whenAllValid_returnsValid() {
+                java.util.List<Integer> values = Arrays.asList(1, 2, 3);
+                var result = validateThatList(values, "values")
+                        .satisfies(lists.notEmpty())
+                        .eachIs(ints.positive())
+                        .validate();
+
+                assertThatValidation(result).isValid().isEqualTo(values);
+            }
+
+            @Test
+            void validate_whenListLevelRuleFails_returnsInvalid() {
+                java.util.List<Integer> values = java.util.Collections.emptyList();
+                var result = validateThatList(values, "values")
+                        .satisfies(lists.notEmpty())
+                        .validate();
+
+                assertThatValidation(result)
+                        .isInvalid()
+                        .hasErrorMessage("values.must.not.be.empty");
+            }
+
+            @Test
+            void validate_whenElementLevelRuleFails_returnsInvalidWithIndexedPath() {
+                java.util.List<Integer> values = Arrays.asList(1, -1, 2);
+                var result = validateThatList(values, "values")
+                        .eachIs(ints.positive())
+                        .validate();
+
+                assertThatValidation(result)
+                        .isInvalid()
+                        .hasErrorMessage("values[1].must.be.positive");
+            }
+
+            @Test
+            void validate_whenMappingElements_returnsMappedList() {
+                java.util.List<String> values = Arrays.asList("1", "2");
+                var result = validateThatList(values, "values")
+                        .eachMapsTo(strings.asInteger())
+                        .validate();
+
+                assertThatValidation(result).isValid().isEqualTo(Arrays.asList(1, 2));
+            }
+
+            @Test
+            void validate_whenElementMappingFails_returnsInvalidWithIndexedPath() {
+                java.util.List<String> values = Arrays.asList("1", "abc");
+                var result = validateThatList(values, "values")
+                        .eachMapsTo(strings.asInteger())
+                        .validate();
+
+                assertThatValidation(result)
+                        .isInvalid()
+                        .hasErrorMessage("values[1].must.be.integer");
+            }
+        }
+    }
 
     @Nested
     class ValidateAll {
