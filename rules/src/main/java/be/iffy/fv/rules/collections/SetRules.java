@@ -41,25 +41,6 @@ public class SetRules {
             return ts.contains(t);
         }
 
-        @Override
-        public Rule<Set<T>> validateValuesWith(Rule<? super T> rule) {
-            return Rule.notNull().and(set -> {
-                Rule<T> castedRule = Rule.narrow(rule);
-
-                io.vavr.collection.List<Validation<T>> validations = io.vavr.collection.List.ofAll(set)
-                        .map(castedRule::test)
-                        .zipWithIndex((validation, index) ->
-                                validation.mapErrors(errors -> errors.map(e -> e.atIndex(index)))
-                        );
-
-                io.vavr.collection.List<ErrorMessage> allErrors = validations.flatMap(Validation::errors);
-                if(allErrors.isEmpty()) {
-                    return Validation.valid(set);
-                } else {
-                    return Validation.invalid(allErrors);
-                }
-            });
-        }
     }
 
     public static final SetRules sets = new SetRules();
