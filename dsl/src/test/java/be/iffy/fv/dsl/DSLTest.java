@@ -26,10 +26,8 @@ public class DSLTest {
     Rule<Number> positive = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
     Rule<String> notEmpty = Rule.of(s -> !s.isEmpty(), "must.not.be.empty");
 
-
-
     @Nested
-    class ValidateThatListTests {
+    class ValidateThatList {
 
         @Nested
         class VavrList {
