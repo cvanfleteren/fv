@@ -22,7 +22,7 @@ public record ErrorMessage(String errorKey, List<Path> paths, Map<String, Object
     /**
      * Creates a new {@link ErrorMessage}.
      *
-     * @throws NullPointerException if any argument is null.
+     
      */
     public ErrorMessage {
         Objects.requireNonNull(errorKey, "errorKey cannot be null");
@@ -35,7 +35,7 @@ public record ErrorMessage(String errorKey, List<Path> paths, Map<String, Object
      *
      * @param message the error message key.
      * @return a new {@link ErrorMessage} instance.
-     * @throws NullPointerException if {@code message} is null.
+     
      */
     public static ErrorMessage of(String message) {
         return new ErrorMessage(message, List.of(), HashMap.empty());
@@ -47,7 +47,7 @@ public record ErrorMessage(String errorKey, List<Path> paths, Map<String, Object
      * @param message    the error message key.
      * @param parameters the dynamic parameters.
      * @return a new {@link ErrorMessage} instance.
-     * @throws NullPointerException if any argument is null.
+     
      */
     public static ErrorMessage of(String message, Map<String, Object> parameters) {
         return new ErrorMessage(message, List.of(), parameters);
@@ -60,7 +60,7 @@ public record ErrorMessage(String errorKey, List<Path> paths, Map<String, Object
      * @param key     the parameter name.
      * @param value   the parameter value.
      * @return a new {@link ErrorMessage} instance.
-     * @throws NullPointerException if {@code message} or {@code key} is null.
+     
      */
     public static ErrorMessage of(String message, String key, @Nullable Object value) {
         return of(message, HashMap.of(key, value));

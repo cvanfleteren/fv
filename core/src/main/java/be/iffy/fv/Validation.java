@@ -55,7 +55,6 @@ import java.util.function.Supplier;
  * }
  * }</pre>
  *
- * @param <T> the type of the value being validated.
  */
 public sealed interface Validation<T> extends Iterable<T> {
 
@@ -88,10 +87,10 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Returns the valid value, or throws {@link ValidationException} if this validation is invalid.
      *
      * <p>Example: successful retrieval
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="getOrElseThrow_success"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "getOrElseThrow_success"}
      *
      * <p>Example: handling validation failure
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="getOrElseThrow_failure"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "getOrElseThrow_failure"}
      *
      * @return the valid value.
      * @throws ValidationException if this validation is invalid.
@@ -107,7 +106,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Returns the valid value, or the passed {@code defaultValue} if invalid.
      *
      * <p>Example:
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="getOrElse"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "getOrElse"}
      */
     default T getOrElse(T defaultValue) {
         return switch (this) {
@@ -120,10 +119,10 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Returns this validation if it is valid; otherwise returns the specified alternative validation.
      *
      * <p>Example:
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="orElse_value"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "orElse_value"}
      *
      * @param other the alternative validation.
-     * @param <U>   the common type.
+     
      */
     @SuppressWarnings("unchecked")
     default <U> Validation<U> orElse(Validation<? extends U> other) {
@@ -136,10 +135,9 @@ public sealed interface Validation<T> extends Iterable<T> {
      * provided by the {@link Supplier}.
      *
      * <p>Example:
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="orElse_supplier"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "orElse_supplier"}
      *
      * @param supplier the alternative validation supplier.
-     * @param <U>      the common type.
      */
     @SuppressWarnings("unchecked")
     default <U> Validation<U> orElse(Supplier<? extends Validation<? extends U>> supplier) {
@@ -152,11 +150,10 @@ public sealed interface Validation<T> extends Iterable<T> {
      * otherwise, does nothing. This method is an alias for {@link #peek(Consumer)}.
      *
      * <p>Example:
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="whenValid"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "whenValid"}
      *
      * @param consumer a consumer to apply to the contained value.
      * @return this {@code Validation} instance.
-     * @throws NullPointerException if {@code consumer} is null.
      * @see #peek(Consumer)
      */
     default Validation<T> whenValid(Consumer<T> consumer) {
@@ -168,11 +165,8 @@ public sealed interface Validation<T> extends Iterable<T> {
      * otherwise, does nothing.
      *
      * <p>Example:
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="whenInvalid"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "whenInvalid"}
      *
-     * @param consumer a consumer to apply to the contained errors.
-     * @return this {@code Validation} instance.
-     * @throws NullPointerException if {@code consumer} is null.
      */
     default Validation<T> whenInvalid(Consumer<List<ErrorMessage>> consumer) {
         if (!isValid()) {
@@ -195,11 +189,8 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Transforms the valid value using the provided mapper.
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="map"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "map"}
      *
-     * @param mapper the function to apply to the valid value.
-     * @param <R>    the type of the result of the mapper function.
-     * @return a new {@link Validation} containing the mapped value if valid, or the original errors if invalid.
      */
     default <R> Validation<R> map(Function<? super T, ? extends R> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
@@ -221,14 +212,11 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Error key: {@code could.not.be.mapped} but not if the mapper threw a {@link ValidationException}, in that case it's errors are used.
      *
      * <p>Example: successful mapping
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="mapCatching_success"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "mapCatching_success"}
      *
      * <p>Example: mapping that throws a RuntimeException
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="mapCatching_runtimeException"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "mapCatching_runtimeException"}
      *
-     * @param mapper the function to apply to the valid value.
-     * @param <R>    the type of the result of the mapper function.
-     * @return a new {@link Validation} containing the mapped value if valid, or this if invalid
      */
     default <R> Validation<R> mapCatching(Function<? super T, ? extends R> mapper) {
         return mapCatching(mapper, "could.not.be.mapped");
@@ -243,12 +231,8 @@ public sealed interface Validation<T> extends Iterable<T> {
      * {@link ValidationException}s that are thrown are handled cleanly, accumulating the errors present.
      *
      * <p>Example: mapping that throws a RuntimeException with custom error message
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="mapCatching_customError"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "mapCatching_customError"}
      *
-     * @param mapper       the function to apply to the valid value.
-     * @param errorMessage the error message key to use if a {@link RuntimeException} is caught.
-     * @param <R>          the type of the result of the mapper function.
-     * @return a new {@link Validation} containing the mapped value if valid, or this if invalid
      */
     default <R> Validation<R> mapCatching(Function<? super T, ? extends R> mapper, String errorMessage) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
@@ -269,11 +253,8 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Maps a valid value to a new validation, or returns this if invalid.
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="flatMap"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "flatMap"}
      *
-     * @param flatMapper the function to apply to the valid value.
-     * @param <R>        the type of the result of the flatMapper function.
-     * @return the result of the flatMapper, or this if invalid.
      */
     default <R> Validation<R> flatMap(Function1<? super T, Validation<? extends R>> flatMapper) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
@@ -291,13 +272,10 @@ public sealed interface Validation<T> extends Iterable<T> {
      * {@link ValidationException}s that are thrown are handled cleanly, accumulating the errors present.
      *
      * <p>Example: successful flatMapping
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="flatMapCatching_success"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "flatMapCatching_success"}
      *
      * <p>Example: flatMapping that throws a RuntimeException
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="flatMapCatching_runtimeException"}
-     *
-     * @param flatMapper the function to apply to the valid value.
-     * @param <R>        the type of the result of the flatMapper function.
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "flatMapCatching_runtimeException"}
      */
     default <R> Validation<R> flatMapCatching(Function1<? super T, Validation<? extends R>> flatMapper) {
         return flatMapCatching(flatMapper, "could.not.be.mapped");
@@ -311,11 +289,8 @@ public sealed interface Validation<T> extends Iterable<T> {
      * {@link ValidationException}s that are thrown are handled cleanly, accumulating the errors present.
      *
      * <p>Example: flatMapping that throws a RuntimeException with custom error message
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="flatMapCatching_customError"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "flatMapCatching_customError"}
      *
-     * @param flatMapper   the function to apply to the valid value.
-     * @param errorMessage the error message key to use if a {@link RuntimeException} is caught.
-     * @param <R>          the type of the result of the flatMapper function.
      */
     default <R> Validation<R> flatMapCatching(Function1<? super T, Validation<? extends R>> flatMapper, String errorMessage) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
@@ -336,12 +311,8 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Folds this validation into a single value by applying one of two functions.
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="fold"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "fold"}
      *
-     * @param whenInvalid the function to apply if this validation is invalid.
-     * @param whenValid   the function to apply if this validation is valid.
-     * @param <R>         the type of the result.
-     * @return the result of applying the appropriate function.
      */
     default <R> R fold(Function1<List<ErrorMessage>, ? extends R> whenInvalid, Function1<? super T, ? extends R> whenValid) {
         Objects.requireNonNull(whenInvalid, "whenInvalid cannot be null");
@@ -363,10 +334,6 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Applies a filter to the current validation logic using the specified predicate and error message.
      * This method refines the validation by adding a rule that fails if the provided predicate fails.
-     *
-     * @param predicate    the condition to be checked against the input
-     * @param errorMessage the error message to be returned if the predicate fails
-     * @return a new Validation instance with the applied filter
      */
     default Validation<T> filter(Predicate<? super T> predicate, ErrorMessage errorMessage) {
         Rule<T> rule = Rule.narrow(Rule.of(predicate, errorMessage));
@@ -376,10 +343,6 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Applies a filter to the current validation logic using the specified predicate and error message key.
      * This method refines the validation by adding a rule that fails if the provided predicate fails.
-     *
-     * @param predicate the condition to be checked against the input
-     * @param errorKey  the error message key to be returned if the predicate fails
-     * @return a new Validation instance with the applied filter
      */
     default Validation<T> filter(Predicate<? super T> predicate, String errorKey) {
         return filter(predicate, ErrorMessage.of(errorKey));
@@ -391,9 +354,6 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Maps the error messages of an invalid validation using the provided mapper function.
      * If this validation is valid, the mapper is not applied.
-     *
-     * @param mapper the function to apply to the list of error messages.
-     * @return a new {@link Validation} containing the mapped errors if invalid, or the original valid value.
      */
     default Validation<T> mapErrors(Function1<List<ErrorMessage>, List<ErrorMessage>> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
@@ -417,7 +377,7 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Maps error messages by prepending the propertyName for the given selector to the segments of each error message.
      *
-     * @param selector  The selector for the value that was validated (e.g., SomeRecord::someField or SomeBean::getProperty).
+     * @param selector The selector for the value that was validated (e.g., SomeRecord::someField or SomeBean::getProperty).
      */
     default <ANY> Validation<T> at(PropertySelector<ANY, T> selector) {
         return mapErrors(errors -> errors.map(error -> error.prepend(ErrorMessage.Path.of(selector.getPropertyName()))));
@@ -431,14 +391,12 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If any validation is invalid, the result will contain all accumulated errors.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="transpose_seq"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "transpose_seq"}
      *
      * @param validations the sequence of validations to sequence.
-     * @param <T>         the value type.
-     * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
      */
     static <T> Validation<List<T>> transpose(Seq<? extends Validation<? extends T>> validations) {
-       return transpose(validations,"");
+        return transpose(validations, "");
     }
 
     /**
@@ -446,13 +404,11 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If any validation is invalid, the result will contain all accumulated errors.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="transpose_seq"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "transpose_seq"}
      *
      * @param validations the sequence of validations to sequence.
-     * @param at the path entry under which the errors will be mapped. e.g. at "foo" will get erromessages like "foo[1].some.message"
-     *           if the second entry in the list is invalid.
-     * @param <T>         the value type.
-     * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
+     * @param at          the path entry under which the errors will be mapped. e.g. at "foo" will get erromessages like "foo[1].some.message"
+     *                    if the second entry in the list is invalid.
      */
     static <T> Validation<List<T>> transpose(Seq<? extends Validation<? extends T>> validations, String at) {
         return validations
@@ -484,7 +440,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the Option is empty, the resulting Validation is considered to be {@link Valid}
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="transpose_option"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "transpose_option"}
      *
      */
     static <T> Validation<Option<T>> transpose(Option<? extends Validation<? extends T>> option) {
@@ -499,7 +455,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the Optional is empty, the resulting Validation is considered to be {@link Valid}
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="transpose_optional"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "transpose_optional"}
      *
      */
     static <T> Validation<Optional<T>> transpose(Optional<? extends Validation<? extends T>> option) {
@@ -512,10 +468,9 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If any validation is invalid, the result will contain all accumulated errors.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="transpose_collection"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "transpose_collection"}
      *
      * @param validations the collection of validations to sequence.
-     * @param <T>         the value type.
      * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
      */
     static <T> Validation<java.util.List<T>> transpose(java.util.Collection<Validation<T>> validations) {
@@ -528,10 +483,9 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If any validation is invalid, the result will contain all accumulated errors.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/ValidationSnippets.java" region="transpose_collection"}
+     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "transpose_collection"}
      *
      * @param validations the collection of validations to sequence.
-     * @param <T>         the value type.
      * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
      */
     static <T> Validation<java.util.List<T>> transpose(java.util.Collection<Validation<T>> validations, String at) {
@@ -546,15 +500,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Maps two {@link Validation}s using the provided mapper function.
      * If all validations are valid, the result is a valid {@link Validation} containing the mapped value.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     *
-     * @param v1     the first validation.
-     * @param v2     the second validation.
-     * @param mapper the mapper function.
-     * @param <R>    the result type.
-     * @param <T1>   the value type of the first validation.
-     * @param <T2>   the value type of the second validation.
-     * @return a new {@link Validation} instance.
-     * @throws NullPointerException if any argument is null.
      */
     static <R, T1, T2> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Function2<? super T1, ? super T2, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
@@ -572,15 +517,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Maps two {@link Validation}s to a new validation using the provided flatMapper function.
      * If all validations are valid, the result is the result of the flatMapper.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     *
-     * @param v1     the first validation.
-     * @param v2     the second validation.
-     * @param mapper the flatMapper function.
-     * @param <R>    the result type.
-     * @param <T1>   the value type of the first validation.
-     * @param <T2>   the value type of the second validation.
-     * @return a new {@link Validation} instance.
-     * @throws NullPointerException if any argument is null.
      */
     static <R, T1, T2> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Function2<? super T1, ? super T2, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
@@ -598,17 +534,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Maps three {@link Validation}s using the provided mapper function.
      * If all validations are valid, the result is a valid {@link Validation} containing the mapped value.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     *
-     * @param v1     the first validation.
-     * @param v2     the second validation.
-     * @param v3     the third validation.
-     * @param mapper the mapper function.
-     * @param <R>    the result type.
-     * @param <T1>   the value type of the first validation.
-     * @param <T2>   the value type of the second validation.
-     * @param <T3>   the value type of the third validation.
-     * @return a new {@link Validation} instance.
-     * @throws NullPointerException if any argument is null.
      */
     static <R, T1, T2, T3> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Function3<? super T1, ? super T2, ? super T3, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
@@ -627,17 +552,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Maps three {@link Validation}s to a new validation using the provided flatMapper function.
      * If all validations are valid, the result is the result of the flatMapper.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     *
-     * @param v1     the first validation.
-     * @param v2     the second validation.
-     * @param v3     the third validation.
-     * @param mapper the flatMapper function.
-     * @param <R>    the result type.
-     * @param <T1>   the value type of the first validation.
-     * @param <T2>   the value type of the second validation.
-     * @param <T3>   the value type of the third validation.
-     * @return a new {@link Validation} instance.
-     * @throws NullPointerException if any argument is null.
      */
     static <R, T1, T2, T3> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Function3<? super T1, ? super T2, ? super T3, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
@@ -656,19 +570,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Maps four {@link Validation}s using the provided mapper function.
      * If all validations are valid, the result is a valid {@link Validation} containing the mapped value.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     *
-     * @param v1     the first validation.
-     * @param v2     the second validation.
-     * @param v3     the third validation.
-     * @param v4     the fourth validation.
-     * @param mapper the mapper function.
-     * @param <R>    the result type.
-     * @param <T1>   the value type of the first validation.
-     * @param <T2>   the value type of the second validation.
-     * @param <T3>   the value type of the third validation.
-     * @param <T4>   the value type of the fourth validation.
-     * @return a new {@link Validation} instance.
-     * @throws NullPointerException if any argument is null.
      */
     static <R, T1, T2, T3, T4> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Function4<? super T1, ? super T2, ? super T3, ? super T4, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
@@ -690,19 +591,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Maps four {@link Validation}s to a new validation using the provided flatMapper function.
      * If all validations are valid, the result is the result of the flatMapper.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     *
-     * @param v1     the first validation.
-     * @param v2     the second validation.
-     * @param v3     the third validation.
-     * @param v4     the fourth validation.
-     * @param mapper the flatMapper function.
-     * @param <R>    the result type.
-     * @param <T1>   the value type of the first validation.
-     * @param <T2>   the value type of the second validation.
-     * @param <T3>   the value type of the third validation.
-     * @param <T4>   the value type of the fourth validation.
-     * @return a new {@link Validation} instance.
-     * @throws NullPointerException if any argument is null.
      */
     static <R, T1, T2, T3, T4> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Function4<? super T1, ? super T2, ? super T3, ? super T4, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
@@ -724,21 +612,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Maps five {@link Validation}s using the provided mapper function.
      * If all validations are valid, the result is a valid {@link Validation} containing the mapped value.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     *
-     * @param v1     the first validation.
-     * @param v2     the second validation.
-     * @param v3     the third validation.
-     * @param v4     the fourth validation.
-     * @param v5     the fifth validation.
-     * @param mapper the mapper function.
-     * @param <R>    the result type.
-     * @param <T1>   the value type of the first validation.
-     * @param <T2>   the value type of the second validation.
-     * @param <T3>   the value type of the third validation.
-     * @param <T4>   the value type of the fourth validation.
-     * @param <T5>   the value type of the fifth validation.
-     * @return a new {@link Validation} instance.
-     * @throws NullPointerException if any argument is null.
      */
     static <R, T1, T2, T3, T4, T5> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
@@ -760,21 +633,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Maps five {@link Validation}s to a new validation using the provided flatMapper function.
      * If all validations are valid, the result is the result of the flatMapper.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     *
-     * @param v1     the first validation.
-     * @param v2     the second validation.
-     * @param v3     the third validation.
-     * @param v4     the fourth validation.
-     * @param v5     the fifth validation.
-     * @param mapper the flatMapper function.
-     * @param <R>    the result type.
-     * @param <T1>   the value type of the first validation.
-     * @param <T2>   the value type of the second validation.
-     * @param <T3>   the value type of the third validation.
-     * @param <T4>   the value type of the fourth validation.
-     * @param <T5>   the value type of the fifth validation.
-     * @return a new {@link Validation} instance.
-     * @throws NullPointerException if any argument is null.
      */
     static <R, T1, T2, T3, T4, T5> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
@@ -797,23 +655,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Maps six {@link Validation}s using the provided mapper function.
      * If all validations are valid, the result is a valid {@link Validation} containing the mapped value.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     *
-     * @param v1     the first validation.
-     * @param v2     the second validation.
-     * @param v3     the third validation.
-     * @param v4     the fourth validation.
-     * @param v5     the fifth validation.
-     * @param v6     the sixth validation.
-     * @param mapper the mapper function.
-     * @param <R>    the result type.
-     * @param <T1>   the value type of the first validation.
-     * @param <T2>   the value type of the second validation.
-     * @param <T3>   the value type of the third validation.
-     * @param <T4>   the value type of the fourth validation.
-     * @param <T5>   the value type of the fifth validation.
-     * @param <T6>   the value type of the sixth validation.
-     * @return a new {@link Validation} instance.
-     * @throws NullPointerException if any argument is null.
      */
     static <R, T1, T2, T3, T4, T5, T6> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Function6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
@@ -837,23 +678,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Maps six {@link Validation}s to a new validation using the provided flatMapper function.
      * If all validations are valid, the result is the result of the flatMapper.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     *
-     * @param v1     the first validation.
-     * @param v2     the second validation.
-     * @param v3     the third validation.
-     * @param v4     the fourth validation.
-     * @param v5     the fifth validation.
-     * @param v6     the sixth validation.
-     * @param mapper the flatMapper function.
-     * @param <R>    the result type.
-     * @param <T1>   the value type of the first validation.
-     * @param <T2>   the value type of the second validation.
-     * @param <T3>   the value type of the third validation.
-     * @param <T4>   the value type of the fourth validation.
-     * @param <T5>   the value type of the fifth validation.
-     * @param <T6>   the value type of the sixth validation.
-     * @return a new {@link Validation} instance.
-     * @throws NullPointerException if any argument is null.
      */
     static <R, T1, T2, T3, T4, T5, T6> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Function6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
@@ -877,25 +701,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Maps seven {@link Validation}s using the provided mapper function.
      * If all validations are valid, the result is a valid {@link Validation} containing the mapped value.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     *
-     * @param v1     the first validation.
-     * @param v2     the second validation.
-     * @param v3     the third validation.
-     * @param v4     the fourth validation.
-     * @param v5     the fifth validation.
-     * @param v6     the sixth validation.
-     * @param v7     the seventh validation.
-     * @param mapper the mapper function.
-     * @param <R>    the result type.
-     * @param <T1>   the value type of the first validation.
-     * @param <T2>   the value type of the second validation.
-     * @param <T3>   the value type of the third validation.
-     * @param <T4>   the value type of the fourth validation.
-     * @param <T5>   the value type of the fifth validation.
-     * @param <T6>   the value type of the sixth validation.
-     * @param <T7>   the value type of the seventh validation.
-     * @return a new {@link Validation} instance.
-     * @throws NullPointerException if any argument is null.
      */
     static <R, T1, T2, T3, T4, T5, T6, T7> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Function7<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
@@ -922,25 +727,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Maps seven {@link Validation}s to a new validation using the provided flatMapper function.
      * If all validations are valid, the result is the result of the flatMapper.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     *
-     * @param v1     the first validation.
-     * @param v2     the second validation.
-     * @param v3     the third validation.
-     * @param v4     the fourth validation.
-     * @param v5     the fifth validation.
-     * @param v6     the sixth validation.
-     * @param v7     the seventh validation.
-     * @param mapper the flatMapper function.
-     * @param <R>    the result type.
-     * @param <T1>   the value type of the first validation.
-     * @param <T2>   the value type of the second validation.
-     * @param <T3>   the value type of the third validation.
-     * @param <T4>   the value type of the fourth validation.
-     * @param <T5>   the value type of the fifth validation.
-     * @param <T6>   the value type of the sixth validation.
-     * @param <T7>   the value type of the seventh validation.
-     * @return a new {@link Validation} instance.
-     * @throws NullPointerException if any argument is null.
      */
     static <R, T1, T2, T3, T4, T5, T6, T7> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Function7<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
@@ -967,27 +753,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Maps eight {@link Validation}s using the provided mapper function.
      * If all validations are valid, the result is a valid {@link Validation} containing the mapped value.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     *
-     * @param v1     the first validation.
-     * @param v2     the second validation.
-     * @param v3     the third validation.
-     * @param v4     the fourth validation.
-     * @param v5     the fifth validation.
-     * @param v6     the sixth validation.
-     * @param v7     the seventh validation.
-     * @param v8     the eighth validation.
-     * @param mapper the mapper function.
-     * @param <R>    the result type.
-     * @param <T1>   the value type of the first validation.
-     * @param <T2>   the value type of the second validation.
-     * @param <T3>   the value type of the third validation.
-     * @param <T4>   the value type of the fourth validation.
-     * @param <T5>   the value type of the fifth validation.
-     * @param <T6>   the value type of the sixth validation.
-     * @param <T7>   the value type of the seventh validation.
-     * @param <T8>   the value type of the eighth validation.
-     * @return a new {@link Validation} instance.
-     * @throws NullPointerException if any argument is null.
      */
     static <R, T1, T2, T3, T4, T5, T6, T7, T8> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Validation<? extends T8> v8, Function8<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? super T8, ? extends R> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
@@ -1015,27 +780,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Maps eight {@link Validation}s to a new validation using the provided flatMapper function.
      * If all validations are valid, the result is the result of the flatMapper.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     *
-     * @param v1     the first validation.
-     * @param v2     the second validation.
-     * @param v3     the third validation.
-     * @param v4     the fourth validation.
-     * @param v5     the fifth validation.
-     * @param v6     the sixth validation.
-     * @param v7     the seventh validation.
-     * @param v8     the eighth validation.
-     * @param mapper the flatMapper function.
-     * @param <R>    the result type.
-     * @param <T1>   the value type of the first validation.
-     * @param <T2>   the value type of the second validation.
-     * @param <T3>   the value type of the third validation.
-     * @param <T4>   the value type of the fourth validation.
-     * @param <T5>   the value type of the fifth validation.
-     * @param <T6>   the value type of the sixth validation.
-     * @param <T7>   the value type of the seventh validation.
-     * @param <T8>   the value type of the eighth validation.
-     * @return a new {@link Validation} instance.
-     * @throws NullPointerException if any argument is null.
      */
     static <R, T1, T2, T3, T4, T5, T6, T7, T8> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Validation<? extends T8> v8, Function8<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? super T8, Validation<? extends R>> mapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
@@ -1065,10 +809,7 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Creates a successful validation containing the provided value.
-     *
-     * @param value the value.
-     * @param <T>   the value type.
-     * @return a valid {@link Validation} instance.
+     * Null is technically allowed as a valid value but highly discouraged.
      */
     static <T> Validation<T> valid(T value) {
         return new Valid<>(value);
@@ -1076,11 +817,6 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Creates an invalid validation with the provided error messages.
-     *
-     * @param error      the first error message.
-     * @param moreErrors additional error messages.
-     * @param <T>        the result type.
-     * @return an invalid {@link Validation} instance.
      */
     @SuppressWarnings("unchecked")
     static <T> Validation<T> invalid(ErrorMessage error, ErrorMessage... moreErrors) {
@@ -1089,10 +825,6 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Creates an invalid validation with a single error message key.
-     *
-     * @param errorMessage the error message key.
-     * @param <T>          the result type.
-     * @return an invalid {@link Validation} instance.
      */
     @SuppressWarnings("unchecked")
     static <T> Validation<T> invalid(String errorMessage) {
@@ -1101,10 +833,6 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Creates an invalid validation with the provided list of error messages.
-     *
-     * @param errors the list of error messages.
-     * @param <T>    the result type.
-     * @return an invalid {@link Validation} instance.
      */
     @SuppressWarnings("unchecked")
     static <T> Validation<T> invalid(List<ErrorMessage> errors) {
@@ -1121,10 +849,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the supplier throws any other exception, the exception will be propagated.
      * This method is meant for interoperability with code that can throw {@link ValidationException}, for example
      * when using the "validate in constructor" pattern.
-     *
-     * @param supplier the supplier of the value.
-     * @param <T>      the value type.
-     * @return a {@link Validation} instance.
      */
     static <T> Validation<T> from(Supplier<? extends T> supplier) {
         try {
@@ -1138,11 +862,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Creates a {@link Validation} from a {@link Try}.
      * If the {@link Try} is successful, the returned validation will be valid with the value.
      * If the {@link Try} is failed, the returned validation will be invalid with the provided error message.
-     *
-     * @param _try         the try instance.
-     * @param errorMessage the error message to use if failed.
-     * @param <T>          the value type.
-     * @return a {@link Validation} instance.
      */
     static <T> Validation<T> from(Try<? extends T> _try, ErrorMessage errorMessage) {
         return _try.fold(
@@ -1155,11 +874,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Creates a {@link Validation} from a {@link Try}.
      * If the {@link Try} is successful, the returned validation will be valid with the value.
      * If the {@link Try} is failed, the returned validation will be invalid with the provided error message.
-     *
-     * @param _try         the try instance.
-     * @param errorKey     the errorKey to use if failed.
-     * @param <T>          the value type.
-     * @return a {@link Validation} instance.
      */
     static <T> Validation<T> from(Try<? extends T> _try, String errorKey) {
         return from(_try, ErrorMessage.of(errorKey));
@@ -1169,10 +883,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Creates a {@link Validation} from a {@link Try}.
      * If the {@link Try} is successful, the returned validation will be valid with the value.
      * If the {@link Try} is failed, the returned validation will be invalid with the message of the thrown exception.
-     *
-     * @param _try the try instance.
-     * @param <T>  the value type.
-     * @return a {@link Validation} instance.
      */
     static <T> Validation<T> from(Try<? extends T> _try) {
         return _try.fold(
@@ -1221,9 +931,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Creates a {@link Validation} from an {@link Either}.
      * If the {@link Either} is right, the returned validation will be valid with the value.
      * If the {@link Either} is left, the returned validation will be invalid with the error message mapped from the left value.
-     *
-     * @param errorMapper the function to map the left value to an error message.
-     * @return a {@link Validation} instance.
      */
     static <L, R> Validation<R> from(Either<L, ? extends R> either, Function1<? super L, ErrorMessage> errorMapper) {
         return either.fold(
@@ -1290,15 +997,11 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Executes the given action on the contained value if this {@code Validation} is valid;
      * otherwise, does nothing.
-     *
-     * @param action a consumer to apply to the contained value.
-     * @return this {@code Validation} instance.
-     * @throws NullPointerException if {@code action} is null.
      */
     default Validation<T> peek(Consumer<? super T> action) {
         Objects.requireNonNull(action, "action cannot be null");
         if (isValid()) {
-            action.accept(((Valid<T>)this).get());
+            action.accept(((Valid<T>) this).get());
         }
         return this;
     }
@@ -1313,9 +1016,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Represents a successful validation.
      */
     record Valid<T>(T value) implements Validation<T> {
-        public Valid {
-        }
-
 
         @Override
         public List<ErrorMessage> errors() {

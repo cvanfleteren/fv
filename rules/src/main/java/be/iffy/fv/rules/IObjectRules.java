@@ -13,7 +13,6 @@ import java.util.Objects;
 /**
  * Common validation rules for any {@link Object}.
  *
- * @param <T> the type of objects.
  */
 public interface IObjectRules<T> {
 
@@ -23,11 +22,13 @@ public interface IObjectRules<T> {
      * Error key: {@code must.be.equal}
      *
      * @param value the required value.
-     * @return a {@link Rule} checking for equality.
      */
     default Rule<T> equalTo(T value) {
         Objects.requireNonNull(value, "value cannot be null");
-        return Rule.notNull().and(Rule.of(o -> Objects.equals(o, value), "must.be.equal"));
+        return Rule.of(
+                o -> Objects.equals(o, value),
+                "must.be.equal"
+        );
     }
 
     /**
@@ -36,11 +37,13 @@ public interface IObjectRules<T> {
      * Error key: {@code must.not.be.equal}
      *
      * @param value the forbidden value.
-     * @return a {@link Rule} checking for inequality.
      */
     default Rule<T> notEqualTo(T value) {
         Objects.requireNonNull(value, "value cannot be null");
-        return Rule.notNull().and(Rule.of(o -> !Objects.equals(o, value), "must.not.be.equal"));
+        return Rule.of(
+                o -> !Objects.equals(o, value),
+                "must.not.be.equal"
+        );
     }
 
     /**
@@ -54,7 +57,6 @@ public interface IObjectRules<T> {
      * </ul>
      *
      * @param values the allowed values.
-     * @return a {@link Rule} checking if the value is one of the allowed values.
      */
     default Rule<T> oneOf(T... values) {
         return oneOf(HashSet.of(values));
@@ -71,10 +73,12 @@ public interface IObjectRules<T> {
      * </ul>
      *
      * @param values the allowed values.
-     * @return a {@link Rule} checking if the value is one of the allowed values.
      */
     default Rule<T> oneOf(Set<T> values) {
-        return Rule.notNull().and(Rule.of(values::contains, ErrorMessage.of("must.be.one.of", HashMap.of("values", values))));
+        return Rule.of(
+                values::contains,
+                ErrorMessage.of("must.be.one.of", HashMap.of("values", values))
+        );
     }
 
     /**
@@ -104,7 +108,10 @@ public interface IObjectRules<T> {
      * </ul>
      */
     default Rule<T> notOneOf(Set<T> values) {
-        return Rule.notNull().and(Rule.of(o -> !values.contains(o), ErrorMessage.of("must.not.be.one.of", HashMap.of("values", values))));
+        return Rule.of(
+                o -> !values.contains(o),
+                ErrorMessage.of("must.not.be.one.of", HashMap.of("values", values))
+        );
     }
 
     /**
@@ -118,13 +125,15 @@ public interface IObjectRules<T> {
      * </ul>
      */
     default <U> MappingRule<Object, U> instanceOf(Class<U> clazz) {
-        return input -> MappingRule.notNull().test(input).flatMap(i -> {
-            if (clazz.isInstance(i)) {
-                return Validation.valid(clazz.cast(i));
+        return input -> {
+            if (clazz.isInstance(input)) {
+                return Validation.valid(clazz.cast(input));
+            } else if (input == null) {
+                return Validation.invalid("must.not.be.null");
             } else {
                 return Validation.invalid(ErrorMessage.of("must.be.instance", HashMap.of("of", clazz)));
             }
-        });
+        };
     }
 
 }

@@ -198,16 +198,16 @@ class VavrListRulesTest {
 
         @Test
         void valid() {
-            Rule<List<Integer>> noEvens = vavrLists.noneMatch(ints().even().toPredicate());
+            Rule<List<Integer>> noEvens = vavrLists.noneMatch(ints.even().toPredicate());
             validTest(List.of(1, 3, 5), noEvens);
-            validTest(List.of(), vavrLists.noneMatch(ints().even().toPredicate()));
+            validTest(List.of(), vavrLists.noneMatch(ints.even().toPredicate()));
             validTest(List.of("a", "bbb", "cccc"), vavrLists.noneMatchRule(strings.length(2)));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, vavrLists.noneMatch(ints().even().toPredicate()), "must.not.be.null");
-            invalidTest(List.of(1, 2, 3), vavrLists.noneMatch(ints().even().toPredicate()), "must.none.match");
+            invalidTest(null, vavrLists.noneMatch(ints.even().toPredicate()), "must.not.be.null");
+            invalidTest(List.of(1, 2, 3), vavrLists.noneMatch(ints.even().toPredicate()), "must.none.match");
             invalidTest(
                     List.of("a", "bb", "c"),
                     vavrLists.noneMatch((String s) -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")),
@@ -434,7 +434,7 @@ class VavrListRulesTest {
         void invalid() {
             invalidTest(null, vavrLists.validateValuesWith(Rule.of(n -> true, "")), "must.not.be.null");
 
-            Rule<List<Integer>> listRule = vavrLists.validateValuesWith(ints().positive());
+            Rule<List<Integer>> listRule = vavrLists.validateValuesWith(ints.positive());
 
             invalidTest(List.of(-1, 10), listRule, "must.be.positive").hasErrorMessages("[0].must.be.positive");
             invalidTest(List.of(10, 0), listRule, "must.be.positive").hasErrorMessages("[1].must.be.positive");

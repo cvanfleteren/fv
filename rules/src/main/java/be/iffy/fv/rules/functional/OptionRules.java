@@ -55,13 +55,13 @@ public class OptionRules {
      *
      * @param rule the rule to apply to the value inside the {@link Option}
      */
-    public <T,Z> MappingRule<Option<T>, Z> required(MappingRule<T,Z> rule) {
+    public <T, Z> MappingRule<Option<T>, Z> required(MappingRule<T, Z> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
         return rule.liftToOption().andThen(opt -> opt.fold(() -> Validation.invalid("must.not.be.empty"), Validation::valid));
     }
 
     /**
-     * Fails if the {@link Option} is empty while or doesn't contain a value that passes the passed rule.
+     * Fails if the {@link Option} is empty or doesn't contain a value that passes the passed rule.
      * <p>
      * Error key: {@code must.not.be.empty} or the key of the passed rule
      * <p>
@@ -80,11 +80,11 @@ public class OptionRules {
      * Usage example:
      * {@snippet file = "be/iffy/fv/rules/functional/OptionSnippets.java" region = "not-empty-example"}
      *
-     * @param <T> the type of the value contained in the Option
      */
     public <T> Rule<Option<T>> notEmpty() {
-        return Rule.notNull().and(input ->
-                input.isEmpty() ? Validation.invalid("must.not.be.empty") : Validation.valid(input)
+        return Rule.of(
+                input -> !input.isEmpty(),
+                "must.not.be.empty"
         );
     }
 
@@ -93,11 +93,11 @@ public class OptionRules {
      * <p>
      * Error key: {@code must.be.empty}
      *
-     * @param <T> the type of the value contained in the Option
      */
     public <T> Rule<Option<T>> empty() {
-        return Rule.notNull().and(input ->
-                input.isEmpty() ? Validation.valid(input) : Validation.invalid("must.be.empty")
+        return Rule.of(
+                input -> input.isEmpty(),
+                "must.be.empty"
         );
     }
 

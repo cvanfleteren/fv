@@ -17,24 +17,19 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
      */
     public static final BigIntegerRules bigInts = new BigIntegerRules();
 
-    /**
-     * Returns the singleton instance of {@link BigIntegerRules}.
-     */
-    public static BigIntegerRules bigInts() {
-        return bigInts;
-    }
-
     //region sign related
+
     /**
      * Fails if the {@link BigInteger} is not positive (not greater than zero).
      * <p>
      * Error key: {@code must.be.positive}
-     *
-     * @return a {@link Rule} checking for positive values.
      */
     @Override
     public Rule<BigInteger> positive() {
-        return Rule.notNull().and(Rule.of(b -> b.signum() == 1, "must.be.positive"));
+        return Rule.of(
+                b -> b.signum() == 1,
+                "must.be.positive"
+        );
     }
 
     /**
@@ -42,11 +37,13 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
      * <p>
      * Error key: {@code must.be.non.negative}
      *
-     * @return a {@link Rule} checking for non-negative values.
      */
     @Override
     public Rule<BigInteger> nonNegative() {
-        return Rule.notNull().and(Rule.of(b -> b.signum() > -1, "must.be.non.negative"));
+        return Rule.of(
+                b -> b.signum() > -1,
+                "must.be.non.negative"
+        );
     }
 
     /**
@@ -54,11 +51,13 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
      * <p>
      * Error key: {@code must.be.negative}
      *
-     * @return a {@link Rule} checking for negative values.
      */
     @Override
     public Rule<BigInteger> negative() {
-        return Rule.notNull().and(Rule.of(b -> b.signum() == -1, "must.be.negative"));
+        return Rule.of(
+                b -> b.signum() == -1,
+                "must.be.negative"
+        );
     }
 
     /**
@@ -66,11 +65,13 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
      * <p>
      * Error key: {@code must.be.non.positive}
      *
-     * @return a {@link Rule} checking for non-positive values.
      */
     @Override
     public Rule<BigInteger> nonPositive() {
-        return Rule.notNull().and(Rule.of(b -> b.signum() < 1, "must.be.non.positive"));
+        return Rule.of(
+                b -> b.signum() < 1,
+                "must.be.non.positive"
+        );
     }
 
     /**
@@ -78,11 +79,13 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
      * <p>
      * Error key: {@code must.be.zero}
      *
-     * @return a {@link Rule} checking for zero values.
      */
     @Override
     public Rule<BigInteger> zero() {
-        return Rule.notNull().and(Rule.of(b -> b.signum() == 0, "must.be.zero"));
+        return Rule.of(
+                b -> b.signum() == 0,
+                "must.be.zero"
+        );
     }
 
     /**
@@ -90,24 +93,29 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
      * <p>
      * Error key: {@code must.not.be.zero}
      *
-     * @return a {@link Rule} checking for non-zero values.
      */
     @Override
     public Rule<BigInteger> nonZero() {
-        return Rule.notNull().and(Rule.of(b -> b.signum() != 0, "must.not.be.zero"));
+        return Rule.of(
+                b -> b.signum() != 0,
+                "must.not.be.zero"
+        );
     }
     //endregion
 
     //region parity related
+
     /**
      * Fails if the {@link BigInteger} is not odd.
      * <p>
      * Error key: {@code must.be.odd}
      *
-     * @return a {@link Rule} checking for odd values.
      */
     public Rule<BigInteger> odd() {
-        return Rule.notNull().and(Rule.of(b -> b.testBit(0), "must.be.odd"));
+        return Rule.of(
+                b -> b.testBit(0),
+                "must.be.odd"
+        );
     }
 
     /**
@@ -115,14 +123,17 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
      * <p>
      * Error key: {@code must.be.even}
      *
-     * @return a {@link Rule} checking for even values.
      */
     public Rule<BigInteger> even() {
-        return Rule.notNull().and(Rule.of(b -> !b.testBit(0), "must.be.even"));
+        return Rule.of(
+                b -> !b.testBit(0),
+                "must.be.even"
+        );
     }
     //endregion
 
     //region comparisons
+
     /**
      * Fails if the value is less than the specified minimum.
      * <p>
@@ -134,13 +145,12 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
      * </ul>
      *
      * @param minInclusive the minimum allowed value (inclusive).
-     * @return a {@link Rule} checking the minimum value.
      */
     public Rule<BigInteger> min(BigInteger minInclusive) {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 b -> b.compareTo(minInclusive) >= 0,
                 ErrorMessage.of("must.be.at.least", "min", minInclusive)
-        ));
+        );
     }
 
     /**
@@ -154,13 +164,12 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
      * </ul>
      *
      * @param maxInclusive the maximum allowed value (inclusive).
-     * @return a {@link Rule} checking the maximum value.
      */
     public Rule<BigInteger> max(BigInteger maxInclusive) {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 b -> b.compareTo(maxInclusive) <= 0,
                 ErrorMessage.of("must.be.at.most", "max", maxInclusive)
-        ));
+        );
     }
     //endregion
 

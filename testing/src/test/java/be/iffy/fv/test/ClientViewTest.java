@@ -16,7 +16,7 @@ import java.util.function.Function;
 import static be.iffy.fv.MappingRule.requiredOption;
 import static be.iffy.fv.dsl.DSL.assertAllValid;
 import static be.iffy.fv.dsl.DSL.validateThat;
-import static be.iffy.fv.dsl.ValidatingDSL.validating;
+import static be.iffy.fv.dsl.DSL.validating;
 import static be.iffy.fv.dsl.experimental.Validator.validatorFor;
 import static be.iffy.fv.rules.BooleanRules.booleans;
 import static be.iffy.fv.rules.ObjectRules.objects;
@@ -60,10 +60,10 @@ public class ClientViewTest {
 
 
         Function<TestDTO, Validation<Mandate>> mapper = testDto -> {
-            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = requiredOption(objects().isEnum(MandateInfo.AmendmentType.class));
+            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = requiredOption(objects.isEnum(MandateInfo.AmendmentType.class));
             MappingRule<Option<String>, String> originalValueRule = MappingRule.requiredOption(strings.notBlank());
 
-            Validation<Boolean> amendmentV = objects().<Boolean>notNull().test(testDTO.amendment);
+            Validation<Boolean> amendmentV = objects.<Boolean>notNull().test(testDTO.amendment);
 
 
             return amendmentV.flatMap(value -> {
@@ -95,7 +95,7 @@ public class ClientViewTest {
 
 
         Function<TestDTO, Validation<Mandate>> mapper = testDto -> {
-            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = options.required(objects().isEnum(MandateInfo.AmendmentType.class));
+            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = options.required(objects.isEnum(MandateInfo.AmendmentType.class));
             MappingRule<Option<String>, String> originalValueRule =  options.required((strings.notBlank()));
 
 
@@ -108,7 +108,7 @@ public class ClientViewTest {
             MappingRule<TestDTO, Option<MandateInfo>> withoutMandateInfo = property(TestDTO::amendment).is(booleans().isFalse()).mapTo(Option.none());
 
             MappingRule<TestDTO, Mandate> foo = properties(
-                    property(TestDTO::date).is(objects().notNull()),
+                    property(TestDTO::date).is(objects.notNull()),
                     withMandateInfo.orElse(withoutMandateInfo)
             ).map(Mandate::new);
 
@@ -128,7 +128,7 @@ public class ClientViewTest {
         TestDTO testDTO = new TestDTO(LocalDate.now(), true, Option.of("FOO"), Option.of("original"));
 
         Function<TestDTO, Validation<Mandate>> mapper = testDto -> {
-            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = requiredOption(objects().isEnum(MandateInfo.AmendmentType.class));
+            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = requiredOption(objects.isEnum(MandateInfo.AmendmentType.class));
             MappingRule<Option<String>, String> originalValueRule = MappingRule.requiredOption(strings.notBlank());
 
             MappingRule<TestDTO, Option<MandateInfo>> withMandateInfo = validatorFor(TestDTO.class)
@@ -140,7 +140,7 @@ public class ClientViewTest {
             MappingRule<TestDTO, Option<MandateInfo>> withoutMandateInfo = property(TestDTO::amendment).is(booleans().notNull()).mapTo(Option.none());
 
             MappingRule<TestDTO, Mandate> foo = validatorFor(TestDTO.class)
-                    .where(TestDTO::date, objects().notNull())
+                    .where(TestDTO::date, objects.notNull())
                     .where(withMandateInfo.orElse(withoutMandateInfo))
                     .builds(Mandate::new);
 

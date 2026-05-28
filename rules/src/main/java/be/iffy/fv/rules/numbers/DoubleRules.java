@@ -15,13 +15,6 @@ public class DoubleRules implements ComparableRules<Double>, NumberRules<Double>
      */
     public static final DoubleRules doubles = new DoubleRules();
 
-    /**
-     * Returns the singleton instance of {@link DoubleRules}.
-     */
-    public static DoubleRules doubles() {
-        return doubles;
-    }
-
     //region sign related
     /**
      * Fails if the {@link Double} is not positive (not greater than zero).

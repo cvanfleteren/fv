@@ -10,7 +10,7 @@ import java.util.List;
 
 import static be.iffy.fv.dsl.DSL.validateThat;
 import static be.iffy.fv.dsl.DSL.validateThatList;
-import static be.iffy.fv.dsl.ValidatingDSL.validating;
+import static be.iffy.fv.dsl.DSL.validating;
 import static be.iffy.fv.rules.Rules.*;
 
 @NullMarked

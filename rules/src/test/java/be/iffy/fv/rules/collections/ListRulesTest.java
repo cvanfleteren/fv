@@ -159,13 +159,13 @@ class ListRulesTest {
             Rule<List<Integer>> even = lists.allMatch(n -> n % 2 == 0);
             validTest(List.of(2, 4, 6), even);
             validTest(List.of(), lists.allMatch((Predicate<Integer>) (n -> n % 2 == 0)));
-            validTest(List.of(), lists.allMatchRule(ints().even()));
+            validTest(List.of(), lists.allMatchRule(ints.even()));
         }
 
         @Test
         void invalid() {
             invalidTest(null, lists.allMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
-            invalidTest(List.of(2, 3, 4), lists.allMatchRule(ints().even()), "must.be.even");
+            invalidTest(List.of(2, 3, 4), lists.allMatchRule(ints.even()), "must.be.even");
 
             invalidTest(
                     List.of("a", "bb", "c"),

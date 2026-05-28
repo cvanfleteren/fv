@@ -19,8 +19,8 @@ import static be.iffy.fv.rules.ObjectRules.objects;
  * Abstract class holding the implementations of collection related Rules, written in
  * a collection type (List, Set, vavr List, Collection, ...) agnostic way.
  *
- * @param <T>    the type of elements in the collection
- * @param <C>    the type of the collection
+ 
+ 
  */
 abstract class BaseCollectionRules<T, C extends Iterable<T>> {
 
@@ -155,7 +155,7 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
     /**
      * Fails if any element in the collection does not match the given predicate.
      *
-     * @param <T>          the type of elements in the collection.
+     
      * @param predicate    the predicate to test each element against.
      * @param errorMessage the error message to use if validation fails.
      * @return a {@link Rule} that validates if all elements match the predicate.
@@ -181,7 +181,7 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
      * <p>
      * Error key: {@code must.none.match}
      *
-     * @param <T>  the type of elements in the collection.
+     
      * @param rule the Rule to test each element against.
      * @return a {@link Rule} that validates if none of the elements match the {@link Rule}.
      */
@@ -305,7 +305,7 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
      * Usage example:
      * {@snippet file = "be/iffy/fv/rules/collections/CollectionRulesSnippets.java" region = "unique-by-example"}
      *
-     * @param <K>          the type of the extracted key.
+     
      * @param keyExtractor the function to extract the unique key.
      * @param key          the label for the key (e.g., "email").
      * @return a {@link Rule} checking for uniqueness by key.

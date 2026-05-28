@@ -12,11 +12,6 @@ import static be.iffy.fv.rules.Rules.optionals;
 
 public class BicHolder {
 
-
-    public <T,R> MappingRule<T,R> valid(Function<T, Validation<R>> validationFunction) {
-        return API.TODO();
-    }
-
     record HasBic(Bic bic){}
 
     record HasOptionalBicString(Optional<String> bic){}

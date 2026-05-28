@@ -162,13 +162,13 @@ class SetRulesTest {
             Rule<Set<Integer>> even = sets.allMatch(n -> n % 2 == 0);
             validTest(Set.of(2, 4, 6), even);
             validTest(Set.of(), sets.allMatch((Predicate<Integer>) (n -> n % 2 == 0)));
-            validTest(Set.of(), sets.allMatchRule(ints().even()));
+            validTest(Set.of(), sets.allMatchRule(ints.even()));
         }
 
         @Test
         void invalid() {
             invalidTest(null, sets.allMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
-            invalidTest(new LinkedHashSet<>(List.of(2, 3, 4)), sets.allMatchRule(ints().even()), "must.be.even");
+            invalidTest(new LinkedHashSet<>(List.of(2, 3, 4)), sets.allMatchRule(ints.even()), "must.be.even");
 
             invalidTest(
                     new LinkedHashSet<>(List.of("a", "bb", "c")),

@@ -10,8 +10,8 @@ import java.util.Objects;
 /**
  * Validation rules for {@link Either} values.
  *
- * @param <L> the type of the left value.
- * @param <R> the type of the right value.
+ 
+ 
  */
 public class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
 
@@ -23,9 +23,8 @@ public class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
     /**
      * Returns the singleton instance of {@link EitherRules}.
      *
-     * @param <L> the type of the left value.
-     * @param <R> the type of the right value.
-     * @return the {@link EitherRules} instance.
+     
+     
      */
     @SuppressWarnings("unchecked")
     public static <L, R> EitherRules<L, R> eithers() {
@@ -50,7 +49,6 @@ public class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
      * If it's a right, the error key and parameters from the provided rule are used.
      *
      * @param rule the rule to apply to the right value.
-     * @return a {@link Rule} that validates if the either is a right and matches the rule.
      */
     public Rule<Either<L, R>> isRight(Rule<? super R> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
@@ -61,11 +59,12 @@ public class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
      * Fails if the {@link Either} is not a {@link Either.Left}.
      * <p>
      * Error key: {@code must.be.left}
-     *
-     * @return a {@link Rule} checking if the either is a left.
      */
     public Rule<Either<L, R>> isLeft() {
-        return Rule.notNull().and(Rule.of(Either::isLeft, "must.be.left"));
+        return Rule.of(
+                Either::isLeft,
+                "must.be.left"
+        );
     }
 
     /**
@@ -75,7 +74,6 @@ public class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
      * If it's a left, the error key and parameters from the provided rule are used.
      *
      * @param rule the rule to apply to the left value.
-     * @return a {@link Rule} that validates if the either is a left and matches the rule.
      */
     public Rule<Either<L, R>> isLeft(Rule<? super L> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");

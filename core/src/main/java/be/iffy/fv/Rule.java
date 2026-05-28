@@ -27,11 +27,10 @@ import java.util.function.Supplier;
  *     </li>
  *     <li>Rules are <em>not supposed to change their input</em>, the value in the returned {@link be.iffy.fv.Validation.Valid} should be the <em>same instance</em> as the input. To change the input (type or value), use a {@link MappingRule}</li>
  * </ul>
- *
+ * <p>
  * Example: Defining and using a simple rule
- * {@snippet file="be/iffy/fv/RuleSnippets.java" region="rule-example"}
+ * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "rule-example"}
  *
- * @param <T> the type of the value to be validated.
  */
 @FunctionalInterface
 public interface Rule<T> extends MappingRule<T, T> {
@@ -39,7 +38,7 @@ public interface Rule<T> extends MappingRule<T, T> {
     /**
      * Tests the given value against the rule. If the value passes the test,
      * a {@link Validation.Valid} containing the exact same instance will be returned.
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="test-example"}
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "test-example"}
      *
      * @param value the value to be validated.
      * @return a {@link Validation} object indicating the result of the test.
@@ -51,11 +50,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * If the Predicate resolves to {@code true}, the Rule is considered {@link be.iffy.fv.Validation.Valid}
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="of-string-example"}
-     *
-     * @param predicate    the predicate to test values against.
-     * @param errorKey     the error message key to use if the predicate returns {@code false}.
-     * @param <T>          the type of the value to be validated.
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "of-string-example"}
      */
     static <T> Rule<T> of(Predicate<T> predicate, String errorKey) {
         return of(predicate, ErrorMessage.of(errorKey));
@@ -66,21 +61,20 @@ public interface Rule<T> extends MappingRule<T, T> {
      * If the Predicate resolves to {@code true}, the Rule is considered {@link be.iffy.fv.Validation.Valid}
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="of-error-example"}
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "of-error-example"}
      *
      * @param predicate    the predicate to test values against.
      * @param errorMessage the error message to use if the predicate returns {@code false}.
-     * @param <T>          the type of the value to be validated.
      */
     static <T> Rule<T> of(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
-        return value ->  {
-                if(value == null) {
-                    return Validation.invalid("must.not.be.null");
-                } else {
-                    return predicate.test(value) ? Validation.valid(value) : Validation.invalid(errorMessage);
-                }
+        return value -> {
+            if (value == null) {
+                return Validation.invalid("must.not.be.null");
+            } else {
+                return predicate.test(value) ? Validation.valid(value) : Validation.invalid(errorMessage);
+            }
         };
     }
 
@@ -92,12 +86,10 @@ public interface Rule<T> extends MappingRule<T, T> {
      * If you want to evaluate both rules and accumulate their errors, use {@link #andAlso(Rule)}.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="and-example"}
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "and-example"}
      *
-     * @param other the other rule to compose with.
-     * @param <S>   the target type.
-     * @see #andAlso(Rule) 
-     * @see #andThen(MappingRule) 
+     * @see #andAlso(Rule)
+     * @see #andThen(MappingRule)
      */
     default <S extends T> Rule<S> and(Rule<? super S> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
@@ -114,10 +106,8 @@ public interface Rule<T> extends MappingRule<T, T> {
      * If you want to stop evaluation after the first failure, use {@link #and(Rule)}.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="and-also-example"}
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "and-also-example"}
      *
-     * @param other the other rule to compose with.
-     * @param <S>   the target type.
      * @see #and(Rule)
      */
     default <S extends T> Rule<S> andAlso(Rule<? super S> other) {
@@ -132,10 +122,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * If both rules fail, their errors are combined.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="or-example"}
-     *
-     * @param other the other rule to compose with.
-     * @param <S>   the target type.
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "or-example"}
      */
     @SuppressWarnings("unchecked")
     default <S extends T> Rule<S> or(Rule<? super S> other) {
@@ -159,7 +146,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Negates this rule. The caller must provide the error message key to use when the negated rule fails.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="negate-string-example"}
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "negate-string-example"}
      *
      * @param negatedErrorKey the error message key to use if negation fails.
      */
@@ -172,7 +159,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Negates this rule. The caller must provide the {@link ErrorMessage} to use when the negated rule fails.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="negate-error-example"}
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "negate-error-example"}
      *
      * @param negatedError the error message to use if negation fails.
      */
@@ -190,7 +177,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Applies a conditional rule.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="only-if-predicate-example"}
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "only-if-predicate-example"}
      *
      * @param condition the condition to test, must not be null
      * @return a rule that tests the condition. If the condition is true, the original rule is applied.
@@ -210,7 +197,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Applies a conditional rule.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="only-if-supplier-example"}
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "only-if-supplier-example"}
      *
      * @param condition the condition to test, must not be null
      * @return a rule that tests the condition. If the condition is true, the original rule is applied.
@@ -232,7 +219,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * The difference with {@link #or(Rule)} is that only the errors of the {@code other} Rule will be returned if both fail.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="recover-with-rule-example"}
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "recover-with-rule-example"}
      *
      * @param other the other rule to use as a fallback if this rule fails
      */
@@ -241,7 +228,7 @@ public interface Rule<T> extends MappingRule<T, T> {
         return input -> {
             Validation<T> first = this.test(input);
             if (first.isValid()) {
-                return (Validation<S>)first;
+                return (Validation<S>) first;
             }
 
             return Validation.narrowSuper(other.test(input));
@@ -255,12 +242,11 @@ public interface Rule<T> extends MappingRule<T, T> {
         return input -> this.test(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
     }
 
-
     /**
      * Lifts this {@link Rule} so it applies to a {@link List} of T instead of a single T.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-vavrlist-example"}
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "lift-to-vavrlist-example"}
      */
     @Override
     default Rule<List<T>> liftToVavrList() {
@@ -271,7 +257,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Lifts this {@link Rule} so it applies to a {@link java.util.List} of T instead of a single T.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-list-example"}
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "lift-to-list-example"}
      */
     @Override
     default Rule<java.util.List<T>> liftToList() {
@@ -286,7 +272,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * - Some(x) =&gt; validate x, and return {@code valid(Some(x))} or {@code invalid(errors)}
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-option-example"}
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "lift-to-option-example"}
      *
      */
     @Override
@@ -302,7 +288,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * - not empty =&gt; validate x, and return {@code valid(Optional.of(x))} or {@code invalid(errors)}
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-optional-example"}
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "lift-to-optional-example"}
      *
      */
     @Override
@@ -324,9 +310,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * - If all validations pass, the map is considered valid.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-vavrmap-example"}
-     *
-     * @param <K> the key type.
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "lift-to-vavrmap-example"}
      */
     @Override
     default <K> Rule<Map<K, T>> liftToVavrMap() {
@@ -344,10 +328,9 @@ public interface Rule<T> extends MappingRule<T, T> {
      * - If all validations pass, the map is considered valid.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-vavrmap-extractor-example"}
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "lift-to-vavrmap-extractor-example"}
      *
      * @param keyExtractor the function to extract a path segment from the key.
-     * @param <K>          the key type.
      */
     @Override
     default <K> Rule<Map<K, T>> liftToVavrMap(Function<K, Object> keyExtractor) {
@@ -385,9 +368,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * - If all validations pass, the map is considered valid.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-map-example"}
-     *
-     * @param <K> the key type.
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "lift-to-map-example"}
      */
     @Override
     default <K> Rule<java.util.Map<K, T>> liftToMap() {
@@ -404,10 +385,9 @@ public interface Rule<T> extends MappingRule<T, T> {
      * - If all validations pass, the map is considered valid.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="lift-to-map-extractor-example"}
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "lift-to-map-extractor-example"}
      *
      * @param keyExtractor the function to extract a path segment from the key.
-     * @param <K>          the key type.
      */
     @Override
     default <K> Rule<java.util.Map<K, T>> liftToMap(Function<K, Object> keyExtractor) {
@@ -433,9 +413,10 @@ public interface Rule<T> extends MappingRule<T, T> {
 
     /**
      * Lift a Rule to work on a type V instead of T. You need to supply a Function that can get a T from the V.
-     * @see Rule#with(Function, Rule) 
+     *
+     * @see Rule#with(Function, Rule)
      */
-    default <V> Rule<V> given(Function<V,T> selector) {
+    default <V> Rule<V> given(Function<V, T> selector) {
         return Rule.with(selector, this);
     }
 
@@ -445,12 +426,9 @@ public interface Rule<T> extends MappingRule<T, T> {
      * If both rules fail, the errors are combined.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="both-example"}
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "both-example"}
      *
-     * @param first  the first rule.
-     * @param second the second rule.
-     * @param <T>    the type of the value to be validated.
-     * @see  #andAlso(Rule) 
+     * @see #andAlso(Rule)
      */
     static <T> Rule<T> both(Rule<? super T> first, Rule<? super T> second) {
         Objects.requireNonNull(first, "first rule cannot be null");
@@ -464,10 +442,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * If multiple rules fail, all errors are combined.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="all-example"}
-     *
-     * @param rules the rules to combine.
-     * @param <T>   the type of the value to be validated.
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "all-example"}
      */
     @SafeVarargs
     static <T> Rule<T> all(Rule<? super T>... rules) {
@@ -491,10 +466,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * If all rules fail, all errors from all rules are combined.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="any-example"}
-     *
-     * @param rules the rules to combine.
-     * @param <T>   the type of the value to be validated.
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "any-example"}
      */
     @SafeVarargs
     static <T> Rule<T> any(Rule<? super T>... rules) {
@@ -514,9 +486,6 @@ public interface Rule<T> extends MappingRule<T, T> {
 
     /**
      * Narrows a {@code Rule<? super T>} to a {@code Rule<T>}.
-     *
-     * @param rule The rule to narrow.
-     * @param <T>  The target type.
      */
     @SuppressWarnings("unchecked")
     static <T> Rule<T> narrow(Rule<? super T> rule) {
@@ -541,7 +510,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      */
     static <T> Rule<T> nullOk(Rule<T> whenNotNull) {
         return input -> {
-            if(input == null) {
+            if (input == null) {
                 return Validation.valid(null);
             } else {
                 return whenNotNull.test(input);
@@ -563,12 +532,14 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Be careful, even if T and V are the same type, the returned value will be the original input, not the value retrieved from the selector.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/RuleSnippets.java" region="with-example"}
+     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "with-example"}
      *
      * @param selector a function that extracts a value of type V from an input of type T
      */
     static <T, V> Rule<T> with(Function<T, V> selector, Rule<V> rule) {
-      return input -> rule.test(selector.apply(input)).map(ignore -> input);
+        return input ->
+                rule.test(selector.apply(input))
+                        .map(ignore -> input);
     }
 
 }

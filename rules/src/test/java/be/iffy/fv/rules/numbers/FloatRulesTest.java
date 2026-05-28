@@ -14,14 +14,14 @@ class FloatRulesTest {
     class Positive {
         @Test
         void valid() {
-            validTest(1.0f, floats().positive());
+            validTest(1.0f, floats.positive());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, floats().positive(), "must.not.be.null");
-            invalidTest(0.0f, floats().positive(), "must.be.positive");
-            invalidTest(-1.0f, floats().positive(), "must.be.positive");
+            invalidTest(null, floats.positive(), "must.not.be.null");
+            invalidTest(0.0f, floats.positive(), "must.be.positive");
+            invalidTest(-1.0f, floats.positive(), "must.be.positive");
         }
     }
 
@@ -29,14 +29,14 @@ class FloatRulesTest {
     class NonNegative {
         @Test
         void valid() {
-            validTest(0.0f, floats().nonNegative());
-            validTest(1.0f, floats().nonNegative());
+            validTest(0.0f, floats.nonNegative());
+            validTest(1.0f, floats.nonNegative());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, floats().nonNegative(), "must.not.be.null");
-            invalidTest(-1.0f, floats().nonNegative(), "must.be.non.negative");
+            invalidTest(null, floats.nonNegative(), "must.not.be.null");
+            invalidTest(-1.0f, floats.nonNegative(), "must.be.non.negative");
         }
     }
 
@@ -44,14 +44,14 @@ class FloatRulesTest {
     class Negative {
         @Test
         void valid() {
-            validTest(-1.0f, floats().negative());
+            validTest(-1.0f, floats.negative());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, floats().negative(), "must.not.be.null");
-            invalidTest(0.0f, floats().negative(), "must.be.negative");
-            invalidTest(1.0f, floats().negative(), "must.be.negative");
+            invalidTest(null, floats.negative(), "must.not.be.null");
+            invalidTest(0.0f, floats.negative(), "must.be.negative");
+            invalidTest(1.0f, floats.negative(), "must.be.negative");
         }
     }
 
@@ -59,14 +59,14 @@ class FloatRulesTest {
     class NonPositive {
         @Test
         void valid() {
-            validTest(0.0f, floats().nonPositive());
-            validTest(-1.0f, floats().nonPositive());
+            validTest(0.0f, floats.nonPositive());
+            validTest(-1.0f, floats.nonPositive());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, floats().nonPositive(), "must.not.be.null");
-            invalidTest(1.0f, floats().nonPositive(), "must.be.non.positive");
+            invalidTest(null, floats.nonPositive(), "must.not.be.null");
+            invalidTest(1.0f, floats.nonPositive(), "must.be.non.positive");
         }
     }
 
@@ -74,14 +74,14 @@ class FloatRulesTest {
     class Zero {
         @Test
         void valid() {
-            validTest(0.0f, floats().zero());
+            validTest(0.0f, floats.zero());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, floats().zero(), "must.not.be.null");
-            invalidTest(1.0f, floats().zero(), "must.be.zero");
-            invalidTest(-1.0f, floats().zero(), "must.be.zero");
+            invalidTest(null, floats.zero(), "must.not.be.null");
+            invalidTest(1.0f, floats.zero(), "must.be.zero");
+            invalidTest(-1.0f, floats.zero(), "must.be.zero");
         }
     }
 
@@ -89,14 +89,14 @@ class FloatRulesTest {
     class NonZero {
         @Test
         void valid() {
-            validTest(1.0f, floats().nonZero());
-            validTest(-1.0f, floats().nonZero());
+            validTest(1.0f, floats.nonZero());
+            validTest(-1.0f, floats.nonZero());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, floats().nonZero(), "must.not.be.null");
-            invalidTest(0.0f, floats().nonZero(), "must.not.be.zero");
+            invalidTest(null, floats.nonZero(), "must.not.be.null");
+            invalidTest(0.0f, floats.nonZero(), "must.not.be.zero");
         }
     }
 
@@ -104,14 +104,14 @@ class FloatRulesTest {
     class Finite {
         @Test
         void valid() {
-            validTest(1.0f, floats().finite());
+            validTest(1.0f, floats.finite());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, floats().finite(), "must.not.be.null");
-            invalidTest(Float.POSITIVE_INFINITY, floats().finite(), "must.be.finite");
-            invalidTest(Float.NaN, floats().finite(), "must.be.finite");
+            invalidTest(null, floats.finite(), "must.not.be.null");
+            invalidTest(Float.POSITIVE_INFINITY, floats.finite(), "must.be.finite");
+            invalidTest(Float.NaN, floats.finite(), "must.be.finite");
         }
     }
 
@@ -119,13 +119,13 @@ class FloatRulesTest {
     class Nan {
         @Test
         void valid() {
-            validTest(Float.NaN, floats().nan());
+            validTest(Float.NaN, floats.nan());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, floats().nan(), "must.not.be.null");
-            invalidTest(1.0f, floats().nan(), "must.be.nan");
+            invalidTest(null, floats.nan(), "must.not.be.null");
+            invalidTest(1.0f, floats.nan(), "must.be.nan");
         }
     }
 
@@ -133,13 +133,13 @@ class FloatRulesTest {
     class NonNan {
         @Test
         void valid() {
-            validTest(1.0f, floats().nonNan());
+            validTest(1.0f, floats.nonNan());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, floats().nonNan(), "must.not.be.null");
-            invalidTest(Float.NaN, floats().nonNan(), "must.not.be.nan");
+            invalidTest(null, floats.nonNan(), "must.not.be.null");
+            invalidTest(Float.NaN, floats.nonNan(), "must.not.be.nan");
         }
     }
 
@@ -147,14 +147,14 @@ class FloatRulesTest {
     class Min {
         @Test
         void valid() {
-            validTest(2.0f, floats().min(2.0f));
-            validTest(3.0f, floats().min(2.0f));
+            validTest(2.0f, floats.min(2.0f));
+            validTest(3.0f, floats.min(2.0f));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, floats().min(2.0f), "must.not.be.null");
-            invalidTest(1.0f, floats().min(2.0f), "must.be.at.least", HashMap.of("min", 2.0f));
+            invalidTest(null, floats.min(2.0f), "must.not.be.null");
+            invalidTest(1.0f, floats.min(2.0f), "must.be.at.least", HashMap.of("min", 2.0f));
         }
     }
 
@@ -162,14 +162,14 @@ class FloatRulesTest {
     class Max {
         @Test
         void valid() {
-            validTest(2.0f, floats().max(2.0f));
-            validTest(1.0f, floats().max(2.0f));
+            validTest(2.0f, floats.max(2.0f));
+            validTest(1.0f, floats.max(2.0f));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, floats().max(2.0f), "must.not.be.null");
-            invalidTest(3.0f, floats().max(2.0f), "must.be.at.most", HashMap.of("max", 2.0f));
+            invalidTest(null, floats.max(2.0f), "must.not.be.null");
+            invalidTest(3.0f, floats.max(2.0f), "must.be.at.most", HashMap.of("max", 2.0f));
         }
     }
 }

@@ -29,7 +29,7 @@ public class OptionalRules {
      * Usage example:
      * {@snippet file = "be/iffy/fv/rules/functional/OptionalSnippets.java" region = "required-example"}
      *
-     * @param <T> the type of the value contained in the Optional
+     
      */
     public <T> MappingRule<Optional<T>, T> required() {
         return MappingRule.<Optional<T>>notNull().andThen(input ->
@@ -56,7 +56,7 @@ public class OptionalRules {
      *
      * @param rule the rule to apply to the value inside the {@link Optional}
      */
-    public <T,Z> MappingRule<Optional<T>, Z> required(MappingRule<T,Z> rule) {
+    public <T, Z> MappingRule<Optional<T>, Z> required(MappingRule<T, Z> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
         return rule.liftToOptional().andThen(opt -> opt.map(Validation::valid).orElse(Validation.invalid("must.not.be.empty")));
     }
@@ -80,12 +80,11 @@ public class OptionalRules {
      * <p>
      * Usage example:
      * {@snippet file = "be/iffy/fv/rules/functional/OptionalSnippets.java" region = "not-empty-example"}
-     *
-     * @param <T> the type of the value contained in the Optional
      */
     public <T> Rule<Optional<T>> notEmpty() {
-        return Rule.notNull().and(input ->
-                input.isEmpty() ? Validation.invalid("must.not.be.empty") : Validation.valid(input)
+        return Rule.of(
+                Optional::isPresent,
+                "must.not.be.empty"
         );
     }
 
@@ -93,12 +92,11 @@ public class OptionalRules {
      * Fails if the {@link Optional} is not empty.
      * <p>
      * Error key: {@code must.be.empty}
-     *
-     * @param <T> the type of the value contained in the Optional
      */
     public <T> Rule<Optional<T>> empty() {
-        return Rule.notNull().and(input ->
-                input.isEmpty() ? Validation.valid(input) : Validation.invalid("must.be.empty")
+        return Rule.of(
+                Optional::isEmpty,
+                "must.be.empty"
         );
     }
 

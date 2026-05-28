@@ -13,7 +13,12 @@ public class Rules {
     public static final ObjectRules objects = ObjectRules.objects;
 
     public static final BooleanRules booleans = BooleanRules.booleans;
-
+    /**
+     * Returns the singleton instance of {@link ObjectRules}.
+     */
+    public static ObjectRules objects() {
+        return objects;
+    }
     public static final StringRules strings = StringRules.strings;
 
     public static final BigDecimalRules bigDecimals = BigDecimalRules.bigDecimals;

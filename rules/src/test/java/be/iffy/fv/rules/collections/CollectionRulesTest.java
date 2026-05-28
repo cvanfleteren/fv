@@ -162,13 +162,13 @@ class CollectionRulesTest {
             Rule<Collection<Integer>> even = collections.allMatch(n -> n % 2 == 0);
             validTest(List.of(2, 4, 6), even);
             validTest(List.of(), collections.allMatch((Predicate<Integer>) (n -> n % 2 == 0)));
-            validTest(List.of(), collections.allMatchRule(ints().even()));
+            validTest(List.of(), collections.allMatchRule(ints.even()));
         }
 
         @Test
         void invalid() {
             invalidTest(null, collections.allMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
-            invalidTest(List.of(2, 3, 4), collections.allMatchRule(ints().even()), "must.be.even");
+            invalidTest(List.of(2, 3, 4), collections.allMatchRule(ints.even()), "must.be.even");
 
             invalidTest(
                     List.of("a", "bb", "c"),

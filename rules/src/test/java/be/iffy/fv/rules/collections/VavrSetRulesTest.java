@@ -160,13 +160,13 @@ class VavrSetRulesTest {
             Rule<Set<Integer>> even = vavrSets.allMatch(n -> n % 2 == 0);
             validTest(HashSet.of(2, 4, 6), even);
             validTest(HashSet.of(), vavrSets.allMatch((Predicate<Integer>) (n -> n % 2 == 0)));
-            validTest(HashSet.of(), vavrSets.allMatchRule(ints().even()));
+            validTest(HashSet.of(), vavrSets.allMatchRule(ints.even()));
         }
 
         @Test
         void invalid() {
             invalidTest(null, vavrSets.allMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
-            invalidTest(LinkedHashSet.of(2, 3, 4), vavrSets.allMatchRule(ints().even()), "must.be.even");
+            invalidTest(LinkedHashSet.of(2, 3, 4), vavrSets.allMatchRule(ints.even()), "must.be.even");
 
             invalidTest(
                     LinkedHashSet.of("a", "bb", "c"),

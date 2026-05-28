@@ -39,7 +39,7 @@ public class ValidationAssert<SELF extends ValidationAssert<SELF, VALIDATION, T>
      * Creates a new instance of {@link ValidationAssert}.
      *
      * @param actual the actual value.
-     * @param <T> the type of the value.
+     
      * @return the created assertion object.
      */
     public static <T> ValidationAssert<?, Validation<T>, T> assertThatValidation(Validation<T> actual) {
@@ -50,7 +50,7 @@ public class ValidationAssert<SELF extends ValidationAssert<SELF, VALIDATION, T>
      * Asserts that the validation is valid.
      *
      * @param actual the actual value.
-     * @param <T> the type of the value.
+     
      * @return a {@link ObjectAssert} with the value inside the Validation for further assertions.
      */
     public static <T> ObjectAssert<T> assertValid(Validation<T> actual) {
@@ -62,7 +62,7 @@ public class ValidationAssert<SELF extends ValidationAssert<SELF, VALIDATION, T>
      * Asserts that the validation is invalid.
      *
      * @param actual the actual value.
-     * @param <T> the type of the value.
+     
      * @return an {@link InvalidValidationAssert} for further assertions.
      */
     public static <T> InvalidValidationAssert<?, Validation.Invalid, T> assertInvalid(Validation<T> actual) {

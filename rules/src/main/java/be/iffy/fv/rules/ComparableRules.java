@@ -7,7 +7,6 @@ import be.iffy.fv.Rule;
 /**
  * Common validation rules for {@link Comparable} values.
  *
- * @param <T> the type of comparable values.
  */
 public interface ComparableRules<T extends Comparable<? super T>> {
 
@@ -24,16 +23,15 @@ public interface ComparableRules<T extends Comparable<? super T>> {
      *
      * @param minInclusive the minimum allowed value (inclusive).
      * @param maxInclusive the maximum allowed value (inclusive).
-     * @return a {@link Rule} checking the value range.
      */
     default Rule<T> between(T minInclusive, T maxInclusive) {
         if (maxInclusive.compareTo(minInclusive) < 0) {
             throw new IllegalArgumentException("maxInclusive must be >= minInclusive");
         }
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 i -> i.compareTo(minInclusive) >= 0 && i.compareTo(maxInclusive) <= 0,
                 ErrorMessage.of("must.be.between", HashMap.of("min", minInclusive, "max", maxInclusive))
-        ));
+        );
     }
 
     /**
@@ -49,16 +47,15 @@ public interface ComparableRules<T extends Comparable<? super T>> {
      *
      * @param minExclusive the minimum allowed value (exclusive).
      * @param maxExclusive the maximum allowed value (exclusive).
-     * @return a {@link Rule} checking the value range (exclusive).
      */
     default Rule<T> betweenExclusive(T minExclusive, T maxExclusive) {
         if (maxExclusive.compareTo(minExclusive) <= 0) {
             throw new IllegalArgumentException("maxExclusive must be > minExclusive");
         }
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 i -> i.compareTo(minExclusive) > 0 && i.compareTo(maxExclusive) < 0,
                 ErrorMessage.of("must.be.between.exclusive", HashMap.of("min", minExclusive, "max", maxExclusive))
-        ));
+        );
     }
 
     /**
@@ -72,13 +69,12 @@ public interface ComparableRules<T extends Comparable<? super T>> {
      * </ul>
      *
      * @param minExclusive the minimum value (exclusive).
-     * @return a {@link Rule} checking the minimum value (exclusive).
      */
     default Rule<T> greaterThan(T minExclusive) {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 i -> i.compareTo(minExclusive) > 0,
                 ErrorMessage.of("must.be.greater.than", "min", minExclusive)
-        ));
+        );
     }
 
     /**
@@ -92,13 +88,12 @@ public interface ComparableRules<T extends Comparable<? super T>> {
      * </ul>
      *
      * @param minInclusive the minimum value (inclusive).
-     * @return a {@link Rule} checking the minimum value (inclusive).
      */
     default Rule<T> atLeast(T minInclusive) {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 i -> i.compareTo(minInclusive) >= 0,
                 ErrorMessage.of("must.be.at.least", "min", minInclusive)
-        ));
+        );
     }
 
     /**
@@ -112,13 +107,12 @@ public interface ComparableRules<T extends Comparable<? super T>> {
      * </ul>
      *
      * @param maxExclusive the maximum value (exclusive).
-     * @return a {@link Rule} checking the maximum value (exclusive).
      */
     default Rule<T> lessThan(T maxExclusive) {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 i -> i.compareTo(maxExclusive) < 0,
                 ErrorMessage.of("must.be.less.than", "max", maxExclusive)
-        ));
+        );
     }
 
     /**
@@ -132,13 +126,12 @@ public interface ComparableRules<T extends Comparable<? super T>> {
      * </ul>
      *
      * @param maxInclusive the maximum value (inclusive).
-     * @return a {@link Rule} checking the maximum value (inclusive).
      */
     default Rule<T> atMost(T maxInclusive) {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 i -> i.compareTo(maxInclusive) <= 0,
                 ErrorMessage.of("must.be.at.most", "max", maxInclusive)
-        ));
+        );
     }
 
 }

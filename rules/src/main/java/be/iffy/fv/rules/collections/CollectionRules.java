@@ -161,7 +161,7 @@ public class CollectionRules {
      * <p>
      * Error key: {@code must.none.match}
      *
-     * @param <T> the type of elements in the collection.
+     
      * @param rule the Rule to test each element against.
      * @return a {@link Rule} that validates if none of the elements match the {@link Rule}.
      */

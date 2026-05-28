@@ -14,14 +14,14 @@ class DoubleRulesTest {
     class Positive {
         @Test
         void valid() {
-            validTest(1.0, doubles().positive());
+            validTest(1.0, doubles.positive());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, doubles().positive(), "must.not.be.null");
-            invalidTest(0.0, doubles().positive(), "must.be.positive");
-            invalidTest(-1.0, doubles().positive(), "must.be.positive");
+            invalidTest(null, doubles.positive(), "must.not.be.null");
+            invalidTest(0.0, doubles.positive(), "must.be.positive");
+            invalidTest(-1.0, doubles.positive(), "must.be.positive");
         }
     }
 
@@ -29,14 +29,14 @@ class DoubleRulesTest {
     class NonNegative {
         @Test
         void valid() {
-            validTest(0.0, doubles().nonNegative());
-            validTest(1.0, doubles().nonNegative());
+            validTest(0.0, doubles.nonNegative());
+            validTest(1.0, doubles.nonNegative());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, doubles().nonNegative(), "must.not.be.null");
-            invalidTest(-1.0, doubles().nonNegative(), "must.be.non.negative");
+            invalidTest(null, doubles.nonNegative(), "must.not.be.null");
+            invalidTest(-1.0, doubles.nonNegative(), "must.be.non.negative");
         }
     }
 
@@ -44,14 +44,14 @@ class DoubleRulesTest {
     class Negative {
         @Test
         void valid() {
-            validTest(-1.0, doubles().negative());
+            validTest(-1.0, doubles.negative());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, doubles().negative(), "must.not.be.null");
-            invalidTest(0.0, doubles().negative(), "must.be.negative");
-            invalidTest(1.0, doubles().negative(), "must.be.negative");
+            invalidTest(null, doubles.negative(), "must.not.be.null");
+            invalidTest(0.0, doubles.negative(), "must.be.negative");
+            invalidTest(1.0, doubles.negative(), "must.be.negative");
         }
     }
 
@@ -59,14 +59,14 @@ class DoubleRulesTest {
     class NonPositive {
         @Test
         void valid() {
-            validTest(0.0, doubles().nonPositive());
-            validTest(-1.0, doubles().nonPositive());
+            validTest(0.0, doubles.nonPositive());
+            validTest(-1.0, doubles.nonPositive());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, doubles().nonPositive(), "must.not.be.null");
-            invalidTest(1.0, doubles().nonPositive(), "must.be.non.positive");
+            invalidTest(null, doubles.nonPositive(), "must.not.be.null");
+            invalidTest(1.0, doubles.nonPositive(), "must.be.non.positive");
         }
     }
 
@@ -74,14 +74,14 @@ class DoubleRulesTest {
     class Zero {
         @Test
         void valid() {
-            validTest(0.0, doubles().zero());
+            validTest(0.0, doubles.zero());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, doubles().zero(), "must.not.be.null");
-            invalidTest(1.0, doubles().zero(), "must.be.zero");
-            invalidTest(-1.0, doubles().zero(), "must.be.zero");
+            invalidTest(null, doubles.zero(), "must.not.be.null");
+            invalidTest(1.0, doubles.zero(), "must.be.zero");
+            invalidTest(-1.0, doubles.zero(), "must.be.zero");
         }
     }
 
@@ -89,14 +89,14 @@ class DoubleRulesTest {
     class NonZero {
         @Test
         void valid() {
-            validTest(1.0, doubles().nonZero());
-            validTest(-1.0, doubles().nonZero());
+            validTest(1.0, doubles.nonZero());
+            validTest(-1.0, doubles.nonZero());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, doubles().nonZero(), "must.not.be.null");
-            invalidTest(0.0, doubles().nonZero(), "must.not.be.zero");
+            invalidTest(null, doubles.nonZero(), "must.not.be.null");
+            invalidTest(0.0, doubles.nonZero(), "must.not.be.zero");
         }
     }
 
@@ -104,14 +104,14 @@ class DoubleRulesTest {
     class Finite {
         @Test
         void valid() {
-            validTest(1.0, doubles().finite());
+            validTest(1.0, doubles.finite());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, doubles().finite(), "must.not.be.null");
-            invalidTest(Double.POSITIVE_INFINITY, doubles().finite(), "must.be.finite");
-            invalidTest(Double.NaN, doubles().finite(), "must.be.finite");
+            invalidTest(null, doubles.finite(), "must.not.be.null");
+            invalidTest(Double.POSITIVE_INFINITY, doubles.finite(), "must.be.finite");
+            invalidTest(Double.NaN, doubles.finite(), "must.be.finite");
         }
     }
 
@@ -119,13 +119,13 @@ class DoubleRulesTest {
     class Nan {
         @Test
         void valid() {
-            validTest(Double.NaN, doubles().nan());
+            validTest(Double.NaN, doubles.nan());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, doubles().nan(), "must.not.be.null");
-            invalidTest(1.0, doubles().nan(), "must.be.nan");
+            invalidTest(null, doubles.nan(), "must.not.be.null");
+            invalidTest(1.0, doubles.nan(), "must.be.nan");
         }
     }
 
@@ -133,13 +133,13 @@ class DoubleRulesTest {
     class NonNan {
         @Test
         void valid() {
-            validTest(1.0, doubles().nonNan());
+            validTest(1.0, doubles.nonNan());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, doubles().nonNan(), "must.not.be.null");
-            invalidTest(Double.NaN, doubles().nonNan(), "must.not.be.nan");
+            invalidTest(null, doubles.nonNan(), "must.not.be.null");
+            invalidTest(Double.NaN, doubles.nonNan(), "must.not.be.nan");
         }
     }
 
@@ -147,14 +147,14 @@ class DoubleRulesTest {
     class Min {
         @Test
         void valid() {
-            validTest(2.0, doubles().min(2.0));
-            validTest(3.0, doubles().min(2.0));
+            validTest(2.0, doubles.min(2.0));
+            validTest(3.0, doubles.min(2.0));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, doubles().min(2.0), "must.not.be.null");
-            invalidTest(1.0, doubles().min(2.0), "must.be.at.least", HashMap.of("min", 2.0));
+            invalidTest(null, doubles.min(2.0), "must.not.be.null");
+            invalidTest(1.0, doubles.min(2.0), "must.be.at.least", HashMap.of("min", 2.0));
         }
     }
 
@@ -162,14 +162,14 @@ class DoubleRulesTest {
     class Max {
         @Test
         void valid() {
-            validTest(2.0, doubles().max(2.0));
-            validTest(1.0, doubles().max(2.0));
+            validTest(2.0, doubles.max(2.0));
+            validTest(1.0, doubles.max(2.0));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, doubles().max(2.0), "must.not.be.null");
-            invalidTest(3.0, doubles().max(2.0), "must.be.at.most", HashMap.of("max", 2.0));
+            invalidTest(null, doubles.max(2.0), "must.not.be.null");
+            invalidTest(3.0, doubles.max(2.0), "must.be.at.most", HashMap.of("max", 2.0));
         }
     }
 }

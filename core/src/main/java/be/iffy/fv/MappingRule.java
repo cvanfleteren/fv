@@ -20,20 +20,18 @@ import java.util.function.Predicate;
  * with built-in validation support.
  * The mapping can either succeed (producing a {@link Validation.Valid} R) or fail (producing an {@link Validation.Invalid} with error details).
  *
- * @param <T> the type of input to be mapped
- * @param <R> the type of output after successful mapping
  */
 @FunctionalInterface
 public interface MappingRule<T, R> {
 
     /**
      * Evaluates the input against this rule, transforming it from type T to type R.
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="test-example"}
+     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "test-example"}
      *
      * @param value the value to be processed by this {@link MappingRule}
      * @return a {@link Validation} instance representing the outcome: either a {@link Validation.Valid}
-     *         with the successfully transformed value or an {@link Validation.Invalid containing }the errors encountered during
-     *         mapping or validation.
+     * with the successfully transformed value or an {@link Validation.Invalid containing }the errors encountered during
+     * mapping or validation.
      */
     Validation<R> test(T value);
 
@@ -42,10 +40,8 @@ public interface MappingRule<T, R> {
      * If the mapper throws an exception, the rule will fail with the specified error message.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="of-string-example"}
+     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "of-string-example"}
      *
-     * @param <T>      the type of input to be mapped
-     * @param <R>      the type of output after mapping
      * @param mapper   the function that maps T to R
      * @param errorKey the errorKey to use if the mapping fails.
      * @return a new {@link MappingRule} that applies the mapper and validates the result
@@ -59,10 +55,8 @@ public interface MappingRule<T, R> {
      * If the mapper returns a {@link Try.Failure}, the rule will fail with the specified error key.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="of-try-error-example"}
+     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "of-try-error-example"}
      *
-     * @param <T>          the type of input to be mapped
-     * @param <R>          the type of output after mapping
      * @param mapper       the function that maps T to R, returning a Try
      * @param errorMessage the errorMessage to use if the mapping fails.
      * @return a new {@link MappingRule} that applies the mapper and validates the result
@@ -84,7 +78,7 @@ public interface MappingRule<T, R> {
      * If the mapper returns a {@link Try.Failure}, the rule will fail with the specified error key.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="of-try-string-example"}
+     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "of-try-string-example"}
      */
     static <T, R> MappingRule<T, R> ofTry(Function<T, Try<R>> mapper, String errorKey) {
         return ofTry(mapper, ErrorMessage.of(errorKey));
@@ -95,7 +89,7 @@ public interface MappingRule<T, R> {
      * If the mapper throws an exception, the rule will fail with the specified error message.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="of-error-example"}
+     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "of-error-example"}
      */
     static <T, R> MappingRule<T, R> of(Function<T, R> throwingMapper, ErrorMessage errorMessage) {
         Objects.requireNonNull(throwingMapper, "mapper cannot be null");
@@ -128,9 +122,8 @@ public interface MappingRule<T, R> {
      * (the argument to this method) to the result of the first rule.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="and-then-example"}
+     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "and-then-example"}
      *
-     * @param <Z>  the type of output from the next rule after transformation.
      * @param rule the rule to apply after this rule if this rule is successful.
      * @return a composed {@link MappingRule} that applies both rules in sequence.
      */
@@ -141,22 +134,20 @@ public interface MappingRule<T, R> {
     /**
      * Applies a mapping function to the result of this {@link MappingRule}.
      *
-     * @param <Z> the type of the result after applying the mapping function.
      * @param mapper the function to apply to the result of this rule if the input passes the test.
      * @return a new {@link MappingRule} that applies the mapping function to the result.
      */
-    default <Z> MappingRule<T, Z> map(Function<R, Z> mapper){
+    default <Z> MappingRule<T, Z> map(Function<R, Z> mapper) {
         return (T input) -> this.test(input).map(mapper);
     }
 
     /**
      * Maps the result of this rule to a constant value, ignoring the underlying value.
      *
-     * @param <Z> the type of the mapped value.
      * @param value the constant value to map to.
      * @return a new MappingRule that maps the result of this rule to the specified constant value.
      */
-    default <Z> MappingRule<T, Z> mapTo(Z value){
+    default <Z> MappingRule<T, Z> mapTo(Z value) {
         return this.map(ignored -> value);
     }
 
@@ -166,9 +157,6 @@ public interface MappingRule<T, R> {
      * If both rules fail, their errors are combined.
      *
      * @param other the other rule to compose with.
-     * @param <S>   the target type.
-
-     * @throws NullPointerException if {@code other} is null.
      */
     @SuppressWarnings("unchecked")
     default <S> MappingRule<T, S> orElse(MappingRule<? super T, ? extends S> other) {
@@ -192,9 +180,8 @@ public interface MappingRule<T, R> {
      * Returns a new {@link MappingRule} that first applies this rule, and if the input is invalid, falls back to the other rule.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="recover-with-example"}
+     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "recover-with-example"}
      *
-     * @param <S> the type of valid output produced by the other rule
      * @param other the other rule to use as a fallback if this rule fails
      * @return a new MappingRule that first applies this rule, and if the input is invalid, falls back to the other rule
      */
@@ -220,7 +207,6 @@ public interface MappingRule<T, R> {
     /**
      * Turns this rule (back) into a {@link Predicate}.
      *
-     * @param <S> the target type.
      * @return a {@link Predicate} instance.
      */
     default <S extends T> Predicate<S> toPredicate() {
@@ -233,7 +219,7 @@ public interface MappingRule<T, R> {
      *
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-vavrlist-example"}
+     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "lift-to-vavrlist-example"}
      */
     default MappingRule<List<T>, List<R>> liftToVavrList() {
         return values -> {
@@ -249,7 +235,7 @@ public interface MappingRule<T, R> {
      *
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-vavrlist-example"}
+     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "lift-to-vavrlist-example"}
      */
     default MappingRule<java.util.List<T>, java.util.List<R>> liftToList() {
         return values -> {
@@ -267,7 +253,7 @@ public interface MappingRule<T, R> {
      * - Some(x) =&gt; validate x, and return {@code valid(Some(x))} or {@code invalid(errors)}
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-option-example"}
+     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "lift-to-option-example"}
      *
      */
     default MappingRule<Option<T>, Option<R>> liftToOption() {
@@ -284,7 +270,7 @@ public interface MappingRule<T, R> {
      * - not empty =&gt; validate x, and return {@code valid(Optional.of(x))} or {@code invalid(errors)}
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-optional-example"}
+     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "lift-to-optional-example"}
      *
      */
     default MappingRule<Optional<T>, Optional<R>> liftToOptional() {
@@ -306,9 +292,8 @@ public interface MappingRule<T, R> {
      * - If all validations pass, the map is considered valid.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-vavrmap-example"}
+     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "lift-to-vavrmap-example"}
      *
-     * @param <K> the key type.
      */
     default <K> MappingRule<Map<K, T>, Map<K, R>> liftToVavrMap() {
         return liftToVavrMap(Objects::toString);
@@ -326,10 +311,9 @@ public interface MappingRule<T, R> {
      * - If all validations pass, the map is considered valid.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-vavrmap-extractor-example"}
+     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "lift-to-vavrmap-extractor-example"}
      *
      * @param keyExtractor the function to extract a path segment from the key.
-     * @param <K>          the key type.
      */
     default <K> MappingRule<Map<K, T>, Map<K, R>> liftToVavrMap(Function<K, Object> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
@@ -362,9 +346,8 @@ public interface MappingRule<T, R> {
      * - If all validations pass, the map is considered valid.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-map-example"}
+     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "lift-to-map-example"}
      *
-     * @param <K> the key type.
      */
     default <K> MappingRule<java.util.Map<K, T>, java.util.Map<K, R>> liftToMap() {
         return liftToMap(Objects::toString);
@@ -382,10 +365,9 @@ public interface MappingRule<T, R> {
      * - If all validations pass, the map is considered valid.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="lift-to-map-extractor-example"}
+     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "lift-to-map-extractor-example"}
      *
      * @param keyExtractor the function to extract a path segment from the key.
-     * @param <K>          the key type.
      */
     default <K> MappingRule<java.util.Map<K, T>, java.util.Map<K, R>> liftToMap(Function<K, Object> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
@@ -399,10 +381,8 @@ public interface MappingRule<T, R> {
      *
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="required-option-example"}
+     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "required-option-example"}
      *
-     * @param <T>  the type of the value inside the {@link Option}
-     * @param <R>  the type of the result of the mapping rule
      * @param rule the mapping rule to apply to the value inside the {@link Option}
      * @return a new {@link MappingRule} that validates the option and applies the given rule to its value
      */
@@ -418,10 +398,8 @@ public interface MappingRule<T, R> {
      *
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="required-optional-example"}
+     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "required-optional-example"}
      *
-     * @param <T>  the type of the value inside the {@link Optional}
-     * @param <R>  the type of the result of the mapping rule
      * @param rule the mapping rule to apply to the value inside the {@link Optional}
      * @return a new {@link MappingRule} that validates the optional and applies the given rule to its value
      */
@@ -435,7 +413,6 @@ public interface MappingRule<T, R> {
      * <p>
      * Error key: "must.not.be.null"
      *
-     * @param <T> the type of input and output
      * @return a MappingRule that returns valid input only if it's not null
      */
     static <T> MappingRule<T, T> notNull() {
@@ -447,11 +424,8 @@ public interface MappingRule<T, R> {
      * Applies the specified {@link MappingRule} to the result of applying the selector function to the input. Aka <code>contramap</code>.
      * <p>
      * Usage example:
-     * {@snippet file="be/iffy/fv/MappingRuleSnippets.java" region="with-example"}
+     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "with-example"}
      *
-     * @param <T>      the type of the input to be tested
-     * @param <V>      the type of the result produced by the selector function
-     * @param <R>      the type of the output produced by the rule
      * @param selector a function that extracts a value of type V from an input of type T
      * @param rule     the rule to be applied to the extracted value
      * @return a new {@link MappingRule} that tests the applied selector and rule combination

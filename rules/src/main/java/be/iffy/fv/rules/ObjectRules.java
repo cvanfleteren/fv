@@ -17,19 +17,26 @@ public class ObjectRules implements IObjectRules<Object> {
     public static final ObjectRules objects = new ObjectRules();
 
     /**
-     * Returns the singleton instance of {@link ObjectRules}.
-     */
-    public static ObjectRules objects() {
-        return objects;
-    }
-
-    /**
      * Fails if the object is {@code null}.
      * <p>
      * Error key: {@code must.not.be.null}
      */
     public <T> Rule<T> notNull() {
         return MappingRule.<T>notNull()::test;
+    }
+
+    /**
+     * Acts the same as {@link #notNull()}, but takes a Class parameter to help the java compiler
+     * with type inference. Can be used to use something like
+     * {@code Ruyle<String> rule = objects.notNull(String.class).and(...);}
+     * instead of
+     * {@code Ruyle<String> rule = objects.<String>notNull.and(...);}
+     * which some people prefer.
+     * <p>
+     * Error key: {@code must.not.be.null}
+     */
+    public <T> Rule<T> notNull(Class<T> clazz) {
+        return notNull();
     }
 
     /**

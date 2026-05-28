@@ -6,7 +6,6 @@ import be.iffy.fv.rules.text.StringOps;
 
 import java.util.regex.Pattern;
 
-import static be.iffy.fv.dsl.DSL.after;
 import static be.iffy.fv.dsl.DSL.assertThat;
 import static be.iffy.fv.rules.Rules.strings;
 
@@ -20,23 +19,18 @@ public record Bic(String value) {
             "invalid.format"
     );
 
-    static Rule<String> validBic = after(StringOps.removeWhitespace()).is(
-                Rule.any(
-                        strings.length(8),
-                        strings.length(11)
-                ).withErrorKey("length.must.be.8.or.11")
-                .and(followsBicPattern)
-    );
+    static Rule<String> validBic = Rule.any(
+                    strings.length(8),
+                    strings.length(11)
+            )
+            .withErrorKey("length.must.be.8.or.11")
+            .and(followsBicPattern);
 
     public Bic {
-        value = assertThat(value, Bic::value).is(validBic);
+        value = assertThat(value, Bic::value).map(StringOps.removeWhitespace()).is(validBic);
     }
 
     public static Validation<Bic> from(String value) {
         return Validation.from(() -> new Bic(value));
-    }
-
-    public static Bic of(String value) {
-        return new Bic(value);
     }
 }

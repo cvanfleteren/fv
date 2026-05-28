@@ -29,6 +29,34 @@ public class DSL {
         return new Transformation<>(transformation.get());
     }
 
+    public static <T1, T2> ValidatingDSL.ValidatingBuilder2<T1, T2> validating(Validation<T1> v1, Validation<T2> v2) {
+        return new ValidatingDSL.ValidatingBuilder2<>(v1, v2);
+    }
+
+    public static <T1, T2, T3> ValidatingDSL.ValidatingBuilder3<T1, T2, T3> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3) {
+        return new ValidatingDSL.ValidatingBuilder3<>(v1, v2, v3);
+    }
+
+    public static <T1, T2, T3, T4> ValidatingDSL.ValidatingBuilder4<T1, T2, T3, T4> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4) {
+        return new ValidatingDSL.ValidatingBuilder4<>(v1, v2, v3, v4);
+    }
+
+    public static <T1, T2, T3, T4, T5> ValidatingDSL.ValidatingBuilder5<T1, T2, T3, T4, T5> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5) {
+        return new ValidatingDSL.ValidatingBuilder5<>(v1, v2, v3, v4, v5);
+    }
+
+    public static <T1, T2, T3, T4, T5, T6> ValidatingDSL.ValidatingBuilder6<T1, T2, T3, T4, T5, T6> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6) {
+        return new ValidatingDSL.ValidatingBuilder6<>(v1, v2, v3, v4, v5, v6);
+    }
+
+    public static <T1, T2, T3, T4, T5, T6, T7> ValidatingDSL.ValidatingBuilder7<T1, T2, T3, T4, T5, T6, T7> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7) {
+        return new ValidatingDSL.ValidatingBuilder7<>(v1, v2, v3, v4, v5, v6, v7);
+    }
+
+    public static <T1, T2, T3, T4, T5, T6, T7, T8> ValidatingDSL.ValidatingBuilder8<T1, T2, T3, T4, T5, T6, T7, T8> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Validation<T8> v8) {
+        return new ValidatingDSL.ValidatingBuilder8<>(v1, v2, v3, v4, v5, v6, v7, v8);
+    }
+
     public static class Transformation<T> {
         private final Function<T, T> transformer;
 
@@ -90,8 +118,8 @@ public class DSL {
      *
      * @param v1   the first validation.
      * @param v2   the second validation.
-     * @param <T1> type of the first value.
-     * @param <T2> type of the second value.
+     
+     
      * @return a {@link Tuple2} containing the valid values.
      * @throws ValidationException if any validation is invalid.
      */
@@ -107,9 +135,9 @@ public class DSL {
      * @param v1   the first validation.
      * @param v2   the second validation.
      * @param v3   the third validation.
-     * @param <T1> type of the first value.
-     * @param <T2> type of the second value.
-     * @param <T3> type of the third value.
+     
+     
+     
      * @return a {@link Tuple3} containing the valid values.
      * @throws ValidationException if any validation is invalid.
      */
@@ -129,10 +157,10 @@ public class DSL {
      * @param v2   the second validation.
      * @param v3   the third validation.
      * @param v4   the fourth validation.
-     * @param <T1> type of the first value.
-     * @param <T2> type of the second value.
-     * @param <T3> type of the third value.
-     * @param <T4> type of the fourth value.
+     
+     
+     
+     
      * @return a {@link Tuple4} containing the valid values.
      * @throws ValidationException if any validation is invalid.
      */
@@ -154,11 +182,11 @@ public class DSL {
      * @param v3   the third validation.
      * @param v4   the fourth validation.
      * @param v5   the fifth validation.
-     * @param <T1> type of the first value.
-     * @param <T2> type of the second value.
-     * @param <T3> type of the third value.
-     * @param <T4> type of the fourth value.
-     * @param <T5> type of the fifth value.
+     
+     
+     
+     
+     
      * @return a {@link Tuple5} containing the valid values.
      * @throws ValidationException if any validation is invalid.
      */
@@ -182,12 +210,12 @@ public class DSL {
      * @param v4   the fourth validation.
      * @param v5   the fifth validation.
      * @param v6   the sixth validation.
-     * @param <T1> type of the first value.
-     * @param <T2> type of the second value.
-     * @param <T3> type of the third value.
-     * @param <T4> type of the fourth value.
-     * @param <T5> type of the fifth value.
-     * @param <T6> type of the sixth value.
+     
+     
+     
+     
+     
+     
      * @return a {@link Tuple6} containing the valid values.
      * @throws ValidationException if any validation is invalid.
      */
@@ -214,13 +242,13 @@ public class DSL {
      * @param v5   the fifth validation.
      * @param v6   the sixth validation.
      * @param v7   the seventh validation.
-     * @param <T1> type of the first value.
-     * @param <T2> type of the second value.
-     * @param <T3> type of the third value.
-     * @param <T4> type of the fourth value.
-     * @param <T5> type of the fifth value.
-     * @param <T6> type of the sixth value.
-     * @param <T7> type of the seventh value.
+     
+     
+     
+     
+     
+     
+     
      * @return a {@link Tuple7} containing the valid values.
      * @throws ValidationException if any validation is invalid.
      */
@@ -249,14 +277,14 @@ public class DSL {
      * @param v6   the sixth validation.
      * @param v7   the seventh validation.
      * @param v8   the eighth validation.
-     * @param <T1> type of the first value.
-     * @param <T2> type of the second value.
-     * @param <T3> type of the third value.
-     * @param <T4> type of the fourth value.
-     * @param <T5> type of the fifth value.
-     * @param <T6> type of the sixth value.
-     * @param <T7> type of the seventh value.
-     * @param <T8> type of the eighth value.
+     
+     
+     
+     
+     
+     
+     
+     
      * @return a {@link Tuple8} containing the valid values.
      * @throws ValidationException if any validation is invalid.
      */
@@ -289,7 +317,7 @@ public class DSL {
      * For any given {@code Rule<T>}, returns a Rule that can work on an {@code Optional<T>} instead.
      * An empty {@link Optional} is considered to be valid.
      *
-     * @param <T> the type of the value the Rule is validating.
+     
      * @see OptionalRules#required()
      */
     public static <T> Rule<Optional<T>> optional(Rule<T> rule) {
@@ -300,7 +328,7 @@ public class DSL {
      * For any given {@code Rule<T>}, returns a Rule that can work on an {@code Option<T>} instead.
      * An empty {@link Option} is considered to be valid.
      *
-     * @param <T> the type of the value the Rule is validating.
+     
      * @see be.iffy.fv.rules.functional.OptionRules#required()
      */
     public static <T> Rule<Option<T>> option(Rule<T> rule) {
@@ -311,7 +339,7 @@ public class DSL {
      * Starts a validation process for a collection of values.
      *
      * @param values the values to validate.
-     * @param <T>    the type of the values.
+     
      * @return a {@link ValidateAllDSL} instance.
      */
     public static <T> ValidateAllDSL<T> validateAll(Iterable<T> values) {
@@ -321,7 +349,7 @@ public class DSL {
     /**
      * DSL class for validating a collection of values.
      *
-     * @param <T> the type of the values.
+     
      */
     public static class ValidateAllDSL<T> {
         private final Iterable<T> values;
@@ -347,7 +375,7 @@ public class DSL {
      * Starts a validation process for a single value.
      *
      * @param value the value to validate.
-     * @param <T>   the type of the value.
+     
      * @return a {@link ValidationDSL} instance.
      */
     public static <T> ValidationDSL<T> validateThat(T value) {
@@ -360,7 +388,7 @@ public class DSL {
      *
      * @param value the value to validate.
      * @param name  the name of the value (e.g. field name).
-     * @param <T>   the type of the value.
+     
      * @return a {@link ValidationDSL} instance.
      */
     public static <T> ValidationDSL<T> validateThat(T value, String name) {
@@ -382,7 +410,7 @@ public class DSL {
     /**
      * DSL class for validating a single value.
      *
-     * @param <T> the type of the value.
+     
      */
     public static class ValidationDSL<T> {
 
@@ -412,7 +440,7 @@ public class DSL {
          * If the current validation is already invalid, the mapper is not applied.
          *
          * @param mapper the function to apply.
-         * @param <Z>    the result type of the mapping.
+         
          * @return a new {@link ValidationDSL} with the mapped value.
          */
         public <Z> ValidationDSL<Z> map(Function<T, Z> mapper) {
@@ -424,7 +452,7 @@ public class DSL {
          * If the current validation is already invalid, the mapper is not applied.
          *
          * @param mapper the function to apply.
-         * @param <Z>    the result type of the mapping.
+         
          * @return a new {@link ValidationDSL} with the mapped value.
          */
         public <Z> Validation<Z> mapsTo(Function<T, Z> mapper) {

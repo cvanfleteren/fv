@@ -22,7 +22,10 @@ public class BooleanRules {
      * Error key: {@code must.be.true}
      */
     public Rule<Boolean> isTrue() {
-        return Rule.notNull().and(Rule.of(b -> b, "must.be.true"));
+        return Rule.of(
+                b -> b,
+                "must.be.true"
+        );
     }
 
     /**
@@ -31,7 +34,10 @@ public class BooleanRules {
      * Error key: {@code must.be.false}
      */
     public Rule<Boolean> isFalse() {
-        return Rule.notNull().and(Rule.of(b -> !b, "must.be.false"));
+        return Rule.of(
+                b -> !b,
+                "must.be.false"
+        );
     }
 
     /**

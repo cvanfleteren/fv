@@ -22,13 +22,16 @@ class ObjectRulesTest {
         @Test
         void valid() {
             validTest("hello", objects.notNull());
+            validTest("hello", objects.notNull(String.class));
             validTest(123, objects.notNull());
+            validTest(123, objects.notNull(Integer.class));
             validTest(new Object(), objects.notNull());
         }
 
         @Test
         void invalid() {
             invalidTest(null, objects.notNull(), "must.not.be.null");
+            invalidTest(null, objects.notNull(String.class), "must.not.be.null");
         }
     }
 

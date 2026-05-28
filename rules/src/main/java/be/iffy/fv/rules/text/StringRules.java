@@ -831,6 +831,5 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     }
 
     //endregion
-
-
+    
 }
