@@ -24,6 +24,7 @@ Welcome to the FAQ for the Iffy Functional Validation (FV) library. If you have 
 - [Ok, but I want to transform multiple fields in my constructor, how do I get their transformed values?](#ok-but-i-want-to-transform-multiple-fields-in-my-constructor-how-do-i-get-their-transformed-values)
 - [I have some type whose constructor throws an exception, how can I make a Validation for this type?](#i-have-some-type-whose-constructor-throws-an-exception-how-can-i-make-a-validation-for-this-type)
 - [I have a Validation, but I want to add an extra check on the value](#i-have-a-validation-but-i-want-to-add-an-extra-check-on-the-value)
+- [If I have for example a Rule for Number, can I use it to also validate BigDecimals?](#if-i-have-for-example-a-rule-for-number-can-i-use-it-to-also-validate-a-subtype-like-bigdecimal)
 
 ---
 
@@ -565,4 +566,22 @@ Validation<String> filtered = initialValidation.filter(
     s -> s.startsWith("A"), 
     "must.start.with.A"
 );
+```
+
+---
+
+### If I have for example a Rule for Number, can I use it to also validate a subtype like BigDecimal?
+
+Yes! Because `Rule<T>` is contravariant in its type parameter (meaning it can handle any subtype of `T`), you can use a rule defined for a supertype to validate a subtype. 
+
+This is particularly useful for combining general rules with type-specific ones.
+
+#### Example: Combining a Number rule with a BigDecimal rule
+
+```java
+Rule<Number> isPositive = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
+Rule<BigDecimal> isMinusFortyTwo = Rule.of(b -> b.compareTo(new BigDecimal("-42")) == 0, "must.be.minus.forty.two");
+
+Rule<BigDecimal> combined = isMinusFortyTwo.or(isPositive);
+```
 ```
