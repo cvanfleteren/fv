@@ -236,17 +236,37 @@ public class DSL {
     }
 
     /**
-     * For any given {@code Rule<T>}, returns a Rule that can work on an {@code Optional<T>} instead.
+     * For any given {@code MappingRule<T, R>}, returns a MappingRule that can work on an {@code MappingRule<Optional<T>, Optional<R>>} instead.
      * An empty {@link Optional} is considered to be valid.
      *
-     * @see OptionalRules#required()
+     * @see be.iffy.fv.rules.functional.OptionalRules#required()
+     */
+    public static <T, R> MappingRule<Optional<T>, Optional<R>> optional(MappingRule<T, R> rule) {
+        return rule.liftToOptional();
+    }
+
+    /**
+     * For any given {@code MappingRule<T, R>}, returns a MappingRule that can work on an {@code MappingRule<Optional<T>, Optional<R>>} instead.
+     * An empty {@link Optional} is considered to be valid.
+     *
+     * @see be.iffy.fv.rules.functional.OptionalRules#required()
      */
     public static <T> Rule<Optional<T>> optional(Rule<T> rule) {
         return rule.liftToOptional();
     }
 
     /**
-     * For any given {@code Rule<T>}, returns a Rule that can work on an {@code Option<T>} instead.
+     * For any given {@code MappingRule<T, R>}, returns a MappingRule that can work on an {@code MappingRule<Option<T>, Option<R>>} instead.
+     * An empty {@link Option} is considered to be valid.
+     *
+     * @see be.iffy.fv.rules.functional.OptionRules#required()
+     */
+    public static <T, R> MappingRule<Option<T>, Option<R>> option(MappingRule<T, R> rule) {
+        return rule.liftToOption();
+    }
+
+    /**
+     * For any given {@code MappingRule<T, R>}, returns a MappingRule that can work on an {@code MappingRule<Option<T>, Option<R>>} instead.
      * An empty {@link Option} is considered to be valid.
      *
      * @see be.iffy.fv.rules.functional.OptionRules#required()
@@ -306,7 +326,7 @@ public class DSL {
         return new ValidationDSL<>(value, name);
     }
 
-    public static <T, V> ValidationDSL<V> validateThat(V value, PropertySelector<T, V> name) {
+    public static <ANY, T> ValidationDSL<T> validateThat(T value, PropertySelector<ANY, T> name) {
         return new ValidationDSL<>(value, name.getPropertyName());
     }
 
