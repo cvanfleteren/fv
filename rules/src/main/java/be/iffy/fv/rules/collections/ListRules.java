@@ -1,6 +1,7 @@
 package be.iffy.fv.rules.collections;
 
 import be.iffy.fv.ErrorMessage;
+import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import io.vavr.Function1;
 import io.vavr.collection.Map;
@@ -257,6 +258,18 @@ public class ListRules {
      */
     public <T, K> Rule<List<T>> uniqueBy(Function1<T, K> keyExtractor, String key) {
         return InnerRules.<T>inner().uniqueBy(keyExtractor, key);
+    }
+
+    /**
+     * Fails if one or more entries in the collection fail the passed MappingRule.
+     * <p>
+     * Error key: whatever the key(s) are that the passed mappingRule returns.
+     *
+     * @see MappingRule#liftToList()
+     */
+    public <T, R> MappingRule<List<T>, List<R>> map(MappingRule<T, R> mappingRule) {
+        return input ->
+                mappingRule.liftToList().test(input);
     }
 
     /**

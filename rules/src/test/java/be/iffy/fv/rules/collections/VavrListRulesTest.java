@@ -1,5 +1,6 @@
 package be.iffy.fv.rules.collections;
 
+import be.iffy.fv.MappingRule;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
@@ -11,8 +12,10 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.function.Predicate;
 
+import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
+import static be.iffy.fv.rules.collections.ListRules.lists;
 import static be.iffy.fv.rules.collections.VavrListRules.vavrLists;
 import static be.iffy.fv.rules.numbers.IntegerRules.ints;
 import static be.iffy.fv.rules.text.StringRules.strings;
@@ -418,6 +421,29 @@ class VavrListRulesTest {
                             )
                     )
             );
+        }
+    }
+
+    @Nested
+    class MapTests {
+
+        @Test
+        void map_withValidInput_returnsMappedValues() {
+            MappingRule<String, Integer> toInt = MappingRule.of(Integer::parseInt, "must.be.integer");
+            List<Integer> expected = List.of(1, 2, 3);
+
+            assertThatValidation(vavrLists.map(toInt).test(List.of("1", "2", "3")).at("value"))
+                    .isValid()
+                    .isEqualTo(expected);
+        }
+
+        @Test
+        void map_withInvalidInput_returnsErrorsAtCorrectIndices() {
+            MappingRule<String, Integer> toInt = MappingRule.of(Integer::parseInt, "must.be.integer");
+
+            assertThatValidation(vavrLists.map(toInt).test(List.of("1", "abc", "3")).at("value"))
+                    .isInvalid()
+                    .hasErrorMessages("value[1].must.be.integer");
         }
     }
 
