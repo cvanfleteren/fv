@@ -846,7 +846,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Creates a {@link Validation} from a {@link Supplier}.
      * If the supplier throws a {@link ValidationException}, the returned validation will be invalid with the same errors
      * as the thrown exception.
-     * If the supplier throws any other exception, the exception will be propagated.
+     * If the supplier throws any other exception, the exception will be propagated. Use {@link Validation#from(Try)} if you want to catch all possible excetions.
      * This method is meant for interoperability with code that can throw {@link ValidationException}, for example
      * when using the "validate in constructor" pattern.
      */
