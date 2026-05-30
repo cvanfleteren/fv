@@ -42,7 +42,7 @@ public interface MappingRule<T, R> {
      * Usage example:
      * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "of-string-example"}
      */
-    static <T, R> MappingRule<T, R> of(Function<T, R> mapper, String errorKey) {
+    static <T, R> MappingRule<T, R> of(Function<? super T, ? extends R> mapper, String errorKey) {
         return of(mapper, ErrorMessage.of(errorKey));
     }
 
@@ -53,14 +53,14 @@ public interface MappingRule<T, R> {
      * Usage example:
      * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "of-try-error-example"}
      */
-    static <T, R> MappingRule<T, R> ofTry(Function<T, Try<R>> mapper, ErrorMessage errorMessage) {
+    static <T, R> MappingRule<T, R> ofTry(Function<? super T, ? extends Try<? extends R>> mapper, ErrorMessage errorMessage) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return input -> {
             if(input == null) {
                 return Validation.invalid("must.not.be.null");
             }
-            Try<R> _try = mapper.apply(input);
+            Try<? extends R> _try = mapper.apply(input);
             return _try.fold(
                     t -> Validation.invalid(errorMessage),
                     Validation::valid
@@ -75,7 +75,7 @@ public interface MappingRule<T, R> {
      * Usage example:
      * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "of-try-string-example"}
      */
-    static <T, R> MappingRule<T, R> ofTry(Function<T, Try<R>> mapper, String errorKey) {
+    static <T, R> MappingRule<T, R> ofTry(Function<? super T, ? extends Try<? extends R>> mapper, String errorKey) {
         return ofTry(mapper, ErrorMessage.of(errorKey));
     }
 
@@ -86,14 +86,14 @@ public interface MappingRule<T, R> {
      * Usage example:
      * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "of-error-example"}
      */
-    static <T, R> MappingRule<T, R> of(Function<T, R> throwingMapper, ErrorMessage errorMessage) {
+    static <T, R> MappingRule<T, R> of(Function<? super T, ? extends R> throwingMapper, ErrorMessage errorMessage) {
         Objects.requireNonNull(throwingMapper, "mapper cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return input -> {
             if(input == null) {
                 return Validation.invalid("must.not.be.null");
             }
-            Option<R> result = Function1.lift(throwingMapper).apply(input);
+            Option<? extends R> result = Function1.lift(throwingMapper).apply(input);
             return result.fold(
                     () -> Validation.invalid(errorMessage),
                     value -> Validation.valid(value)
@@ -135,7 +135,7 @@ public interface MappingRule<T, R> {
      * @param mapper the function to apply to the result of this rule if the input passes the test.
      * @return a new {@link MappingRule} that applies the mapping function to the result.
      */
-    default <Z> MappingRule<T, Z> map(Function<R, Z> mapper) {
+    default <Z> MappingRule<T, Z> map(Function<? super R, ? extends Z> mapper) {
         return (T input) -> this.test(input).map(mapper);
     }
 

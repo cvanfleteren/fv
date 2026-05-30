@@ -52,15 +52,15 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Usage example:
      * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "of-string-example"}
      */
-    static <T> Rule<T> of(Predicate<T> predicate, String errorKey) {
+    static <T> Rule<T> of(Predicate<? super T> predicate, String errorKey) {
         return of(predicate, ErrorMessage.of(errorKey));
     }
 
     /**
      * Make a {@code Rule<T>} from a function that shares the same signature.
      */
-    static <T> Rule<T> of(Function<T, Validation<T>> ruleLikeFunction) {
-        return ruleLikeFunction::apply;
+    static <T> Rule<T> of(Function<? super T, ? extends Validation<? extends T>> ruleLikeFunction) {
+        return input -> Validation.narrow(ruleLikeFunction.apply(input));
     }
 
     /**
@@ -73,7 +73,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * @param predicate    the predicate to test values against.
      * @param errorMessage the error message to use if the predicate returns {@code false}.
      */
-    static <T> Rule<T> of(Predicate<T> predicate, ErrorMessage errorMessage) {
+    static <T> Rule<T> of(Predicate<? super T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return value -> {
@@ -207,7 +207,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * @return a rule that tests the condition. If the condition is true, the original rule is applied.
      * If the condition is false, the value is considered valid by default.
      */
-    default Rule<T> onlyIf(Predicate<T> condition) {
+    default Rule<T> onlyIf(Predicate<? super T> condition) {
         Objects.requireNonNull(condition, "condition cannot be null");
         return value -> {
             if (condition.test(value)) {
@@ -531,12 +531,12 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Be carefull, once you start combining this resulting Rule with other Rules, (e.g. using {@link #and(Rule)}, the null will be passed to
      * the other rule and null will once again be considered invalid. So this Rule should always be the "outer rule".
      */
-    static <T> Rule<T> nullOk(Rule<T> whenNotNull) {
+    static <T> Rule<T> nullOk(Rule<? super T> whenNotNull) {
         return input -> {
             if (input == null) {
                 return Validation.valid(null);
             } else {
-                return whenNotNull.test(input);
+                return Rule.<T>narrow(whenNotNull).test(input);
             }
         };
     }
@@ -559,9 +559,9 @@ public interface Rule<T> extends MappingRule<T, T> {
      *
      * @param selector a function that extracts a value of type V from an input of type T
      */
-    static <T, V> Rule<T> with(Function<T, V> selector, Rule<V> rule) {
+    static <T, V> Rule<T> with(Function<? super T, ? extends V> selector, Rule<? super V> rule) {
         return input ->
-                rule.test(selector.apply(input))
+                Rule.<V>narrow(rule).test(selector.apply(input))
                         .map(ignore -> input);
     }
 
