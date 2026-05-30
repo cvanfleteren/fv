@@ -150,6 +150,24 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
+     * Composes this rule with another using XOR logic.
+     * Successful only if exactly one of the rules is successful.
+     */
+    @SuppressWarnings("unchecked")
+    default <S extends T> Rule<S> xor(Rule<? super S> other, String errorKey) {
+        Objects.requireNonNull(other, "other rule cannot be null");
+        Objects.requireNonNull(errorKey, "errorKey cannot be null");
+        return input -> {
+            boolean v1Valid = this.test(input).isValid();
+            boolean v2Valid = other.test(input).isValid();
+            if (v1Valid ^ v2Valid) {
+                return Validation.valid(input);
+            }
+            return Validation.invalid(errorKey);
+        };
+    }
+
+    /**
      * Negates this rule. The caller must provide the error message key to use when the negated rule fails.
      * <p>
      * Usage example:
@@ -186,7 +204,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Usage example:
      * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "only-if-predicate-example"}
      *
-     * @param condition the condition to test, must not be null
      * @return a rule that tests the condition. If the condition is true, the original rule is applied.
      * If the condition is false, the value is considered valid by default.
      */
@@ -206,7 +223,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Usage example:
      * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "only-if-supplier-example"}
      *
-     * @param condition the condition to test, must not be null
      * @return a rule that tests the condition. If the condition is true, the original rule is applied.
      * If the condition is false, the value is considered valid by default.
      */

@@ -546,6 +546,114 @@ class RuleTest {
     }
 
     @Nested
+    class Xor {
+
+        @Test
+        void xor_whenFirstRulePassesAndSecondRuleFails_returnsValidResult() {
+            // Arrange
+            Rule<String> startsWithH = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> isLongerThan5 = Rule.of(s -> s.length() > 5, "too.short");
+            Rule<String> combined = startsWithH.xor(isLongerThan5, "exactly.one.must.match");
+
+            // Act
+            Validation<String> result = combined.test("hello");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("hello");
+        }
+
+        @Test
+        void xor_whenFirstRuleFailsAndSecondRulePasses_returnsValidResult() {
+            // Arrange
+            Rule<String> startsWithH = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> isLongerThan5 = Rule.of(s -> s.length() > 5, "too.short");
+            Rule<String> combined = startsWithH.xor(isLongerThan5, "exactly.one.must.match");
+
+            // Act
+            Validation<String> result = combined.test("apple pie");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("apple pie");
+        }
+
+        @Test
+        void xor_whenBothRulesPass_returnsInvalidWithErrorKey() {
+            // Arrange
+            Rule<String> startsWithH = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> isLongerThan3 = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<String> combined = startsWithH.xor(isLongerThan3, "exactly.one.must.match");
+
+            // Act
+            Validation<String> result = combined.test("hello");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("exactly.one.must.match");
+        }
+
+        @Test
+        void xor_whenBothRulesFail_returnsInvalidWithErrorKey() {
+            // Arrange
+            Rule<String> startsWithH = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> isLongerThan10 = Rule.of(s -> s.length() > 10, "too.short");
+            Rule<String> combined = startsWithH.xor(isLongerThan10, "exactly.one.must.match");
+
+            // Act
+            Validation<String> result = combined.test("apple");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("exactly.one.must.match");
+        }
+
+        @Test
+        void xor_whenCombiningWithRuleOfSuperType_compilesAndWorks() {
+            // Arrange
+            Rule<Number> isPositive = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
+            Rule<BigDecimal> isMinusFortyTwo = Rule.of(b -> b.compareTo(new BigDecimal("-42")) == 0, "must.be.minus.forty.two");
+
+            // Act
+            Rule<BigDecimal> combined = isMinusFortyTwo.xor(isPositive, "exactly.one.must.match");
+
+            // Assert
+            assertThatValidation(combined.test(new BigDecimal("10"))).isValid();
+            assertThatValidation(combined.test(new BigDecimal("-42"))).isValid();
+
+            assertThatValidation(combined.test(new BigDecimal("-1")))
+                    .isInvalid()
+                    .hasErrorMessage("exactly.one.must.match");
+        }
+
+        @Test
+        void xor_whenOtherRuleIsNull_throwsNullPointerException() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> true, "ok");
+
+            // Act & Assert
+            assertThatCode(() -> rule.xor(null, "error"))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("other rule cannot be null");
+        }
+
+        @Test
+        void xor_whenErrorKeyIsNull_throwsNullPointerException() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> true, "ok");
+
+            // Act & Assert
+            assertThatCode(() -> rule.xor(Rule.of(s -> true, "ok"), null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("errorKey cannot be null");
+        }
+    }
+
+    @Nested
     class Negate {
 
         @Test
