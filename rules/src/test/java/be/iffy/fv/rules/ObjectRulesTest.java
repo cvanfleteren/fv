@@ -1,5 +1,6 @@
 package be.iffy.fv.rules;
 
+import be.iffy.fv.ErrorMessage;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import be.iffy.fv.MappingRule;
@@ -189,6 +190,40 @@ class ObjectRulesTest {
             assertThatValidation(objects.canBeEnum(TestEnum.class).test("C"))
                     .isInvalid()
                     .hasErrorMessage("must.be.valid.enum.value", HashMap.of("value", "C"));
+        }
+    }
+
+    @Nested
+    class CanBe {
+
+        MappingRule<String, BigDecimal> rule = objects.canBe(BigDecimal::new, ErrorMessage.of("invalid.number"));
+
+        @Test
+        void canBe_withErrorMessage_whenValid_returnsValid() {
+            assertThatValidation(rule.test("123.45"))
+                    .isValid()
+                    .isEqualTo(new BigDecimal("123.45"));
+        }
+
+        @Test
+        void canBe_withErrorMessage_whenInvalid_returnsInvalid() {
+            assertThatValidation(rule.test("not-a-number"))
+                    .isInvalid()
+                    .hasErrorMessage("invalid.number");
+        }
+
+        @Test
+        void canBe_withErrorKey_whenValid_returnsValid() {
+            assertThatValidation(rule.test("123.45"))
+                    .isValid()
+                    .isEqualTo(new BigDecimal("123.45"));
+        }
+
+        @Test
+        void canBe_withErrorKey_whenInvalid_returnsInvalid() {
+            assertThatValidation(rule.test("not-a-number"))
+                    .isInvalid()
+                    .hasErrorMessage("invalid.number");
         }
     }
 }

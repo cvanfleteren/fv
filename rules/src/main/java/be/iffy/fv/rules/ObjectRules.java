@@ -6,6 +6,8 @@ import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 
+import java.util.function.Function;
+
 /**
  * Implementation of {@link IObjectRules} for generic {@link Object} validation.
  */
@@ -78,6 +80,26 @@ public class ObjectRules implements IObjectRules<Object> {
                         f -> Validation.invalid(ErrorMessage.of("must.be.valid.enum.value", "value", input)),
                         v -> Validation.valid(input)
                 );
+    }
+
+    /**
+     * Fails if the passed constructor Function doesn't apply successfully.
+     * Will catch all possible exceptions thrown by the function.
+     */
+    public <T,R> MappingRule<T, R> canBe(Function<T,R> constructor, ErrorMessage errorMessage) {
+        return input ->  Try.of(() -> constructor.apply(input))
+                .fold(
+                        f -> Validation.invalid(errorMessage),
+                        v -> Validation.valid(v)
+                );
+    }
+
+    /**
+     * Fails if the passed constructor Function doesn't apply successfully.
+     * Will catch all possible exceptions thrown by the function.
+     */
+    public <T,R> MappingRule<T, R> canBe(Function<T,R> constructor, String errorKey) {
+        return canBe(constructor, ErrorMessage.of(errorKey));
     }
 
 }
