@@ -687,7 +687,7 @@ public class ValidationTest {
             );
 
             // Act
-            Validation<List<Integer>> result = Validation.transpose(validations).at("first");
+            Validation<List<Integer>> result = Validation.transpose(validations, "first");
 
             // Assert
             assertThatValidation(result)

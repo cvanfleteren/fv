@@ -1,7 +1,6 @@
 package be.iffy.fv.dsl;
 
 import be.iffy.fv.*;
-import be.iffy.fv.rules.functional.OptionalRules;
 import io.vavr.*;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
@@ -348,14 +347,14 @@ public class DSL {
         private String name = "";
 
         public ValidationDSL(T value) {
-            this.validation = value == null ? Validation.invalid(ErrorMessage.of("must.not.be.null")) : Validation.valid(value);
+            this.validation = Rule.<T>notNull().test(value);
         }
 
         public ValidationDSL(T value, String name) {
             if (value == null) {
-                this.validation = Validation.<T>invalid(ErrorMessage.of("must.not.be.null")).at(name);
+                this.validation = Validation.invalid(ErrorMessage.of("must.not.be.null"));
             } else {
-                this.validation = Validation.valid(value).at(name);
+                this.validation = Validation.valid(value);
             }
             this.name = name;
         }
@@ -368,23 +367,10 @@ public class DSL {
         /**
          * Maps the value being validated using the provided mapper function.
          * If the current validation is already invalid, the mapper is not applied.
-         *
-         * @param mapper the function to apply.
-         * @return a new {@link ValidationDSL} with the mapped value.
+         * If the mapper throws an Exception, it is caught and the validation becomes {@link be.iffy.fv.Validation.Invalid}
          */
         public <Z> ValidationDSL<Z> map(Function<T, Z> mapper) {
             return new ValidationDSL<>(validation.mapCatching(mapper), name);
-        }
-
-        /**
-         * Maps the value being validated using the provided mapper function.
-         * If the current validation is already invalid, the mapper is not applied.
-         *
-         * @param mapper the function to apply.
-         * @return a new {@link ValidationDSL} with the mapped value.
-         */
-        public <Z> Validation<Z> mapsTo(Function<T, Z> mapper) {
-            return this.validation.mapCatching(mapper).at(name);
         }
 
         /**
@@ -396,8 +382,7 @@ public class DSL {
          */
         public Validation<T> is(Rule<? super T> rule) {
             Objects.requireNonNull(rule, "rule cannot be null");
-            return validation
-                    .flatMap(v -> Validation.narrowSuper(rule.test(v).at(name)));
+            return validation.refine(Rule.narrow(rule)).at(name);
         }
 
         /**
@@ -409,34 +394,22 @@ public class DSL {
          */
         public <R> Validation<R> is(MappingRule<? super T, ? extends R> rule) {
             Objects.requireNonNull(rule, "rule cannot be null");
-            return validation
-                    .flatMap(v -> Validation.narrowSuper(MappingRule.<T>notNull().andThen(rule).test(v).at(name)));
+            return Validation.narrow(validation.refine(rule).at(name));
         }
-
 
         /**
          * Validates that the value satisfies the given rule.
-         * If the value is {@code null}, an error "must.not.be.null" is automatically added.
-         *
-         * @param rule the rule to check.
-         * @return a {@link Validation} result.
          */
         public <R> Validation<R> is(Function<? super T, ? extends Validation<R>> rule) {
             Objects.requireNonNull(rule, "rule cannot be null");
-            return validation
-                    .flatMap(v -> Validation.narrowSuper(MappingRule.<T>notNull().andThen(rule::apply).test(v).at(name)));
+            return validation.refine(MappingRule.asMappingRule(rule)).at(name);
         }
 
         /**
          * Validates that the value is not null.
-         * If the value is {@code null}, an error "must.not.be.null" is automatically added.
-         *
-         * @return a {@link Validation} result.
-         * @see DSL#notNull(Object, String)
          */
         public Validation<T> isNotNull() {
-            return validation
-                    .flatMap(v -> Validation.narrowSuper(Rule.notNull().test(v).at(name)));
+            return validation.refine(Rule.notNull()).at(name);
         }
     }
 
@@ -560,25 +533,48 @@ public class DSL {
 
     public static class AssertDSL<T> {
         private final String name;
-        private final Validation<T> value;
+        private final Validation<T> validation;
 
-        public AssertDSL(T value, String name) {
-            this.value = Rule.<T>notNull().test(value);
+        AssertDSL(T validation, String name) {
+            this.validation = Rule.<T>notNull().test(validation);
             this.name = name;
         }
 
-        AssertDSL(Validation<T> value, String name) {
-            this.value = value;
+        AssertDSL(Validation<T> validation, String name) {
+            this.validation = validation;
             this.name = name;
         }
 
         public <R> AssertDSL<R> map(Function<T, R> transform) {
-            return new AssertDSL<>(this.value.mapCatching(transform), name);
+            return new AssertDSL<>(this.validation.mapCatching(transform), name);
         }
 
+        /**
+         * Validates that the value satisfies the given rule.
+         */
         public T is(Rule<? super T> rule) {
-            Rule<T> narrow = Rule.narrow(rule);
-            return value.refine(narrow).at(name).getOrElseThrow();
+            Objects.requireNonNull(rule, "rule cannot be null");
+            return validation.refine(Rule.narrow(rule)).at(name).getOrElseThrow();
+        }
+
+        /**
+         * Validates that the value satisfies the given rule.
+         */
+        public <R> R is(MappingRule<? super T, ? extends R> rule) {
+            Objects.requireNonNull(rule, "rule cannot be null");
+            return validation.refine(rule).at(name).getOrElseThrow();
+        }
+
+        /**
+         * Validates that the value satisfies the given rule.
+         */
+        public <R> R is(Function<? super T, ? extends Validation<R>> rule) {
+            Objects.requireNonNull(rule, "rule cannot be null");
+            return validation.refine(MappingRule.asMappingRule(rule)).at(name).getOrElseThrow();
+        }
+
+        public T isNotNull() {
+            return validation.at(name).getOrElseThrow();
         }
     }
 }

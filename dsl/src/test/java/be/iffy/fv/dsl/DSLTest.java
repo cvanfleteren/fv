@@ -218,8 +218,8 @@ public class DSLTest {
 
             @Test
             void isNotNull_whenValueIsNull_returnsInvalid() {
-                Validation<String> v = validateThat((String) null).isNotNull();
-                assertThatValidation(v).isInvalid().hasErrorMessage("must.not.be.null");
+                Validation<String> v = validateThat((String) null, "foo").isNotNull();
+                assertThatValidation(v).isInvalid().hasErrorMessage("foo.must.not.be.null");
             }
         }
 
@@ -261,12 +261,12 @@ public class DSLTest {
                 Function<String, Validation<Integer>> func = s -> Validation.valid(1);
 
                 // Act
-                Validation<Integer> result = validateThat((String) null).is(func);
+                Validation<Integer> result = validateThat((String) null, "foo").is(func);
 
                 // Assert
                 assertThatValidation(result)
                         .isInvalid()
-                        .hasErrorMessage("must.not.be.null");
+                        .hasErrorMessage("foo.must.not.be.null");
             }
         }
 
@@ -337,7 +337,7 @@ public class DSLTest {
             var value = "  abc  ";
 
             // Act
-            var result = validateThat(value)
+            var result = validateThat(value, "foo")
                     .map(Integer::parseInt)
                     .map(i -> i * 2)
                     .is(Rule.of(i -> i == 246, "must.be.246"));
@@ -345,7 +345,7 @@ public class DSLTest {
             // Assert
             assertThatValidation(result)
                     .isInvalid()
-                    .hasErrorMessages("could.not.be.mapped");
+                    .hasErrorMessages("foo.could.not.be.mapped");
         }
 
         @Test

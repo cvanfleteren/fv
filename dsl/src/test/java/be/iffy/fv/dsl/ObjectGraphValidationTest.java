@@ -3,7 +3,6 @@ package be.iffy.fv.dsl;
 import be.iffy.fv.rules.collections.VavrListRules;
 import io.vavr.collection.List;
 import be.iffy.fv.MappingRule;
-import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 import be.iffy.fv.rules.text.StringRules;
 import org.junit.jupiter.api.Test;
@@ -89,7 +88,7 @@ class ObjectGraphValidationTest {
             MappingRule<String, Email> canBeEmail = strings.minLength(2).and(strings.contains("@")).andThen(MappingRule.of(Email::new, "must.be.email"));
 
             return Validation.mapN(
-                    validateThat(dto.username, "username").mapsTo(Username::new),
+                    validateThat(dto.username, "username").map(Username::new).isNotNull(),
                     validateThat(dto.email, "email").is(canBeEmail),
                     validateAddress(dto.address).at("address"),
                     validateThatList(dto.roles, "roles").satisfies(collections.notEmpty()).eachMapsTo(canBeRole).validate(),
