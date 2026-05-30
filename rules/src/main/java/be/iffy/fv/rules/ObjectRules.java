@@ -32,7 +32,7 @@ public class ObjectRules implements IObjectRules<Object> {
      * with type inference. Can be used to use something like
      * {@code Ruyle<String> rule = objects.notNull(String.class).and(...);}
      * instead of
-     * {@code Ruyle<String> rule = objects.<String>notNull.and(...);}
+     * {@code Rule<String> rule = objects.<String>notNull.and(...);}
      * which some people prefer.
      * <p>
      * Error key: {@code must.not.be.null}
@@ -61,7 +61,6 @@ public class ObjectRules implements IObjectRules<Object> {
                         Validation::valid
                 );
     }
-
 
     /**
      * Fails if the input string is not a valid enum value for the given enum class.
