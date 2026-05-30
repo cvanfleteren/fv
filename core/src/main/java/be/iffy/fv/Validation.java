@@ -380,7 +380,8 @@ public sealed interface Validation<T> extends Iterable<T> {
      * @param selector The selector for the value that was validated (e.g., SomeRecord::someField or SomeBean::getProperty).
      */
     default <ANY> Validation<T> at(PropertySelector<ANY, T> selector) {
-        return mapErrors(errors -> errors.map(error -> error.prepend(ErrorMessage.Path.of(selector.getPropertyName()))));
+        String name = selector.getPropertyName();
+        return at(name);
     }
     //endregion
 
