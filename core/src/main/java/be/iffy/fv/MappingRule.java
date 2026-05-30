@@ -109,9 +109,10 @@ public interface MappingRule<T, R> {
      *
      * @param validationFunction The function that converts an input of type T to a validation object of type R.
      */
-    static <T, R> MappingRule<T, R> asMappingRule(Function<T, Validation<R>> validationFunction) {
+    static <T, R> MappingRule<T, R> asMappingRule(Function<? super T, ? extends Validation<R>> validationFunction) {
         return validationFunction::apply;
     }
+
 
     /**
      * Composes this MappingRule with another MappingRule using "short-circuiting and" logic.

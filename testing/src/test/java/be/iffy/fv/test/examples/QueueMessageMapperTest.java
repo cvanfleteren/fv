@@ -6,7 +6,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertInvalid;
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
@@ -18,10 +20,12 @@ public class QueueMessageMapperTest {
     class validate {
 
         QueueMessage.Address validAddress = new QueueMessage.Address("some street", "123", "Melville");
+        QueueMessage.MandateInfo validMandateInfo = new QueueMessage.MandateInfo("some-id", LocalDate.now(), true, Optional.of("CREDITORID"), Optional.of("foo"));
 
         QueueMessage.Debtor validDebtor = new QueueMessage.Debtor(
                 "BE0123456789", "ABCDEF12XXX", "John Doe",
-                validAddress
+                validAddress,
+                validMandateInfo
         );
 
         @Test
@@ -47,7 +51,7 @@ public class QueueMessageMapperTest {
         @Test
         void validate_whenAllNull_fails() {
             // arrange
-            QueueMessage.Debtor debtor = new QueueMessage.Debtor(null, null, null, null);
+            QueueMessage.Debtor debtor = new QueueMessage.Debtor(null, null, null, null, null);
             QueueMessage message = new QueueMessage(debtor, "KBO123", null);
 
             // act & assert
@@ -58,6 +62,7 @@ public class QueueMessageMapperTest {
                             "debtor.bic.must.not.be.null",
                             "debtor.name.must.not.be.null",
                             "debtor.address.must.not.be.null",
+                            "debtor.mandateInfo.must.not.be.null",
                             "transactions.must.not.be.null"
                     );
         }
@@ -65,7 +70,7 @@ public class QueueMessageMapperTest {
         @Test
         void validate_whenLeafsInvalid_fails() {
             // arrange
-            QueueMessage.Debtor debtor = new QueueMessage.Debtor("", "", "", new QueueMessage.Address("","",""));
+            QueueMessage.Debtor debtor = new QueueMessage.Debtor("", "", "", new QueueMessage.Address("", "", ""), new QueueMessage.MandateInfo("", null, null, Optional.empty(), null));
             QueueMessage message = new QueueMessage(debtor, "", List.of(new QueueMessage.Transaction(new BigDecimal("-200.00"))));
 
             // act & assert
@@ -77,6 +82,7 @@ public class QueueMessageMapperTest {
                             "debtor.address.street.must.not.be.blank",
                             "debtor.address.houseNumber.must.not.be.blank",
                             "debtor.address.city.must.not.be.blank",
+                            "debtor.mandateInfo.amendmentIndicator.must.not.be.null",
                             "kboNumber.value.must.not.be.blank",
                             "transactions[0].amount.must.be.positive"
                     );
@@ -96,7 +102,7 @@ public class QueueMessageMapperTest {
 
         @Test
         void validate_whenInvalidDebtor_returnsInvalidWithErrors() {
-            QueueMessage.Debtor debtor = new QueueMessage.Debtor("", "INVALID", " ", new QueueMessage.Address(" "," ","a"));
+            QueueMessage.Debtor debtor = new QueueMessage.Debtor("", "INVALID", " ", new QueueMessage.Address(" ", " ", "a"), validMandateInfo);
             QueueMessage.Transaction transaction = new QueueMessage.Transaction(new BigDecimal("100.00"));
             QueueMessage message = new QueueMessage(debtor, "KBO123", List.of(transaction));
 
@@ -117,7 +123,7 @@ public class QueueMessageMapperTest {
 
         @Test
         void validate_whenInvalidTransaction_returnsInvalidWithErrors() {
-            QueueMessage.Debtor debtor = new QueueMessage.Debtor("BE0123456789", "ABCDEF12XXX", "John Doe", validAddress);
+            QueueMessage.Debtor debtor = new QueueMessage.Debtor("BE0123456789", "ABCDEF12XXX", "John Doe", validAddress, validMandateInfo);
             // Command.Transaction has an internal assertThat(...) which throws if invalid.
             // When MappingRule.asRule(this::validateTransaction) is used, validateTransaction
             // calls Command.Transaction constructor.
@@ -136,7 +142,7 @@ public class QueueMessageMapperTest {
         @Test
         void validate_whenKboNumberBlank_returnsInvalidWithErrors() {
 
-            QueueMessage.Debtor debtor = new QueueMessage.Debtor("BE0123456789", "ABCDEF12XXX", "John Doe", validAddress);
+            QueueMessage.Debtor debtor = new QueueMessage.Debtor("BE0123456789", "ABCDEF12XXX", "John Doe", validAddress, validMandateInfo);
             QueueMessage message = new QueueMessage(debtor, "", List.of());
 
             Validation<Command> validation = message.validate();
