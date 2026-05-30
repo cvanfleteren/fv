@@ -10,13 +10,6 @@ public class BooleanRules {
     public static final BooleanRules booleans = new BooleanRules();
 
     /**
-     * Returns the singleton instance of {@link BooleanRules}.
-     */
-    public static BooleanRules booleans() {
-        return booleans;
-    }
-
-    /**
      * Fails if the boolean is {@code null} or {@code false}.
      * <p>
      * Error key: {@code must.be.true}

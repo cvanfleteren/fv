@@ -15,21 +15,12 @@ public class OptionalRules {
     public static final OptionalRules optionals = new OptionalRules();
 
     /**
-     * Returns the singleton instance of {@link OptionalRules}.
-     */
-    public static OptionalRules optionals() {
-        return optionals;
-    }
-
-    /**
      * Fails if the {@link Optional} is empty while extracting the value from the {@link Optional}.
      * <p>
      * Error key: {@code must.not.be.empty}
      * <p>
      * Usage example:
      * {@snippet file = "be/iffy/fv/rules/functional/OptionalSnippets.java" region = "required-example"}
-     *
-     
      */
     public <T> MappingRule<Optional<T>, T> required() {
         return MappingRule.<Optional<T>>notNull().andThen(input ->
@@ -44,7 +35,6 @@ public class OptionalRules {
      * instead of
      * {@code Validation<Bic> bic = validateThat(bicHolder.bic()).is(optionals.<String>required().andThen(Bic::validate));}
      * which some people prefer.
-     *
      */
     public <T> MappingRule<Optional<T>, T> required(Class<T> clazz) {
         return required();

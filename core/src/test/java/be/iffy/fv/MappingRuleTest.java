@@ -901,9 +901,9 @@ class MappingRuleTest {
         }
 
         @Test
-        void asMappingRule_whenFunctionReturnsValid_returnsValidResult() {
+        void of_whenFunctionReturnsValid_returnsValidResult() {
             // Arrange
-            MappingRule<String, Integer> rule = MappingRule.asMappingRule(AsMappingRule::validator);
+            MappingRule<String, Integer> rule = MappingRule.of(AsMappingRule::validator);
 
             // Act
             Validation<Integer> result = rule.test("123");
@@ -915,11 +915,11 @@ class MappingRuleTest {
         }
 
         @Test
-        void asMappingRule_whenFunctionReturnsInvalid_returnsInvalidResult() {
+        void of_whenFunctionReturnsInvalid_returnsInvalidResult() {
             // Arrange
             ErrorMessage error = ErrorMessage.of("invalid.input");
             Function<String, Validation<Integer>> func = s -> Validation.invalid(error);
-            MappingRule<String, Integer> rule = MappingRule.asMappingRule(func);
+            MappingRule<String, Integer> rule = MappingRule.of(func);
 
             // Act
             Validation<Integer> result = rule.test("abc");

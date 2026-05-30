@@ -196,10 +196,16 @@ class SetRulesTest {
     class NoneMatch {
 
         @Test
-        void valid() {
+        void noneMatch_whenElementsMatchPredicate_isInvalid() {
             Rule<Set<Integer>> noEvens = sets.noneMatch(n -> n % 2 == 0);
             validTest(Set.of(1, 3, 5), noEvens);
             validTest(Set.<Integer>of(), sets.noneMatch(n -> n % 2 == 0));
+        }
+
+        @Test
+        void noneMatchRule_whenElementsMatchRule_isInvalid() {
+            validTest(Set.of(1, 3, 5), sets.noneMatchRule(ints.even()));
+            invalidTest(new LinkedHashSet<>(List.of(1, 2, 3)), sets.noneMatchRule(ints.even()), "must.none.match");
         }
 
         @Test
@@ -207,7 +213,6 @@ class SetRulesTest {
             invalidTest(null, sets.noneMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
 
             invalidTest(new LinkedHashSet<>(List.of(1, 2, 3)), sets.noneMatch(n -> n % 2 == 0), "must.none.match");
-
 
             assertThatValidation(
                     sets.noneMatch((Predicate<String>) s -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")).test(new LinkedHashSet<>(List.of("a", "bb", "c"))).at("value")

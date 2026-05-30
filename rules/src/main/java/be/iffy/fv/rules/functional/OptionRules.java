@@ -16,13 +16,6 @@ public class OptionRules {
     public static final OptionRules options = new OptionRules();
 
     /**
-     * Returns the singleton instance of {@link OptionRules}.
-     */
-    public static OptionRules options() {
-        return options;
-    }
-
-    /**
      * Fails if the {@link Option} is empty while extracting the value from the {@link Option}.
      * <p>
      * Error key: {@code must.not.be.empty}

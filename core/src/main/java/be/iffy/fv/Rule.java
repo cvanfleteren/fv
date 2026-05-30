@@ -57,6 +57,13 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
+     * Make a {@code Rule<T>} from a function that shares the same signature.
+     */
+    static <T> Rule<T> of(Function<T, Validation<T>> ruleLikeFunction) {
+        return ruleLikeFunction::apply;
+    }
+
+    /**
      * Creates a {@link Rule} from the given predicate and {@link ErrorMessage}.
      * If the Predicate resolves to {@code true}, the Rule is considered {@link be.iffy.fv.Validation.Valid}
      * <p>

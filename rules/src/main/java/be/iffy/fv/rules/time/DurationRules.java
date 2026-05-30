@@ -18,13 +18,6 @@ public class DurationRules implements ComparableRules<Duration>, IObjectRules<Du
     public static final DurationRules durations = new DurationRules();
 
     /**
-     * Returns the singleton instance of {@link DurationRules}.
-     */
-    public static DurationRules durations() {
-        return durations;
-    }
-
-    /**
      * Fails if the duration is less than the specified minimum (inclusive).
      * <p>
      * Error key: {@code must.be.at.least}
@@ -35,13 +28,12 @@ public class DurationRules implements ComparableRules<Duration>, IObjectRules<Du
      * </ul>
      *
      * @param min the minimum duration (inclusive).
-     * @return a {@link Rule} checking if the duration is at least the minimum.
      */
     public Rule<Duration> isAtLeast(Duration min) {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 d -> d.compareTo(min) >= 0,
                 ErrorMessage.of("must.be.at.least", "min", min)
-        ));
+        );
     }
 
     /**
@@ -55,13 +47,12 @@ public class DurationRules implements ComparableRules<Duration>, IObjectRules<Du
      * </ul>
      *
      * @param max the maximum duration (inclusive).
-     * @return a {@link Rule} checking if the duration is at most the maximum.
      */
     public Rule<Duration> isAtMost(Duration max) {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 d -> d.compareTo(max) <= 0,
                 ErrorMessage.of("must.be.at.most", "max", max)
-        ));
+        );
     }
 
     /**
@@ -75,7 +66,6 @@ public class DurationRules implements ComparableRules<Duration>, IObjectRules<Du
      * </ul>
      *
      * @param limit the limit.
-     * @return a {@link Rule} checking if the duration is before the limit.
      */
     public Rule<Duration> isShorterThan(Duration limit) {
         return Rule.notNull().and(Rule.of(
@@ -95,7 +85,6 @@ public class DurationRules implements ComparableRules<Duration>, IObjectRules<Du
      * </ul>
      *
      * @param limit the limit.
-     * @return a {@link Rule} checking if the duration is after the limit.
      */
     public Rule<Duration> isLongerThan(Duration limit) {
         return Rule.notNull().and(Rule.of(

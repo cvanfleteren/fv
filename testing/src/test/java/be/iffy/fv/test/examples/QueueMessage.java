@@ -75,7 +75,6 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
 
     Validation<Command.MandateInfo> validateMandateInfo(QueueMessage.MandateInfo mandateInfo) {
 
-
         Validation<Boolean> bV = validateThat(mandateInfo.amendmentIndicator(), QueueMessage.MandateInfo::amendmentIndicator).isNotNull();
 
         return bV.flatMap(amendmentIndicator -> {

@@ -41,10 +41,6 @@ public interface MappingRule<T, R> {
      * <p>
      * Usage example:
      * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "of-string-example"}
-     *
-     * @param mapper   the function that maps T to R
-     * @param errorKey the errorKey to use if the mapping fails.
-     * @return a new {@link MappingRule} that applies the mapper and validates the result
      */
     static <T, R> MappingRule<T, R> of(Function<T, R> mapper, String errorKey) {
         return of(mapper, ErrorMessage.of(errorKey));
@@ -56,15 +52,14 @@ public interface MappingRule<T, R> {
      * <p>
      * Usage example:
      * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "of-try-error-example"}
-     *
-     * @param mapper       the function that maps T to R, returning a Try
-     * @param errorMessage the errorMessage to use if the mapping fails.
-     * @return a new {@link MappingRule} that applies the mapper and validates the result
      */
     static <T, R> MappingRule<T, R> ofTry(Function<T, Try<R>> mapper, ErrorMessage errorMessage) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return input -> {
+            if(input == null) {
+                return Validation.invalid("must.not.be.null");
+            }
             Try<R> _try = mapper.apply(input);
             return _try.fold(
                     t -> Validation.invalid(errorMessage),
@@ -95,6 +90,9 @@ public interface MappingRule<T, R> {
         Objects.requireNonNull(throwingMapper, "mapper cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return input -> {
+            if(input == null) {
+                return Validation.invalid("must.not.be.null");
+            }
             Option<R> result = Function1.lift(throwingMapper).apply(input);
             return result.fold(
                     () -> Validation.invalid(errorMessage),
@@ -109,10 +107,9 @@ public interface MappingRule<T, R> {
      *
      * @param validationFunction The function that converts an input of type T to a validation object of type R.
      */
-    static <T, R> MappingRule<T, R> asMappingRule(Function<? super T, ? extends Validation<R>> validationFunction) {
+    static <T, R> MappingRule<T, R> of(Function<? super T, ? extends Validation<R>> validationFunction) {
         return validationFunction::apply;
     }
-
 
     /**
      * Composes this MappingRule with another MappingRule using "short-circuiting and" logic.
@@ -182,9 +179,6 @@ public interface MappingRule<T, R> {
      * <p>
      * Usage example:
      * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "recover-with-example"}
-     *
-     * @param other the other rule to use as a fallback if this rule fails
-     * @return a new MappingRule that first applies this rule, and if the input is invalid, falls back to the other rule
      */
     default <S> MappingRule<T, S> recoverWith(MappingRule<? super T, S> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
@@ -207,8 +201,6 @@ public interface MappingRule<T, R> {
 
     /**
      * Turns this rule (back) into a {@link Predicate}.
-     *
-     * @return a {@link Predicate} instance.
      */
     default <S extends T> Predicate<S> toPredicate() {
         return value -> test(value).isValid();

@@ -20,8 +20,6 @@ import static be.iffy.fv.rules.ObjectRules.objects;
  * Abstract class holding the implementations of collection related Rules, written in
  * a collection type (List, Set, vavr List, Collection, ...) agnostic way.
  *
- 
- 
  */
 abstract class BaseCollectionRules<T, C extends Iterable<T>> {
 
@@ -30,7 +28,6 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
     abstract protected boolean isEmpty(C c);
 
     abstract protected boolean contains(C c, T t);
-
 
     /**
      * Fails if the collection is null or empty.

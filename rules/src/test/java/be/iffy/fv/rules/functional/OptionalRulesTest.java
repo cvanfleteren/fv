@@ -17,13 +17,13 @@ class OptionalRulesTest {
 
         @Test
         void valid() {
-            validTest(Optional.of("value"), "value", optionals().required());
+            validTest(Optional.of("value"), "value", optionals.required());
         }
 
         @Test
         void invalid() {
-            invalidTest(Optional.empty(), optionals().required(), "must.not.be.empty");
-            invalidTest(null, optionals().required(), "must.not.be.null");
+            invalidTest(Optional.empty(), optionals.required(), "must.not.be.empty");
+            invalidTest(null, optionals.required(), "must.not.be.null");
         }
     }
 
@@ -32,14 +32,14 @@ class OptionalRulesTest {
 
         @Test
         void valid() {
-            validTest(Optional.of("value"), "value", optionals().required(strings.notBlank()));
+            validTest(Optional.of("value"), "value", optionals.required(strings.notBlank()));
         }
 
         @Test
         void invalid() {
-            invalidTest(Optional.empty(), optionals().required(strings.notBlank()), "must.not.be.empty");
-            invalidTest(Optional.empty(), optionals().required(strings.notBlank()), "must.not.be.empty");
-            invalidTest(null, optionals().required(), "must.not.be.null");
+            invalidTest(Optional.empty(), optionals.required(strings.notBlank()), "must.not.be.empty");
+            invalidTest(Optional.empty(), optionals.required(strings.notBlank()), "must.not.be.empty");
+            invalidTest(null, optionals.required(), "must.not.be.null");
         }
     }
 
@@ -52,13 +52,13 @@ class OptionalRulesTest {
         @Test
         void valid() {
             Optional<String> some = Optional.of("value");
-            validTest(some, optionals().notEmpty());
+            validTest(some, optionals.notEmpty());
         }
 
         @Test
         void invalid() {
-            invalidTest(Optional.empty(), optionals().notEmpty(), "must.not.be.empty");
-            invalidTest(null, optionals().notEmpty(), "must.not.be.null");
+            invalidTest(Optional.empty(), optionals.notEmpty(), "must.not.be.empty");
+            invalidTest(null, optionals.notEmpty(), "must.not.be.null");
         }
     }
 
@@ -68,13 +68,13 @@ class OptionalRulesTest {
         @Test
         void valid() {
             Optional<String> none = Optional.empty();
-            validTest(none, optionals().empty());
+            validTest(none, optionals.empty());
         }
 
         @Test
         void invalid() {
-            invalidTest(Optional.of("value"), optionals().empty(), "must.be.empty");
-            invalidTest(null, optionals().empty(), "must.not.be.null");
+            invalidTest(Optional.of("value"), optionals.empty(), "must.be.empty");
+            invalidTest(null, optionals.empty(), "must.not.be.null");
         }
     }
 
@@ -83,13 +83,13 @@ class OptionalRulesTest {
 
         @Test
         void valid() {
-            validTest(Optional.of("value"), optionals().contains(strings.notBlank()));
+            validTest(Optional.of("value"), optionals.contains(strings.notBlank()));
         }
 
         @Test
         void invalid() {
-            invalidTest(Optional.of(""), optionals().contains(strings.notBlank()),"must.not.be.blank");
-            invalidTest(Optional.empty(), optionals().contains(strings.notBlank()),"must.not.be.empty");
+            invalidTest(Optional.of(""), optionals.contains(strings.notBlank()),"must.not.be.blank");
+            invalidTest(Optional.empty(), optionals.contains(strings.notBlank()),"must.not.be.empty");
         }
     }
 }

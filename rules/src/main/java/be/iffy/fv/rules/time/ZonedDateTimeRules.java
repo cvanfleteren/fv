@@ -25,13 +25,6 @@ public class ZonedDateTimeRules implements ComparableRules<ZonedDateTime>, IObje
     public static final ZonedDateTimeRules zonedDateTimes = new ZonedDateTimeRules(Clock.systemDefaultZone());
 
     /**
-     * Returns the singleton instance of {@link ZonedDateTimeRules}.
-     */
-    public static ZonedDateTimeRules zonedDateTimes() {
-        return zonedDateTimes;
-    }
-
-    /**
      * Returns an instance of {@link ZonedDateTimeRules} that uses the passed {@link Clock} for determining the current date-time.
      */
     public static ZonedDateTimeRules zonedDateTimes(Clock clock) {
@@ -52,10 +45,10 @@ public class ZonedDateTimeRules implements ComparableRules<ZonedDateTime>, IObje
      * @return a {@link Rule} checking if the date-time is before the limit.
      */
     public Rule<ZonedDateTime> isBefore(ZonedDateTime limit) {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 d -> d.isBefore(limit),
                 ErrorMessage.of("must.be.before", "limit", limit)
-        ));
+        );
     }
 
     /**
@@ -72,10 +65,10 @@ public class ZonedDateTimeRules implements ComparableRules<ZonedDateTime>, IObje
      * @return a {@link Rule} checking if the date-time is after the limit.
      */
     public Rule<ZonedDateTime> isAfter(ZonedDateTime limit) {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 d -> d.isAfter(limit),
                 ErrorMessage.of("must.be.after", "limit", limit)
-        ));
+        );
     }
 
     /**
@@ -86,7 +79,10 @@ public class ZonedDateTimeRules implements ComparableRules<ZonedDateTime>, IObje
      * @return a {@link Rule} checking if the date-time is in the past.
      */
     public Rule<ZonedDateTime> isPast() {
-        return Rule.notNull().and(Rule.of(d -> d.isBefore(ZonedDateTime.now(clock)), "must.be.past"));
+        return Rule.of(
+                d -> d.isBefore(ZonedDateTime.now(clock)),
+                "must.be.past"
+        );
     }
 
     /**
@@ -97,7 +93,10 @@ public class ZonedDateTimeRules implements ComparableRules<ZonedDateTime>, IObje
      * @return a {@link Rule} checking if the date-time is in the future.
      */
     public Rule<ZonedDateTime> isFuture() {
-        return Rule.notNull().and(Rule.of(d -> d.isAfter(ZonedDateTime.now(clock)), "must.be.future"));
+        return Rule.of(
+                d -> d.isAfter(ZonedDateTime.now(clock)),
+                "must.be.future"
+        );
     }
 
 }

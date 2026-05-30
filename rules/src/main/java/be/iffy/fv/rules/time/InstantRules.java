@@ -22,13 +22,6 @@ public class InstantRules implements ComparableRules<Instant>, IObjectRules<Inst
     public static final InstantRules instants = new InstantRules(Clock.systemDefaultZone());
 
     /**
-     * Returns the singleton instance of {@link InstantRules}.
-     */
-    public static InstantRules instants() {
-        return instants;
-    }
-
-    /**
      * Returns an instance of {@link InstantRules} that uses the passed {@link java.time.Clock} for determining the current Instant.
      */
     public static InstantRules instants(Clock clock) {
@@ -46,13 +39,12 @@ public class InstantRules implements ComparableRules<Instant>, IObjectRules<Inst
      * </ul>
      *
      * @param limit the limit.
-     * @return a {@link Rule} checking if the Instant is before the limit.
      */
     public Rule<Instant> isBefore(Instant limit) {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 d -> d.isBefore(limit),
                 ErrorMessage.of("must.be.before", "limit", limit)
-        ));
+        );
     }
 
     /**
@@ -66,35 +58,36 @@ public class InstantRules implements ComparableRules<Instant>, IObjectRules<Inst
      * </ul>
      *
      * @param limit the limit.
-     * @return a {@link Rule} checking if the Instant is after the limit.
      */
     public Rule<Instant> isAfter(Instant limit) {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 d -> d.isAfter(limit),
                 ErrorMessage.of("must.be.after", "limit", limit)
-        ));
+        );
     }
 
     /**
      * Fails if the Instant is not in the past according to the provided {@link Clock}.
      * <p>
      * Error key: {@code must.be.past}
-     *
-     * @return a {@link Rule} checking if the Instant is in the past.
      */
     public Rule<Instant> isPast() {
-        return Rule.notNull().and(Rule.of(d -> d.isBefore(Instant.now(clock)), "must.be.past"));
+        return Rule.of(
+                d -> d.isBefore(Instant.now(clock)),
+                "must.be.past"
+        );
     }
 
     /**
      * Fails if the Instant is not in the future according to the provided {@link Clock}.
      * <p>
      * Error key: {@code must.be.future}
-     *
-     * @return a {@link Rule} checking if the Instant is in the future.
      */
     public Rule<Instant> isFuture() {
-        return Rule.notNull().and(Rule.of(d -> d.isAfter(Instant.now(clock)), "must.be.future"));
+        return Rule.of(
+                d -> d.isAfter(Instant.now(clock)),
+                "must.be.future"
+        );
     }
 
 }

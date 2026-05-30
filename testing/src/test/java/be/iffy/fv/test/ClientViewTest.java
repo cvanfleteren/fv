@@ -100,12 +100,12 @@ public class ClientViewTest {
 
 
             MappingRule<TestDTO, Option<MandateInfo>> withMandateInfo = properties(
-                    property(TestDTO::amendment).is(booleans().isTrue()),
+                    property(TestDTO::amendment).is(booleans.isTrue()),
                     property(TestDTO::amendmentType).is(amendmentTypeRule),
                     property(TestDTO::originalValue).is(originalValueRule)
             ).map((a, type, original) -> new MandateInfo(type, original)).map(Option::of);
 
-            MappingRule<TestDTO, Option<MandateInfo>> withoutMandateInfo = property(TestDTO::amendment).is(booleans().isFalse()).mapTo(Option.none());
+            MappingRule<TestDTO, Option<MandateInfo>> withoutMandateInfo = property(TestDTO::amendment).is(booleans.isFalse()).mapTo(Option.none());
 
             MappingRule<TestDTO, Mandate> foo = properties(
                     property(TestDTO::date).is(objects.notNull()),
@@ -132,12 +132,12 @@ public class ClientViewTest {
             MappingRule<Option<String>, String> originalValueRule = MappingRule.requiredOption(strings.notBlank());
 
             MappingRule<TestDTO, Option<MandateInfo>> withMandateInfo = validatorFor(TestDTO.class)
-                    .when(property(TestDTO::amendment).is(booleans().isTrue()))
+                    .when(property(TestDTO::amendment).is(booleans.isTrue()))
                     .where(TestDTO::amendmentType, amendmentTypeRule)
                     .where(TestDTO::originalValue, originalValueRule)
                     .builds(MandateInfo::new).map(Option::of);
 
-            MappingRule<TestDTO, Option<MandateInfo>> withoutMandateInfo = property(TestDTO::amendment).is(booleans().notNull()).mapTo(Option.none());
+            MappingRule<TestDTO, Option<MandateInfo>> withoutMandateInfo = property(TestDTO::amendment).is(booleans.notNull()).mapTo(Option.none());
 
             MappingRule<TestDTO, Mandate> foo = validatorFor(TestDTO.class)
                     .where(TestDTO::date, objects.notNull())
@@ -150,7 +150,6 @@ public class ClientViewTest {
         Validation<Mandate> result = mapper.apply(testDTO);
         assertAllValid(result);
     }
-
 
     static class PropertiesBuilder2<T, R1, R2> {
         MappingRule<T, R1> rule1;

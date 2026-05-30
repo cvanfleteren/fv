@@ -13,7 +13,7 @@ public class OptionalSnippets {
 
     void requiredExample() {
         // @start region="required-example"
-        MappingRule<Optional<String>, String> rule = optionals().required();
+        MappingRule<Optional<String>, String> rule = optionals.required();
 
         Validation<String> result1 = rule.test(Optional.of("hello")); // Valid("hello")
         Validation<String> result2 = rule.test(Optional.empty());      // Invalid("must.not.be.empty")
@@ -22,7 +22,7 @@ public class OptionalSnippets {
 
     void requiredOptionExample() {
         // @start region="not-empty-example"
-        Rule<Optional<String>> rule = optionals().notEmpty();
+        Rule<Optional<String>> rule = optionals.notEmpty();
 
         Validation<Optional<String>> result1 = rule.test(Optional.of("hello")); // Valid(Some("hello"))
         Validation<Optional<String>> result2 = rule.test(Optional.empty());      // Invalid("must.not.be.empty")
@@ -31,7 +31,7 @@ public class OptionalSnippets {
 
     void containsExample() {
         // @start region="contains-example"
-        Rule<Optional<String>> rule = optionals().contains(strings.notBlank());
+        Rule<Optional<String>> rule = optionals.contains(strings.notBlank());
 
         Validation<Optional<String>> result1 = rule.test(Optional.of("hello")); // Valid("hello")
         Validation<Optional<String>> result2 = rule.test(Optional.of(""));      // Invalid("must.not.be.blank")

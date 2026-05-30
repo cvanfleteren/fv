@@ -19,19 +19,10 @@ public class MapRules {
     public static final MapRules maps = new MapRules();
 
     /**
-     * Returns the singleton instance of {@link MapRules}.
-     */
-    public static MapRules maps() {
-        return maps;
-    }
-
-    /**
      * Fails if the map is {@code null} or empty.
      * <p>
      * Error key: {@code must.not.be.empty}
      *
-     
-     
      * @return a {@link Rule} checking if the map is not empty.
      */
     public <K, V> Rule<Map<K, V>> notEmpty() {
@@ -54,8 +45,6 @@ public class MapRules {
      *     <li>{@code key}: the required key ({@code K})</li>
      * </ul>
      *
-     
-     
      * @param key the required key.
      * @return a {@link Rule} checking for the presence of the key.
      */
@@ -79,8 +68,6 @@ public class MapRules {
      *     <li>{@code keys}: the set of required keys ({@link Set})</li>
      * </ul>
      *
-     
-     
      * @param keys the required keys.
      * @return a {@link Rule} checking for the presence of all specified keys.
      */
@@ -105,8 +92,6 @@ public class MapRules {
      *     <li>{@code keys}: the set of keys that have {@code null} values ({@link Set})</li>
      * </ul>
      *
-     
-     
      * @return a {@link Rule} checking that all values in the map are non-null.
      */
     public <K, V> Rule<Map<K, V>> valuesNotNull() {
@@ -132,8 +117,6 @@ public class MapRules {
      * Usage example:
      * {@snippet file = "be/iffy/fv/rules/collections/MapRulesSnippets.java" region = "validate-values-with-example"}
      *
-     
-     
      * @param rule the rule to apply to each value.
      */
     public <K, V> Rule<Map<K, V>> validateValuesWith(Rule<? super V> rule) {

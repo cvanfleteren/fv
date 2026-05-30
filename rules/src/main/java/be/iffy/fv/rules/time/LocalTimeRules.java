@@ -18,13 +18,6 @@ public class LocalTimeRules implements ComparableRules<LocalTime>, IObjectRules<
     public static final LocalTimeRules localTimes = new LocalTimeRules();
 
     /**
-     * Returns the singleton instance of {@link LocalTimeRules}.
-     */
-    public static LocalTimeRules localTimes() {
-        return localTimes;
-    }
-
-    /**
      * Fails if the time is not before the specified limit.
      * <p>
      * Error key: {@code must.be.before}
@@ -38,10 +31,10 @@ public class LocalTimeRules implements ComparableRules<LocalTime>, IObjectRules<
      * @return a {@link Rule} checking if the time is before the limit.
      */
     public Rule<LocalTime> isBefore(LocalTime limit) {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 t -> t.isBefore(limit),
                 ErrorMessage.of("must.be.before", "limit", limit)
-        ));
+        );
     }
 
     /**
@@ -58,10 +51,10 @@ public class LocalTimeRules implements ComparableRules<LocalTime>, IObjectRules<
      * @return a {@link Rule} checking if the time is after the limit.
      */
     public Rule<LocalTime> isAfter(LocalTime limit) {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 t -> t.isAfter(limit),
                 ErrorMessage.of("must.be.after", "limit", limit)
-        ));
+        );
     }
 
     /**
@@ -72,7 +65,10 @@ public class LocalTimeRules implements ComparableRules<LocalTime>, IObjectRules<
      * @return a {@link Rule} checking if the time is in the AM.
      */
     public Rule<LocalTime> isAm() {
-        return Rule.notNull().and(Rule.of(t -> t.isBefore(LocalTime.NOON), "must.be.am"));
+        return Rule.of(
+                t -> t.isBefore(LocalTime.NOON),
+                "must.be.am"
+        );
     }
 
     /**
@@ -83,7 +79,10 @@ public class LocalTimeRules implements ComparableRules<LocalTime>, IObjectRules<
      * @return a {@link Rule} checking if the time is in the PM.
      */
     public Rule<LocalTime> isPm() {
-        return Rule.notNull().and(Rule.of(t -> !t.isBefore(LocalTime.NOON), "must.be.pm"));
+        return Rule.of(
+                t -> !t.isBefore(LocalTime.NOON),
+                "must.be.pm"
+        );
     }
 
 }

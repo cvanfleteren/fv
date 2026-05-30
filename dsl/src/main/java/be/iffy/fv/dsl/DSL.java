@@ -59,7 +59,7 @@ public class DSL {
     public static class Transformation<T> {
         private final Function<T, T> transformer;
 
-        public Transformation(Function<T, T> transformer) {
+        Transformation(Function<T, T> transformer) {
             this.transformer = in -> {
                 if (in == null) {
                     return null;
@@ -402,7 +402,7 @@ public class DSL {
          */
         public <R> Validation<R> is(Function<? super T, ? extends Validation<R>> rule) {
             Objects.requireNonNull(rule, "rule cannot be null");
-            return validation.refine(MappingRule.asMappingRule(rule)).at(name);
+            return validation.refine(MappingRule.of(rule)).at(name);
         }
 
         /**
@@ -455,7 +455,7 @@ public class DSL {
         }
 
         public <Z> VListValidationDSL<Z, Z> each(Function<E, Validation<Z>> rule) {
-            return eachMapsTo(MappingRule.asMappingRule(rule));
+            return eachMapsTo(MappingRule.of(rule));
         }
 
         public VListValidationDSL<E, E> eachIs(Rule<? super E> rule) {
@@ -515,7 +515,7 @@ public class DSL {
         }
 
         public <Z> JListValidationDSL<Z, Z> each(Function<E, Validation<Z>> rule) {
-            return eachMapsTo(MappingRule.asMappingRule(rule));
+            return eachMapsTo(MappingRule.of(rule));
         }
 
         public JListValidationDSL<E, E> eachIs(Rule<E> rule) {
@@ -570,7 +570,7 @@ public class DSL {
          */
         public <R> R is(Function<? super T, ? extends Validation<R>> rule) {
             Objects.requireNonNull(rule, "rule cannot be null");
-            return validation.refine(MappingRule.asMappingRule(rule)).at(name).getOrElseThrow();
+            return validation.refine(MappingRule.of(rule)).at(name).getOrElseThrow();
         }
 
         public T isNotNull() {
