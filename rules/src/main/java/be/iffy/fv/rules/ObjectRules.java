@@ -84,21 +84,29 @@ public class ObjectRules implements IObjectRules<Object> {
     /**
      * Fails if the passed constructor Function doesn't apply successfully.
      * Will catch all possible exceptions thrown by the function.
+     * If the function throws ValidationException, its errors will be used instead of the passed error.
      */
     public <T,R> MappingRule<T, R> canBe(Function<T,R> constructor, ErrorMessage errorMessage) {
-        return input ->  Try.of(() -> constructor.apply(input))
-                .fold(
-                        f -> Validation.invalid(errorMessage),
-                        v -> Validation.valid(v)
-                );
+        return MappingRule.ofTry(input -> Try.of(() -> constructor.apply(input)),errorMessage);
     }
 
     /**
      * Fails if the passed constructor Function doesn't apply successfully.
      * Will catch all possible exceptions thrown by the function.
+     * If the function throws ValidationException, its errors will be used instead of the passed error.
      */
     public <T,R> MappingRule<T, R> canBe(Function<T,R> constructor, String errorKey) {
         return canBe(constructor, ErrorMessage.of(errorKey));
+    }
+
+    /**
+     * Fails if the passed constructor Function doesn't apply successfully.
+     * Will catch all possible exceptions thrown by the function.
+     * If the function throws ValidationException, its errors will be used.
+     * Error key: {@code could.not.construct}
+     */
+    public <T,R> MappingRule<T, R> canBe(Function<T,R> constructor) {
+        return canBe(constructor, ErrorMessage.of("could.not.construct"));
     }
 
 }

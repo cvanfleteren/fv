@@ -1,5 +1,7 @@
 package be.iffy.fv.rules;
 
+import be.iffy.fv.ValidationException;
+import io.vavr.collection.List;
 import be.iffy.fv.ErrorMessage;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
@@ -224,6 +226,37 @@ class ObjectRulesTest {
             assertThatValidation(rule.test("not-a-number"))
                     .isInvalid()
                     .hasErrorMessage("invalid.number");
+        }
+
+        @Test
+        void canBe_withoutErrorMessage_whenValidationExceptionThrown_usesThoseErrors() {
+            MappingRule<String, String> throwingRule = objects.canBe(input -> {
+                throw new ValidationException(List.of(ErrorMessage.of("custom.error")));
+            });
+
+            assertThatValidation(throwingRule.test("any"))
+                    .isInvalid()
+                    .hasErrorMessage("custom.error");
+        }
+
+        @Test
+        void canBe_withoutErrorMessage_whenOtherExceptionThrown_usesDefaultError() {
+            MappingRule<String, String> throwingRule = objects.canBe(input -> {
+                throw new RuntimeException("boom");
+            });
+
+            assertThatValidation(throwingRule.test("any"))
+                    .isInvalid()
+                    .hasErrorMessage("could.not.construct");
+        }
+
+        @Test
+        void canBe_withoutErrorMessage_whenValid_returnsValid() {
+            MappingRule<String, String> successRule = objects.canBe(input -> "prefixed-" + input);
+
+            assertThatValidation(successRule.test("value"))
+                    .isValid()
+                    .isEqualTo("prefixed-value");
         }
     }
 }
