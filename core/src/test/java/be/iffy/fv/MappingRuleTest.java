@@ -523,6 +523,14 @@ class MappingRuleTest {
             assertThat(rule.test("abc")).isEqualTo(Validation.invalid(ErrorMessage.of("invalid.number")));
         }
         @Test
+        void ofTry_whenTryIsFailureWithValidationException_returnsInvalidWithValidationExceptionErrors() {
+            List<ErrorMessage> errors = List.of(ErrorMessage.of("error.1"), ErrorMessage.of("error.2"));
+            MappingRule<String, Integer> rule = MappingRule.ofTry(s -> Try.failure(new ValidationException(errors)), "fallback.error");
+            assertThatValidation(rule.test("abc"))
+                    .isInvalid()
+                    .hasErrorMessages("error.1", "error.2");
+        }
+        @Test
         void ofTry_withErrorMessage_whenMapperIsNull_throwsNullPointerException() {
             assertThatCode(() -> MappingRule.ofTry(null, ErrorMessage.of("error")))
                     .isInstanceOf(NullPointerException.class)

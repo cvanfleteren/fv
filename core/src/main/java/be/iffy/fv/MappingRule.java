@@ -48,6 +48,17 @@ public interface MappingRule<T, R> {
 
     /**
      * Creates a new MappingRule that applies the given mapper function to the input.
+     * If the mapper throws an exception, the rule will fail with the specified error message.
+     * <p>
+     * Usage example:
+     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "of-string-example"}
+     */
+    static <T> MappingRule<T, T> of(Transformation<T> transformation) {
+        return of(transformation::apply, ErrorMessage.of("transformation.failed"));
+    }
+
+    /**
+     * Creates a new MappingRule that applies the given mapper function to the input.
      * If the mapper returns a {@link Try.Failure}, the rule will fail with the specified error key.
      * <p>
      * Usage example:
@@ -62,7 +73,13 @@ public interface MappingRule<T, R> {
             }
             Try<? extends R> _try = mapper.apply(input);
             return _try.fold(
-                    t -> Validation.invalid(errorMessage),
+                    t -> {
+                        if(t instanceof ValidationException ve) {
+                            return Validation.invalid(ve.errors());
+                        } else {
+                            return Validation.invalid(errorMessage);
+                        }
+                    },
                     Validation::valid
             );
         };
@@ -82,6 +99,7 @@ public interface MappingRule<T, R> {
     /**
      * Creates a new MappingRule that applies the given mapper function to the input.
      * If the mapper throws an exception, the rule will fail with the specified error message.
+     * If the mapper throws ValidationException, the rule will fail with its errors.
      * <p>
      * Usage example:
      * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "of-error-example"}
@@ -89,16 +107,7 @@ public interface MappingRule<T, R> {
     static <T, R> MappingRule<T, R> of(Function<? super T, ? extends R> throwingMapper, ErrorMessage errorMessage) {
         Objects.requireNonNull(throwingMapper, "mapper cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
-        return input -> {
-            if(input == null) {
-                return Validation.invalid("must.not.be.null");
-            }
-            Option<? extends R> result = Function1.lift(throwingMapper).apply(input);
-            return result.fold(
-                    () -> Validation.invalid(errorMessage),
-                    value -> Validation.valid(value)
-            );
-        };
+        return ofTry(input -> Try.of(() -> throwingMapper.apply(input)), errorMessage);
     }
 
     /**
