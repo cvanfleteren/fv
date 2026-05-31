@@ -414,6 +414,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      */
     @Override
     default <K> Rule<java.util.Map<K, T>> liftToMap(Function<K, Object> keyExtractor) {
+        //return (Rule<java.util.Map<K, T>>) MappingRule.super.liftToMap(keyExtractor);
         // this version can work a bit more efficiently since we know we can return
         // the original map if all entries are valid
         // as the values cannot change type in a Rule (as opposed to a MappingRule)
@@ -435,7 +436,7 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
-     * Lift a Rule to work on a type V instead of T. You need to supply a Function that can get a T from the V.
+     * Lift a Rule to work on a type V instead of T. You need to supply a Function that can get a V from the T.
      *
      * @see Rule#with(Function, Rule)
      */
