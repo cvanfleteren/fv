@@ -943,10 +943,10 @@ class RuleTest {
     }
 
     @Nested
-    class LiftToMap {
+    class LiftToVavrMap {
 
         @Test
-        void liftToMap_whenAllValuesAreValid_returnsValidResult() {
+        void liftToVavrMap_whenAllValuesAreValid_returnsValidResult() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
             Rule<Map<String, String>> mapRule = rule.liftToVavrMap();
@@ -966,7 +966,7 @@ class RuleTest {
         }
 
         @Test
-        void liftToMap_whenSomeValuesAreInvalid_addsKeyToPathAndAccumulatesErrors() {
+        void liftToVavrMap_whenSomeValuesAreInvalid_addsKeyToPathAndAccumulatesErrors() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
             Rule<Map<String, String>> mapRule = rule.liftToVavrMap();
@@ -986,7 +986,7 @@ class RuleTest {
         }
 
         @Test
-        void liftToMap_withKeyExtractor_whenSomeValuesAreInvalid_usesExtractedKeyInPath() {
+        void liftToVavrMap_withKeyExtractor_whenSomeValuesAreInvalid_usesExtractedKeyInPath() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
 
@@ -1007,7 +1007,7 @@ class RuleTest {
         }
 
         @Test
-        void liftToMap_whenMapIsEmpty_returnsValidResult() {
+        void liftToVavrMap_whenMapIsEmpty_returnsValidResult() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
             Rule<Map<String, String>> mapRule = rule.liftToVavrMap();
@@ -1024,7 +1024,7 @@ class RuleTest {
         }
 
         @Test
-        void liftToMap_withKeyExtractor_whenAllValuesAreValid_returnsValidResult() {
+        void liftToVavrMap_withKeyExtractor_whenAllValuesAreValid_returnsValidResult() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
 
@@ -1045,10 +1045,10 @@ class RuleTest {
         }
 
         @Test
-        void liftToMap_withKeyExtractor_whenKeyExtractorIsNull_throwsNullPointerExceptionOnTest() {
+        void liftToVavrMap_withKeyExtractor_whenKeyExtractorIsNull_throwsNullPointerExceptionOnTest() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<Map<Integer, String>> mapRule = rule.liftToVavrMap((Function1<Integer, Object>) null);
+            Rule<Map<Integer, String>> mapRule = rule.liftToVavrMap((io.vavr.Function1<Integer, Object>) null);
 
             Map<Integer, String> input = HashMap.of(1, "hi");
 
@@ -1057,7 +1057,100 @@ class RuleTest {
                     .isInstanceOf(NullPointerException.class);
         }
 
+    }
 
+    @Nested
+    class LiftToMap {
+
+        @Test
+        void liftToMap_whenAllValuesAreValid_returnsValidResult() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<java.util.Map<String, String>> mapRule = rule.liftToMap();
+
+            java.util.Map<String, String> input = new java.util.LinkedHashMap<>();
+            input.put("a", "hello");
+            input.put("b", "world");
+
+            // Act
+            Validation<java.util.Map<String, String>> result = mapRule.test(input);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo(input);
+        }
+
+        @Test
+        void liftToMap_whenSomeValuesAreInvalid_addsKeyToPathAndAccumulatesErrors() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<java.util.Map<String, String>> mapRule = rule.liftToMap();
+
+            java.util.Map<String, String> input = new java.util.TreeMap<>();
+            input.put("a", "hi");
+            input.put("b", "yo");
+
+            // Act
+            Validation<java.util.Map<String, String>> result = mapRule.test(input).at("aMap");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("aMap[a].too.short", "aMap[b].too.short");
+        }
+
+        @Test
+        void liftToMap_withKeyExtractor_whenSomeValuesAreInvalid_usesExtractedKeyInPath() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+
+            Rule<java.util.Map<Integer, String>> mapRule = rule.liftToMap(k -> "k" + k);
+
+            java.util.Map<Integer, String> input = new java.util.TreeMap<>();
+            input.put(10, "hi");
+            input.put(20, "yo");
+
+            // Act
+            Validation<java.util.Map<Integer, String>> result = mapRule.test(input).at("aMap");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("aMap[k10].too.short", "aMap[k20].too.short");
+        }
+
+        @Test
+        void liftToMap_whenMapIsEmpty_returnsValidResult() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<java.util.Map<String, String>> mapRule = rule.liftToMap();
+
+            java.util.Map<String, String> input = java.util.Collections.emptyMap();
+
+            // Act
+            Validation<java.util.Map<String, String>> result = mapRule.test(input);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo(input);
+        }
+
+        @Test
+        void liftToMap_whenMapIsNull_isInvalid() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<java.util.Map<String, String>> mapRule = rule.liftToMap();
+
+            // Act
+            Validation<java.util.Map<String, String>> result = mapRule.test(null);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("must.not.be.null");
+        }
     }
 
     @Nested
