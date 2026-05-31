@@ -6,6 +6,7 @@ Welcome to the FAQ for the Iffy Functional Validation (FV) library. If you have 
 - [What is the difference between a `Rule` and a `MappingRule`?](#what-is-the-difference-between-a-rule-and-a-mappingrule)
 - [I have an Invalid validation, how can I know what was wrong?](#i-have-an-invalid-validation-how-can-i-know-what-was-wrong)
 - [How do I combine multiple rules?](#how-do-i-combine-multiple-rules)
+- [How can I negate an existing rule?](#how-can-i-negate-an-existing-rule)
 - [Are rules null-safe by default?](#are-rules-null-safe-by-default)
 - [Null seems to be an invalid value by default, but I really like null, how can I accept it but still validate if it's not null?](#null-seems-to-be-an-invalid-value-by-default-but-i-really-like-null-how-can-i-accept-it-but-still-validate-if-its-not-null)
 - [How can I validate a property of an object?](#how-can-i-validate-a-property-of-an-object)
@@ -25,6 +26,12 @@ Welcome to the FAQ for the Iffy Functional Validation (FV) library. If you have 
 - [I have some type whose constructor throws an exception, how can I make a Validation for this type?](#i-have-some-type-whose-constructor-throws-an-exception-how-can-i-make-a-validation-for-this-type)
 - [I have a Validation, but I want to add an extra check on the value](#i-have-a-validation-but-i-want-to-add-an-extra-check-on-the-value)
 - [If I have for example a Rule for Number, can I use it to also validate BigDecimals?](#if-i-have-for-example-a-rule-for-number-can-i-use-it-to-also-validate-a-subtype-like-bigdecimal)
+- [How can I apply a rule only if a certain condition is met?](#how-can-i-apply-a-rule-only-if-a-certain-condition-is-met)
+- [How can I handle transformations that might throw an exception?](#how-can-i-handle-transformations-that-might-throw-an-exception)
+- [What is the difference between `and()`, `andAlso()`, and `Rule.all()`?](#what-is-the-difference-between-and-andalso-and-ruleall)
+- [I want to perform a side effect (like logging) only if a validation is successful.](#i-want-to-perform-a-side-effect-like-logging-only-if-a-validation-is-successful)
+- [How do I perform cross-field validation where one field's validation depends on another?](#how-do-i-perform-cross-field-validation-where-one-field-s-validation-depends-on-another)
+- [How does this library work with standard Java collections vs Vavr collections?](#how-does-this-library-work-with-standard-java-collections-vs-vavr-collections)
 
 ---
 
@@ -107,8 +114,23 @@ You can combine rules using several composition methods:
 *   **`and(Rule)`**: Short-circuiting "and". If the first rule fails, the second one is not even executed.
 *   **`andAlso(Rule)`**: Non-short-circuiting "and". Both rules are executed, and if both fail, their errors are combined.
 *   **`or(Rule)`**: If the first rule succeeds, the result is valid. If it fails, it tries the second rule. If both fail, errors are combined.
+*   **`xor(Rule, String)`**: Exactly one of the rules must pass or the result is invalid with the passed errorKey.
 *   **`Rule.any(Rule...)`**: a more general or, acception multiple rules. As long as a single rule passes, the result is valid. If all fail, errors are combined. 
 *   **`Rule.all(Rule...)`**: Combines multiple rules. All must pass, and it collects all errors from failing rules.
+
+---
+
+### How can I negate an existing rule?
+
+If you have a rule and want to check for the exact opposite, you can use **`negate()`**. You must provide a new error key or `ErrorMessage` for the negated case.
+
+```java
+Rule<String> startsWithH = strings.startsWith("H");
+Rule<String> mustNotStartWithH = startsWithH.negate("must.not.start.with.h");
+
+mustNotStartWithH.test("Hello"); // Invalid (must.not.start.with.h)
+mustNotStartWithH.test("World"); // Valid
+```
 
 ---
 
@@ -188,6 +210,9 @@ These methods "lift" a rule that works on a single value to work on an optional 
 ```java
 Rule<String> minLengthRule = strings.minLength(5);
 Rule<Optional<String>> optionalRule = minLengthRule.liftToOptional();
+
+// or alternatively with the DSL:
+Rule<Optional<String>> dsl = optional(strings.minLength(5));
 
 optionalRule.test(Optional.empty()); // Valid
 optionalRule.test(Optional.of("abc")); // Invalid (must be at least 5)
@@ -548,7 +573,7 @@ import static be.iffy.fv.rules.text.StringRules.strings;
 Validation<String> initialValidation = ...;
 
 // Only if initialValidation is Valid, check if the string is also an email
-Validation<String> refinedValidation = initialValidation.refine(strings.email());
+Validation<String> refinedValidation = initialValidation.refine(strings.looksLikeEmailAddress());
 ```
 
 In this case:
@@ -584,4 +609,117 @@ Rule<BigDecimal> isMinusFortyTwo = Rule.of(b -> b.compareTo(new BigDecimal("-42"
 
 Rule<BigDecimal> combined = isMinusFortyTwo.or(isPositive);
 ```
+
+---
+
+### How can I apply a rule only if a certain condition is met?
+
+If you want to apply a validation rule conditionally, you can use the **`onlyIf()`** method. This allows you to provide a `Predicate` or a `Supplier<Boolean>`. If the condition is true, the rule is applied; if the condition is false, the validation is considered successful (Valid).
+
+This is useful for rules that only apply in specific states or contexts.
+
+```java
+Rule<User> emailRequiredForAdults = strings.notEmpty()
+    .given(User::getEmail)
+    .onlyIf(user -> user.getAge() >= 18);
+```
+
+---
+
+### How can I handle transformations that might throw an exception?
+
+TODO
+
+---
+
+### What is the difference between `and()`, `andAlso()`, and `Rule.all()`?
+
+These methods all combine multiple rules, but they behave differently regarding execution flow and error collection:
+
+1.  **`ruleA.and(ruleB)` (Short-circuiting):**
+    *   If `ruleA` fails, `ruleB` is **not executed**.
+    *   The result contains only the errors from `ruleA`.
+    *   Use this when `ruleB` depends on `ruleA` (e.g., `notNull().and(minLength(5))`).
+
+2.  **`ruleA.andAlso(ruleB)` (Non-short-circuiting):**
+    *   Both rules are **always executed**.
+    *   If both fail, the result contains **all errors** from both.
+    *   Use this when you want to report as many problems as possible to the user at once.
+
+3.  **`Rule.all(ruleA, ruleB, ...)`:**
+    *   Similar to `andAlso()`, it executes all rules and collects all errors.
+    *   It is often more readable when combining more than two rules.
+
+---
+
+### I want to perform a side effect (like logging) only if a validation is successful.
+
+You can use the **`peek()`** method on a `Validation` object. It allows you to provide a `Consumer` that will be executed only if the validation is `Valid`. The `peek()` method returns the original `Validation` object, so you can continue the chain.
+
+```java
+Validation<User> result = validateUser(dto)
+    .peek(user -> logger.info("Successfully validated user: {}", user.getId()))
+    .refine(extraSecurityCheck);
+```
+
+If you want to perform actions in both cases (success and failure), you can use `whenValid(Consumer)` and `whenInvalid(Consumer)`.
+
+---
+
+### How do I perform cross-field validation where one field's validation depends on another?
+
+For cross-field validation, you typically have two options:
+
+#### 1. Validating at the Object Level
+Create a `Rule` for the object itself that looks at multiple fields.
+
+```java
+Rule<Period> validPeriod = Rule.of(
+    p -> p.getStart().isBefore(p.getEnd()),
+    ErrorMessage.of("start.must.be.before.end", "end")
+);
+
+Validation<Period> v = validateThat(period).is(validPeriod);
+```
+
+#### 2. Using `flatMap` or `refine` on the result of `mapN`
+After combining multiple validated fields, you can apply an additional check on the resulting object.
+
+```java
+Validation<Period> periodV = Validation.mapN(startV, endV, Period::new)
+    .refine(Rule.of(p -> p.getStart().isBefore(p.getEnd()), "start.must.be.before.end"));
+```
+
+or using the DSL:
+
+```java
+LocalDate start = LocalDate.now();
+LocalDate end = LocalDate.now().plusDays(1);
+
+validating(
+    validateThat(start).isNotNull(),
+    validateThat(end).isNotNull()
+)
+.map(Period::new)
+.refine(
+    Rule.of(
+        p -> p.start.isBefore(p.end),
+        "start.must.be.before.end"
+    )
+);
+```
+
+---
+
+### How does this library work with standard Java collections vs Vavr collections?
+
+The library is built on top of **Vavr**, but it provides excellent support for both standard Java types and Vavr types.
+
+*   **Inputs:** Most methods accept standard Java types (e.g., `java.util.List`, `java.util.Optional`).
+*   **Transformations:** You can lift rules to work on either type:
+    *   Use `liftToList()` for `java.util.List` vs `liftToVavrList()` for `io.vavr.collection.List`.
+    *   Use `liftToOptional()` for `java.util.Optional` vs `liftToOption()` for `io.vavr.control.Option`.
+*   **Results:** The library internally uses Vavr types for error collection (`io.vavr.collection.List<ErrorMessage>`). If you need a standard Java list of errors, you can use `javaErrors()`.
+
+We recommend using Vavr collections in your domain logic where possible for better functional integration, but the library does not force you to do so in your APIs.
 ```
