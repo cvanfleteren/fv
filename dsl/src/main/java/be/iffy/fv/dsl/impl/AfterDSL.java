@@ -4,6 +4,18 @@ import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Transformation;
 
+
+/**
+ * A tiny DSL for helping to define Rules that transform their input before running their actual logic on it.
+ * Usage would look like this:
+ * <pre>
+ *{@code
+ * ...
+ * Rule<String> originalRule = after(StringOps.trim()).is(strings.length(5));
+ * ...
+ * }
+ * </pre>
+ */
 public class AfterDSL<T> {
     private final Transformation<T> transformer;
 

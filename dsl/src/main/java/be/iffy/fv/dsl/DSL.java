@@ -20,51 +20,94 @@ import java.util.function.Supplier;
  */
 public class DSL {
 
+    /**
+     * A tiny DSL for helping to define Rules that transform their input before running their actual logic on it.
+     * Usage would look like this:
+     * <pre>
+     *{@code
+     * ...
+     * Rule<String> originalRule = after(StringOps.trim()).is(strings.length(5));
+     * ...
+     * }
+     * </pre>
+     */
     public static <T> AfterDSL<T> after(be.iffy.fv.Transformation<T> transformation) {
         return new AfterDSL<>(transformation);
     }
 
+    /**
+     * A tiny DSL for helping to define Rules that transform their input before running their actual logic on it.
+     * Usage would look like this:
+     * <pre>
+     *{@code
+     * ...
+     * Rule<String> originalRule = after(String::trim).is(strings.length(5));
+     * ...
+     * }
+     * </pre>
+     */
     public static <T> AfterDSL<T> after(Supplier<be.iffy.fv.Transformation<T>> transformation) {
         return new AfterDSL<>(transformation.get());
     }
 
+    /**
+     * Act on the result of multiple validations.
+     */
     public static <T1, T2> ValidatingDSL.ValidatingBuilder2<T1, T2> validating(Validation<T1> v1, Validation<T2> v2) {
         return new ValidatingDSL.ValidatingBuilder2<>(v1, v2);
     }
 
+    /**
+     * Act on the result of multiple validations.
+     */
     public static <T1, T2, T3> ValidatingDSL.ValidatingBuilder3<T1, T2, T3> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3) {
         return new ValidatingDSL.ValidatingBuilder3<>(v1, v2, v3);
     }
 
+    /**
+     * Act on the result of multiple validations.
+     */
     public static <T1, T2, T3, T4> ValidatingDSL.ValidatingBuilder4<T1, T2, T3, T4> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4) {
         return new ValidatingDSL.ValidatingBuilder4<>(v1, v2, v3, v4);
     }
 
+    /**
+     * Act on the result of multiple validations.
+     */
     public static <T1, T2, T3, T4, T5> ValidatingDSL.ValidatingBuilder5<T1, T2, T3, T4, T5> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5) {
         return new ValidatingDSL.ValidatingBuilder5<>(v1, v2, v3, v4, v5);
     }
 
+    /**
+     * Act on the result of multiple validations.
+     */
     public static <T1, T2, T3, T4, T5, T6> ValidatingDSL.ValidatingBuilder6<T1, T2, T3, T4, T5, T6> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6) {
         return new ValidatingDSL.ValidatingBuilder6<>(v1, v2, v3, v4, v5, v6);
     }
 
+    /**
+     * Act on the result of multiple validations.
+     */
     public static <T1, T2, T3, T4, T5, T6, T7> ValidatingDSL.ValidatingBuilder7<T1, T2, T3, T4, T5, T6, T7> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7) {
         return new ValidatingDSL.ValidatingBuilder7<>(v1, v2, v3, v4, v5, v6, v7);
     }
 
+    /**
+     * Act on the result of multiple validations.
+     */
     public static <T1, T2, T3, T4, T5, T6, T7, T8> ValidatingDSL.ValidatingBuilder8<T1, T2, T3, T4, T5, T6, T7, T8> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Validation<T8> v8) {
         return new ValidatingDSL.ValidatingBuilder8<>(v1, v2, v3, v4, v5, v6, v7, v8);
     }
 
     /**
-     * Build a Validation that asserts that the valid is {@link be.iffy.fv.Validation.Valid}, throwing a {@link ValidationException} otherwise.
+     * Build a Validation that asserts that the valid is {@link be.iffy.fv.Validation.Valid} and returns its value, throwing a {@link ValidationException} otherwise.
      */
     public static <T> AssertDSL<T> assertThat(T value, String name) {
         return new AssertDSL<>(value, name);
     }
 
     /**
-     * Build a Validation that asserts that the valid is {@link be.iffy.fv.Validation.Valid}, throwing a {@link ValidationException} otherwise.
+     * Build a Validation that asserts that the valid is {@link be.iffy.fv.Validation.Valid} and returns its value, throwing a {@link ValidationException} otherwise.
      */
     public static <T, Z> AssertDSL<T> assertThat(T value, PropertySelector<Z, T> selector) {
         return new AssertDSL<>(value, selector.getPropertyName());
@@ -205,10 +248,16 @@ public class DSL {
     //endregion
 
 
+    /**
+     * Quick way to assert a value is not null.
+     */
     public static <T> Validation<T> notNull(T value, String name) {
         return validateThat(value, name).is(Rule.notNull());
     }
 
+    /**
+     * Quick way to assert a value is not null.
+     */
     public static <T, V> Validation<T> notNull(T value, PropertySelector<V, T> selector) {
         return validateThat(value, selector).is(Rule.notNull());
     }
@@ -255,8 +304,6 @@ public class DSL {
 
     /**
      * Starts a validation process for a single value.
-     *
-     * @return a {@link ValidationDSL} instance.
      */
     public static <T> ValidationDSL<T> validateThat(T value) {
         return new ValidationDSL<>(value);
@@ -272,14 +319,26 @@ public class DSL {
         return new ValidationDSL<>(value, name);
     }
 
+    /**
+     * Starts a validation process for a single value with a logical name.
+     * The PropertySelector will get converted to a name and will be prepended to any error messages.
+     *
+     * @param name the name of the value (e.g., field name).
+     */
     public static <ANY, T> ValidationDSL<T> validateThat(T value, PropertySelector<ANY, T> name) {
         return new ValidationDSL<>(value, name.getPropertyName());
     }
 
+    /**
+     * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
+     */
     public static <T> VListValidationDSL<T, T> validateThatList(List<T> value, String name) {
         return new VListValidationDSL<>(value, name);
     }
 
+    /**
+     * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
+     */
     public static <T> JListValidationDSL<T, T> validateThatList(java.util.List<T> value, String name) {
         return new JListValidationDSL<>(value, name);
     }
