@@ -40,7 +40,7 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
     public Validation<Command> validate() {
         return validating(
                 validateThat(this.debtor, "debtor").is(this::validateDebtor),
-                validateThat(this.kboNumber, "kboNumber").map(KboNumber::new).isNotNull(),
+                validateThat(this.kboNumber, "kboNumber").is(objects.canBe(KboNumber::new)),
                 validateThatList(this.transactions, "transactions")
                         .satisfies(lists.notEmpty())
                         .eachMapsTo(this::validateTransaction)
@@ -54,7 +54,7 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
 
     Validation<Command.Transaction> validateTransaction(QueueMessage.Transaction transaction) {
         return Validation.from(() -> {
-            MonetaryAmount amount = assertThat(transaction.amount, "amount").is(objects.canBe(MonetaryAmount::new,"must.be.monetaryAmount"));
+            MonetaryAmount amount = assertThat(transaction.amount, "amount").is(objects.canBe(MonetaryAmount::new, "must.be.monetaryAmount"));
             return new Command.Transaction(amount);
         });
     }

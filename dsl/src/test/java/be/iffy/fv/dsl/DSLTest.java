@@ -1,9 +1,9 @@
 package be.iffy.fv.dsl;
 
-import be.iffy.fv.ErrorMessage;
-import be.iffy.fv.Rule;
-import be.iffy.fv.Validation;
-import be.iffy.fv.ValidationException;
+import be.iffy.fv.*;
+import be.iffy.fv.rules.text.StringOps;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.Map;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -223,6 +223,22 @@ public class DSLTest {
             }
         }
 
+        @Test
+        void liftToMap_whenAllValuesAreValid_returnsValidResult() {
+            // Arrange
+            Map<Integer, String> input = HashMap.of(1, " hello ", 2, "world");
+
+
+            MappingRule<String,String> mr = MappingRule.of(StringOps.trim()).andThen(strings.minLength(5));
+            MappingRule<Map<Integer, String>, Map<Integer,String>> mappingRule = mr.liftToVavrMap();
+            Validation<Map<Integer,String>> result = validateThat(input, "value").is(mappingRule);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo(HashMap.of(1, "hello", 2, "world"));
+        }
+
         @Nested
         class Is {
 
@@ -321,14 +337,12 @@ public class DSLTest {
             // Act
             var result = validateThat(value)
                     .map(String::trim)
-                    .map(Integer::parseInt)
-                    .map(i -> i * 2)
-                    .is(Rule.of(i -> i == 246, "must.be.246"));
+                    .is(strings.asInteger().andThen(Rule.of(i -> i == 123, "must.be.123")));
 
             // Assert
             assertThatValidation(result)
                     .isValid()
-                    .isEqualTo(246);
+                    .isEqualTo(123);
         }
 
         @Test
@@ -337,25 +351,25 @@ public class DSLTest {
             var value = "  abc  ";
 
             // Act
-            var result = validateThat(value, "foo")
-                    .map(Integer::parseInt)
-                    .map(i -> i * 2)
+            Validation<Integer> result = validateThat(value, "foo")
+                    .map(strings.asInteger())
                     .is(Rule.of(i -> i == 246, "must.be.246"));
 
             // Assert
             assertThatValidation(result)
                     .isInvalid()
-                    .hasErrorMessages("foo.could.not.be.mapped");
+                    .hasErrorMessages("foo.must.be.integer");
         }
 
         @Test
         public void map_whenMappingToDifferentType_worksCorrectly() {
             // Arrange
-            var value = "123";
+            var value = " 123a ";
 
             // Act
             var result = validateThat(value)
-                    .map(Integer::parseInt)
+                    .map(StringOps.digits())
+                    .map(strings.asInteger())
                     .is(Rule.of(i -> i > 100, "must.be.greater.than.100"));
 
             // Assert
