@@ -1,4 +1,4 @@
-package be.iffy.fv.dsl;
+package be.iffy.fv.dsl.impl;
 
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;

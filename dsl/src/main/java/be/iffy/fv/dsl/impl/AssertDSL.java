@@ -1,4 +1,4 @@
-package be.iffy.fv.dsl;
+package be.iffy.fv.dsl.impl;
 
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
@@ -11,7 +11,7 @@ public class AssertDSL<T> {
     private final String name;
     private final Validation<T> validation;
 
-    AssertDSL(T validation, String name) {
+    public AssertDSL(T validation, String name) {
         this.validation = Rule.<T>notNull().test(validation);
         this.name = name;
     }
