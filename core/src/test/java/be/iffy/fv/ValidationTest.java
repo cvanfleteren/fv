@@ -279,6 +279,21 @@ public class ValidationTest {
         }
 
         @Test
+        void map_whenThrowingValidationException_returnsInvalidWithThoseErrors() {
+            // Arrange
+            Validation<String> valid = Validation.valid("123");
+
+            // Act
+            Validation<Integer> result = valid.map(i -> {throw new ValidationException(List.of(ErrorMessage.of("invalid")));});
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .errorMessages()
+                    .contains("invalid");
+        }
+
+        @Test
         void map_whenInvalid_returnsSameInvalidInstance() {
             // Arrange
             ErrorMessage error = ErrorMessage.of("Error");

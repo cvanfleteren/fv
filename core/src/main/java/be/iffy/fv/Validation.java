@@ -122,7 +122,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "orElse_value"}
      *
      * @param other the alternative validation.
-     
      */
     @SuppressWarnings("unchecked")
     default <U> Validation<U> orElse(Validation<? extends U> other) {
@@ -189,13 +188,17 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Transforms the valid value using the provided mapper.
+     * If the mapper throws {@link ValidationException}, the validation will become invalid with the exception's errors.
      * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "map"}
-     *
      */
     default <R> Validation<R> map(Function<? super T, ? extends R> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
-        return switch (this) {
-            case Valid(var value) -> new Valid<>(mapper.apply(value));
+        return (Validation<R>) switch (this) {
+            case Valid(var value) ->
+                    Try.of(() ->
+                        Validation.<R>valid(mapper.apply(value))
+                    ).recover(ValidationException.class, ve -> Validation.<R>invalid(ve.errors()))
+                    .get();
             default -> (Validation<R>) this;
         };
     }
