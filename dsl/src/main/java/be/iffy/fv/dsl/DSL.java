@@ -266,7 +266,7 @@ public class DSL {
      * Starts a validation process for a single value with a logical name.
      * The name will be prepended to any error messages.
      *
-     * @param name the name of the value (e.g. field name).
+     * @param name the name of the value (e.g., field name).
      */
     public static <T> ValidationDSL<T> validateThat(T value, String name) {
         return new ValidationDSL<>(value, name);
