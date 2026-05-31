@@ -254,15 +254,6 @@ public class DSL {
     }
 
     /**
-     * Starts a validation process for a collection of values.
-     *
-     * @return a {@link ValidateAllDSL} instance.
-     */
-    public static <T> ValidateAllDSL<T> validateAll(Iterable<T> values) {
-        return new ValidateAllDSL<>(values);
-    }
-
-    /**
      * Starts a validation process for a single value.
      *
      * @return a {@link ValidationDSL} instance.

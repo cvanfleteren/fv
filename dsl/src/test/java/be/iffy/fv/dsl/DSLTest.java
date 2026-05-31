@@ -174,38 +174,6 @@ public class DSLTest {
     }
 
     @Nested
-    class ValidateAll {
-
-        @Test
-        void areAll_whenAllValid_returnsValidValidation() {
-            // Arrange
-            List<BigDecimal> numbers = List.of(BigDecimal.ONE, BigDecimal.TEN);
-
-            // Act
-            var result = validateAll(numbers).areAll(positive);
-
-            // Assert
-            assertThatValidation(result)
-                    .isValid()
-                    .isEqualTo(numbers);
-        }
-
-        @Test
-        void areAll_whenSomeInvalid_returnsInvalidWithAccumulatedErrors() {
-            // Arrange
-            List<BigDecimal> numbers = List.of(BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.TEN);
-
-            // Act
-            var result = validateThatList(numbers, "numbers").eachIs(positive).validate();
-
-            // Assert
-            assertThatValidation(result)
-                    .isInvalid()
-                    .hasErrorMessages("numbers[0].must.be.positive");
-        }
-    }
-
-    @Nested
     class ValidateThat {
 
         @Nested
