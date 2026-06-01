@@ -42,6 +42,25 @@ class OptionRulesTest {
     }
 
     @Nested
+    class Matches {
+
+        @Test
+        void valid() {
+            validTest(Option.of("123"), Option.of(123), options.matches(strings.asInteger()));
+        }
+
+        @Test
+        void validEmpty() {
+            validTest(Option.none(), Option.none(), options.matches(strings.asInteger()));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(Option.of("abc"), options.matches(strings.asInteger()), "must.be.integer");
+        }
+    }
+
+    @Nested
     class NotEmpty {
 
         @Test

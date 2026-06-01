@@ -31,6 +31,17 @@ public class OptionRules {
     }
 
     /**
+     * Applies the given {@link MappingRule} to the {@link Option} if it is present. If the Option is empty, the result
+     * is considered to be valid.
+     */
+    public <T, R> MappingRule<Option<T>, Option<R>> matches(MappingRule<T, R> rule) {
+        return input -> {
+            Option<Validation<R>> res = input.map(rule::test);
+            return Validation.transpose(res);
+        };
+    }
+
+    /**
      * Acts the same as {@link #required()}, but takes a Class parameter to help the java compiler
      * with type inference. Can be used to use something like
      * {@code Validation<Bic> bic = validateThat(bicHolder.bic()).is(options.required(String.class).andThen(Bic::validate));}
@@ -43,7 +54,7 @@ public class OptionRules {
     }
 
     /**
-     * Fails if the {@link Option} is empty while or doesn't contain a value that passes the passed rule.
+     * Fails if the {@link Option} is empty or doesn't contain a value that passes the passed rule.
      * Return a {@link be.iffy.fv.Validation.Valid} with the contained value otherwise.
      *
      * @param rule the rule to apply to the value inside the {@link Option}

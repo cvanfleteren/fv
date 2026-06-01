@@ -47,6 +47,25 @@ class OptionalRulesTest {
 
 
     @Nested
+    class Matches {
+
+        @Test
+        void valid() {
+            validTest(Optional.of("123"), Optional.of(123), optionals.matches(strings.asInteger()));
+        }
+
+        @Test
+        void validEmpty() {
+            validTest(Optional.empty(), Optional.empty(), optionals.matches(strings.asInteger()));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(Optional.of("abc"), optionals.matches(strings.asInteger()), "must.be.integer");
+        }
+    }
+
+    @Nested
     class NotEmpty {
 
         @Test

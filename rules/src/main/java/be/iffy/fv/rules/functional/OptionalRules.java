@@ -28,6 +28,18 @@ public class OptionalRules {
         );
     }
 
+
+    /**
+     * Applies the given {@link MappingRule} to the {@link Optional} if it is present. If the Optional is empty, the result
+     * is considered to be valid.
+     */
+    public <T, R> MappingRule<Optional<T>, Optional<R>> matches(MappingRule<T,R> rule) {
+        return input -> {
+            Optional<Validation<R>> res = input.map(rule::test);
+            return Validation.transpose(res);
+        };
+    }
+
     /**
      * Acts the same as {@link #required()}, but takes a Class parameter to help the java compiler
      * with type inference. Can be used to use something like
