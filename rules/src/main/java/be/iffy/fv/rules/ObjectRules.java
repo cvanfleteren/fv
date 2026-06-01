@@ -55,7 +55,8 @@ public class ObjectRules implements IObjectRules<Object> {
      * </ul>
      */
     public <E extends Enum<E>> MappingRule<String, E> isEnum(Class<E> clazz) {
-        return input -> Try.of(() -> Enum.valueOf(clazz, input))
+        return input ->
+                Try.of(() -> Enum.valueOf(clazz, input))
                 .fold(
                         f -> Validation.invalid(ErrorMessage.of("must.be.valid.enum.value", "value", input)),
                         Validation::valid
