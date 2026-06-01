@@ -21,7 +21,7 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
     public record Debtor(String enterpriseNumber, String bic, String name, Address address, MandateInfo mandateInfo) {
     }
 
-    public record Address(String street, String houseNumber, String city) {
+    public record Address(String street, String houseNumber, String city, Optional<String> country) {
     }
 
     public record Transaction(BigDecimal amount) {
@@ -33,6 +33,10 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
                               Optional<String> amendmentType,
                               Optional<String> amendmentOriginalValue
     ) {
+    }
+
+    public enum Country {
+        BE, NL, LU
     }
 
     public static final Rule<MonetaryAmount> atLeast1000 = Rule.with(MonetaryAmount::value, bigDecimals.atLeast(new BigDecimal(1000)));
@@ -60,7 +64,12 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
     }
 
     Validation<Command.Address> validateAddress(QueueMessage.Address address) {
-        return Validation.from(() -> new Command.Address(address.street, address.houseNumber, address.city));
+
+        return validateThat(address.country, "country")
+                .is(optionals.matches(objects.isEnum(Country.class)))
+                .flatMap(country ->
+                        Validation.from(() -> new Command.Address(address.street, address.houseNumber, address.city))
+                );
     }
 
     Validation<Command.Debtor> validateDebtor(QueueMessage.Debtor debtor) {

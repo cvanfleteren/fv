@@ -9,6 +9,7 @@ import io.vavr.control.Option;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -283,6 +284,14 @@ public class DSL {
     }
 
     /**
+     * For any given {@code Function<T, Validation<R>>}, returns a Rule that can work on an {@code  MappingRule<Optional<T>, Optional<R>>} instead.
+     * An empty {@link Optional} is considered to be valid.
+     */
+    public static <T,R> MappingRule<Optional<T>, Optional<R>> optional(Function<T, Validation<R>> ruleLike) {
+        return optional(MappingRule.of(ruleLike));
+    }
+
+    /**
      * For any given {@code MappingRule<T, R>}, returns a MappingRule that can work on an {@code MappingRule<Option<T>, Option<R>>} instead.
      * An empty {@link Option} is considered to be valid.
      *
@@ -301,6 +310,15 @@ public class DSL {
     public static <T> Rule<Option<T>> option(Rule<T> rule) {
         return rule.liftToOption();
     }
+
+    /**
+     * For any given {@code Function<T, Validation<R>>}, returns a Rule that can work on an {@code  MappingRule<Option<T>, Option<R>>} instead.
+     * An empty {@link Option} is considered to be valid.
+     */
+    public static <T,R> MappingRule<Option<T>, Option<R>> option(Function<T, Validation<R>> ruleLike) {
+        return option(MappingRule.of(ruleLike));
+    }
+
 
     /**
      * Starts a validation process for a single value.

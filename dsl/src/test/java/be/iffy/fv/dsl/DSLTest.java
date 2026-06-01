@@ -4,6 +4,7 @@ import be.iffy.fv.*;
 import be.iffy.fv.rules.text.StringOps;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
+import io.vavr.control.Option;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -16,6 +17,7 @@ import io.vavr.collection.List;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class DSLTest {
@@ -558,6 +560,66 @@ public class DSLTest {
         void assertAllValid_whenNoValidationsProvided_doesNotThrow() {
             // Act & Assert
             assertThatCode(DSL::assertAllValid).doesNotThrowAnyException();
+        }
+    }
+
+    @Nested
+    class OptionMethods {
+
+        private final Function<String, Validation<Integer>> stringToInteger = s -> {
+            try {
+                return Validation.valid(Integer.parseInt(s));
+            } catch (NumberFormatException e) {
+                return Validation.invalid("must.be.integer");
+            }
+        };
+
+        @Nested
+        class OptionalTests {
+            @Test
+            void optional_whenGivenValidOptional_returnsValidMappedOptional() {
+                var rule = optional(stringToInteger);
+                var result = rule.test(Optional.of("123")).at("value");
+                assertThatValidation(result).isValid().isEqualTo(Optional.of(123));
+            }
+
+            @Test
+            void optional_whenGivenInvalidOptional_returnsInvalid() {
+                var rule = optional(stringToInteger);
+                var result = rule.test(Optional.of("abc")).at("value");
+                assertThatValidation(result).isInvalid().hasErrorMessage("value.must.be.integer");
+            }
+
+            @Test
+            void optional_whenGivenEmptyOptional_returnsValidEmptyOptional() {
+                var rule = optional(stringToInteger);
+                var result = rule.test(Optional.empty()).at("value");
+                assertThatValidation(result).isValid().isEqualTo(Optional.empty());
+            }
+        }
+
+        @Nested
+        class OptionTests {
+            @Test
+            void option_whenGivenValidOption_returnsValidMappedOption() {
+                var rule = option(stringToInteger);
+                var result = rule.test(Option.of("123")).at("value");
+                assertThatValidation(result).isValid().isEqualTo(Option.of(123));
+            }
+
+            @Test
+            void option_whenGivenInvalidOption_returnsInvalid() {
+                var rule = option(stringToInteger);
+                var result = rule.test(Option.of("abc")).at("value");
+                assertThatValidation(result).isInvalid().hasErrorMessage("value.must.be.integer");
+            }
+
+            @Test
+            void option_whenGivenNone_returnsValidNone() {
+                var rule = option(stringToInteger);
+                var result = rule.test(Option.none()).at("value");
+                assertThatValidation(result).isValid().isEqualTo(Option.none());
+            }
         }
     }
 }

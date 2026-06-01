@@ -19,7 +19,7 @@ public class QueueMessageMapperTest {
     @Nested
     class validate {
 
-        QueueMessage.Address validAddress = new QueueMessage.Address("some street", "123", "Melville");
+        QueueMessage.Address validAddress = new QueueMessage.Address("some street", "123", "Melville", Optional.of("BE"));
         QueueMessage.MandateInfo validMandateInfo = new QueueMessage.MandateInfo("some-id", LocalDate.now(), true, Optional.of("CREDITORID"), Optional.of("foo"));
 
         QueueMessage.Debtor validDebtor = new QueueMessage.Debtor(
@@ -70,7 +70,10 @@ public class QueueMessageMapperTest {
         @Test
         void validate_whenLeafsInvalid_fails() {
             // arrange
-            QueueMessage.Debtor debtor = new QueueMessage.Debtor("", "", "", new QueueMessage.Address("", "", ""), new QueueMessage.MandateInfo("", null, null, Optional.empty(), null));
+            QueueMessage.Debtor debtor = new QueueMessage.Debtor("", "", "",
+                    new QueueMessage.Address("", "", "", Optional.of("BE")),
+                    new QueueMessage.MandateInfo("", null, null, Optional.empty(), null)
+            );
             QueueMessage message = new QueueMessage(debtor, "", List.of(new QueueMessage.Transaction(new BigDecimal("-200.00"))));
 
             // act & assert
@@ -102,7 +105,7 @@ public class QueueMessageMapperTest {
 
         @Test
         void validate_whenInvalidDebtor_returnsInvalidWithErrors() {
-            QueueMessage.Debtor debtor = new QueueMessage.Debtor("", "INVALID", " ", new QueueMessage.Address(" ", " ", "a"), validMandateInfo);
+            QueueMessage.Debtor debtor = new QueueMessage.Debtor("", "INVALID", " ", new QueueMessage.Address(" ", " ", "a", Optional.of("BE")), validMandateInfo);
             QueueMessage.Transaction transaction = new QueueMessage.Transaction(new BigDecimal("100.00"));
             QueueMessage message = new QueueMessage(debtor, "KBO123", List.of(transaction));
 
