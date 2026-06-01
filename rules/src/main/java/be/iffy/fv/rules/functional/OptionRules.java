@@ -7,6 +7,7 @@ import be.iffy.fv.Validation;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class OptionRules {
 
@@ -39,6 +40,14 @@ public class OptionRules {
             Option<Validation<R>> res = input.map(rule::test);
             return Validation.transpose(res);
         };
+    }
+
+    /**
+     * Applies the given MappingRule like Fnction to the {@link Option} if it is present. If the Option is empty, the result
+     * is considered to be valid.
+     */
+    public <T, R> MappingRule<Option<T>, Option<R>> matches(Function<T, Validation<R>> ruleLike) {
+        return matches(MappingRule.of(ruleLike));
     }
 
     /**

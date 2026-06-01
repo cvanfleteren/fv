@@ -377,40 +377,6 @@ public interface MappingRule<T, R> {
     }
 
     /**
-     * Fails if the input {@link Option} is empty. Otherwise, applies the given rule to its value.
-     * <p>
-     * Error key: {@code must.not.be.empty}
-     *
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "required-option-example"}
-     *
-     * @param rule the mapping rule to apply to the value inside the {@link Option}
-     * @return a new {@link MappingRule} that validates the option and applies the given rule to its value
-     */
-    static <T, R> MappingRule<Option<T>, R> requiredOption(MappingRule<T, R> rule) {
-        Objects.requireNonNull(rule, "rule cannot be null");
-        return rule.liftToOption().andThen(opt -> opt.fold(() -> Validation.invalid("must.not.be.empty"), Validation::valid));
-    }
-
-    /**
-     * Fails if the input {@link Optional} is empty. Otherwise, applies the given rule to its value.
-     * <p>
-     * Error key: {@code must.not.be.empty}
-     *
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "required-optional-example"}
-     *
-     * @param rule the mapping rule to apply to the value inside the {@link Optional}
-     * @return a new {@link MappingRule} that validates the optional and applies the given rule to its value
-     */
-    static <T, R> MappingRule<Optional<T>, R> requiredOptional(MappingRule<T, R> rule) {
-        Objects.requireNonNull(rule, "rule cannot be null");
-        return rule.liftToOptional().andThen(opt -> opt.map(Validation::valid).orElseGet(() -> Validation.invalid("must.not.be.empty")));
-    }
-
-    /**
      * Returns a MappingRule that validates the input is not null.
      * <p>
      * Error key: "must.not.be.null"

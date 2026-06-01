@@ -13,13 +13,13 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.function.Function;
 
-import static be.iffy.fv.MappingRule.requiredOption;
 import static be.iffy.fv.dsl.DSL.assertAllValid;
 import static be.iffy.fv.dsl.DSL.validateThat;
 import static be.iffy.fv.dsl.DSL.validating;
 import static be.iffy.fv.dsl.experimental.Validator.validatorFor;
 import static be.iffy.fv.rules.BooleanRules.booleans;
 import static be.iffy.fv.rules.ObjectRules.objects;
+import static be.iffy.fv.rules.Rules.optionals;
 import static be.iffy.fv.rules.Rules.options;
 import static be.iffy.fv.rules.text.StringRules.strings;
 
@@ -60,8 +60,8 @@ public class ClientViewTest {
 
 
         Function<TestDTO, Validation<Mandate>> mapper = testDto -> {
-            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = requiredOption(objects.isEnum(MandateInfo.AmendmentType.class));
-            MappingRule<Option<String>, String> originalValueRule = MappingRule.requiredOption(strings.notBlank());
+            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = options.required(objects.isEnum(MandateInfo.AmendmentType.class));
+            MappingRule<Option<String>, String> originalValueRule = options.required(strings.notBlank());
 
             Validation<Boolean> amendmentV = objects.<Boolean>notNull().test(testDTO.amendment);
 
@@ -128,8 +128,8 @@ public class ClientViewTest {
         TestDTO testDTO = new TestDTO(LocalDate.now(), true, Option.of("FOO"), Option.of("original"));
 
         Function<TestDTO, Validation<Mandate>> mapper = testDto -> {
-            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = requiredOption(objects.isEnum(MandateInfo.AmendmentType.class));
-            MappingRule<Option<String>, String> originalValueRule = MappingRule.requiredOption(strings.notBlank());
+            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = options.required(objects.isEnum(MandateInfo.AmendmentType.class));
+            MappingRule<Option<String>, String> originalValueRule = options.required(strings.notBlank());
 
             MappingRule<TestDTO, Option<MandateInfo>> withMandateInfo = validatorFor(TestDTO.class)
                     .when(property(TestDTO::amendment).is(booleans.isTrue()))

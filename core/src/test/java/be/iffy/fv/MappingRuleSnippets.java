@@ -219,36 +219,6 @@ public class MappingRuleSnippets {
         // @end
     }
 
-    void requiredOptionExample() {
-        // @start region="required-option-example"
-        // 1. A rule that checks if a string is not empty
-        MappingRule<String, String> notEmpty = s ->
-            s.isEmpty() ? Validation.invalid("not.empty") : Validation.valid(s);
-
-        // 2. A rule that requires the Option to be present before applying the rule
-        MappingRule<Option<String>, String> requiredString = MappingRule.requiredOption(notEmpty);
-
-        // 3. Usage
-        Validation<String> valid = requiredString.test(Option.of("hello")); // Returns Valid("hello")
-        Validation<String> invalid = requiredString.test(Option.none());      // Returns Invalid("must.not.be.empty")
-        // @end
-    }
-
-    void requiredOptionalExample() {
-        // @start region="required-optional-example"
-        // 1. A rule that checks if a string is not empty
-        MappingRule<String, String> notEmpty = s ->
-            s.isEmpty() ? Validation.invalid("not.empty") : Validation.valid(s);
-
-        // 2. A rule that requires the Option to be present before applying the rule
-        MappingRule<Optional<String>, String> requiredString = MappingRule.requiredOptional(notEmpty);
-
-        // 3. Usage
-        Validation<String> valid = requiredString.test(Optional.of("hello")); // Returns Valid("hello")
-        Validation<String> invalid = requiredString.test(Optional.empty());      // Returns Invalid("must.not.be.empty")
-        // @end
-    }
-
     record User(String name) {}
 
     void withExample() {

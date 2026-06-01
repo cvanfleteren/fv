@@ -1,5 +1,6 @@
 package be.iffy.fv.rules.functional;
 
+import be.iffy.fv.Validation;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -62,6 +63,12 @@ class OptionalRulesTest {
         @Test
         void invalid() {
             invalidTest(Optional.of("abc"), optionals.matches(strings.asInteger()), "must.be.integer");
+        }
+
+        @Test
+        void validFunction() {
+            java.util.function.Function<String, Validation<Integer>> ruleLike = s -> Validation.valid(Integer.parseInt(s));
+            validTest(Optional.of("123"), Optional.of(123), optionals.matches(ruleLike));
         }
     }
 

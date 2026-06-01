@@ -182,7 +182,8 @@ Rule<User> userRule = Rule.with(User::getEmail, emailRule);
 
 ### Can I use my own error messages?
 
-Yes! While many built-in rules use standard keys like `must.not.be.null`, you can always override the error message or key using `.withErrorKey("my.custom.key")` or by providing an `ErrorMessage` object during rule creation.
+Yes! While many built-in rules use standard keys like `must.not.be.null`, you can always override the error message or key using `.withErrorKey("my.custom.key")` or by providing an `ErrorMessage` object during rule creation.  
+You can also use change the errors on a Validation with `Validation.mapErrors`.
 
 ---
 
@@ -218,32 +219,29 @@ optionalRule.test(Optional.empty()); // Valid
 optionalRule.test(Optional.of("abc")); // Invalid (must be at least 5)
 optionalRule.test(Optional.of("abcdef")); // Valid
 ```
+Or with the predefined Option(al)Rules:
+
+```java
+MappingRule<Optional<String>,String> rule = optionals.matches(strings.minLength(5)); // empty optional is still valid
+```
 
 ---
 
 ### How can I check that my optional value meets a Rule when it is not empty (but this time empty is NOT allowed)?
 
-If you want to ensure that an `Optional` is **not empty** AND its value satisfies a certain rule, you can use the `MappingRule.requiredOptional(Rule)` or `MappingRule.requiredOption(Rule)` methods.  
+If you want to ensure that an `Optional` is **not empty** AND its value satisfies a certain rule, you can use the `OptionalRules.required(MappingRule)` or `OptionRules.required(MappingRule)` methods.  
 We need a MappingRule because we'll be changing the type of Validation from Optional<T> to T.
 
 Unlike `liftToOptional()`, which returns valid for empty optionals, these methods will return an `Invalid` result with the error key `must.not.be.empty` if the optional is empty. If the optional contains a value, it applies the rule to that value and—importantly—**extracts** the value from the container.
 
 ```java
 Rule<String> minLengthRule = strings.minLength(5);
-MappingRule<Optional<String>, String> mandatoryRule = MappingRule.requiredOptional(minLengthRule);
+MappingRule<Optional<String>, String> mandatoryAndMinLength = optionals.required(minLengthRule);
 
 mandatoryRule.test(Optional.empty()); // Invalid (must.not.be.empty)
 mandatoryRule.test(Optional.of("abc")); // Invalid (must be at least 5)
 Validation<String> result = mandatoryRule.test(Optional.of("abcdef")); // Valid("abcdef")
 ```
-
-There is also an alternative syntax available using a predefined Rule in OptionRules:
-
-```java
-MappingRule<Optional<String>, String> mandatoryAndMinLength = options.required(strings.minLength(4));
-```
-
-This is particularly useful when you want to "unwrap" a validated value from an optional as part of a larger validation pipeline.
 
 If you don't want to extract the value and prefer to keep working with a `Rule<Optional<T>>`, you can use `optionals.contains(Rule<T> rule)`
 
