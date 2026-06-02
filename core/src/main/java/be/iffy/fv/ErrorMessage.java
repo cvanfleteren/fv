@@ -33,12 +33,12 @@ public record ErrorMessage(String errorKey, List<Path> paths, Map<String, Object
     /**
      * Creates an {@link ErrorMessage} with the given key.
      *
-     * @param message the error message key.
+     * @param errorKey the error errorKey key.
      * @return a new {@link ErrorMessage} instance.
      
      */
-    public static ErrorMessage of(String message) {
-        return new ErrorMessage(message, List.of(), HashMap.empty());
+    public static ErrorMessage of(String errorKey) {
+        return new ErrorMessage(errorKey, List.of(), HashMap.empty());
     }
 
     /**

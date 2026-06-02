@@ -237,9 +237,9 @@ public sealed interface Validation<T> extends Iterable<T> {
      * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "mapCatching_customError"}
      *
      */
-    default <R> Validation<R> mapCatching(Function<? super T, ? extends R> mapper, String errorMessage) {
+    default <R> Validation<R> mapCatching(Function<? super T, ? extends R> mapper, String errorKey) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
-        Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
+        Objects.requireNonNull(errorKey, "errorKey cannot be null");
         return switch (this) {
             case Valid(var value) -> {
                 try {
@@ -247,7 +247,7 @@ public sealed interface Validation<T> extends Iterable<T> {
                 } catch (ValidationException e) {
                     yield Validation.invalid(e.errors());
                 } catch (RuntimeException e) {
-                    yield Validation.invalid(errorMessage);
+                    yield Validation.invalid(errorKey);
                 }
             }
             default -> (Validation<R>) this;
@@ -295,9 +295,9 @@ public sealed interface Validation<T> extends Iterable<T> {
      * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "flatMapCatching_customError"}
      *
      */
-    default <R> Validation<R> flatMapCatching(Function1<? super T, Validation<? extends R>> flatMapper, String errorMessage) {
+    default <R> Validation<R> flatMapCatching(Function1<? super T, Validation<? extends R>> flatMapper, String errorKey) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
-        Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
+        Objects.requireNonNull(errorKey, "errorKey cannot be null");
         return switch (this) {
             case Valid(var value) -> {
                 try {
@@ -305,7 +305,7 @@ public sealed interface Validation<T> extends Iterable<T> {
                 } catch (ValidationException e) {
                     yield Validation.invalid(e.errors());
                 } catch (RuntimeException e) {
-                    yield Validation.invalid(errorMessage);
+                    yield Validation.invalid(errorKey);
                 }
             }
             default -> (Validation<R>) this;
@@ -831,8 +831,8 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Creates an invalid validation with a single error message key.
      */
     @SuppressWarnings("unchecked")
-    static <T> Validation<T> invalid(String errorMessage) {
-        return (Validation<T>) new Invalid(List.of(ErrorMessage.of(errorMessage)));
+    static <T> Validation<T> invalid(String errorKey) {
+        return (Validation<T>) new Invalid(List.of(ErrorMessage.of(errorKey)));
     }
 
     /**
@@ -915,8 +915,8 @@ public sealed interface Validation<T> extends Iterable<T> {
      * <p>
      * Error key: {@code value.is.none}
      */
-    static <T> Validation<T> from(Option<? extends T> option, String errorMessage) {
-        return from(option, ErrorMessage.of(errorMessage));
+    static <T> Validation<T> from(Option<? extends T> option, String errorKey) {
+        return from(option, ErrorMessage.of(errorKey));
     }
 
     /**
@@ -959,8 +959,8 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the optional is empty, the returned validation will be invalid with the provided error key.
      *
      */
-    static <T> Validation<T> from(Optional<? extends T> optional, String errorMessage) {
-        return from(Option.ofOptional(optional), errorMessage);
+    static <T> Validation<T> from(Optional<? extends T> optional, String errorKey) {
+        return from(Option.ofOptional(optional), errorKey);
     }
 
     /**

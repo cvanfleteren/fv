@@ -413,7 +413,7 @@ public class ValidationTest {
             // Act & Assert
             assertThatCode(() -> valid.mapCatching(Integer::parseInt, null))
                     .isInstanceOf(NullPointerException.class)
-                    .hasMessage("errorMessage cannot be null");
+                    .hasMessage("errorKey cannot be null");
         }
     }
 
@@ -593,7 +593,7 @@ public class ValidationTest {
             // Act & Assert
             assertThatCode(() -> valid.flatMapCatching(s -> Validation.valid(1), null))
                     .isInstanceOf(NullPointerException.class)
-                    .hasMessage("errorMessage cannot be null");
+                    .hasMessage("errorKey cannot be null");
         }
     }
 
