@@ -222,29 +222,6 @@ class ObjectRulesTest {
     }
 
     @Nested
-    class InstanceOf {
-
-        @Test
-        void valid() {
-            validTest("hello", "hello", objects.instanceOf(String.class));
-            validTest(123, 123, objects.instanceOf(Integer.class));
-        }
-
-        @Test
-        void invalid() {
-            MappingRule<Object, String> stringRule = objects.instanceOf(String.class);
-
-            assertThatValidation(stringRule.test(BigDecimal.ZERO))
-                    .isInvalid()
-                    .hasErrorMessages("must.be.instance");
-
-            assertThatValidation(stringRule.test(null))
-                    .isInvalid()
-                    .hasErrorMessages("must.not.be.null");
-        }
-    }
-
-    @Nested
     class IsInstanceOf {
 
         @Test

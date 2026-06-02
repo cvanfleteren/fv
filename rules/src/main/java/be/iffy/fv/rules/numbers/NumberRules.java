@@ -6,7 +6,6 @@ import be.iffy.fv.Rule;
 /**
  * Common validation rules for {@link Number} values.
  *
- 
  */
 public interface NumberRules<T extends Number> {
 

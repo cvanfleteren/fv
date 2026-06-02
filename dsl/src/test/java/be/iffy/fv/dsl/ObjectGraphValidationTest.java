@@ -69,7 +69,6 @@ class ObjectGraphValidationTest {
     // --- The Rules / Validators ---
 
     static class UserValidator {
-        private static final StringRules strings = strings();
         private static final VavrListRules collections = VavrListRules.vavrLists;
 
         static Validation<Address> validateAddress(AddressDTO addressDTO) {

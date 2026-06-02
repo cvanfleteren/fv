@@ -160,26 +160,4 @@ public interface IObjectRules<T> {
         return input -> Validation.valid(Option.of(input));
     }
 
-    /**
-     * Fails if the object is not an instance of the specified class.
-     * <p>
-     * Error key: {@code must.be.instance}
-     * <p>
-     * Parameters:
-     * <ul>
-     *     <li>{@code of}: the required class ({@link Class})</li>
-     * </ul>
-     */
-    default <U> MappingRule<Object, U> instanceOf(Class<U> clazz) {
-        return input -> {
-            if (clazz.isInstance(input)) {
-                return Validation.valid(clazz.cast(input));
-            } else if (input == null) {
-                return Validation.invalid("must.not.be.null");
-            } else {
-                return Validation.invalid(ErrorMessage.of("must.be.instance", HashMap.of("of", clazz)));
-            }
-        };
-    }
-
 }

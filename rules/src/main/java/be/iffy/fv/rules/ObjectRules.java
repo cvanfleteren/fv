@@ -6,6 +6,7 @@ import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -30,7 +31,7 @@ public class ObjectRules implements IObjectRules<Object> {
     /**
      * Acts the same as {@link #notNull()}, but takes a Class parameter to help the java compiler
      * with type inference. Can be used to use something like
-     * {@code Ruyle<String> rule = objects.notNull(String.class).and(...);}
+     * {@code Rule<String> rule = objects.notNull(String.class).and(...);}
      * instead of
      * {@code Rule<String> rule = objects.<String>notNull.and(...);}
      * which some people prefer.
@@ -53,7 +54,7 @@ public class ObjectRules implements IObjectRules<Object> {
     }
 
     /**
-     * Fails if the input string is not a valid enum value for the given enum class while mappping to the enum.
+     * Fails if the input string is not a valid enum value for the given enum class while mapping to the enum.
      * <p>
      * Usage example:
      * {@snippet file="be/iffy/fv/rules/ObjectRulesSnippets.java" region="is-enum-example"}
@@ -85,6 +86,7 @@ public class ObjectRules implements IObjectRules<Object> {
      * </ul>
      */
     public <T, R> MappingRule<T, R> isInstanceOf(Class<R> clazz) {
+        Objects.requireNonNull(clazz, "clazz cannot be null");
         return input -> {
             if (clazz.isInstance(input)) {
                 return Validation.valid(clazz.cast(input));
@@ -108,6 +110,7 @@ public class ObjectRules implements IObjectRules<Object> {
      *
      */
     public <E extends Enum<E>> Rule<String> canBeEnum(Class<E> clazz) {
+        Objects.requireNonNull(clazz, "clazz cannot be null");
         return input -> Try.of(() -> Enum.valueOf(clazz, input))
                 .fold(
                         f -> Validation.invalid(ErrorMessage.of("must.be.valid.enum.value", "value", input)),
@@ -121,7 +124,8 @@ public class ObjectRules implements IObjectRules<Object> {
      * If the function throws ValidationException, its errors will be used instead of the passed error.
      */
     public <T,R> MappingRule<T, R> canBe(Function<T,R> constructor, ErrorMessage errorMessage) {
-        return MappingRule.ofTry(input -> Try.of(() -> constructor.apply(input)),errorMessage);
+        Objects.requireNonNull(constructor, "constructor cannot be null");
+        return MappingRule.ofTry(input -> Try.of(() -> constructor.apply(input)), errorMessage);
     }
 
     /**

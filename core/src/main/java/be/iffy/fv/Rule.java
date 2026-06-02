@@ -343,7 +343,6 @@ public interface Rule<T> extends MappingRule<T, T> {
         return liftToVavrMap(Objects::toString);
     }
 
-
     /**
      * Lifts this {@link Rule} so it applies to a {@link Map} of K to T.
      * <p>
