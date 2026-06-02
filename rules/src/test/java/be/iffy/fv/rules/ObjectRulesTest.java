@@ -39,6 +39,37 @@ class ObjectRulesTest {
         }
     }
 
+
+    @Nested
+    class AsOptional {
+
+        @Test
+        void valid() {
+            assertThatValidation(objects.asOptional().test("a"))
+                    .isValid()
+                    .isEqualTo(java.util.Optional.of("a"));
+
+            assertThatValidation(objects.asOptional().test(null))
+                    .isValid()
+                    .isEqualTo(java.util.Optional.empty());
+        }
+    }
+
+    @Nested
+    class AsOption {
+
+        @Test
+        void valid() {
+            assertThatValidation(objects.asOption().test("a"))
+                    .isValid()
+                    .isEqualTo(io.vavr.control.Option.of("a"));
+
+            assertThatValidation(objects.asOption().test(null))
+                    .isValid()
+                    .isEqualTo(io.vavr.control.Option.none());
+        }
+    }
+
     @Nested
     class EqualTo {
 
@@ -126,6 +157,67 @@ class ObjectRulesTest {
                     HashMap.of("values", HashSet.of(1, 2, 3))
             );
             invalidTest(null, objects.notOneOf(1, 2, 3), "must.not.be.null");
+        }
+    }
+
+    @Nested
+    class SameAs {
+
+        @Test
+        void valid() {
+            String s = "a";
+            validTest(s, objects.sameAs(s));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("a", objects.sameAs(new String("a")), "must.be.same");
+            invalidTest(null, objects.sameAs("a"), "must.not.be.null");
+        }
+
+        @Test
+        void requiresNonNullValue() {
+            assertThatThrownBy(() -> objects.sameAs(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("value cannot be null");
+        }
+    }
+
+    @Nested
+    class NotSameAs {
+
+        @Test
+        void valid() {
+            validTest("a", objects.notSameAs(new String("a")));
+        }
+
+        @Test
+        void invalid() {
+            String s = "a";
+            invalidTest(s, objects.notSameAs(s), "must.not.be.same");
+            invalidTest(null, objects.notSameAs("a"), "must.not.be.null");
+        }
+
+        @Test
+        void requiresNonNullValue() {
+            assertThatThrownBy(() -> objects.notSameAs(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("value cannot be null");
+        }
+    }
+
+    @Nested
+    class AsString {
+
+        @Test
+        void valid() {
+            validTest(123, "123", objects.asString());
+            validTest("abc", "abc", objects.asString());
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, objects.asString(), "must.not.be.null");
         }
     }
 

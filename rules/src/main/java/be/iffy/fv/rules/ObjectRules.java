@@ -42,6 +42,17 @@ public class ObjectRules implements IObjectRules<Object> {
     }
 
     /**
+     * Converts the object to a string.
+     * <p>
+     * Fails if the object is {@code null}.
+     * <p>
+     * Error key: {@code must.not.be.null}
+     */
+    public MappingRule<Object, String> asString() {
+        return MappingRule.<Object>notNull().map(String::valueOf);
+    }
+
+    /**
      * Fails if the input string is not a valid enum value for the given enum class while mappping to the enum.
      * <p>
      * Usage example:
