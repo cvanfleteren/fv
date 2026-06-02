@@ -64,6 +64,28 @@ public class ObjectRules implements IObjectRules<Object> {
     }
 
     /**
+     * Fails if the input is not an instance of the given class.
+     * <p>
+     * Error key: {@code must.be.instance.of}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code type}: the class name ({@link String})</li>
+     * </ul>
+     */
+    public <T, R> MappingRule<T, R> isInstanceOf(Class<R> clazz) {
+        return input -> {
+            if (clazz.isInstance(input)) {
+                return Validation.valid(clazz.cast(input));
+            } else if (input == null) {
+                return Validation.invalid("must.not.be.null");
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.be.instance.of", "type", clazz.getSimpleName()));
+            }
+        };
+    }
+
+    /**
      * Fails if the input string is not a valid enum value for the given enum class.
      * <p>
      * Error key: {@code must.be.valid.enum.value}

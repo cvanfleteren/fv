@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static be.iffy.fv.rules.ObjectRules.objects;
@@ -146,6 +147,34 @@ class ObjectRulesTest {
                     .hasErrorMessages("must.be.instance");
 
             assertThatValidation(stringRule.test(null))
+                    .isInvalid()
+                    .hasErrorMessages("must.not.be.null");
+        }
+    }
+
+    @Nested
+    class IsInstanceOf {
+
+        @Test
+        void isInstanceOf_whenValidType_returnsValid() {
+            validTest("hello", "hello", objects.isInstanceOf(String.class));
+            validTest(123, 123, objects.isInstanceOf(Integer.class));
+        }
+
+        @Test
+        void isInstanceOf_whenValidTypeWithActualSuperType_returnsValid() {
+            MappingRule<Number,BigDecimal> rule = objects.isInstanceOf(BigDecimal.class);
+            validTest(BigDecimal.ZERO,  BigDecimal.ZERO, rule);
+        }
+
+        @Test
+        void isInstanceOf_whenInvalidType_returnsInvalid() {
+            invalidTest(BigDecimal.ZERO, objects.isInstanceOf(String.class), "must.be.instance.of", HashMap.of("type", "String"));
+        }
+
+        @Test
+        void isInstanceOf_whenNull_returnsNotNullError() {
+            assertThatValidation(objects.isInstanceOf(String.class).test(null))
                     .isInvalid()
                     .hasErrorMessages("must.not.be.null");
         }
