@@ -956,7 +956,7 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Creates a {@link Validation} from a standard Java {@link java.util.Optional}.
      * If the optional is present, the returned validation will be valid with the value.
-     * If the optional is empty, the returned validation will be invalid with the provided error message key.
+     * If the optional is empty, the returned validation will be invalid with the provided error key.
      *
      */
     static <T> Validation<T> from(Optional<? extends T> optional, String errorMessage) {

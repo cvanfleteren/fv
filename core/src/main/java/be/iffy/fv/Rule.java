@@ -127,6 +127,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Composes this rule with another rule using "or" logic.
      * The combined rule is successful if either this or the other rule is successful.
      * If both rules fail, their errors are combined.
+     * Both rules are evaluated at most once and the other rule is only evaluated when this rule fails.
      * <p>
      * Usage example:
      * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "or-example"}
@@ -240,6 +241,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Returns a new {@link Rule} that first applies this rule, and if the input is invalid, falls back to the {@code other} rule.
      * Like {@link MappingRule#recoverWith}, but the fallback is a {@link Rule}.
      * The difference with {@link #or(Rule)} is that only the errors of the {@code other} Rule will be returned if both fail.
+     * The fallback rule is evaluated only when this rule fails.
      * <p>
      * Usage example:
      * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "recover-with-rule-example"}
@@ -262,6 +264,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Returns a new {@link Rule} that, when invalid, uses the passed errorKey as single ErrorMessage.
      */
     default Rule<T> withErrorKey(String errorKey) {
+        Objects.requireNonNull(errorKey, "errorKey cannot be null");
         return input -> this.test(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
     }
 
@@ -357,6 +360,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      */
     @Override
     default <K> Rule<Map<K, T>> liftToVavrMap(Function<K, Object> keyExtractor) {
+        Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
         // this version can work a bit more efficiently since we know we can return
         // the original map if all entries are valid
         // as the values cannot change type in a Rule (as opposed to a MappingRule)
@@ -414,6 +418,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      */
     @Override
     default <K> Rule<java.util.Map<K, T>> liftToMap(Function<K, Object> keyExtractor) {
+        Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
         //return (Rule<java.util.Map<K, T>>) MappingRule.super.liftToMap(keyExtractor);
         // this version can work a bit more efficiently since we know we can return
         // the original map if all entries are valid
@@ -529,7 +534,7 @@ public interface Rule<T> extends MappingRule<T, T> {
 
     /**
      * Returns a {@link Rule} that returns a Valid if the input is null, or the result of the passed Rule otherwise.
-     * Be carefull, once you start combining this resulting Rule with other Rules, (e.g. using {@link #and(Rule)}, the null will be passed to
+     * Be careful, once you start combining this resulting Rule with other Rules, (e.g. using {@link #and(Rule)}, the null will be passed to
      * the other rule and null will once again be considered invalid. So this Rule should always be the "outer rule".
      */
     static <T> Rule<T> nullOk(Rule<? super T> whenNotNull) {
@@ -561,6 +566,8 @@ public interface Rule<T> extends MappingRule<T, T> {
      * @param selector a function that extracts a value of type V from an input of type T
      */
     static <T, V> Rule<T> with(Function<? super T, ? extends V> selector, Rule<? super V> rule) {
+        Objects.requireNonNull(selector, "selector cannot be null");
+        Objects.requireNonNull(rule, "rule cannot be null");
         return input ->
                 Rule.<V>narrow(rule).test(selector.apply(input))
                         .map(ignore -> input);

@@ -30,7 +30,7 @@ public interface MappingRule<T, R> {
      *
      * @param value the value to be processed by this {@link MappingRule}
      * @return a {@link Validation} instance representing the outcome: either a {@link Validation.Valid}
-     * with the successfully transformed value or an {@link Validation.Invalid containing }the errors encountered during
+     * with the successfully transformed value or a {@link Validation.Invalid} containing the errors encountered during
      * mapping or validation.
      */
     Validation<R> test(T value);
@@ -162,6 +162,7 @@ public interface MappingRule<T, R> {
      * Composes this rule with another rule using "or" logic.
      * The combined rule is successful if either this or the other rule is successful.
      * If both rules fail, their errors are combined.
+     * The fallback rule is evaluated only when this rule fails.
      *
      * @param other the other rule to compose with.
      */
@@ -185,6 +186,8 @@ public interface MappingRule<T, R> {
 
     /**
      * Returns a new {@link MappingRule} that first applies this rule, and if the input is invalid, falls back to the other rule.
+     * If both rules fail, only the errors of the fallback rule are returned.
+     * The fallback rule is evaluated only when this rule fails.
      * <p>
      * Usage example:
      * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "recover-with-example"}
@@ -205,6 +208,7 @@ public interface MappingRule<T, R> {
      * Returns a new {@link MappingRule} that, when invalid, uses the passed errorKey as single ErrorMessage.
      */
     default MappingRule<T, R> withErrorKey(String errorKey) {
+        Objects.requireNonNull(errorKey, "errorKey cannot be null");
         return input -> this.test(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
     }
 
@@ -399,6 +403,8 @@ public interface MappingRule<T, R> {
      * @return a new {@link MappingRule} that tests the applied selector and rule combination
      */
     static <T, V, R> MappingRule<T, R> with(Function<T, V> selector, MappingRule<? super V, ? extends R> rule) {
+        Objects.requireNonNull(selector, "selector cannot be null");
+        Objects.requireNonNull(rule, "rule cannot be null");
         return input -> Validation.narrow(rule.test(selector.apply(input)));
     }
 }

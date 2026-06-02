@@ -1045,15 +1045,12 @@ class RuleTest {
         }
 
         @Test
-        void liftToVavrMap_withKeyExtractor_whenKeyExtractorIsNull_throwsNullPointerExceptionOnTest() {
+        void liftToVavrMap_withKeyExtractor_whenKeyExtractorIsNull_throwsNullPointerExceptionOnCreation() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<Map<Integer, String>> mapRule = rule.liftToVavrMap((io.vavr.Function1<Integer, Object>) null);
-
-            Map<Integer, String> input = HashMap.of(1, "hi");
 
             // Act & Assert
-            assertThatCode(() -> mapRule.test(input))
+            assertThatCode(() -> rule.liftToVavrMap((io.vavr.Function1<Integer, Object>) null))
                     .isInstanceOf(NullPointerException.class);
         }
 
