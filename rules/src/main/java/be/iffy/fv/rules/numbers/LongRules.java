@@ -5,6 +5,8 @@ import be.iffy.fv.Rule;
 import be.iffy.fv.rules.ComparableRules;
 import be.iffy.fv.rules.IObjectRules;
 
+import java.util.Objects;
+
 /**
  * Validation rules for {@link Long} values.
  */
@@ -141,6 +143,12 @@ public class LongRules implements ComparableRules<Long>, NumberRules<Long>, IObj
         );
     }
 
+    @Override
+    public Rule<Long> min(Long minInclusive) {
+        Objects.requireNonNull(minInclusive, "minInclusive cannot be null");
+        return min(minInclusive.longValue());
+    }
+
     /**
      * Fails if the value is greater than the specified maximum.
      * <p>
@@ -158,6 +166,12 @@ public class LongRules implements ComparableRules<Long>, NumberRules<Long>, IObj
                 l -> l <= maxInclusive,
                 ErrorMessage.of("must.be.at.most", "max", maxInclusive)
         );
+    }
+
+    @Override
+    public Rule<Long> max(Long maxInclusive) {
+        Objects.requireNonNull(maxInclusive, "maxInclusive cannot be null");
+        return max(maxInclusive.longValue());
     }
     //endregion
 

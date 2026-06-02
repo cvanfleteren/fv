@@ -5,6 +5,8 @@ import be.iffy.fv.Rule;
 import be.iffy.fv.rules.ComparableRules;
 import be.iffy.fv.rules.IObjectRules;
 
+import java.util.Objects;
+
 /**
  * Validation rules for {@link Integer} values.
  */
@@ -144,6 +146,12 @@ public class IntegerRules implements ComparableRules<Integer>, NumberRules<Integ
         );
     }
 
+    @Override
+    public Rule<Integer> min(Integer minInclusive) {
+        Objects.requireNonNull(minInclusive, "minInclusive cannot be null");
+        return min(minInclusive.intValue());
+    }
+
     /**
      * Fails if the value is greater than the specified maximum.
      * <p>
@@ -161,6 +169,12 @@ public class IntegerRules implements ComparableRules<Integer>, NumberRules<Integ
                 i -> i <= maxInclusive,
                 ErrorMessage.of("must.be.at.most", "max", maxInclusive)
         );
+    }
+
+    @Override
+    public Rule<Integer> max(Integer maxInclusive) {
+        Objects.requireNonNull(maxInclusive, "maxInclusive cannot be null");
+        return max(maxInclusive.intValue());
     }
     //endregion
 

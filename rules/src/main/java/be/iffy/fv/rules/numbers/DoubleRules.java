@@ -145,6 +145,11 @@ public class DoubleRules implements ComparableRules<Double>, NumberRules<Double>
         ));
     }
 
+    @Override
+    public Rule<Double> min(Double minInclusive) {
+        return min(minInclusive.doubleValue());
+    }
+
     /**
      * Fails if the value is greater than the specified maximum.
      * <p>
@@ -163,6 +168,11 @@ public class DoubleRules implements ComparableRules<Double>, NumberRules<Double>
                 d -> d <= maxInclusive,
                 ErrorMessage.of("must.be.at.most", "max", maxInclusive)
         ));
+    }
+
+    @Override
+    public Rule<Double> max(Double maxInclusive) {
+        return max(maxInclusive.doubleValue());
     }
     //endregion
 

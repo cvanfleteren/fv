@@ -5,6 +5,8 @@ import be.iffy.fv.Rule;
 import be.iffy.fv.rules.ComparableRules;
 import be.iffy.fv.rules.IObjectRules;
 
+import java.util.Objects;
+
 /**
  * Validation rules for {@link Float} values.
  */
@@ -161,6 +163,12 @@ public class FloatRules implements ComparableRules<Float>, NumberRules<Float>, I
         );
     }
 
+    @Override
+    public Rule<Float> min(Float minInclusive) {
+        Objects.requireNonNull(minInclusive, "minInclusive cannot be null");
+        return min(minInclusive.floatValue());
+    }
+
     /**
      * Fails if the value is greater than the specified maximum.
      * <p>
@@ -178,6 +186,12 @@ public class FloatRules implements ComparableRules<Float>, NumberRules<Float>, I
                 f -> f <= maxInclusive,
                 ErrorMessage.of("must.be.at.most", "max", maxInclusive)
         );
+    }
+
+    @Override
+    public Rule<Float> max(Float maxInclusive) {
+        Objects.requireNonNull(maxInclusive, "maxInclusive cannot be null");
+        return max(maxInclusive.floatValue());
     }
     //endregion
 
