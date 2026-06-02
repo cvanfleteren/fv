@@ -11,8 +11,8 @@ public class AssertDSL<T> {
     private final String name;
     private final Validation<T> validation;
 
-    public AssertDSL(T validation, String name) {
-        this.validation = Rule.<T>notNull().test(validation);
+    public AssertDSL(T value, String name) {
+        this.validation = Validation.valid(value);
         this.name = name;
     }
 
@@ -50,6 +50,6 @@ public class AssertDSL<T> {
     }
 
     public T isNotNull() {
-        return validation.at(name).getOrElseThrow();
+        return validation.refine(Rule.notNull()).at(name).getOrElseThrow();
     }
 }
