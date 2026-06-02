@@ -200,6 +200,25 @@ class StringOpsTest {
     }
 
     @Nested
+    class NormalizeSpace {
+
+        @Test
+        void normalizeSpace_collapsesAndTrims() {
+            transform("  a \n\t b  ", "a b", normalizeSpace());
+        }
+
+        @Test
+        void normalizeSpace_whitespaceOnlyStringBecomesEmpty() {
+            transform("   ", "", normalizeSpace());
+        }
+
+        @Test
+        void normalizeSpace_nullInputReturnsNull() {
+            whenNull(normalizeSpace());
+        }
+    }
+
+    @Nested
     class RemoveWhitespace {
 
         @Test

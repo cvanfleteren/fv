@@ -40,6 +40,16 @@ public class StringOps {
     }
 
     /**
+     * Normalizes whitespace by collapsing consecutive whitespace characters to a single space
+     * and trimming leading and trailing whitespace.
+     * <p>
+     * Example: {@code "  a \n\t b  " -> "a b"}.
+     */
+    public static Transformation<String> normalizeSpace() {
+        return nullSafe(s -> s.replaceAll("\\s+", " ").trim());
+    }
+
+    /**
      * Removes all whitespace characters from the input (spaces, tabs, newlines, etc.).
      * <p>
      * Example: {@code " a b c " -> "abc"}.
