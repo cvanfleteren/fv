@@ -179,6 +179,16 @@ public class DSLTest {
     class ValidateThat {
 
         @Nested
+        class InputIsNull {
+
+            @Test
+            void isNotNull_whenValueIsNotNull_returnsValid() {
+                Validation<String> v = validateThat((String)null, "field").map(StringOps.trim()).is(Rule.nullOk(strings.minLength(4)));
+                assertThatValidation(v).isInvalid().hasErrorMessage("field.must.not.be.null");
+            }
+        }
+
+        @Nested
         class IsNotNull {
             @Test
             void isNotNull_whenValueIsNotNull_returnsValid() {
