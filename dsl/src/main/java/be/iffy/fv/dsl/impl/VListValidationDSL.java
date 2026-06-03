@@ -39,9 +39,9 @@ public class VListValidationDSL<L, E> {
                 .mapErrors(List::distinct);
     }
 
-    public <Z> VListValidationDSL<Z, Z> eachMapsTo(MappingRule<E, Z> rule) {
-        Validation<List<Z>> newElements = elementValidation.refine(list -> rule.liftToVavrList().test(list));
-        Validation<List<Z>> newList = listValidation.flatMap(ignore -> newElements);
+    public <R> VListValidationDSL<R, R> eachIs(Function<E, Validation<R>> rule) {
+        Validation<List<R>> newElements = elementValidation.refine(list -> MappingRule.of(rule).liftToVavrList().test(list));
+        Validation<List<R>> newList = listValidation.flatMap(ignore -> newElements);
         return new VListValidationDSL<>(
                 newList,
                 newElements,
@@ -49,24 +49,14 @@ public class VListValidationDSL<L, E> {
         );
     }
 
-    public <Z> VListValidationDSL<Z, Z> each(Function<E, Validation<Z>> rule) {
-        return eachMapsTo(MappingRule.of(rule));
-    }
-
-    public VListValidationDSL<E, E> eachIs(Rule<? super E> rule) {
-        Rule<E> e = Rule.narrow(rule);
-        return eachMapsTo(e);
-    }
-
     /**
      * Validates that the list satisfies the given rule.
      * This method is non-short-circuiting and will collect errors even if the list is already invalid.
      *
      * @param rule the rule for the list.
-     * @return a {@link VListValidationDSL} for chaining.
      */
-    public VListValidationDSL<L, E> satisfies(Rule<List<L>> rule) {
-        Validation<List<L>> ruleValidation = Validation.narrowSuper(listValidation.refine(rule));
+    public VListValidationDSL<L, E> is(Function<List<L>, Validation<List<L>>> rule) {
+        Validation<List<L>> ruleValidation = Validation.narrowSuper(listValidation.refine(MappingRule.of(rule)));
         return new VListValidationDSL<>(ruleValidation, elementValidation, name);
     }
 }

@@ -253,24 +253,14 @@ public class DSL {
      * Quick way to assert a value is not null.
      */
     public static <T> Validation<T> notNull(T value, String name) {
-        return validateThat(value, name).is(Rule.notNull());
+        return validateThat(value, name).mapsTo(Rule.notNull());
     }
 
     /**
      * Quick way to assert a value is not null.
      */
     public static <T, V> Validation<T> notNull(T value, PropertySelector<V, T> selector) {
-        return validateThat(value, selector).is(Rule.notNull());
-    }
-
-    /**
-     * For any given {@code MappingRule<T, R>}, returns a MappingRule that can work on an {@code MappingRule<Optional<T>, Optional<R>>} instead.
-     * An empty {@link Optional} is considered to be valid.
-     *
-     * @see be.iffy.fv.rules.functional.OptionalRules#required()
-     */
-    public static <T, R> MappingRule<Optional<T>, Optional<R>> optional(MappingRule<T, R> rule) {
-        return rule.liftToOptional();
+        return validateThat(value, selector).mapsTo(Rule.notNull());
     }
 
     /**
@@ -287,8 +277,8 @@ public class DSL {
      * For any given {@code Function<T, Validation<R>>}, returns a Rule that can work on an {@code  MappingRule<Optional<T>, Optional<R>>} instead.
      * An empty {@link Optional} is considered to be valid.
      */
-    public static <T,R> MappingRule<Optional<T>, Optional<R>> optional(Function<T, Validation<R>> ruleLike) {
-        return optional(MappingRule.of(ruleLike));
+    public static <T,R> MappingRule<Optional<T>, Optional<R>> optional(Function<T, ? extends Validation<R>> ruleLike) {
+        return MappingRule.of(ruleLike).liftToOptional();
     }
 
     /**
@@ -297,8 +287,8 @@ public class DSL {
      *
      * @see be.iffy.fv.rules.functional.OptionRules#required()
      */
-    public static <T, R> MappingRule<Option<T>, Option<R>> option(MappingRule<T, R> rule) {
-        return rule.liftToOption();
+    public static <T, R> MappingRule<Option<T>, Option<R>> option(Function<T, ? extends Validation<R>> ruleLike) {
+        return MappingRule.of(ruleLike).liftToOption();
     }
 
     /**
@@ -310,15 +300,6 @@ public class DSL {
     public static <T> Rule<Option<T>> option(Rule<T> rule) {
         return rule.liftToOption();
     }
-
-    /**
-     * For any given {@code Function<T, Validation<R>>}, returns a Rule that can work on an {@code  MappingRule<Option<T>, Option<R>>} instead.
-     * An empty {@link Option} is considered to be valid.
-     */
-    public static <T,R> MappingRule<Option<T>, Option<R>> option(Function<T, Validation<R>> ruleLike) {
-        return option(MappingRule.of(ruleLike));
-    }
-
 
     /**
      * Starts a validation process for a single value.

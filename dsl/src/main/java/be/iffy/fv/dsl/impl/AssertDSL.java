@@ -2,6 +2,7 @@ package be.iffy.fv.dsl.impl;
 
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
+import be.iffy.fv.Transformation;
 import be.iffy.fv.Validation;
 
 import java.util.Objects;
@@ -21,24 +22,8 @@ public class AssertDSL<T> {
         this.name = name;
     }
 
-    public AssertDSL<T> map(be.iffy.fv.Transformation<T> transform) {
+    public AssertDSL<T> map(Transformation<T> transform) {
         return new AssertDSL<>(this.validation.mapCatching(transform::apply), name);
-    }
-
-    /**
-     * Validates that the value satisfies the given rule.
-     */
-    public T is(Rule<? super T> rule) {
-        Objects.requireNonNull(rule, "rule cannot be null");
-        return validation.refine(Rule.narrow(rule)).at(name).getOrElseThrow();
-    }
-
-    /**
-     * Validates that the value satisfies the given rule.
-     */
-    public <R> R is(MappingRule<? super T, ? extends R> rule) {
-        Objects.requireNonNull(rule, "rule cannot be null");
-        return validation.refine(rule).at(name).getOrElseThrow();
     }
 
     /**

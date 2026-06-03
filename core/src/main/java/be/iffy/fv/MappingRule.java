@@ -1,6 +1,5 @@
 package be.iffy.fv;
 
-import io.vavr.Function1;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
@@ -22,11 +21,10 @@ import java.util.function.Predicate;
  *
  */
 @FunctionalInterface
-public interface MappingRule<T, R> {
+public interface MappingRule<T, R> extends Function<T, Validation<R>> {
 
     /**
      * Evaluates the input against this rule, transforming it from type T to type R.
-     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "test-example"}
      *
      * @param value the value to be processed by this {@link MappingRule}
      * @return a {@link Validation} instance representing the outcome: either a {@link Validation.Valid}
@@ -34,6 +32,11 @@ public interface MappingRule<T, R> {
      * mapping or validation.
      */
     Validation<R> test(T value);
+
+    @Override
+    default Validation<R> apply(T t) {
+        return test(t);
+    }
 
     /**
      * Creates a new MappingRule that applies the given mapper function to the input.
@@ -134,8 +137,8 @@ public interface MappingRule<T, R> {
      * @param rule the rule to apply after this rule if this rule is successful.
      * @return a composed {@link MappingRule} that applies both rules in sequence.
      */
-    default <Z> MappingRule<T, Z> andThen(MappingRule<? super R, ? extends Z> rule) {
-        return (T input) -> this.test(input).flatMap(rule::test);
+    default <Z> MappingRule<T, Z> then(Function<? super R, ? extends Validation<Z>> rule) {
+        return (T input) -> this.test(input).flatMap(rule::apply);
     }
 
     /**
@@ -167,15 +170,15 @@ public interface MappingRule<T, R> {
      * @param other the other rule to compose with.
      */
     @SuppressWarnings("unchecked")
-    default <S> MappingRule<T, S> orElse(MappingRule<? super T, ? extends S> other) {
+    default <Z> MappingRule<T, Z> orElse(Function<? super T, ? extends Validation<Z>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input -> {
-            Validation<S> first = (Validation<S>) this.test(input);
+            Validation<Z> first = (Validation<Z>) this.test(input);
             if (first.isValid()) {
                 return first;
             }
 
-            Validation<S> second = (Validation<S>) other.test(input);
+            Validation<Z> second = other.apply(input);
             if (second.isValid()) {
                 return second;
             }
@@ -188,19 +191,16 @@ public interface MappingRule<T, R> {
      * Returns a new {@link MappingRule} that first applies this rule, and if the input is invalid, falls back to the other rule.
      * If both rules fail, only the errors of the fallback rule are returned.
      * The fallback rule is evaluated only when this rule fails.
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "recover-with-example"}
      */
-    default <S> MappingRule<T, S> recoverWith(MappingRule<? super T, S> other) {
+    default <Z> MappingRule<T, Z> recoverWith(Function<? super T, ? extends Validation<Z>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input -> {
             Validation<R> first = this.test(input);
             if (first.isValid()) {
-                return (Validation<S>) first;
+                return (Validation<Z>) first;
             }
 
-            return Validation.narrow(other.test(input));
+            return other.apply(input);
         };
     }
 
@@ -222,10 +222,6 @@ public interface MappingRule<T, R> {
     /**
      * Lifts a {@link MappingRule} so it applies to a {@link List} of T instead of a single T.
      * If the List is empty, the List is considered valid.
-     *
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/MappingRuleSnippets.java" region = "lift-to-vavrlist-example"}
      */
     default MappingRule<List<T>, List<R>> liftToVavrList() {
         return values -> {
@@ -402,9 +398,9 @@ public interface MappingRule<T, R> {
      * @param rule     the rule to be applied to the extracted value
      * @return a new {@link MappingRule} that tests the applied selector and rule combination
      */
-    static <T, V, R> MappingRule<T, R> with(Function<T, V> selector, MappingRule<? super V, ? extends R> rule) {
+    static <T, V, R> MappingRule<T, R> with(Function<T, V> selector, Function<? super V, ? extends Validation<? extends R>> rule) {
         Objects.requireNonNull(selector, "selector cannot be null");
         Objects.requireNonNull(rule, "rule cannot be null");
-        return input -> Validation.narrow(rule.test(selector.apply(input)));
+        return input -> Validation.narrow(rule.apply(selector.apply(input)));
     }
 }

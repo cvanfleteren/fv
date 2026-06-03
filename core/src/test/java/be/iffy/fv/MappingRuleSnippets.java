@@ -96,7 +96,7 @@ public class MappingRuleSnippets {
         MappingRule<Integer, Integer> isPositive = i -> i > 0 ? Validation.valid(i) : Validation.invalid("not.positive");
 
         // 3. Chain them: Parse the string, then check if the resulting number is positive
-        MappingRule<String, Integer> parseAndCheckPositive = parseInt.andThen(isPositive);
+        MappingRule<String, Integer> parseAndCheckPositive = parseInt.then(isPositive);
 
         // 4. Usage
         Validation<Integer> valid = parseAndCheckPositive.test("10");  // Returns Valid(10)

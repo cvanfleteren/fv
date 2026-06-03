@@ -24,37 +24,28 @@ public class OptionalRules {
      * {@snippet file = "be/iffy/fv/rules/functional/OptionalSnippets.java" region = "required-example"}
      */
     public <T> MappingRule<Optional<T>, T> required() {
-        return MappingRule.<Optional<T>>notNull().andThen(input ->
+        return MappingRule.<Optional<T>>notNull().then(input ->
                 input.map(Validation::valid).orElse(Validation.invalid("must.not.be.empty"))
         );
-    }
-
-
-    /**
-     * Applies the given {@link MappingRule} to the {@link Optional} if it is present. If the Optional is empty, the result
-     * is considered to be valid.
-     */
-    public <T, R> MappingRule<Optional<T>, Optional<R>> matches(MappingRule<T,R> rule) {
-        return input -> {
-            Optional<Validation<R>> res = input.map(rule::test);
-            return Validation.transpose(res);
-        };
     }
 
     /**
      * Applies the given MappingRule like Function to the {@link Optional} if it is present. If the Optional is empty, the result
      * is considered to be valid.
      */
-    public <T, R> MappingRule<Optional<T>, Optional<R>> matches(Function<T,Validation<R>> ruleLike) {
-        return matches(MappingRule.of(ruleLike));
+    public <T, R> MappingRule<Optional<T>, Optional<R>> matches(Function<T,Validation<R>> mappingRuleLike) {
+        return input -> {
+            Optional<Validation<R>> res = input.map(mappingRuleLike);
+            return Validation.transpose(res);
+        };
     }
 
     /**
      * Acts the same as {@link #required()}, but takes a Class parameter to help the java compiler
      * with type inference. Can be used to use something like
-     * {@code Validation<Bic> bic = validateThat(bicHolder.bic()).is(optionals.required(String.class).andThen(Bic::validate));}
+     * {@code Validation<Bic> bic = validateThat(bicHolder.bic()).is(optionals.required(String.class).then(Bic::validate));}
      * instead of
-     * {@code Validation<Bic> bic = validateThat(bicHolder.bic()).is(optionals.<String>required().andThen(Bic::validate));}
+     * {@code Validation<Bic> bic = validateThat(bicHolder.bic()).is(optionals.<String>required().then(Bic::validate));}
      * which some people prefer.
      */
     public <T> MappingRule<Optional<T>, T> required(Class<T> clazz) {
@@ -67,30 +58,30 @@ public class OptionalRules {
      *
      * @param rule the rule to apply to the value inside the {@link Optional}
      */
-    public <T, Z> MappingRule<Optional<T>, Z> required(MappingRule<T, Z> rule) {
+    public <T, Z> MappingRule<Optional<T>, Z> required(Function<? super T, ? extends Validation<Z>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return rule.liftToOptional().andThen(opt -> opt.map(Validation::valid).orElse(Validation.invalid("must.not.be.empty")));
+        return input -> {
+            if(input.isEmpty()) {
+                return Validation.invalid("must.not.be.empty");
+            } else {
+                return rule.apply(input.get());
+            }
+        };
     }
 
     /**
      * Fails if the {@link Optional} is empty while or doesn't contain a value that passes the passed rule.
      * <p>
      * Error key: {@code must.not.be.empty} or the key of the passed rule
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/rules/functional/OptionalSnippets.java" region = "contains-example"}
      */
-    public <T> Rule<Optional<T>> contains(Rule<T> rule) {
-        return Rule.both(notEmpty(), rule.liftToOptional());
+    public <T> Rule<Optional<T>> contains(Function<? super T, Validation<T>> rule) {
+        return Rule.both(notEmpty(), Rule.of(rule).liftToOptional());
     }
 
     /**
      * Fails if the {@link Optional} is empty.
      * <p>
      * Error key: {@code must.not.be.empty}
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/rules/functional/OptionalSnippets.java" region = "not-empty-example"}
      */
     public <T> Rule<Optional<T>> notEmpty() {
         return Rule.of(

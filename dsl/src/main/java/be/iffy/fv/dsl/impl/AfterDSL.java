@@ -3,6 +3,9 @@ package be.iffy.fv.dsl.impl;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Transformation;
+import be.iffy.fv.Validation;
+
+import java.util.function.Function;
 
 
 /**
@@ -36,10 +39,10 @@ public class AfterDSL<T> {
         };
     }
 
-    public <R> MappingRule<T, R> is(MappingRule<T, R> rule) {
+    public <R> MappingRule<T, R> is(Function<? super T, ? extends Validation<R>> rule) {
         return input -> {
             T transformed = transformer.apply(input);
-            return rule.test(transformed);
+            return rule.apply(transformed);
         };
     }
 }

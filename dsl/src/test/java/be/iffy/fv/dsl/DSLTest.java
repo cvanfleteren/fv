@@ -15,7 +15,6 @@ import static org.assertj.core.api.Assertions.*;
 
 import io.vavr.collection.List;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Function;
@@ -37,7 +36,7 @@ public class DSLTest {
             void validate_whenAllValid_returnsValid() {
                 List<Integer> values = List.of(1, 2, 3);
                 var result = validateThatList(values, "values")
-                        .satisfies(vavrLists.notEmpty())
+                        .is(vavrLists.notEmpty())
                         .eachIs(ints.positive())
                         .validate();
 
@@ -48,7 +47,7 @@ public class DSLTest {
             void validate_whenListLevelRuleFails_returnsInvalid() {
                 List<Integer> values = List.empty();
                 var result = validateThatList(values, "values")
-                        .satisfies(vavrLists.notEmpty())
+                        .is(vavrLists.notEmpty())
                         .validate();
 
                 assertThatValidation(result)
@@ -72,7 +71,7 @@ public class DSLTest {
             void validate_whenMappingElements_returnsMappedList() {
                 List<String> values = List.of("1", "2");
                 var result = validateThatList(values, "values")
-                        .eachMapsTo(strings.asInteger())
+                        .eachIs(strings.asInteger())
                         .validate();
 
                 assertThatValidation(result).isValid().isEqualTo(List.of(1, 2));
@@ -82,7 +81,7 @@ public class DSLTest {
             void validate_whenElementMappingFails_returnsInvalidWithIndexedPath() {
                 List<String> values = List.of("1", "abc");
                 var result = validateThatList(values, "values")
-                        .eachMapsTo(strings.asInteger())
+                        .eachIs(strings.asInteger())
                         .validate();
 
                 assertThatValidation(result)
@@ -94,7 +93,7 @@ public class DSLTest {
             void validate_whenUsingEachWithFunction_returnsMappedList() {
                 List<String> values = List.of("1", "2");
                 var result = validateThatList(values, "values")
-                        .each(s -> Validation.valid(Integer.parseInt(s)))
+                        .eachIs(s -> Validation.valid(Integer.parseInt(s)))
                         .validate();
 
                 assertThatValidation(result).isValid().isEqualTo(List.of(1, 2));
@@ -104,7 +103,7 @@ public class DSLTest {
             void validate_whenMultipleRulesFail_accumulatesAllErrors() {
                 List<Integer> values = List.of(-1);
                 var result = validateThatList(values, "values")
-                        .satisfies(vavrLists.minSize(2))
+                        .is(vavrLists.minSize(2))
                         .eachIs(ints.positive())
                         .validate();
 
@@ -120,7 +119,7 @@ public class DSLTest {
             void validate_whenAllValid_returnsValid() {
                 java.util.List<Integer> values = Arrays.asList(1, 2, 3);
                 var result = validateThatList(values, "values")
-                        .satisfies(lists.notEmpty())
+                        .is(lists.notEmpty())
                         .eachIs(ints.positive())
                         .validate();
 
@@ -131,7 +130,7 @@ public class DSLTest {
             void validate_whenListLevelRuleFails_returnsInvalid() {
                 java.util.List<Integer> values = java.util.Collections.emptyList();
                 var result = validateThatList(values, "values")
-                        .satisfies(lists.notEmpty())
+                        .is(lists.notEmpty())
                         .validate();
 
                 assertThatValidation(result)
@@ -153,9 +152,10 @@ public class DSLTest {
 
             @Test
             void validate_whenMappingElements_returnsMappedList() {
+
                 java.util.List<String> values = Arrays.asList("1", "2");
-                var result = validateThatList(values, "values")
-                        .eachMapsTo(strings.asInteger())
+                Validation<java.util.List<Integer>> result = validateThatList(values, "values")
+                        .eachIs(strings.asInteger())
                         .validate();
 
                 assertThatValidation(result).isValid().isEqualTo(Arrays.asList(1, 2));
@@ -165,7 +165,7 @@ public class DSLTest {
             void validate_whenElementMappingFails_returnsInvalidWithIndexedPath() {
                 java.util.List<String> values = Arrays.asList("1", "abc");
                 var result = validateThatList(values, "values")
-                        .eachMapsTo(strings.asInteger())
+                        .eachIs(strings.asInteger())
                         .validate();
 
                 assertThatValidation(result)
@@ -209,9 +209,9 @@ public class DSLTest {
             Map<Integer, String> input = HashMap.of(1, " hello ", 2, "world");
 
 
-            MappingRule<String,String> mr = MappingRule.of(StringOps.trim()).andThen(strings.minLength(5));
+            MappingRule<String,String> mr = MappingRule.of(StringOps.trim()).then(strings.minLength(5));
             MappingRule<Map<Integer, String>, Map<Integer,String>> mappingRule = mr.liftToVavrMap();
-            Validation<Map<Integer,String>> result = validateThat(input, "value").is(mappingRule);
+            Validation<Map<Integer,String>> result = validateThat(input, "value").mapsTo(mappingRule);
 
             // Assert
             assertThatValidation(result)
@@ -228,7 +228,7 @@ public class DSLTest {
                 Function<String, Validation<Integer>> func = s -> Validation.valid(Integer.parseInt(s));
 
                 // Act
-                Validation<Integer> result = validateThat("123").is(func);
+                Validation<Integer> result = validateThat("123").mapsTo(func);
 
                 // Assert
                 assertThatValidation(result)
@@ -243,7 +243,7 @@ public class DSLTest {
                 Function<String, Validation<Integer>> func = s -> Validation.invalid(error);
 
                 // Act
-                Validation<Integer> result = validateThat("abc").is(func);
+                Validation<Integer> result = validateThat("abc").mapsTo(func);
 
                 // Assert
                 assertThatValidation(result)
@@ -257,7 +257,7 @@ public class DSLTest {
                 Function<String, Validation<Integer>> func = s -> Validation.valid(1);
 
                 // Act
-                Validation<Integer> result = validateThat((String) null, "foo").is(func);
+                Validation<Integer> result = validateThat((String) null, "foo").mapsTo(func);
 
                 // Assert
                 assertThatValidation(result)
@@ -317,7 +317,7 @@ public class DSLTest {
             // Act
             var result = validateThat(value)
                     .map(String::trim)
-                    .is(strings.asInteger().andThen(Rule.of(i -> i == 123, "must.be.123")));
+                    .mapsTo(strings.asInteger().then(Rule.of(i -> i == 123, "must.be.123")));
 
             // Assert
             assertThatValidation(result)

@@ -42,7 +42,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that transforms a String into an Integer.
      */
     public MappingRule<String, Integer> asInteger() {
-        return Rule.<String>notNull().andThen(MappingRule.of(Integer::parseInt, "must.be.integer"));
+        return Rule.<String>notNull().then(MappingRule.of(Integer::parseInt, "must.be.integer"));
     }
 
     /**
@@ -53,7 +53,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that transforms a String into a Long.
      */
     public MappingRule<String, Long> asLong() {
-        return Rule.<String>notNull().andThen(MappingRule.of(Long::parseLong, "must.be.long"));
+        return Rule.<String>notNull().then(MappingRule.of(Long::parseLong, "must.be.long"));
     }
 
     /**
@@ -64,7 +64,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that transforms a String into a Double.
      */
     public MappingRule<String, Double> asDouble() {
-        return Rule.<String>notNull().andThen(MappingRule.of(Double::parseDouble, "must.be.double"));
+        return Rule.<String>notNull().then(MappingRule.of(Double::parseDouble, "must.be.double"));
     }
 
     /**
@@ -75,7 +75,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that transforms a String into a Float.
      */
     public MappingRule<String, Float> asFloat() {
-        return Rule.<String>notNull().andThen(MappingRule.of(Float::parseFloat, "must.be.float"));
+        return Rule.<String>notNull().then(MappingRule.of(Float::parseFloat, "must.be.float"));
     }
 
     /**
@@ -86,7 +86,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that transforms a String into a BigInteger.
      */
     public MappingRule<String, BigInteger> asBigInteger() {
-        return Rule.<String>notNull().andThen(MappingRule.of(BigInteger::new, "must.be.biginteger"));
+        return Rule.<String>notNull().then(MappingRule.of(BigInteger::new, "must.be.biginteger"));
     }
 
     /**
@@ -97,7 +97,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that transforms a String into a BigDecimal.
      */
     public MappingRule<String, BigDecimal> asBigDecimal() {
-        return Rule.<String>notNull().andThen(MappingRule.of(BigDecimal::new, "must.be.bigdecimal"));
+        return Rule.<String>notNull().then(MappingRule.of(BigDecimal::new, "must.be.bigdecimal"));
     }
 
     /**
@@ -108,7 +108,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that transforms a String into a UUID.
      */
     public MappingRule<String, UUID> asUUID() {
-        return Rule.<String>notNull().andThen(MappingRule.of(UUID::fromString, "must.be.uuid"));
+        return Rule.<String>notNull().then(MappingRule.of(UUID::fromString, "must.be.uuid"));
     }
 
     /**
@@ -119,7 +119,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that transforms a String into a URL.
      */
     public MappingRule<String, URL> asURL() {
-        return Rule.<String>notNull().andThen(MappingRule.ofTry(s -> Try.of(() -> URI.create(s).toURL()), "must.be.url"));
+        return Rule.<String>notNull().then(MappingRule.ofTry(s -> Try.of(() -> URI.create(s).toURL()), "must.be.url"));
     }
 
     /**
@@ -133,7 +133,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @see LocalDateTime#parse(CharSequence)
      */
     public MappingRule<String, LocalDateTime> asLocalDateTime() {
-        return Rule.<String>notNull().andThen(MappingRule.of(LocalDateTime::parse, "must.be.localdatetime"));
+        return Rule.<String>notNull().then(MappingRule.of(LocalDateTime::parse, "must.be.localdatetime"));
     }
 
     /**
@@ -147,7 +147,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @see LocalDateTime#parse(CharSequence)
      */
     public MappingRule<String, LocalDate> asLocalDate() {
-        return Rule.<String>notNull().andThen(MappingRule.of(LocalDate::parse, "must.be.localdate"));
+        return Rule.<String>notNull().then(MappingRule.of(LocalDate::parse, "must.be.localdate"));
     }
 
     /**
@@ -161,7 +161,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @see LocalDateTime#parse(CharSequence)
      */
     public MappingRule<String, Instant> asInstant() {
-        return Rule.<String>notNull().andThen(MappingRule.of(Instant::parse, "must.be.instant"));
+        return Rule.<String>notNull().then(MappingRule.of(Instant::parse, "must.be.instant"));
     }
 
     /**
@@ -172,7 +172,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that transforms a String into a {@link URI}.
      */
     public MappingRule<String, URI> asURI() {
-        return Rule.<String>notNull().andThen(MappingRule.of(URI::create, "must.be.uri"));
+        return Rule.<String>notNull().then(MappingRule.of(URI::create, "must.be.uri"));
     }
 
     //endregion

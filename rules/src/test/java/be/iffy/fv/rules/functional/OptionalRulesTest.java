@@ -69,6 +69,12 @@ class OptionalRulesTest {
         void validFunction() {
             java.util.function.Function<String, Validation<Integer>> ruleLike = s -> Validation.valid(Integer.parseInt(s));
             validTest(Optional.of("123"), Optional.of(123), optionals.matches(ruleLike));
+
+            validTest(Optional.of("123"), Optional.of(123), optionals.matches(this::foo));
+        }
+
+        Validation<Integer> foo(String in) {
+            return Validation.valid(Integer.parseInt(in));
         }
     }
 

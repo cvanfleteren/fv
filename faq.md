@@ -519,7 +519,7 @@ This allows you to use the resulting rule anywhere a standard `Rule` is expected
 Using a MappingRule for this case would look something like this: 
 
 ```java
-MappingRule<String, String> trimmedMinLength3 = MappingRule.of(String::trim, "can.not.fail").andThen(minLength);
+MappingRule<String, String> trimmedMinLength3 = MappingRule.of(String::trim, "can.not.fail").then(minLength);
 ```
 
 ---

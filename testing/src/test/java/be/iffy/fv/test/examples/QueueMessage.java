@@ -1,10 +1,8 @@
 package be.iffy.fv.test.examples;
 
 import be.iffy.fv.ErrorMessage;
-import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
-import be.iffy.fv.dsl.experimental.FieldsDSL;
 import org.jspecify.annotations.NullMarked;
 
 import java.math.BigDecimal;
@@ -43,12 +41,12 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
 
     public Validation<Command> validate() {
         return validating(
-                validateThat(this.debtor, "debtor").is(this::validateDebtor),
-                validateThat(this.kboNumber, "kboNumber").is(objects.canBe(KboNumber::new)),
+                validateThat(this.debtor, "debtor").mapsTo(this::validateDebtor),
+                validateThat(this.kboNumber, "kboNumber").mapsTo(objects.canBe(KboNumber::new)),
                 validateThatList(this.transactions, "transactions")
-                        .satisfies(lists.notEmpty())
-                        .eachMapsTo(this::validateTransaction)
-                        .satisfies(lists.anyMatch(
+                        .is(lists.notEmpty())
+                        .eachIs(this::validateTransaction)
+                        .is(lists.anyMatch(
                                         Rule.with(Command.Transaction::amount, atLeast1000).toPredicate(),
                                         ErrorMessage.of("one.must.be.at.least", "min", 1000)
                                 )
@@ -65,7 +63,7 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
 
     Validation<Command.Address> validateAddress(QueueMessage.Address address) {
         return validateThat(address.country, "country")
-                .is(optionals.matches(objects.isEnum(Country.class)))
+                .mapsTo(optionals.matches(objects.isEnum(Country.class)))
                 .flatMap(country ->
                         Validation.from(() -> new Command.Address(address.street, address.houseNumber, address.city))
                 );
@@ -73,11 +71,11 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
 
     Validation<Command.Debtor> validateDebtor(QueueMessage.Debtor debtor) {
         return validating(
-                validateThat(debtor.enterpriseNumber, "enterpriseNumber").is(EnterpriseNumber::from),
-                validateThat(debtor.bic, "bic").is(Bic::from),
+                validateThat(debtor.enterpriseNumber, "enterpriseNumber").mapsTo(EnterpriseNumber::from),
+                validateThat(debtor.bic, "bic").mapsTo(Bic::from),
                 validateThat(debtor.name, "name").is(strings.notBlank()),
-                validateThat(debtor.address, "address").is(objects.notNull(Address.class).andThen(this::validateAddress)),
-                validateThat(debtor.mandateInfo, "mandateInfo").is(this::validateMandateInfo)
+                validateThat(debtor.address, "address").mapsTo(objects.notNull(Address.class).then(this::validateAddress)),
+                validateThat(debtor.mandateInfo, "mandateInfo").mapsTo(this::validateMandateInfo)
         ).map(Command.Debtor::new);
     }
 
@@ -89,8 +87,8 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
             if (amendmentIndicator) {
                 // two optional fields, but in this context they are required
                 return validating(
-                        validateThat(mandateInfo.amendmentType(), "amendmentType").is(optionals.required(objects.isEnum(Command.MandateInfo.AmendmentType.class))),
-                        validateThat(mandateInfo.amendmentOriginalValue(), "amendmentOriginalValue").is(optionals.required())
+                        validateThat(mandateInfo.amendmentType(), "amendmentType").mapsTo(optionals.required(objects.isEnum(Command.MandateInfo.AmendmentType.class))),
+                        validateThat(mandateInfo.amendmentOriginalValue(), "amendmentOriginalValue").mapsTo(optionals.required())
                 ).map((amendmentType, originalValue) ->
                         new Command.MandateInfo(mandateInfo.mandateId(),
                                 mandateInfo.dateOfSignature(),

@@ -68,14 +68,14 @@ public class ClientViewTest {
             return amendmentV.flatMap(value -> {
                 if (value) {
                     Validation<Option<MandateInfo>> mandateInfo = validating(
-                            validateThat(testDto.amendmentType).is(amendmentTypeRule),
-                            validateThat(testDto.originalValue).is(originalValueRule)
+                            validateThat(testDto.amendmentType).mapsTo(amendmentTypeRule),
+                            validateThat(testDto.originalValue).mapsTo(originalValueRule)
                     ).map(MandateInfo::new).map(Option::of);
 
-                    validateThat(testDto.originalValue).is(options.required(strings.notBlank()));
+                    validateThat(testDto.originalValue).mapsTo(options.required(strings.notBlank()));
 
                     return validating(
-                            validateThat(testDTO.date).is(objects.notNull()),
+                            validateThat(testDTO.date).isNotNull(),
                             mandateInfo
                     ).map(Mandate::new);
 

@@ -4,7 +4,6 @@ import be.iffy.fv.rules.collections.VavrListRules;
 import io.vavr.collection.List;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Validation;
-import be.iffy.fv.rules.text.StringRules;
 import org.junit.jupiter.api.Test;
 
 import static be.iffy.fv.dsl.DSL.*;
@@ -84,13 +83,13 @@ class ObjectGraphValidationTest {
         static Validation<User> fromDto(UserDTO dto) {
 
             MappingRule<String, Role> canBeRole = objects.isEnum(Role.class);
-            MappingRule<String, Email> canBeEmail = strings.minLength(2).and(strings.contains("@")).andThen(MappingRule.of(Email::new, "must.be.email"));
+            MappingRule<String, Email> canBeEmail = strings.minLength(2).and(strings.contains("@")).then(MappingRule.of(Email::new, "must.be.email"));
 
             return Validation.mapN(
-                    validateThat(dto.username, "username").is(objects.canBe(Username::new, "must.be.username")),
-                    validateThat(dto.email, "email").is(canBeEmail),
+                    validateThat(dto.username, "username").mapsTo(objects.canBe(Username::new, "must.be.username")),
+                    validateThat(dto.email, "email").mapsTo(canBeEmail),
                     validateAddress(dto.address).at("address"),
-                    validateThatList(dto.roles, "roles").satisfies(collections.notEmpty()).eachMapsTo(canBeRole).validate(),
+                    validateThatList(dto.roles, "roles").is(collections.notEmpty()).eachIs(canBeRole).validate(),
                     User::new
             );
         }

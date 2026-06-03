@@ -213,13 +213,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      *
      * <p>
      * Error key: {@code could.not.be.mapped} but not if the mapper threw a {@link ValidationException}, in that case it's errors are used.
-     *
-     * <p>Example: successful mapping
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "mapCatching_success"}
-     *
-     * <p>Example: mapping that throws a RuntimeException
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "mapCatching_runtimeException"}
-     *
      */
     default <R> Validation<R> mapCatching(Function<? super T, ? extends R> mapper) {
         return mapCatching(mapper, "could.not.be.mapped");
@@ -259,7 +252,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "flatMap"}
      *
      */
-    default <R> Validation<R> flatMap(Function1<? super T, Validation<? extends R>> flatMapper) {
+    default <R> Validation<R> flatMap(Function<? super T, Validation<? extends R>> flatMapper) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
         return switch (this) {
             case Valid(var value) -> Validation.narrow(flatMapper.apply(value));
@@ -268,7 +261,7 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
-     * Like {@link #flatMap(Function1)}, but also catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
+     * Like {@link #flatMap(Function)}, but also catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
      * <p>
      * <b>This method is somewhat dangerous because if the mapper function starts throwing totally unexpected Exceptions, they might get buried as "failed validations".</b>
      * <p>
@@ -280,22 +273,19 @@ public sealed interface Validation<T> extends Iterable<T> {
      * <p>Example: flatMapping that throws a RuntimeException
      * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "flatMapCatching_runtimeException"}
      */
-    default <R> Validation<R> flatMapCatching(Function1<? super T, Validation<? extends R>> flatMapper) {
+    default <R> Validation<R> flatMapCatching(Function<? super T, Validation<? extends R>> flatMapper) {
         return flatMapCatching(flatMapper, "could.not.be.mapped");
     }
 
     /**
-     * Like {@link #flatMap(Function1)}, but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
+     * Like {@link #flatMap(Function)}, but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
      * <p>
      * <b>This method is somewhat dangerous because if the mapper function starts throwing totally unexpected Exceptions, they might get buried as "failed validations".</b>
      * <p>
      * {@link ValidationException}s that are thrown are handled cleanly, accumulating the errors present.
      *
-     * <p>Example: flatMapping that throws a RuntimeException with custom error message
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "flatMapCatching_customError"}
-     *
      */
-    default <R> Validation<R> flatMapCatching(Function1<? super T, Validation<? extends R>> flatMapper, String errorKey) {
+    default <R> Validation<R> flatMapCatching(Function<? super T, Validation<? extends R>> flatMapper, String errorKey) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
         Objects.requireNonNull(errorKey, "errorKey cannot be null");
         return switch (this) {
@@ -314,10 +304,8 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Folds this validation into a single value by applying one of two functions.
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "fold"}
-     *
      */
-    default <R> R fold(Function1<List<ErrorMessage>, ? extends R> whenInvalid, Function1<? super T, ? extends R> whenValid) {
+    default <R> R fold(Function<List<ErrorMessage>, ? extends R> whenInvalid, Function<? super T, ? extends R> whenValid) {
         Objects.requireNonNull(whenInvalid, "whenInvalid cannot be null");
         Objects.requireNonNull(whenValid, "whenValid cannot be null");
         return switch (this) {
@@ -328,10 +316,10 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Refines this validation allowing a {@link MappingRule} to test its value if this Validation was valid.
-     * Similar to {@link Validation#flatMap(Function1)} but taking a MappingRule as the mapping function.
+     * Alias for {@link #flatMap(Function)}.
      */
-    default <Z> Validation<Z> refine(MappingRule<? super T, ? extends Z> refinement) {
-        return narrowSuper(this.flatMap(refinement::test));
+    default <R> Validation<R> refine(Function<? super T, ? extends Validation<R>> refinement) {
+        return this.flatMap(refinement::apply);
     }
 
     /**
@@ -358,7 +346,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Maps the error messages of an invalid validation using the provided mapper function.
      * If this validation is valid, the mapper is not applied.
      */
-    default Validation<T> mapErrors(Function1<List<ErrorMessage>, List<ErrorMessage>> mapper) {
+    default Validation<T> mapErrors(Function<List<ErrorMessage>, List<ErrorMessage>> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
         return switch (this) {
             case Valid<T> v -> v;

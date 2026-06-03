@@ -5,7 +5,6 @@ import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Seq;
 import io.vavr.control.Option;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -91,12 +90,9 @@ public interface Rule<T> extends MappingRule<T, T> {
      * If this rule fails, the evaluation stops and the other rule is not evaluated.
      * <p>
      * If you want to evaluate both rules and accumulate their errors, use {@link #andAlso(Rule)}.
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "and-example"}
      *
      * @see #andAlso(Rule)
-     * @see #andThen(MappingRule)
+     * @see #then(Function)
      */
     default <S extends T> Rule<S> and(Rule<? super S> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
@@ -442,7 +438,7 @@ public interface Rule<T> extends MappingRule<T, T> {
     /**
      * Lift a Rule to work on a type V instead of T. You need to supply a Function that can get a V from the T.
      *
-     * @see Rule#with(Function, Rule)
+     * @see Rule#with(Function, Function)
      */
     default <V> Rule<V> given(Function<V, T> selector) {
         return Rule.with(selector, this);
@@ -492,9 +488,6 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Composes multiple rules using "at least one of" logic.
      * The combined rule is successful if at least one of the rules is successful.
      * If all rules fail, all errors from all rules are combined.
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "any-example"}
      */
     @SafeVarargs
     static <T> Rule<T> any(Rule<? super T>... rules) {
@@ -558,17 +551,14 @@ public interface Rule<T> extends MappingRule<T, T> {
     /**
      * Applies the specified {@link Rule} to the result of applying the selector function to the input.
      * Be careful, even if T and V are the same type, the returned value will be the original input, not the value retrieved from the selector.
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "with-example"}
      *
      * @param selector a function that extracts a value of type V from an input of type T
      */
-    static <T, V> Rule<T> with(Function<? super T, ? extends V> selector, Rule<? super V> rule) {
+    static <T, V> Rule<T> with(Function<? super T, ? extends V> selector, Function<? super V, ? extends Validation<? extends V>> rule) {
         Objects.requireNonNull(selector, "selector cannot be null");
         Objects.requireNonNull(rule, "rule cannot be null");
         return input ->
-                Rule.<V>narrow(rule).test(selector.apply(input))
+                rule.apply(selector.apply(input))
                         .map(ignore -> input);
     }
 

@@ -29,7 +29,7 @@ class MappingRuleTest {
             MappingRule<String, Integer> lengthRule = s -> Validation.valid(s.length());
             MappingRule<Number, Object> toStringRule = n -> Validation.valid(n.toString());
 
-            MappingRule<String, Object> rule = lengthRule.andThen(toStringRule);
+            MappingRule<String, Object> rule = lengthRule.then(toStringRule);
 
             Validation<Object> result = rule.test("hello");
 
@@ -43,7 +43,7 @@ class MappingRuleTest {
             MappingRule<String, Integer> lengthRule = s -> Validation.invalid("length.invalid");
             MappingRule<Integer, Boolean> evenRule = i -> Validation.valid(i % 2 == 0);
 
-            MappingRule<String, Boolean> lengthIsEvenRule = lengthRule.andThen(evenRule);
+            MappingRule<String, Boolean> lengthIsEvenRule = lengthRule.then(evenRule);
 
             Validation<Boolean> result = lengthIsEvenRule.test("hello");
 
@@ -56,7 +56,7 @@ class MappingRuleTest {
             MappingRule<String, Integer> lengthRule = s -> Validation.invalid("length.invalid");
             Rule<Number> evenRule = Rule.of(i -> i.intValue() % 2 == 0, "not.event");
 
-            MappingRule<String, Number> lengthIsEvenRule = lengthRule.andThen(evenRule);
+            MappingRule<String, Number> lengthIsEvenRule = lengthRule.then(evenRule);
 
             Validation<Number> result = lengthIsEvenRule.test("hello");
 
@@ -69,7 +69,7 @@ class MappingRuleTest {
             MappingRule<String, Integer> lengthRule = s -> Validation.valid(s.length());
             MappingRule<Integer, Boolean> evenRule = i -> Validation.invalid("even.invalid");
 
-            MappingRule<String, Boolean> lengthIsEvenRule = lengthRule.andThen(evenRule);
+            MappingRule<String, Boolean> lengthIsEvenRule = lengthRule.then(evenRule);
 
             Validation<Boolean> result = lengthIsEvenRule.test("hello");
 
@@ -82,7 +82,7 @@ class MappingRuleTest {
             MappingRule<String, Integer> lengthRule = s -> Validation.invalid("length.invalid");
             MappingRule<Integer, Boolean> evenRule = i -> Validation.invalid("even.invalid");
 
-            MappingRule<String, Boolean> lengthIsEvenRule = lengthRule.andThen(evenRule);
+            MappingRule<String, Boolean> lengthIsEvenRule = lengthRule.then(evenRule);
 
             Validation<Boolean> result = lengthIsEvenRule.test("hello");
 

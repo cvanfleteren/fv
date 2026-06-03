@@ -59,18 +59,10 @@ public class ValidationDSL<T> {
 
     /**
      * Validates that the value satisfies the given rule.
-     * If the value is {@code null}, an error "must.not.be.null" is automatically added.
      */
-    public <R> Validation<R> is(MappingRule<? super T, ? extends R> rule) {
+    public <R> Validation<R> mapsTo(Function<? super T, ? extends Validation<R>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return Validation.narrow(validation.refine(rule).at(name));
-    }
-
-    /**
-     * Validates that the value satisfies the given rule.
-     */
-    public <R> Validation<R> is(Function<? super T, ? extends Validation<R>> rule) {
-        return is(MappingRule.of(rule));
+        return Validation.narrow(validation.refine(rule::apply).at(name));
     }
 
     /**

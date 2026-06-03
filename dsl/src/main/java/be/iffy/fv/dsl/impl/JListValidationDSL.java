@@ -36,9 +36,9 @@ public class JListValidationDSL<L, E> {
                 .mapErrors(io.vavr.collection.List::distinct);
     }
 
-    public <Z> JListValidationDSL<Z, Z> eachMapsTo(MappingRule<E, Z> rule) {
-        Validation<List<Z>> newElements = elementValidation.refine(list -> rule.liftToList().test(list));
-        Validation<List<Z>> newList = listValidation.flatMap(ignore -> newElements);
+    public <R> JListValidationDSL<R, R> eachIs(Function<E, Validation<R>> rule) {
+        Validation<List<R>> newElements = elementValidation.refine(list -> MappingRule.of(rule).liftToList().test(list));
+        Validation<List<R>> newList = listValidation.flatMap(ignore -> newElements);
         return new JListValidationDSL<>(
                 newList,
                 newElements,
@@ -46,18 +46,10 @@ public class JListValidationDSL<L, E> {
         );
     }
 
-    public <Z> JListValidationDSL<Z, Z> each(Function<E, Validation<Z>> rule) {
-        return eachMapsTo(MappingRule.of(rule));
-    }
-
-    public JListValidationDSL<E, E> eachIs(Rule<E> rule) {
-        return eachMapsTo(rule);
-    }
-
     /**
      * Validates that the list satisfies the given rule.
      */
-    public JListValidationDSL<L, E> satisfies(Rule<List<L>> rule) {
+    public JListValidationDSL<L, E> is(Rule<List<L>> rule) {
         Validation<List<L>> ruleValidation = Validation.narrowSuper(listValidation.refine(rule));
         return new JListValidationDSL<>(ruleValidation, elementValidation, name);
     }

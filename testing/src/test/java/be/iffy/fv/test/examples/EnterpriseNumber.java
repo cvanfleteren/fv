@@ -7,10 +7,11 @@ import be.iffy.fv.rules.text.StringOps;
 
 import static be.iffy.fv.dsl.DSL.after;
 import static be.iffy.fv.dsl.DSL.assertThat;
+import static be.iffy.fv.rules.Rules.strings;
 
 public record EnterpriseNumber(String value) {
 
-    static final Rule<String> valid = after(StringOps.alphanumeric()).is(Rules.strings.notBlank());
+    static final Rule<String> valid = after(StringOps.alphanumeric()).is(strings.notBlank());
 
     public EnterpriseNumber {
         value = assertThat(value,"value").is(valid);
