@@ -64,7 +64,6 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
     }
 
     Validation<Command.Address> validateAddress(QueueMessage.Address address) {
-
         return validateThat(address.country, "country")
                 .is(optionals.matches(objects.isEnum(Country.class)))
                 .flatMap(country ->
@@ -77,7 +76,7 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
                 validateThat(debtor.enterpriseNumber, "enterpriseNumber").is(EnterpriseNumber::from),
                 validateThat(debtor.bic, "bic").is(Bic::from),
                 validateThat(debtor.name, "name").is(strings.notBlank()),
-                validateThat(debtor.address, "address").is(this::validateAddress),
+                validateThat(debtor.address, "address").is(objects.notNull(Address.class).andThen(this::validateAddress)),
                 validateThat(debtor.mandateInfo, "mandateInfo").is(this::validateMandateInfo)
         ).map(Command.Debtor::new);
     }

@@ -19,13 +19,24 @@ import java.util.Optional;
 public interface IObjectRules<T> {
 
     /**
+     * Fails if the object is {@code null}.
+     * <p>
+     * Error key: {@code must.not.be.null}
+     */
+    default Rule<T> notNull() {
+        return input ->
+                input == null ? Validation.invalid("must.not.be.null") : Validation.valid(input);
+    }
+
+
+    /**
      * Fails if the object is not equal to the specified value.
      * <p>
      * Error key: {@code must.be.equal}
      *
      * @param value the required value.
      */
-    default Rule<T> equalTo(T value) {
+    default <Z> Rule<Z> equalTo(Z value) {
         Objects.requireNonNull(value, "value cannot be null");
         return Rule.of(
                 o -> Objects.equals(o, value),
@@ -40,7 +51,7 @@ public interface IObjectRules<T> {
      *
      * @param value the forbidden value.
      */
-    default Rule<T> notEqualTo(T value) {
+    default <Z> Rule<Z> notEqualTo(Z value) {
         Objects.requireNonNull(value, "value cannot be null");
         return Rule.of(
                 o -> !Objects.equals(o, value),

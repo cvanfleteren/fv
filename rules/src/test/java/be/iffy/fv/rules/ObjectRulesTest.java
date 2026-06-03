@@ -1,5 +1,6 @@
 package be.iffy.fv.rules;
 
+import be.iffy.fv.Rule;
 import be.iffy.fv.ValidationException;
 import io.vavr.collection.List;
 import be.iffy.fv.ErrorMessage;
@@ -14,6 +15,7 @@ import java.math.BigInteger;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static be.iffy.fv.rules.ObjectRules.objects;
+import static be.iffy.fv.rules.Rules.strings;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -27,6 +29,7 @@ class ObjectRulesTest {
         void valid() {
             validTest("hello", objects.notNull());
             validTest("hello", objects.notNull(String.class));
+            validTest("hello", strings.notNull());
             validTest(123, objects.notNull());
             validTest(123, objects.notNull(Integer.class));
             validTest(new Object(), objects.notNull());
@@ -75,6 +78,9 @@ class ObjectRulesTest {
 
         @Test
         void valid() {
+
+            Rule<String> same = objects.equalTo("a");
+
             validTest("a", objects.equalTo("a"));
             validTest(123, objects.equalTo(123));
         }

@@ -19,14 +19,6 @@ public class ObjectRules implements IObjectRules<Object> {
      */
     public static final ObjectRules objects = new ObjectRules();
 
-    /**
-     * Fails if the object is {@code null}.
-     * <p>
-     * Error key: {@code must.not.be.null}
-     */
-    public <T> Rule<T> notNull() {
-        return MappingRule.<T>notNull()::test;
-    }
 
     /**
      * Acts the same as {@link #notNull()}, but takes a Class parameter to help the java compiler
@@ -39,7 +31,7 @@ public class ObjectRules implements IObjectRules<Object> {
      * Error key: {@code must.not.be.null}
      */
     public <T> Rule<T> notNull(Class<T> clazz) {
-        return notNull();
+        return (Rule<T>) notNull();
     }
 
     /**
