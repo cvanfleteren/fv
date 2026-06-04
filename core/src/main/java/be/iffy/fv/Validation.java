@@ -1040,6 +1040,7 @@ public sealed interface Validation<T> extends Iterable<T> {
             if (errors.isEmpty()) {
                 throw new IllegalStateException("errors cannot be empty");
             }
+            errors = errors.distinct();
         }
 
         @Override

@@ -476,8 +476,7 @@ public interface Rule<T> extends MappingRule<T, T> {
             List<Validation<T>> validations = ruleList.map(rule -> Rule.<T>narrow(rule).test(value));
             List<ErrorMessage> errors = validations
                     .filter(v -> !v.isValid())
-                    .flatMap(Validation::errors)
-                    .distinct();
+                    .flatMap(Validation::errors);
 
             return errors.isEmpty()
                     ? Validation.valid(value)

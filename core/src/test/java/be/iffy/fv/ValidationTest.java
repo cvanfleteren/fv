@@ -86,6 +86,20 @@ public class ValidationTest {
                     .hasMessage("errors cannot be null");
         }
 
+        @Test
+        void invalid_whenGivenDuplicateErrors_makesThemUniqueWhileKeepingOrder() {
+            // Arrange
+            ErrorMessage error1 = ErrorMessage.of("Error 1");
+            ErrorMessage error2 = ErrorMessage.of("Error 2");
+            ErrorMessage error1Duplicate = ErrorMessage.of("Error 1");
+
+            // Act
+            Validation<String> result = Validation.invalid(List.of(error1, error2, error1Duplicate));
+
+            // Assert
+            assertThat(result.errors()).containsExactly(error1, error2);
+        }
+
     }
 
     @Nested
