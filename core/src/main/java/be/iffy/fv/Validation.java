@@ -878,7 +878,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      */
     static <T> Validation<T> from(Try<? extends T> _try) {
         return _try.fold(
-                e -> (e instanceof ValidationException ve) ? Validation.invalid(ve.errors()) : Validation.invalid(e.getMessage()),
+                e -> (e instanceof ValidationException ve) ? Validation.invalid(ve.errors()) : Validation.invalid(Objects.requireNonNullElse(e.getMessage(),"failed.from.try")),
                 Validation::valid
         );
     }

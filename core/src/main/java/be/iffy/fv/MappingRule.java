@@ -51,7 +51,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * If the mapper throws an exception, the rule will fail with the specified error message.
      */
     static <T> MappingRule<T, T> of(Transformation<T> transformation) {
-        return of(transformation::apply, ErrorMessage.of("transformation.failed"));
+        return of(transformation::apply, ErrorMessage.of("transformation.failed", "type",  transformation.toString()));
     }
 
     /**
@@ -150,15 +150,15 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * @param other the other rule to compose with.
      */
     @SuppressWarnings("unchecked")
-    default <Z> MappingRule<T, Z> orElse(Function<? super T, ? extends Validation<Z>> other) {
+    default  MappingRule<T, R> orElse(Function<? super T, ? extends Validation<R>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input -> {
-            Validation<Z> first = (Validation<Z>) this.test(input);
+            Validation<R> first = this.test(input);
             if (first.isValid()) {
                 return first;
             }
 
-            Validation<Z> second = other.apply(input);
+            Validation<R> second = other.apply(input);
             if (second.isValid()) {
                 return second;
             }
@@ -172,12 +172,12 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * If both rules fail, only the errors of the fallback rule are returned.
      * The fallback rule is evaluated only when this rule fails.
      */
-    default <Z> MappingRule<T, Z> recoverWith(Function<? super T, ? extends Validation<Z>> other) {
+    default <Z> MappingRule<T, R> recoverWith(Function<? super T, ? extends Validation<R>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input -> {
             Validation<R> first = this.test(input);
             if (first.isValid()) {
-                return (Validation<Z>) first;
+                return first;
             }
 
             return other.apply(input);

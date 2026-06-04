@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -708,11 +709,11 @@ class MappingRuleTest {
         void recoverWith_whenFirstRuleFailsAndSecondRuleIsSuccessful_returnsSecondRuleResult() {
             // Arrange
             MappingRule<String, Integer> rule1 = MappingRule.of(Integer::parseInt, "not.a.number");
-            MappingRule<String, Number> rule2 = s -> Validation.valid(s.length());
-            MappingRule<String, Number> recoverRule = rule1.recoverWith(rule2);
+            MappingRule<String, Integer> rule2 = s -> Validation.valid(s.length());
+            MappingRule<String, Integer> recoverRule = rule1.recoverWith(rule2);
 
             // Act
-            Validation<Number> result = recoverRule.test("abc");
+            Validation<Integer> result = recoverRule.test("abc");
 
             // Assert
             assertThatValidation(result)
