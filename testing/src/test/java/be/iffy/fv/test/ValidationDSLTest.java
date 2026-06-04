@@ -41,16 +41,16 @@ public class ValidationDSLTest {
 
                 case SUCCESS -> assertAllValid(
                         validating(
-                                validateThat(startedAt, SomeClass::startedAt).mapsTo(options.required()),
-                                validateThat(finishedAt, SomeClass::finishedAt).mapsTo(options.required())
+                                validateThat(startedAt, SomeClass::startedAt).is(options.required()),
+                                validateThat(finishedAt, SomeClass::finishedAt).is(options.required())
                         ).flatMap((s, f) -> validateThat(s).is(instants.isBefore(f))),
                         validateThat(errors, SomeClass::errors).is(vavrLists.empty())
                 );
 
                 case FAILURE -> assertAllValid(
                         validating(
-                                validateThat(startedAt, SomeClass::startedAt).mapsTo(options.required()),
-                                validateThat(finishedAt, SomeClass::finishedAt).mapsTo(options.required())
+                                validateThat(startedAt, SomeClass::startedAt).is(options.required()),
+                                validateThat(finishedAt, SomeClass::finishedAt).is(options.required())
                         ).flatMap((s, f) -> validateThat(s).is(instants.isBefore(f))),
                         validateThat(errors, SomeClass::errors).is(
                                 vavrLists.<String>notEmpty().and(vavrLists.allMatchRule(strings.notEmpty()))

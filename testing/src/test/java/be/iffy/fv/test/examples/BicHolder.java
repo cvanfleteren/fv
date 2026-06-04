@@ -21,7 +21,7 @@ public class BicHolder {
 
         var bicHolder = new HasOptionalBicString(Optional.empty());
 
-        Validation<Bic> bicV2 = validateThat(bicHolder.bic()).mapsTo(optionals.required(String.class).then(Bic::from));
+        Validation<Bic> bicV2 = validateThat(bicHolder.bic()).is(optionals.required(String.class).then(Bic::from));
     }
 
 }

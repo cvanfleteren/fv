@@ -183,7 +183,7 @@ public class DSLTest {
 
             @Test
             void isNotNull_whenValueIsNotNull_returnsValid() {
-                Validation<String> v = validateThat((String)null, "field").map(StringOps.trim()).is(Rule.nullOk(strings.minLength(4)));
+                Validation<String> v = validateThat((String) null, "field").map(StringOps.trim()).is(Rule.nullOk(strings.minLength(4)));
                 assertThatValidation(v).isInvalid().hasErrorMessage("field.must.not.be.null");
             }
         }
@@ -209,9 +209,9 @@ public class DSLTest {
             Map<Integer, String> input = HashMap.of(1, " hello ", 2, "world");
 
 
-            MappingRule<String,String> mr = MappingRule.of(StringOps.trim()).then(strings.minLength(5));
-            MappingRule<Map<Integer, String>, Map<Integer,String>> mappingRule = mr.liftToVavrMap();
-            Validation<Map<Integer,String>> result = validateThat(input, "value").mapsTo(mappingRule);
+            MappingRule<String, String> mr = MappingRule.of(StringOps.trim()).then(strings.minLength(5));
+            MappingRule<Map<Integer, String>, Map<Integer, String>> mappingRule = mr.liftToVavrMap();
+            Validation<Map<Integer, String>> result = validateThat(input, "value").is(mappingRule);
 
             // Assert
             assertThatValidation(result)
@@ -228,7 +228,7 @@ public class DSLTest {
                 Function<String, Validation<Integer>> func = s -> Validation.valid(Integer.parseInt(s));
 
                 // Act
-                Validation<Integer> result = validateThat("123").mapsTo(func);
+                Validation<Integer> result = validateThat("123").is(func);
 
                 // Assert
                 assertThatValidation(result)
@@ -243,7 +243,7 @@ public class DSLTest {
                 Function<String, Validation<Integer>> func = s -> Validation.invalid(error);
 
                 // Act
-                Validation<Integer> result = validateThat("abc").mapsTo(func);
+                Validation<Integer> result = validateThat("abc").is(func);
 
                 // Assert
                 assertThatValidation(result)
@@ -257,7 +257,7 @@ public class DSLTest {
                 Function<String, Validation<Integer>> func = s -> Validation.valid(1);
 
                 // Act
-                Validation<Integer> result = validateThat((String) null, "foo").mapsTo(func);
+                Validation<Integer> result = validateThat((String) null, "foo").is(func);
 
                 // Assert
                 assertThatValidation(result)
@@ -317,7 +317,7 @@ public class DSLTest {
             // Act
             var result = validateThat(value)
                     .map(String::trim)
-                    .mapsTo(strings.asInteger().then(Rule.of(i -> i == 123, "must.be.123")));
+                    .is(strings.asInteger().then(Rule.of(i -> i == 123, "must.be.123")));
 
             // Assert
             assertThatValidation(result)

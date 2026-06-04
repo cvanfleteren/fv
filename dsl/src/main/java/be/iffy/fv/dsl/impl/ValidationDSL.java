@@ -60,9 +60,11 @@ public class ValidationDSL<T> {
     /**
      * Validates that the value satisfies the given rule.
      */
-    public <R> Validation<R> mapsTo(Function<? super T, ? extends Validation<R>> rule) {
+    public <R> Validation<R> is(Function<? super T, ? extends Validation<? extends R>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return Validation.narrow(validation.refine(rule::apply).at(name));
+        return Validation.narrow(
+                validation.flatMap(value -> Validation.narrow(rule.apply(value))).at(name)
+        );
     }
 
     /**

@@ -253,14 +253,14 @@ public class DSL {
      * Quick way to assert a value is not null.
      */
     public static <T> Validation<T> notNull(T value, String name) {
-        return validateThat(value, name).mapsTo(Rule.notNull());
+        return validateThat(value, name).is(Rule.notNull());
     }
 
     /**
      * Quick way to assert a value is not null.
      */
     public static <T, V> Validation<T> notNull(T value, PropertySelector<V, T> selector) {
-        return validateThat(value, selector).mapsTo(Rule.notNull());
+        return validateThat(value, selector).is(Rule.notNull());
     }
 
     /**
