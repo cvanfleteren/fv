@@ -465,7 +465,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * @param validations the collection of validations to sequence.
      * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
      */
-    static <T> Validation<java.util.List<T>> transpose(java.util.Collection<Validation<T>> validations) {
+    static <T> Validation<java.util.List<T>> transpose(java.util.Collection<? extends Validation<? extends T>> validations) {
         return transpose(List.ofAll(validations))
                 .map(List::asJava);
     }
@@ -480,7 +480,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * @param validations the collection of validations to sequence.
      * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
      */
-    static <T> Validation<java.util.List<T>> transpose(java.util.Collection<Validation<T>> validations, String at) {
+    static <T> Validation<java.util.List<T>> transpose(java.util.Collection<? extends Validation<? extends T>> validations, String at) {
         return transpose(List.ofAll(validations), at)
                 .map(List::asJava);
     }

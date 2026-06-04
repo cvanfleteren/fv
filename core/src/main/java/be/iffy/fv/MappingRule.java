@@ -119,8 +119,8 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      *
      * @param validationFunction The function that converts an input of type T to a validation object of type R.
      */
-    static <T, R> MappingRule<T, R> of(Function<? super T, ? extends Validation<R>> validationFunction) {
-        return validationFunction::apply;
+    static <T, R> MappingRule<T, R> of(Function<? super T, ? extends Validation<? extends R>> validationFunction) {
+        return input -> Validation.narrow(validationFunction.apply(input));
     }
 
     /**
