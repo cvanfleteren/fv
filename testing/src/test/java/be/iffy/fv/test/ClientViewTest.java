@@ -33,7 +33,7 @@ public class ClientViewTest {
             FOO, BAR;
 
             public static Validation<AmendmentType> from(String name) {
-                return objects.isEnum(AmendmentType.class).test(name);
+                return strings.asEnum(AmendmentType.class).test(name);
             }
         }
     }
@@ -59,7 +59,7 @@ public class ClientViewTest {
 
 
         Function<TestDTO, Validation<Mandate>> mapper = testDto -> {
-            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = options.required(objects.isEnum(MandateInfo.AmendmentType.class));
+            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = options.required(strings.asEnum(MandateInfo.AmendmentType.class));
             MappingRule<Option<String>, String> originalValueRule = options.required(strings.notBlank());
 
             Validation<Boolean> amendmentV = booleans.notNull().test(testDTO.amendment);
@@ -94,7 +94,7 @@ public class ClientViewTest {
 
 
         Function<TestDTO, Validation<Mandate>> mapper = testDto -> {
-            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = options.required(objects.isEnum(MandateInfo.AmendmentType.class));
+            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = options.required(strings.asEnum(MandateInfo.AmendmentType.class));
             MappingRule<Option<String>, String> originalValueRule =  options.required((strings.notBlank()));
 
 
@@ -127,7 +127,7 @@ public class ClientViewTest {
         TestDTO testDTO = new TestDTO(LocalDate.now(), true, Option.of("FOO"), Option.of("original"));
 
         Function<TestDTO, Validation<Mandate>> mapper = testDto -> {
-            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = options.required(objects.isEnum(MandateInfo.AmendmentType.class));
+            MappingRule<Option<String>, MandateInfo.AmendmentType> amendmentTypeRule = options.required(strings.asEnum(MandateInfo.AmendmentType.class));
             MappingRule<Option<String>, String> originalValueRule = options.required(strings.notBlank());
 
             MappingRule<TestDTO, Option<MandateInfo>> withMandateInfo = validatorFor(TestDTO.class)

@@ -312,7 +312,7 @@ You can use the `isEnum(Class<E> clazz)` method found in `ObjectRules`. This met
 ```java
 enum Status { OPEN, CLOSED }
 
-MappingRule<String, Status> rule = objects.isEnum(Status.class);
+MappingRule<String, Status> rule = strings.asEnum(Status.class);
 
 rule.test("OPEN");    // Valid(Status.OPEN)
 rule.test("UNKNOWN"); // Invalid (must.be.valid.enum.value)

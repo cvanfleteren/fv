@@ -256,50 +256,6 @@ class ObjectRulesTest {
     }
 
     @Nested
-    class IsEnum {
-
-        enum TestEnum {
-            A, B
-        }
-
-        @Test
-        void isEnum_whenValidEnumValue_returnsValid() {
-            assertThatValidation(objects.isEnum(TestEnum.class).test("A"))
-                    .isValid()
-                    .isEqualTo(TestEnum.A);
-        }
-
-        @Test
-        void isEnum_whenInvalidEnumValue_returnsInvalid() {
-            assertThatValidation(objects.isEnum(TestEnum.class).test("C"))
-                    .isInvalid()
-                    .hasErrorMessage("must.be.valid.enum.value", HashMap.of("value", "C"));
-        }
-    }
-
-    @Nested
-    class CanBeEnum {
-
-        enum TestEnum {
-            A, B
-        }
-
-        @Test
-        void canBeEnum_whenValidEnumValue_returnsValid() {
-            assertThatValidation(objects.canBeEnum(TestEnum.class).test("A"))
-                    .isValid()
-                    .isEqualTo("A");
-        }
-
-        @Test
-        void canBeEnum_whenInvalidEnumValue_returnsInvalid() {
-            assertThatValidation(objects.canBeEnum(TestEnum.class).test("C"))
-                    .isInvalid()
-                    .hasErrorMessage("must.be.valid.enum.value", HashMap.of("value", "C"));
-        }
-    }
-
-    @Nested
     class CanBe {
 
         MappingRule<String, BigDecimal> rule = objects.canBe(BigDecimal::new, ErrorMessage.of("invalid.number"));

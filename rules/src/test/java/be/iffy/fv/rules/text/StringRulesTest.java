@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
+import static be.iffy.fv.rules.ObjectRules.objects;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
 import static be.iffy.fv.rules.text.StringRules.strings;
@@ -919,6 +921,50 @@ class StringRulesTest {
         @Test
         void asURI_whenNull_returnsInvalid() {
             invalidTest(null, strings.asURI(), "must.not.be.null");
+        }
+    }
+
+    @Nested
+    class AsEnum {
+
+        enum TestEnum {
+            A, B
+        }
+
+        @Test
+        void isEnum_whenValidEnumValue_returnsValid() {
+            assertThatValidation(strings.asEnum(TestEnum.class).test("A"))
+                    .isValid()
+                    .isEqualTo(TestEnum.A);
+        }
+
+        @Test
+        void isEnum_whenInvalidEnumValue_returnsInvalid() {
+            assertThatValidation(strings.asEnum(TestEnum.class).test("C"))
+                    .isInvalid()
+                    .hasErrorMessage("must.be.valid.enum.value", HashMap.of("value", "C"));
+        }
+    }
+
+    @Nested
+    class CanBeEnum {
+
+        enum TestEnum {
+            A, B
+        }
+
+        @Test
+        void canBeEnum_whenValidEnumValue_returnsValid() {
+            assertThatValidation(strings.canBeEnum(TestEnum.class).test("A"))
+                    .isValid()
+                    .isEqualTo("A");
+        }
+
+        @Test
+        void canBeEnum_whenInvalidEnumValue_returnsInvalid() {
+            assertThatValidation(strings.canBeEnum(TestEnum.class).test("C"))
+                    .isInvalid()
+                    .hasErrorMessage("must.be.valid.enum.value", HashMap.of("value", "C"));
         }
     }
 

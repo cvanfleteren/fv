@@ -45,27 +45,6 @@ public class ObjectRules implements IObjectRules<Object> {
         return MappingRule.<Object>notNull().map(String::valueOf);
     }
 
-    /**
-     * Fails if the input string is not a valid enum value for the given enum class while mapping to the enum.
-     * <p>
-     * Usage example:
-     * {@snippet file="be/iffy/fv/rules/ObjectRulesSnippets.java" region="is-enum-example"}
-     * <p>
-     * Error key: {@code must.be.valid.enum.value}
-     * <p>
-     * Parameters:
-     * <ul>
-     *     <li>{@code value}: the input string ({@link String})</li>
-     * </ul>
-     */
-    public <E extends Enum<E>> MappingRule<String, E> isEnum(Class<E> clazz) {
-        return input ->
-                Try.of(() -> Enum.valueOf(clazz, input))
-                .fold(
-                        f -> Validation.invalid(ErrorMessage.of("must.be.valid.enum.value", "value", input)),
-                        Validation::valid
-                );
-    }
 
     /**
      * Fails if the input is not an instance of the given class.
@@ -88,26 +67,6 @@ public class ObjectRules implements IObjectRules<Object> {
                 return Validation.invalid(ErrorMessage.of("must.be.instance.of", "type", clazz.getSimpleName()));
             }
         };
-    }
-
-    /**
-     * Fails if the input string is not a valid enum value for the given enum class.
-     * <p>
-     * Error key: {@code must.be.valid.enum.value}
-     * <p>
-     * Parameters:
-     * <ul>
-     *     <li>{@code value}: the input string ({@link String})</li>
-     * </ul>
-     *
-     */
-    public <E extends Enum<E>> Rule<String> canBeEnum(Class<E> clazz) {
-        Objects.requireNonNull(clazz, "clazz cannot be null");
-        return input -> Try.of(() -> Enum.valueOf(clazz, input))
-                .fold(
-                        f -> Validation.invalid(ErrorMessage.of("must.be.valid.enum.value", "value", input)),
-                        v -> Validation.valid(input)
-                );
     }
 
     /**

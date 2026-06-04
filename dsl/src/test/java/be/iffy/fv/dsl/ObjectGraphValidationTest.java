@@ -82,7 +82,7 @@ class ObjectGraphValidationTest {
 
         static Validation<User> fromDto(UserDTO dto) {
 
-            MappingRule<String, Role> canBeRole = objects.isEnum(Role.class);
+            MappingRule<String, Role> canBeRole = strings.asEnum(Role.class);
             MappingRule<String, Email> canBeEmail = strings.minLength(2).and(strings.contains("@")).then(MappingRule.of(Email::new, "must.be.email"));
 
             return Validation.mapN(

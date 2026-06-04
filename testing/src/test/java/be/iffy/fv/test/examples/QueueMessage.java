@@ -63,7 +63,7 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
 
     Validation<Command.Address> validateAddress(QueueMessage.Address address) {
         return validateThat(address.country, "country")
-                .is(optionals.matches(objects.isEnum(Country.class)))
+                .is(optionals.matches(strings.asEnum(Country.class)))
                 .flatMap(country ->
                         Validation.from(() -> new Command.Address(address.street, address.houseNumber, address.city))
                 );
@@ -87,7 +87,7 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
             if (amendmentIndicator) {
                 // two optional fields, but in this context they are required
                 return validating(
-                        validateThat(mandateInfo.amendmentType(), "amendmentType").is(optionals.required(objects.isEnum(Command.MandateInfo.AmendmentType.class))),
+                        validateThat(mandateInfo.amendmentType(), "amendmentType").is(optionals.required(strings.asEnum(Command.MandateInfo.AmendmentType.class))),
                         validateThat(mandateInfo.amendmentOriginalValue(), "amendmentOriginalValue").is(optionals.required())
                 ).map((amendmentType, originalValue) ->
                         new Command.MandateInfo(mandateInfo.mandateId(),

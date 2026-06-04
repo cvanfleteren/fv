@@ -1,5 +1,6 @@
 package be.iffy.fv.rules.text;
 
+import be.iffy.fv.Validation;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
@@ -173,6 +174,51 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public MappingRule<String, URI> asURI() {
         return MappingRule.of(URI::create, "must.be.uri");
+    }
+
+    /**
+     * Fails if the input string is not a valid enum value for the given enum class while mapping to the enum. Is NOT case-sensitive.
+     * <p>
+     * Usage example:
+     * {@snippet file="be/iffy/fv/rules/ObjectRulesSnippets.java" region="is-enum-example"}
+     * <p>
+     * Error key: {@code must.be.valid.enum.value}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
+     */
+    public <E extends Enum<E>> MappingRule<String, E> asEnum(Class<E> enumClass) {
+        return MappingRule.of(s -> {
+                    for (E constant : enumClass.getEnumConstants()) {
+                        if (constant.name().equalsIgnoreCase(s)) {
+                            return Validation.valid(constant);
+                        }
+                    }
+                    return Validation.invalid(ErrorMessage.of("must.be.valid.enum.value", "value", s));
+                }
+        );
+    }
+
+    /**
+     * Fails if the input string is not a valid enum value for the given enum class.
+     * <p>
+     * Error key: {@code must.be.valid.enum.value}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
+     *
+     */
+    public <E extends Enum<E>> Rule<String> canBeEnum(Class<E> clazz) {
+        Objects.requireNonNull(clazz, "clazz cannot be null");
+        return input -> Try.of(() -> Enum.valueOf(clazz, input))
+                .fold(
+                        f -> Validation.invalid(ErrorMessage.of("must.be.valid.enum.value", "value", input)),
+                        v -> Validation.valid(input)
+                );
     }
 
     //endregion
