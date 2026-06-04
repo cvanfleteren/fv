@@ -1,5 +1,7 @@
 package be.iffy.fv;
 
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
@@ -356,22 +358,24 @@ public interface Rule<T> extends MappingRule<T, T> {
     @Override
     default <K> Rule<Map<K, T>> liftToVavrMap(Function<K, Object> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
-        // this version can work a bit more efficiently since we know we can return
-        // the original map if all entries are valid
-        // as the values cannot change type in a Rule (as opposed to a MappingRule)
         return map -> {
-            Seq<Validation<T>> validations = map.map(tuple ->
-                    this.test(tuple._2)
-                            .mapErrors(errors ->
-                                    errors.map(e -> e.atIndex(keyExtractor.apply(tuple._1)))
-                            )
+            Seq<Tuple2<K, Validation<T>>> validations = map.map(tuple ->
+                    Tuple.of(tuple._1, this.test(tuple._2).mapErrors(errors ->
+                            errors.map(e -> e.atIndex(keyExtractor.apply(tuple._1)))
+                    ))
             );
 
-            var validAndInvalid = validations.partition(Validation::isValid);
+            var validAndInvalid = validations.partition(t -> t._2.isValid());
             if (validAndInvalid._2.nonEmpty()) {
-                return Validation.invalid(validAndInvalid._2.flatMap(Validation::errors).toList());
+                return Validation.invalid(validAndInvalid._2.flatMap(t -> t._2.errors()).toList());
             } else {
-                return Validation.valid(map);
+                return Validation.valid(
+                        validAndInvalid._1.toMap(
+                                Tuple2::_1,
+                                t ->
+                                        t._2.getOrElseThrow()
+                        )
+                );
             }
         };
     }
@@ -405,34 +409,34 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Semantics:
      * - If any validation fails, the entire map is considered invalid.
      * - If all validations pass, the map is considered valid.
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/RuleSnippets.java" region = "lift-to-map-extractor-example"}
      *
      * @param keyExtractor the function to extract a path segment from the key.
      */
     @Override
     default <K> Rule<java.util.Map<K, T>> liftToMap(Function<K, Object> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
-        //return (Rule<java.util.Map<K, T>>) MappingRule.super.liftToMap(keyExtractor);
-        // this version can work a bit more efficiently since we know we can return
-        // the original map if all entries are valid
-        // as the values cannot change type in a Rule (as opposed to a MappingRule)
-        return Rule.notNull().and(map -> {
-            Seq<Validation<T>> validations = HashMap.ofAll(map).map(tuple ->
-                    this.test(tuple._2)
-                            .mapErrors(errors ->
+        return Rule.notNull().and(
+                map -> {
+                    Seq<Tuple2<K, Validation<T>>> validations = HashMap.ofAll(map).map(tuple ->
+                            Tuple.of(tuple._1, this.test(tuple._2).mapErrors(errors ->
                                     errors.map(e -> e.atIndex(keyExtractor.apply(tuple._1)))
-                            )
-            );
+                            ))
+                    );
 
-            var validAndInvalid = validations.partition(Validation::isValid);
-            if (validAndInvalid._2.nonEmpty()) {
-                return Validation.invalid(validAndInvalid._2.flatMap(Validation::errors).toList());
-            } else {
-                return Validation.valid(map);
-            }
-        });
+                    var validAndInvalid = validations.partition(t -> t._2.isValid());
+                    if (validAndInvalid._2.nonEmpty()) {
+                        return Validation.invalid(validAndInvalid._2.flatMap(t -> t._2.errors()).toList());
+                    } else {
+                        return Validation.valid(
+                                validAndInvalid._1.toMap(
+                                        Tuple2::_1,
+                                        t ->
+                                                t._2.getOrElseThrow()
+                                ).toJavaMap()
+                        );
+                    }
+                }
+        );
     }
 
     /**

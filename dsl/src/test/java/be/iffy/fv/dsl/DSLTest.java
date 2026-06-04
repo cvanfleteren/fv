@@ -209,8 +209,14 @@ public class DSLTest {
             Map<Integer, String> input = HashMap.of(1, " hello ", 2, "world");
 
 
-            MappingRule<String, String> mr = MappingRule.of(StringOps.trim()).then(strings.minLength(5));
+            MappingRule<String, String> mr = after(StringOps.trim()).is(strings.maxLength(5));
+
+            Validation<String> foo = mr.test("12345 ");
+
             MappingRule<Map<Integer, String>, Map<Integer, String>> mappingRule = mr.liftToVavrMap();
+
+            Validation<Map<Integer, String>> foo2 = mappingRule.test(HashMap.of(1, "12345 "));
+
             Validation<Map<Integer, String>> result = validateThat(input, "value").is(mappingRule);
 
             // Assert

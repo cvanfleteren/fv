@@ -48,27 +48,19 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
 
     /**
      * Creates a new MappingRule that applies the given mapper function to the input.
-     * If the mapper throws an exception, the rule will fail with the specified error message.
-     */
-    static <T> MappingRule<T, T> of(Transformation<T> transformation) {
-        return of(transformation::apply, ErrorMessage.of("transformation.failed", "type",  transformation.toString()));
-    }
-
-    /**
-     * Creates a new MappingRule that applies the given mapper function to the input.
      * If the mapper returns a {@link Try.Failure}, the rule will fail with the specified error key.
      */
     static <T, R> MappingRule<T, R> ofTry(Function<? super T, ? extends Try<? extends R>> mapper, ErrorMessage errorMessage) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return input -> {
-            if(input == null) {
+            if (input == null) {
                 return Validation.invalid("must.not.be.null");
             }
             Try<? extends R> _try = mapper.apply(input);
             return _try.fold(
                     t -> {
-                        if(t instanceof ValidationException ve) {
+                        if (t instanceof ValidationException ve) {
                             return Validation.invalid(ve.errors());
                         } else {
                             return Validation.invalid(errorMessage);
@@ -150,7 +142,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * @param other the other rule to compose with.
      */
     @SuppressWarnings("unchecked")
-    default  MappingRule<T, R> orElse(Function<? super T, ? extends Validation<R>> other) {
+    default MappingRule<T, R> orElse(Function<? super T, ? extends Validation<R>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input -> {
             Validation<R> first = this.test(input);
@@ -276,7 +268,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * - If any validation fails, the entire map is considered invalid.
      * - If all validations pass, the map is considered valid.
      *
-     *  @param keyExtractor the function to extract a path segment from the key.
+     * @param keyExtractor the function to extract a path segment from the key.
      */
     default <K> MappingRule<Map<K, T>, Map<K, R>> liftToVavrMap(Function<K, Object> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
@@ -291,7 +283,13 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
             if (validAndInvalid._2.nonEmpty()) {
                 return Validation.invalid(validAndInvalid._2.flatMap(t -> t._2.errors()).toList());
             } else {
-                return Validation.valid(validAndInvalid._1.toMap(Tuple2::_1, t -> t._2.getOrElseThrow()));
+                return Validation.valid(
+                        validAndInvalid._1.toMap(
+                                Tuple2::_1,
+                                t ->
+                                        t._2.getOrElseThrow()
+                        )
+                );
             }
         };
     }
