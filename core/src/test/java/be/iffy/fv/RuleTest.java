@@ -252,6 +252,23 @@ class RuleTest {
                     .isValid()
                     .isEqualTo("hello!");
         }
+
+        @Test
+        void all_whenMultipleRulesFailWithSameError_returnsUniqueErrors() {
+            // Arrange
+            Rule<String> rule1 = Rule.of(s -> false, "error.message");
+            Rule<String> rule2 = Rule.of(s -> false, "error.message");
+            Rule<String> combined = Rule.all(rule1, rule2);
+
+            // Act
+            Validation<String> result = combined.test("any");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error.message");
+            assertThat(result.errors()).hasSize(1);
+        }
     }
 
     @Nested
