@@ -32,7 +32,7 @@ public class OptionRules {
      * Applies the given MappingRule to the {@link Option} if it is present. If the Option is empty, the result
      * is considered to be valid.
      */
-    public <T, R> MappingRule<Option<T>, Option<R>> matches(Function<T, Validation<R>> mappingRuleLike) {
+    public <T, R> MappingRule<Option<T>, Option<R>> matches(Function<? super T, Validation<R>> mappingRuleLike) {
         return input -> {
             Option<Validation<R>> res = input.map(mappingRuleLike);
             return Validation.transpose(res);
@@ -57,7 +57,7 @@ public class OptionRules {
      *
      * @param rule the rule to apply to the value inside the {@link Option}
      */
-    public <T, Z> MappingRule<Option<T>, Z> required(Function<? super T, ? extends Validation<Z>> rule) {
+    public <T, R> MappingRule<Option<T>, R> required(Function<? super T, ? extends Validation<R>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
         return input -> input.fold(
                 () -> Validation.invalid("must.not.be.empty"),

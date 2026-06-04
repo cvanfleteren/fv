@@ -33,7 +33,7 @@ public class OptionalRules {
      * Applies the given MappingRule like Function to the {@link Optional} if it is present. If the Optional is empty, the result
      * is considered to be valid.
      */
-    public <T, R> MappingRule<Optional<T>, Optional<R>> matches(Function<T,Validation<R>> mappingRuleLike) {
+    public <T, R> MappingRule<Optional<T>, Optional<R>> matches(Function<? super T, Validation<R>> mappingRuleLike) {
         return input -> {
             Optional<Validation<R>> res = input.map(mappingRuleLike);
             return Validation.transpose(res);
