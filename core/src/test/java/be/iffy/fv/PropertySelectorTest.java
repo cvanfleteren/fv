@@ -1,12 +1,16 @@
-package be.iffy.fv.dsl;
+package be.iffy.fv;
 
-import be.iffy.fv.PropertySelector;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PropertySelectorTest {
 
     static class Person {
+
+        public Person(String name) {
+
+        }
+
         private String name;
         private boolean active;
 
@@ -60,4 +64,5 @@ class PropertySelectorTest {
         PropertySelector<Device, String> selector = Device::getURL;
         assertThat(selector.getPropertyName()).isEqualTo("URL");
     }
+
 }

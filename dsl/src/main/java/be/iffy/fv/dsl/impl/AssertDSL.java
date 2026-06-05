@@ -1,9 +1,6 @@
 package be.iffy.fv.dsl.impl;
 
-import be.iffy.fv.MappingRule;
-import be.iffy.fv.Rule;
-import be.iffy.fv.Transformation;
-import be.iffy.fv.Validation;
+import be.iffy.fv.*;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -21,9 +18,17 @@ public class AssertDSL<T> {
         this.validation = validation;
         this.name = name;
     }
+    /**
+     * Maps the value being validated using the provided mapper function.
+     * If the current validation is already invalid, the mapper is not applied.
+     * If the mapper throws an Exception, it is caught and the validation becomes {@link Validation.Invalid}
+     */
+    public AssertDSL<T> map(Transformation<T> mapper) {
+        return new AssertDSL<>(validation.mapCatching(mapper::apply), name);
+    }
 
-    public AssertDSL<T> map(Transformation<T> transform) {
-        return new AssertDSL<>(this.validation.mapCatching(transform::apply), name);
+    public <R> AssertDSL<R> map(MappingRule<T, R> mapper) {
+        return new AssertDSL<>(validation.refine(mapper), name);
     }
 
     /**

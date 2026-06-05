@@ -264,7 +264,7 @@ public class DSL {
     }
 
     /**
-     * For any given {@code MappingRule<T, R>}, returns a MappingRule that can work on an {@code MappingRule<Optional<T>, Optional<R>>} instead.
+     * For any given {@code Rule<T>}, returns a Rule that can work on an {@code Rule<Optional<T>>} instead.
      * An empty {@link Optional} is considered to be valid.
      *
      * @see be.iffy.fv.rules.functional.OptionalRules#required()
@@ -274,7 +274,7 @@ public class DSL {
     }
 
     /**
-     * For any given {@code Function<T, Validation<R>>}, returns a Rule that can work on an {@code  MappingRule<Optional<T>, Optional<R>>} instead.
+     * For any given {@code Function<T, Validation<R>>}, returns a MappingRule that can work on a {@code  MappingRule<Optional<T>, Optional<R>>} instead.
      * An empty {@link Optional} is considered to be valid.
      */
     public static <T,R> MappingRule<Optional<T>, Optional<R>> optional(Function<T, ? extends Validation<R>> ruleLike) {
@@ -292,7 +292,7 @@ public class DSL {
     }
 
     /**
-     * For any given {@code MappingRule<T, R>}, returns a MappingRule that can work on an {@code MappingRule<Option<T>, Option<R>>} instead.
+     * For any given {@code Rule<T>}, returns a Rule that can work on an {@code Rule<Option<T>>} instead.
      * An empty {@link Option} is considered to be valid.
      *
      * @see be.iffy.fv.rules.functional.OptionRules#required()
@@ -322,7 +322,7 @@ public class DSL {
      * Starts a validation process for a single value with a logical name.
      * The PropertySelector will get converted to a name and will be prepended to any error messages.
      *
-     * @param name the name of the value (e.g., field name).
+     * @param name a selector for the name of the value (e.g., Field::name).
      */
     public static <ANY, T> ValidationDSL<T> validateThat(T value, PropertySelector<ANY, T> name) {
         return new ValidationDSL<>(value, name.getPropertyName());
@@ -338,8 +338,22 @@ public class DSL {
     /**
      * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
      */
+    public static <ANY, T> VListValidationDSL<T, T> validateThatList(List<T> value, PropertySelector<ANY, T> name) {
+        return new VListValidationDSL<>(value, name.getPropertyName());
+    }
+
+    /**
+     * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
+     */
     public static <T> JListValidationDSL<T, T> validateThatList(java.util.List<T> value, String name) {
         return new JListValidationDSL<>(value, name);
+    }
+
+    /**
+     * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
+     */
+    public static <ANY, T> JListValidationDSL<T, T> validateThatList(java.util.List<T> value, PropertySelector<ANY, T> name) {
+        return new JListValidationDSL<>(value, name.getPropertyName());
     }
 
 }

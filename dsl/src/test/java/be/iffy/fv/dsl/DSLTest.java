@@ -380,6 +380,7 @@ public class DSLTest {
         @Test
         void assertThat_whenValid_returnsValue() {
             // Act
+            DSL.validateThat("ok","field").is(Rule.notNull()).getOrElseThrow();
             String result = DSL.assertThat("ok", "field").is(Rule.notNull());
 
             // Assert

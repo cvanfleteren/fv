@@ -1,9 +1,6 @@
-package be.iffy.fv.dsl;
+package be.iffy.fv.dsl.impl;
 
-import be.iffy.fv.MappingRule;
-import be.iffy.fv.Rule;
-import be.iffy.fv.Validation;
-import be.iffy.fv.ValidationException;
+import be.iffy.fv.*;
 import be.iffy.fv.rules.text.StringOps;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -102,10 +99,11 @@ class AssertDSLTest {
 
         @Test
         void map_whenTransformationThrows_throwsValidationException() {
+
+            Transformation<String> t = s -> {throw new RuntimeException(s);};
+
             assertThatThrownBy(() -> assertThat("boom", "field")
-                    .map(s -> {
-                        throw new RuntimeException(s);
-                    })
+                    .map(t)
                     .isNotNull())
                     .isInstanceOf(ValidationException.class);
         }

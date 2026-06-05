@@ -20,7 +20,7 @@ class PropertySelectorSupport {
     };
 
     /**
-     * Extracts the methopdname from the {@link PropertySelector} and converts it into a property name.
+     * Extracts the methodname from the {@link PropertySelector} and converts it into a property name.
      * Handles getXxx and isXxx prefixes by stripping them and converting the next character to lowercase if necessary
      */
     public static String getImplMethodName(PropertySelector<?, ?> selector) {
