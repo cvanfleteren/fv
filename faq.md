@@ -14,7 +14,7 @@ Welcome to the FAQ for the Iffy Functional Validation (FV) library. If you have 
 - [How can I easily make my own rule, e.g., for checking that a string is a palindrome?](#how-can-i-easily-make-my-own-rule-eg-for-checking-that-a-string-is-a-palindrome)
 - [How can I check that my optional value meets a Rule when it is not empty (but empty is also allowed)?](#how-can-i-check-that-my-optional-value-meets-a-rule-when-it-is-not-empty-but-empty-is-also-allowed)
 - [How can I check that my optional value meets a Rule when it is not empty (but this time empty is NOT allowed)?](#how-can-i-check-that-my-optional-value-meets-a-rule-when-it-is-not-empty-but-this-time-empty-is-not-allowed)
-- [I have a List of String, and I want to check that each entry meets a Rule](#i-have-a-list-of-string-and-i-want-to-check-that-each-entry-meets-a-rule)
+- [I have a List of things, and I want to check that each entry meets a Rule](#i-have-a-list-of-things-and-i-want-to-check-that-each-entry-meets-a-rule)
 - [Can I also validate Maps?](#can-i-also-validate-maps)
 - [I have a String, and want to make sure it's a valid value for a given Enum](#i-have-a-string-and-want-to-make-sure-its-a-valid-value-for-a-given-enum)
 - [I have a Rule for a certain type (e.g., Amount), and now I have another type Transaction that wraps Amount, can I reuse the Amount rule?](#i-have-a-rule-for-a-certain-type-eg-amount-and-now-i-have-another-type-transaction-that-wraps-amount-can-i-reuse-the-amount-rule)
@@ -32,7 +32,7 @@ Welcome to the FAQ for the Iffy Functional Validation (FV) library. If you have 
 - [I want to perform a side effect (like logging) only if a validation is successful.](#i-want-to-perform-a-side-effect-like-logging-only-if-a-validation-is-successful)
 - [How do I perform cross-field validation where one field's validation depends on another?](#how-do-i-perform-cross-field-validation-where-one-field-s-validation-depends-on-another)
 - [How does this library work with standard Java collections vs Vavr collections?](#how-does-this-library-work-with-standard-java-collections-vs-vavr-collections)
-
+- [Whats with the Function<? super T, ? extends Validation<R>> signatures?](#whats-with-the-function-super-t--extends-validationr-signatures)
 ---
 
 ### What is the difference between a `Rule` and a `MappingRule`?
@@ -40,7 +40,7 @@ Welcome to the FAQ for the Iffy Functional Validation (FV) library. If you have 
 In short: A **`Rule<T>`** validates a value without changing it, while a **`MappingRule<T, R>`** validates a value and transforms it into another type or value.
 
 *   **`Rule<T>`**:
-    *   Think of it as a `Predicate<T>` that returns a `Validation<T>`.
+    *   Think of it as a `Predicate<T>` that returns a `Validation<T>` instead of a boolean.
     *   If the validation succeeds, it returns the **exact same instance** that was passed in.
     *   It is used when you want to check if a value meets certain criteria (e.g., "is not null", "is positive", "matches a regex").
     *   `Rule<T>` actually extends `MappingRule<T, T>`, which means every `Rule` is also a `MappingRule`.
@@ -52,7 +52,22 @@ In short: A **`Rule<T>`** validates a value without changing it, while a **`Mapp
     *   If it succeeds, it returns a `Valid` result containing the transformed value.
 
 **When to use which?**
-Use a `Rule` for simple checks on a value. Use a `MappingRule` when you need to change the type of the value or when you want to "materialize" a validated object from a raw input.
+Use a `Rule` for simple checks on a value. Use a `MappingRule` when you need to change the type of the value or when you want to "materialize" a validated object from a raw input.  
+  
+You'll notice that lots of methods take functions with a signature like `Function<? super T, ? extends Validation<R>>`.  
+
+---  
+
+### Whats with the Function<? super T, ? extends Validation<R>> signatures?
+
+
+That signature is the more generic signature of a `Rule<T>` or `MappingRule<T, R>`.  
+By using this generic function signature in the DSL and other composition methods, the library becomes much more flexible:
+
+*   **Interoperability**: You can pass not only `Rule` or `MappingRule` instances but also any method reference or lambda that matches the signature (e.g., `this::myCustomValidation`).
+*   **Reduced Ceremony**: You don't always have to wrap your logic in a `Rule.of(...)` if you already have a function that returns a `Validation`.
+
+Both `Rule<T>` and `MappingRule<T, R>` actually extend this functional interface, which is why they can be used wherever this signature is expected.
 
 ---
 
@@ -255,10 +270,21 @@ mandatoryRule.test(Optional.of("abcde")); // Valid(Optional.of("abcde"))
 
 ---
 
-### I have a List of String, and I want to check that each entry meets a Rule
+### I have a List of things, and I want to check that each entry meets a Rule
 
-The easiest way to validate every element in a list is to use the `liftToList()` method (for `java.util.List`) or `liftToVavrList()` (for Vavr `List`).
 
+The easiest way is with the `validateThatList` dsl, you'd use something like:
+
+```java
+ Validation<List<Integer>> v = validateThatList(values, "values")
+                        .is(lists.notEmpty())
+                        .eachIs(ints.positive())
+                        .validate();
+```
+
+This guarantees you have a non-empty list of positive integers.
+
+Working directly on a Rule, you can use the `liftToList()` method (for `java.util.List`) or `liftToVavrList()` (for Vavr `List`).
 When you lift a `Rule<T>`, you get a `Rule<List<T>>` that applies the original rule to each element. If any element fails, the whole list is considered invalid, and the errors will include the index of the failing element (e.g., `[0].must.not.be.empty`).
 
 ```java
@@ -268,13 +294,13 @@ Rule<List<String>> allNotEmpty = notEmpty.liftToList();
 allNotEmpty.test(List.of("abc", "")); // Invalid ([1].must.not.be.empty)
 ```
 
-If you are using the `CollectionRules` or `VavrCollectionRules` classes, you can also use `allMatchRule(Rule)`:
+If you are using the `ListRules` or `VavrListRules` classes, you can also use `allMatchRule(Rule)`:
 
 ```java
 Rule<List<String>> allNotEmpty = collections.allMatchRule(strings.notEmpty());
 ```
 
-Both approaches are equivalent, as `allMatchRule` is a convenience wrapper around `liftToList()`.
+All these approaches are equivalent, as they are convenience wrappers around `liftToList()`.
 
 ---
 
@@ -300,14 +326,14 @@ Rule<User> userRule = ...;
 // Use the user's ID as the path segment in case of errors
 Rule<Map<Long, User>> mapRule = userRule.liftToMap(id -> "user_" + id);
 
-mapRule.test(Map.of(1, user1, 2, user2));
+mapRule.test(Map.of(1, user1, 2, user2)); // Invalid (user_1.must.be...)
 ```
 
 ---
 
 ### I have a String, and want to make sure it's a valid value for a given Enum
 
-You can use the `isEnum(Class<E> clazz)` method found in `ObjectRules`. This method returns a `MappingRule<String, E>` that validates if the input string matches one of the enum constants and, if successful, transforms it into that enum instance.
+You can use the `asEnum(Class<E> clazz)` method found in `StringRules`. This method returns a `MappingRule<String, E>` that validates if the input string matches one of the enum constants and, if successful, transforms it into that enum instance.
 
 ```java
 enum Status { OPEN, CLOSED }
@@ -319,7 +345,7 @@ rule.test("UNKNOWN"); // Invalid (must.be.valid.enum.value)
 ```
 
 If the validation fails, it uses the error key `must.be.valid.enum.value` and provides the invalid input as a parameter named `value`.  
-If you only want to check if the String represents a valid enum value, but keep the String, use `objects.canBeEnum` instead. 
+If you only want to check if the String represents a valid enum value, but keep the String, use `strings.canBeEnum` instead. 
 
 
 ---
@@ -612,15 +638,7 @@ Rule<BigDecimal> combined = isMinusFortyTwo.or(isPositive);
 
 ### How can I apply a rule only if a certain condition is met?
 
-If you want to apply a validation rule conditionally, you can use the **`onlyIf()`** method. This allows you to provide a `Predicate` or a `Supplier<Boolean>`. If the condition is true, the rule is applied; if the condition is false, the validation is considered successful (Valid).
 
-This is useful for rules that only apply in specific states or contexts.
-
-```java
-Rule<User> emailRequiredForAdults = strings.notEmpty()
-    .given(User::getEmail)
-    .onlyIf(user -> user.getAge() >= 18);
-```
 
 ---
 

@@ -553,6 +553,14 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
+     * Creates a new {@link Rule} that always returns a valid result with the given defaultValue.
+     */
+    static <T> Rule<T> ok(T defaultValue) {
+        Objects.requireNonNull(defaultValue,"defaultValue can not be null");
+        return input -> Validation.valid(defaultValue);
+    }
+
+    /**
      * Applies the specified {@link Rule} to the result of applying the selector function to the input.
      * Be careful, even if T and V are the same type, the returned value will be the original input, not the value retrieved from the selector.
      *

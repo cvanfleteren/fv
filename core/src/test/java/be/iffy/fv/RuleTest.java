@@ -1,8 +1,10 @@
 package be.iffy.fv;
 
 import com.google.testing.compile.JavaFileObjects;
-import io.vavr.Function1;
-import io.vavr.collection.*;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.LinkedHashMap;
+import io.vavr.collection.List;
+import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -12,9 +14,9 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static com.google.common.truth.Truth.assert_;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
-import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -177,6 +179,29 @@ class RuleTest {
             // Act & Assert
             assertThatValidation(rule.test(null)).isInvalid()
                     .hasErrorKeys("must.not.be.null");
+        }
+
+        @Test
+        void ok_withDefaultValue_whenCalled_returnsValidWithDefaultValue() {
+            // Arrange
+            String defaultValue = "default";
+            Rule<String> rule = Rule.ok(defaultValue);
+
+            // Act
+            Validation<String> result = rule.test("any input");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo(defaultValue);
+        }
+
+        @Test
+        void ok_withDefaultValue_whenDefaultValueIsNull_throwsNullPointerException() {
+            // Act & Assert
+            assertThatCode(() -> Rule.ok((String) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("defaultValue can not be null");
         }
     }
 
@@ -1474,9 +1499,7 @@ class RuleTest {
             Validation<String> result = chosenRule.test("hi");
 
             // Assert
-            assertThatValidation(result)
-                    .isInvalid()
-                    .hasErrorMessage("must.start.with.h");
+            assertThatValidation(result).isValid().isEqualTo("hi");
         }
     }
 }
