@@ -2,6 +2,7 @@ package be.iffy.fv.rules.text;
 
 import be.iffy.fv.Validation;
 import io.vavr.collection.HashMap;
+import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import io.vavr.control.Try;
@@ -99,6 +100,16 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public MappingRule<String, BigDecimal> asBigDecimal() {
         return MappingRule.of(BigDecimal::new, "must.be.bigdecimal");
+    }
+
+    static final Set<String> TRUES = HashSet.of("TRUE","1","YES","Y");
+
+    /**
+     * Converts a String into a boolean. Doesn't have any fail conditions.
+     * Will consider "true","1","YES","Y" to be true values, anything else is considered false.
+     */
+    public MappingRule<String, Boolean> asBoolean() {
+        return MappingRule.of(input -> TRUES.contains(input.toUpperCase()), "must.be.boolean");
     }
 
     /**

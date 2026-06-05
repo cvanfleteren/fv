@@ -630,6 +630,39 @@ class StringRulesTest {
     }
 
     @Nested
+    class AsBoolean {
+
+        @Test
+        void asBoolean_whenTrueValue_returnsTrue() {
+            validTest("TRUE", true, strings.asBoolean());
+            validTest("true", true, strings.asBoolean());
+            validTest("1", true, strings.asBoolean());
+            validTest("YES", true, strings.asBoolean());
+            validTest("yes", true, strings.asBoolean());
+            validTest("Y", true, strings.asBoolean());
+            validTest("y", true, strings.asBoolean());
+        }
+
+        @Test
+        void asBoolean_whenFalseValue_returnsFalse() {
+            validTest("FALSE", false, strings.asBoolean());
+            validTest("false", false, strings.asBoolean());
+            validTest("0", false, strings.asBoolean());
+            validTest("NO", false, strings.asBoolean());
+            validTest("no", false, strings.asBoolean());
+            validTest("N", false, strings.asBoolean());
+            validTest("n", false, strings.asBoolean());
+            validTest("anything-else", false, strings.asBoolean());
+            validTest("", false, strings.asBoolean());
+        }
+
+        @Test
+        void asBoolean_whenNull_returnsInvalid() {
+            invalidTest(null, strings.asBoolean(), "must.not.be.null");
+        }
+    }
+
+    @Nested
     class AsInteger {
 
         @Test
