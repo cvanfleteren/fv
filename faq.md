@@ -4,6 +4,7 @@ Welcome to the FAQ for the Iffy Functional Validation (FV) library. If you have 
 
 ### Table of Contents
 - [What is the difference between a `Rule` and a `MappingRule`?](#what-is-the-difference-between-a-rule-and-a-mappingrule)
+- [Whats with the Function<? super T, ? extends Validation<R>> signatures?](#whats-with-the-function-super-t--extends-validationr-signatures)
 - [I have an Invalid validation, how can I know what was wrong?](#i-have-an-invalid-validation-how-can-i-know-what-was-wrong)
 - [How do I combine multiple rules?](#how-do-i-combine-multiple-rules)
 - [How can I negate an existing rule?](#how-can-i-negate-an-existing-rule)
@@ -16,23 +17,25 @@ Welcome to the FAQ for the Iffy Functional Validation (FV) library. If you have 
 - [How can I check that my optional value meets a Rule when it is not empty (but this time empty is NOT allowed)?](#how-can-i-check-that-my-optional-value-meets-a-rule-when-it-is-not-empty-but-this-time-empty-is-not-allowed)
 - [I have a List of things, and I want to check that each entry meets a Rule](#i-have-a-list-of-things-and-i-want-to-check-that-each-entry-meets-a-rule)
 - [Can I also validate Maps?](#can-i-also-validate-maps)
+- [I have a List<Validation<T>>, how can I turn it into a Validation<List<T>>?](#i-have-a-listvalidationt-how-can-i-turn-it-into-a-validationlistt)
 - [I have a String, and want to make sure it's a valid value for a given Enum](#i-have-a-string-and-want-to-make-sure-its-a-valid-value-for-a-given-enum)
 - [I have a Rule for a certain type (e.g., Amount), and now I have another type Transaction that wraps Amount, can I reuse the Amount rule?](#i-have-a-rule-for-a-certain-type-eg-amount-and-now-i-have-another-type-transaction-that-wraps-amount-can-i-reuse-the-amount-rule)
 - [How can I make sure my record or class is created with valid values?](#how-can-i-make-sure-my-record-or-class-is-created-with-valid-values)
 - [Do I need to use Strings to name the values I'm validating?](#do-i-need-to-use-strings-to-name-the-values-im-validating)
 - [In my constructor, I want to be liberal with my input, and only validate the value after changing it](#in-my-constructor-i-want-to-be-liberal-with-my-input-and-only-validate-the-value-after-changing-it)
-- [Ok, but can I do the same when defining a Rule?](#ok-but-can-i-do-the-same-when-defining-a-rule)
 - [Ok, but I want to transform multiple fields in my constructor, how do I get their transformed values?](#ok-but-i-want-to-transform-multiple-fields-in-my-constructor-how-do-i-get-their-transformed-values)
+- [Ok, but can I do the same when defining a Rule?](#ok-but-can-i-do-the-same-when-defining-a-rule)
 - [I have some type whose constructor throws an exception, how can I make a Validation for this type?](#i-have-some-type-whose-constructor-throws-an-exception-how-can-i-make-a-validation-for-this-type)
 - [I have a Validation, but I want to add an extra check on the value](#i-have-a-validation-but-i-want-to-add-an-extra-check-on-the-value)
-- [If I have for example a Rule for Number, can I use it to also validate BigDecimals?](#if-i-have-for-example-a-rule-for-number-can-i-use-it-to-also-validate-a-subtype-like-bigdecimal)
+- [If I have for example a Rule for Number, can I use it to also validate a subtype like BigDecimal?](#if-i-have-for-example-a-rule-for-number-can-i-use-it-to-also-validate-a-subtype-like-bigdecimal)
 - [How can I apply a rule only if a certain condition is met?](#how-can-i-apply-a-rule-only-if-a-certain-condition-is-met)
 - [How can I handle transformations that might throw an exception?](#how-can-i-handle-transformations-that-might-throw-an-exception)
+- [If a validation fails, can I provide a fallback value or another rule to try?](#if-a-validation-fails-can-i-provide-a-fallback-value-or-another-rule-to-try)
 - [What is the difference between `and()`, `andAlso()`, and `Rule.all()`?](#what-is-the-difference-between-and-andalso-and-ruleall)
 - [I want to perform a side effect (like logging) only if a validation is successful.](#i-want-to-perform-a-side-effect-like-logging-only-if-a-validation-is-successful)
 - [How do I perform cross-field validation where one field's validation depends on another?](#how-do-i-perform-cross-field-validation-where-one-field-s-validation-depends-on-another)
 - [How does this library work with standard Java collections vs Vavr collections?](#how-does-this-library-work-with-standard-java-collections-vs-vavr-collections)
-- [Whats with the Function<? super T, ? extends Validation<R>> signatures?](#whats-with-the-function-super-t--extends-validationr-signatures)
+
 ---
 
 ### What is the difference between a `Rule` and a `MappingRule`?
@@ -331,6 +334,45 @@ mapRule.test(Map.of(1, user1, 2, user2)); // Invalid (user_1.must.be...)
 
 ---
 
+### I have a List<Validation<T>>, how can I turn it into a Validation<List<T>>?
+
+When you have a collection of validations and you want to combine them into a single validation containing a list of all successful values (or all accumulated errors if any fail), you can use **`Validation.transpose()`**.
+
+This operation is often called "sequence" in other functional programming libraries.
+
+#### Example: Transposing a List
+```java
+List<Validation<String>> validations = List.of(
+    Validation.valid("A"),
+    Validation.valid("B")
+);
+
+Validation<List<String>> result = Validation.transpose(validations);
+// result is Valid(["A", "B"])
+```
+
+If any of the validations in the list are `Invalid`, the resulting validation will be `Invalid` and will contain **all** the errors from all the invalid entries.
+
+#### Transposing Optionals and Options
+The `transpose` method is also available for `java.util.Optional` and Vavr `Option`. It allows you to flip the container:
+
+*   **`Optional<Validation<T>>`** → **`Validation<Optional<T>>`**
+*   **`Option<Validation<T>>`** → **`Validation<Option<T>>`**
+
+This is useful when you have an optional validation step and you want to treat an empty container as a successful validation of "nothing".
+
+```java
+Optional<Validation<String>> optionalV = someOptional.map(this::validateContent);//returns a Validation.valid("hello")
+Validation<Optional<String>> result = Validation.transpose(optionalV);
+// result is Valid(Optional["hello"])
+
+Optional<Validation<String>> emptyV = Optional.empty();
+Validation<Optional<String>> resultEmpty = Validation.transpose(emptyV);
+// resultEmpty is Valid(Optional.empty())
+```
+
+---
+
 ### I have a String, and want to make sure it's a valid value for a given Enum
 
 You can use the `asEnum(Class<E> clazz)` method found in `StringRules`. This method returns a `MappingRule<String, E>` that validates if the input string matches one of the enum constants and, if successful, transforms it into that enum instance.
@@ -503,8 +545,8 @@ record User(String username, String email) {
     public User {
         // using a var makes this better :)
         Tuple2<String, String> values = assertAllValid(
-            assertThat(username, "username").map(String::trim).is(strings.minLength(3)),
-            assertThat(email, "email").map(String::toLowerCase).is(strings.email())
+            validateThat(username, "username").map(String::trim).is(strings.minLength(3)),
+            validateThat(email, "email").map(String::toLowerCase).is(strings.email())
         );
 
         this.username = values._1; // is trimmed
@@ -638,13 +680,79 @@ Rule<BigDecimal> combined = isMinusFortyTwo.or(isPositive);
 
 ### How can I apply a rule only if a certain condition is met?
 
+Sometimes you only want to validate something if a specific condition is true. The library provides several ways to do this depending on what the condition is based on.
 
+#### 1. Using `Rule.when(boolean, Rule)`
+If you have a simple boolean flag or condition known at the time of validation, use `Rule.when`. If the condition is `false`, the rule is skipped and the result is always `Valid`.
+
+```java
+boolean includeAdvancedChecks = ...;
+Rule<String> rule = Rule.when(includeAdvancedChecks, strings.minLength(10));
+```
+
+#### 2. Using `Rule.choose(boolean, Rule, Rule)`
+If you want to apply one rule if a condition is true, and another if it's false, use `Rule.choose`.
+
+```java
+boolean isNewUser = ...;
+Rule<String> passwordRule = Rule.choose(isNewUser, strings.minLength(12), strings.minLength(8));
+```
+
+#### 3. Using `rule.onlyIf(Predicate<? super T>)`
+If the condition depends on the **value being validated**, use `onlyIf` with a `Predicate`. The rule will only be executed if the predicate matches the value.
+
+```java
+// Only check the length if the string starts with "A"
+Rule<String> rule = strings.minLength(10).onlyIf(s -> s.startsWith("A"));
+```
+
+#### 4. Using `rule.onlyIf(Supplier<Boolean>)`
+You can also use a `Supplier<Boolean>` for dynamic conditions that might change during the application lifecycle.
+
+```java
+Rule<String> rule = strings.minLength(10).onlyIf(() -> config.isValidationEnabled());
+```
 
 ---
 
 ### How can I handle transformations that might throw an exception?
 
-TODO
+Explain the use of `Validation.mapCatching()` and `MappingRule.ofTry()`. Mention that these methods automatically catch exceptions and convert them into `Invalid` results with a configurable error key (defaulting to something like `transformation.failed`).
+
+---
+
+### If a validation fails, can I provide a fallback value or another rule to try?
+
+Yes! You can use **`recoverWith()`** on a `MappingRule` or **`recoverWithRule()`** on a `Rule`. These methods allow you to specify a fallback logic that is only executed if the initial validation fails.
+
+This is particularly useful for migration scenarios (e.g., trying to parse a new format, then falling back to an old one) or for providing default values when an optional field is invalid.
+
+#### Example: Recovering with a fallback rule
+
+```java
+Rule<String> primaryRule = strings.minLength(10);
+Rule<String> fallbackRule = strings.startsWith("D");
+
+Rule<String> combined = primaryRule.recoverWithRule(fallbackRule);
+
+combined.test("too short"); // Invalid (must start with D)
+combined.test("DEFAULT"); // Valid, too short but starts with D
+combined.test("long enough string"); // Valid
+```
+
+#### Example: Recovering with a transformation
+
+If you are using `MappingRule`, you can use `recoverWith` to provide a fallback transformation:
+
+```java
+MappingRule<String, Integer> parseNew = strings.asInt(); // parses "123" -> 123
+MappingRule<String, Integer> parseOld = ...; // some other logic
+
+MappingRule<String, Integer> rule = parseNew.recoverWith(parseOld);
+```
+
+> [!NOTE]
+> The difference between `recoverWith` and `or()` is that `recoverWith` only returns the errors from the **fallback** rule if both fail, whereas `or()` combines the errors from both.
 
 ---
 
@@ -738,4 +846,3 @@ The library is built on top of **Vavr**, but it provides excellent support for b
 *   **Results:** The library internally uses Vavr types for error collection (`io.vavr.collection.List<ErrorMessage>`). If you need a standard Java list of errors, you can use `javaErrors()`.
 
 We recommend using Vavr collections in your domain logic where possible for better functional integration, but the library does not force you to do so in your APIs.
-```
