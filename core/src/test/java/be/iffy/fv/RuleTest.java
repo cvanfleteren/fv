@@ -1394,4 +1394,89 @@ class RuleTest {
                     .isEqualTo("abcdef");
         }
     }
+
+    @Nested
+    class When {
+
+        @Test
+        void when_whenConditionIsTrue_appliesRule() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<String> conditionalRule = Rule.when(true, rule);
+
+            // Act
+            Validation<String> result = conditionalRule.test("hello");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("hello");
+        }
+
+        @Test
+        void when_whenConditionIsTrue_appliesRuleReturnsInvalid() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<String> conditionalRule = Rule.when(true, rule);
+
+            // Act
+            Validation<String> result = conditionalRule.test("he");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("too.short");
+        }
+
+        @Test
+        void when_whenConditionIsFalse_skipsRule() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<String> conditionalRule = Rule.when(false, rule);
+
+            // Act
+            Validation<String> result = conditionalRule.test("hi");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("hi");
+        }
+    }
+
+    @Nested
+    class Choose {
+
+        @Test
+        void choose_whenConditionIsTrue_returnsFirstRuleResult() {
+            // Arrange
+            Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> chosenRule = Rule.choose(true, rule1, rule2);
+
+            // Act
+            Validation<String> result = chosenRule.test("hi");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("too.short");
+        }
+
+        @Test
+        void choose_whenConditionIsFalse_returnsSecondRuleResult() {
+            // Arrange
+            Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> chosenRule = Rule.choose(false, rule1, rule2);
+
+            // Act
+            Validation<String> result = chosenRule.test("hi");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("must.start.with.h");
+        }
+    }
 }

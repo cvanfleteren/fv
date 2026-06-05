@@ -565,5 +565,22 @@ public interface Rule<T> extends MappingRule<T, T> {
                 rule.apply(selector.apply(input))
                         .map(ignore -> input);
     }
+    
+    /**
+     * Only apply the Rule when condition evaluates to {@code true}, return a Valid otherwise without evaluating the Rule.
+     */
+    static <T> Rule<T> when(boolean condition, Rule<T> rule) {
+        return rule.onlyIf(() -> condition);
+    }
+
+    /**
+     * Selects and returns one of the provided rules based on the given condition. As opposed to {@link #when(boolean, Rule)}, there's always
+     * a Rule beinng applied.
+     *
+     * @param condition a boolean determining which rule to select; if true, the first rule is chosen, otherwise the fallback rule
+     */
+    static <T> Rule<T> choose(boolean condition, Rule<T> rule, Rule<T> fallback) {
+        return condition ? rule : fallback;
+    }
 
 }
