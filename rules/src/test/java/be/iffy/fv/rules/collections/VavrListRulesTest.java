@@ -425,6 +425,21 @@ class VavrListRulesTest {
     }
 
     @Nested
+    class AllUnique {
+
+        @Test
+        void valid() {
+            validTest(List.of("a", "b", "s"), vavrLists.allUnique());
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(List.of("a", "b", "a"), vavrLists.allUnique(), "must.be.unique");
+        }
+    }
+
+
+    @Nested
     class MapTests {
 
         @Test

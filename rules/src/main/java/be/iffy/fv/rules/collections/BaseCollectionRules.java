@@ -363,6 +363,21 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
     }
 
     /**
+     * Creates a rule that validates that all elements in the collection are unique.
+     * <p>
+     * Error key: {@code must.be.unique}
+     */
+    public Rule<C> allUnique() {
+        return input -> {
+            if(HashSet.ofAll(input).size() == getSize(input)) {
+                return Validation.valid(input);
+            } else {
+                return Validation.invalid("must.be.unique");
+            }
+        };
+    }
+
+    /**
      * Creates a rule that validates that all values in a list satisfy a given rule.
      * The individual {@link ErrorMessage}s are passed to the final Validation.
      */

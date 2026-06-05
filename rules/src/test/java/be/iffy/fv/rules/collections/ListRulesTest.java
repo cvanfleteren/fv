@@ -403,6 +403,20 @@ class ListRulesTest {
     }
 
     @Nested
+    class AllUnique {
+
+        @Test
+        void valid() {
+            validTest(List.of("a", "b", "s"), lists.allUnique());
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(List.of("a", "b", "a"), lists.allUnique(), "must.be.unique");
+        }
+    }
+
+    @Nested
     class MapTests {
 
         @Test

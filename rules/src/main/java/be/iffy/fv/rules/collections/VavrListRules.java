@@ -268,6 +268,15 @@ public class VavrListRules {
     }
 
     /**
+     * Fails if the List contains duplicates.
+     * <p>
+     * Error key: {@code must.be.unique}
+     */
+    public <T> Rule<List<T>> allUnique() {
+        return VavrListRules.InnerRules.<T>inner().allUnique();
+    }
+
+    /**
      * Fails if one or more entries in the collection fail the passed MappingRule.
      * <p>
      * Error key: whatever the key(s) are that the passed mappingRule returns.
