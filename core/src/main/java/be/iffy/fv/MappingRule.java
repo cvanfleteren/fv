@@ -49,10 +49,12 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
     }
 
     /**
-     * Creates a new MappingRule that applies the given mapper function to the input.
-     * If the supplier throws a {@link ValidationException}, the returned validation will be invalid with the same errors
-     * as the thrown exception.
-     * If the mapper returns a {@link Try.Failure}, the rule will fail with the specified error key.
+     * Creates a MappingRule from a function that returns a Try.
+     * <p>
+     * The mapper itself is invoked directly. If the mapper throws before returning a Try,
+     * that exception is propagated. Only failures represented as Try.Failure are converted into Invalid.
+     * <p>
+     * If the Try fails with {@link ValidationException}, its errors are preserved, otherwise the provided error message is used.
      */
     static <T, R> MappingRule<T, R> ofTry(Function<? super T, ? extends Try<? extends R>> mapper, ErrorMessage errorMessage) {
         Objects.requireNonNull(mapper, "mapper cannot be null");

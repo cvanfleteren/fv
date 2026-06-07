@@ -2260,36 +2260,6 @@ public class ValidationTest {
     }
 
     @Nested
-    class JavaErrors {
-
-        @Test
-        void javaErrors_whenValid_returnsEmptyList() {
-            // Arrange
-            Validation<String> valid = Validation.valid("hello");
-
-            // Act
-            java.util.List<ErrorMessage> result = valid.javaErrors();
-
-            // Assert
-            assertThat(result).isEmpty();
-        }
-
-        @Test
-        void javaErrors_whenInvalid_returnsListOfErrors() {
-            // Arrange
-            ErrorMessage e1 = ErrorMessage.of("error1");
-            ErrorMessage e2 = ErrorMessage.of("error2");
-            Validation<String> invalid = Validation.invalid(e1, e2);
-
-            // Act
-            java.util.List<ErrorMessage> result = invalid.javaErrors();
-
-            // Assert
-            assertThat(result).containsExactly(e1, e2);
-        }
-    }
-
-    @Nested
     class FromOptional {
 
         @Test

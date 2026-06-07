@@ -74,7 +74,7 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
-     * Returns the error messages associated with this validation.
+     * Returns the error messages associated with this validation. Is empty when this Validation is valid.
      *
      * @return a {@link List} of {@link ErrorMessage} objects.
      */
@@ -122,7 +122,7 @@ public sealed interface Validation<T> extends Iterable<T> {
     @SuppressWarnings("unchecked")
     default <U> Validation<U> orElse(Supplier<? extends Validation<? extends U>> supplier) {
         Objects.requireNonNull(supplier, "supplier cannot be null");
-        return isValid() ? (Validation<U>) this : Validation.narrow(supplier.get());
+        return isValid() ? (Validation<U>) this : Validation.narrow(Objects.requireNonNull(supplier.get(),"supplier result cannot be null"));
     }
 
     /**
@@ -142,20 +142,13 @@ public sealed interface Validation<T> extends Iterable<T> {
      * otherwise, does nothing.
      */
     default Validation<T> whenInvalid(Consumer<List<ErrorMessage>> consumer) {
+        Objects.requireNonNull(consumer, "consumer cannot be null");
         if (!isValid()) {
             consumer.accept(errors());
         }
         return this;
     }
 
-    //endregion
-
-    /**
-     * Returns the error messages as a standard Java {@link java.util.List}.
-     */
-    default java.util.List<ErrorMessage> javaErrors() {
-        return errors().asJava();
-    }
     //endregion
 
     //region common functional operations on single validations
@@ -253,7 +246,7 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
-     * Refines this validation allowing a {@link MappingRule} to test its value if this Validation was valid.
+     * Refines this validation allowing a passed Function to test its value if this Validation was valid.
      * Alias for {@link #flatMap(Function)}.
      */
     default <R> Validation<R> refine(Function<? super T, ? extends Validation<R>> refinement) {
@@ -283,6 +276,7 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Maps the error messages of an invalid validation using the provided mapper function.
      * If this validation is valid, the mapper is not applied.
+     * The mapper cannot return an empty List.
      */
     default Validation<T> mapErrors(Function<List<ErrorMessage>, List<ErrorMessage>> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
@@ -331,24 +325,24 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If any validation is invalid, the result will contain all accumulated errors.
      *
      * @param validations the sequence of validations to sequence.
-     * @param at          the path entry under which the errors will be mapped. e.g., at "foo" will result in erromessages like "foo[1].some.message"
+     * @param name          the path entry under which the errors will be mapped. e.g., name "foo" will result in erromessages like "foo[1].some.message"
      *                    if the second entry in the list is invalid.
      */
-    static <T> Validation<List<T>> transpose(Seq<? extends Validation<? extends T>> validations, String at) {
+    static <T> Validation<List<T>> transpose(Seq<? extends Validation<? extends T>> validations, String name) {
         return validations
                 .zipWithIndex()
                 .foldLeft(
                         Validation.valid(List.empty()),
                         (acc, validationWithIndex) -> {
                             if (acc instanceof Valid<List<T>>(var list)) {
-                                Validation<T> v = Validation.narrow(validationWithIndex._1.at(at));
+                                Validation<T> v = Validation.narrow(validationWithIndex._1.at(name));
                                 return switch (v) {
                                     case Valid<T>(var value) -> Validation.valid(list.append(value));
                                     case Invalid(var errors) ->
                                             Validation.invalid(errors.map(error -> error.atIndex(validationWithIndex._2)));
                                 };
                             } else {
-                                Validation<T> v = Validation.narrow(validationWithIndex._1.at(at));
+                                Validation<T> v = Validation.narrow(validationWithIndex._1.at(name));
                                 return switch (v) {
                                     case Valid<T>(var value) -> acc;
                                     case Invalid(var errors) ->
@@ -1008,7 +1002,7 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Represents an invalid validation.
      *
-     * @param errors the list of error messages that describe the validation failure.
+     * @param errors the list of error messages that describe the validation failure. Errors cannot be empty and will be deduplicated.
      */
     record Invalid(List<ErrorMessage> errors) implements Validation<Object> {
 
