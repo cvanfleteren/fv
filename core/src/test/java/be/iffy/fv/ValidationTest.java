@@ -57,8 +57,8 @@ public class ValidationTest {
         void constructor_whenGivenEmptyErrors_throwsIllegalStateException() {
             // Act & Assert
             assertThatCode(() -> new Validation.Invalid(List.of()))
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessage("errors cannot be empty");
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("errors must be non-empty");
         }
 
         @Test
@@ -274,7 +274,7 @@ public class ValidationTest {
                     .isInstanceOf(NullPointerException.class);
         }
     }
-    
+
     @Nested
     class Map {
 
@@ -298,13 +298,11 @@ public class ValidationTest {
             Validation<String> valid = Validation.valid("123");
 
             // Act
-            Validation<Integer> result = valid.map(i -> {throw new ValidationException(List.of(ErrorMessage.of("invalid")));});
-
-            // Assert
-            assertThatValidation(result)
-                    .isInvalid()
-                    .errorMessages()
-                    .contains("invalid");
+            assertThatThrownBy(() -> valid.map(i -> {
+                        throw new ValidationException(List.of(ErrorMessage.of("invalid")));
+                    })
+            ).isInstanceOf(ValidationException.class)
+             .hasMessage("invalid");
         }
 
         @Test
@@ -352,17 +350,32 @@ public class ValidationTest {
         }
 
         @Test
-        void mapCatching_whenValidAndMapperThrows_returnsInvalidWithDefaultErrorMessage() {
+        void mapCatching_whenValidAndMapperThrowsValidationException_returnsInvalidWithDefaultErrorMessage() {
             // Arrange
             Validation<String> valid = Validation.valid("abc");
 
             // Act
-            Validation<Integer> result = valid.mapCatching(Integer::parseInt);
+            Validation<Integer> result = valid.mapCatching(v -> {
+                throw new ValidationException("foo");
+            });
 
             // Assert
             assertThatValidation(result)
                     .isInvalid()
-                    .hasErrorMessage("could.not.be.mapped");
+                    .hasErrorMessage("foo");
+        }
+
+        @Test
+        void mapCatching_whenValidAndMapperThrowOtherException_rethrows() {
+            // Arrange
+            Validation<String> valid = Validation.valid("abc");
+
+            // Act & Assert
+            assertThatThrownBy(() -> valid.mapCatching(v -> {
+                throw new IllegalStateException("foo");
+            }))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("foo");
         }
 
         @Test
@@ -381,34 +394,6 @@ public class ValidationTest {
         }
 
         @Test
-        void mapCatchingWithErrorMessage_whenValidAndMapperSucceeds_returnsMappedValue() {
-            // Arrange
-            Validation<String> valid = Validation.valid("123");
-
-            // Act
-            Validation<Integer> result = valid.mapCatching(Integer::parseInt, "custom.error");
-
-            // Assert
-            assertThatValidation(result)
-                    .isValid()
-                    .isEqualTo(123);
-        }
-
-        @Test
-        void mapCatchingWithErrorMessage_whenValidAndMapperThrows_returnsInvalidWithCustomErrorMessage() {
-            // Arrange
-            Validation<String> valid = Validation.valid("abc");
-
-            // Act
-            Validation<Integer> result = valid.mapCatching(Integer::parseInt, "custom.error");
-
-            // Assert
-            assertThatValidation(result)
-                    .isInvalid()
-                    .hasErrorMessage("custom.error");
-        }
-
-        @Test
         void mapCatching_whenMapperIsNull_throwsNullPointerException() {
             // Arrange
             Validation<String> valid = Validation.valid("Success");
@@ -417,17 +402,6 @@ public class ValidationTest {
             assertThatCode(() -> valid.mapCatching(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("mapper cannot be null");
-        }
-
-        @Test
-        void mapCatching_whenErrorMessageIsNull_throwsNullPointerException() {
-            // Arrange
-            Validation<String> valid = Validation.valid("Success");
-
-            // Act & Assert
-            assertThatCode(() -> valid.mapCatching(Integer::parseInt, null))
-                    .isInstanceOf(NullPointerException.class)
-                    .hasMessage("errorKey cannot be null");
         }
     }
 
@@ -539,35 +513,16 @@ public class ValidationTest {
         }
 
         @Test
-        void flatMapCatching_whenValidAndFlatMapperThrowsRuntimeException_becomesInvalidWithDefaultErrorMessage() {
+        void flatMapCatching_whenValidAndFlatMapperThrowsRuntimeException_rethrowsException() {
             // Arrange
             Validation<String> valid = Validation.valid("abc");
 
-            // Act
-            Validation<Integer> result = valid.flatMapCatching(s -> {
-                throw new RuntimeException("boom");
-            });
-
-            // Assert
-            assertThatValidation(result)
-                    .isInvalid()
-                    .hasErrorMessage("could.not.be.mapped");
-        }
-
-        @Test
-        void flatMapCatching_whenValidAndFlatMapperThrowsRuntimeException_becomesInvalidWithCustomErrorMessage() {
-            // Arrange
-            Validation<String> valid = Validation.valid("abc");
-
-            // Act
-            Validation<Integer> result = valid.flatMapCatching(s -> {
-                throw new RuntimeException("boom");
-            }, "custom.error");
-
-            // Assert
-            assertThatValidation(result)
-                    .isInvalid()
-                    .hasErrorMessage("custom.error");
+            // Act & Assert
+            assertThatThrownBy(() -> valid.flatMapCatching(s -> {
+                throw new IllegalArgumentException("boom");
+            }))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("boom");
         }
 
         @Test
@@ -598,17 +553,6 @@ public class ValidationTest {
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("flatMapper cannot be null");
         }
-
-        @Test
-        void flatMapCatching_whenErrorMessageIsNull_throwsNullPointerException() {
-            // Arrange
-            Validation<String> valid = Validation.valid("Success");
-
-            // Act & Assert
-            assertThatCode(() -> valid.flatMapCatching(s -> Validation.valid(1), null))
-                    .isInstanceOf(NullPointerException.class)
-                    .hasMessage("errorKey cannot be null");
-        }
     }
 
     @Nested
@@ -622,7 +566,7 @@ public class ValidationTest {
             // Act
             CharSequence result = valid.fold(
                     errors -> "Invalid: " + errors.size(),
-                    (CharSequence value) -> (CharSequence)("Valid: " + value)
+                    (CharSequence value) -> (CharSequence) ("Valid: " + value)
             );
 
             // Assert
@@ -1038,7 +982,8 @@ public class ValidationTest {
     @Nested
     class At {
 
-        private record TestBean(String name) {}
+        private record TestBean(String name) {
+        }
 
         @Test
         void at_withPropertySelector_whenValid_returnsSameValidValidation() {
@@ -1814,7 +1759,7 @@ public class ValidationTest {
 
     @Nested
     class GetOrElse {
-    
+
         @Test
         void getOrElse_whenValid_returnsValueIgnoringFallback() {
             // Arrange
@@ -1928,8 +1873,13 @@ public class ValidationTest {
     @Nested
     class FromTry {
 
-        private <T> Try<T> success(T value) { return Try.success(value); }
-        private <T> Try<T> failure(Throwable t) { return Try.failure(t); }
+        private <T> Try<T> success(T value) {
+            return Try.success(value);
+        }
+
+        private <T> Try<T> failure(Throwable t) {
+            return Try.failure(t);
+        }
 
         @Test
         void from_whenTrySucceeds_returnsValidValidation() {
@@ -1966,13 +1916,13 @@ public class ValidationTest {
 
         @Test
         void from_whenTryFails_takesErrorMessagesFromValidationException() {
-            Try<String> tryVal = failure(new ValidationException(List.of(ErrorMessage.of("foo"),ErrorMessage.of("bar"))));
+            Try<String> tryVal = failure(new ValidationException(List.of(ErrorMessage.of("foo"), ErrorMessage.of("bar"))));
 
             Validation<Object> v = Validation.from(tryVal);
 
             assertThatValidation(v)
                     .isInvalid()
-                    .hasErrorMessages("foo","bar");
+                    .hasErrorMessages("foo", "bar");
         }
     }
 
@@ -2238,7 +2188,7 @@ public class ValidationTest {
             );
 
             // Act
-            Validation<java.util.List<String>> result = Validation.transpose(validations,"collection");
+            Validation<java.util.List<String>> result = Validation.transpose(validations, "collection");
 
             // Assert
             assertThatValidation(result)

@@ -2,7 +2,6 @@ package be.iffy.fv.test.examples;
 
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
-import be.iffy.fv.rules.Rules;
 import be.iffy.fv.rules.text.StringOps;
 
 import static be.iffy.fv.dsl.DSL.after;

@@ -24,10 +24,10 @@ class ExceptionHandlingTest {
         @Test
         void map_whenMapperThrowsValidationException_capturesErrors() {
             Validation<String> valid = Validation.valid("test");
-            Validation<Integer> result = valid.map(s -> {
+
+            assertThatThrownBy(() -> valid.map(s -> {
                 throw new ValidationException(List.of(ErrorMessage.of("inner.error")));
-            });
-            assertThatValidation(result).isInvalid().hasErrorKeys("inner.error");
+            })).isInstanceOf(ValidationException.class);
         }
 
         @Test

@@ -18,7 +18,15 @@ public class ValidationException extends RuntimeException {
     public ValidationException(List<ErrorMessage> errors) {
         // we don't use the formattedMessage because that could potentially become very big
         super(errors.map(ErrorMessage::message).mkString(", "));
+        if(errors.isEmpty()) {
+            throw new IllegalArgumentException("Errors must be non-empty");
+        }
         this.errors = errors;
+    }
+
+    public ValidationException(String errorKey) {
+        super(errorKey);
+        this.errors = List.of(ErrorMessage.of(errorKey));
     }
 
     /**

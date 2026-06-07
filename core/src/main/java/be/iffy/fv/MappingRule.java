@@ -40,7 +40,9 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
 
     /**
      * Creates a new MappingRule that applies the given mapper function to the input.
-     * If the mapper throws an exception, the rule will fail with the specified error message.
+     * If the supplier throws a {@link ValidationException}, the returned validation will be invalid with the same errors
+     * as the thrown exception.
+     * If the mapper throws any other exceptions, the rule will fail with the specified error message.
      */
     static <T, R> MappingRule<T, R> of(Function<? super T, ? extends R> mapper, String errorKey) {
         return of(mapper, ErrorMessage.of(errorKey));
@@ -48,6 +50,8 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
 
     /**
      * Creates a new MappingRule that applies the given mapper function to the input.
+     * If the supplier throws a {@link ValidationException}, the returned validation will be invalid with the same errors
+     * as the thrown exception.
      * If the mapper returns a {@link Try.Failure}, the rule will fail with the specified error key.
      */
     static <T, R> MappingRule<T, R> ofTry(Function<? super T, ? extends Try<? extends R>> mapper, ErrorMessage errorMessage) {
@@ -81,8 +85,8 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
 
     /**
      * Creates a new MappingRule that applies the given mapper function to the input.
-     * If the mapper throws an exception, the rule will fail with the specified error message.
-     * If the mapper throws ValidationException, the rule will fail with its errors.
+     * If the throwingMapper throws an exception, the rule will fail with the specified error message.
+     * If the throwingMapper throws {@link ValidationException}, the rule will fail with its errors.
      */
     static <T, R> MappingRule<T, R> of(Function<? super T, ? extends R> throwingMapper, ErrorMessage errorMessage) {
         Objects.requireNonNull(throwingMapper, "mapper cannot be null");

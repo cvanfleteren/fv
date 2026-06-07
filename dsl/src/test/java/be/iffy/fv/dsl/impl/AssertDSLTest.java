@@ -100,12 +100,12 @@ class AssertDSLTest {
         @Test
         void map_whenTransformationThrows_throwsValidationException() {
 
-            Transformation<String> t = s -> {throw new RuntimeException(s);};
+            Transformation<String> t = s -> {throw new IllegalArgumentException(s);};
 
             assertThatThrownBy(() -> assertThat("boom", "field")
                     .map(t)
                     .isNotNull())
-                    .isInstanceOf(ValidationException.class);
+                    .isInstanceOf(IllegalArgumentException.class);
         }
     }
 }

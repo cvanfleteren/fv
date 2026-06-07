@@ -7,7 +7,6 @@ import be.iffy.fv.Validation;
 import static be.iffy.fv.dsl.DSL.assertAllValid;
 import static be.iffy.fv.dsl.DSL.validateThat;
 import static be.iffy.fv.dsl.DSLSnippets.ExampleIntRules.ints;
-import static be.iffy.fv.dsl.DSLSnippets.ExampleStringRules.strings;
 import static be.iffy.fv.rules.Rules.strings;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

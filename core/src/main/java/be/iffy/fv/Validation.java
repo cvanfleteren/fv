@@ -7,7 +7,6 @@ import io.vavr.collection.Seq;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -187,60 +186,29 @@ public sealed interface Validation<T> extends Iterable<T> {
     //region common functional operations on single validations
 
     /**
-     * Transforms the valid value using the provided mapper.
-     * If the mapper throws {@link ValidationException}, the validation will become invalid with the exception's errors.
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "map"}
+     * Transforms the valid value using the provided mapper. If the mapper throws any Exceptions, they will be rethrown.
+     * Use {@link #mapCatching(Function)} if you want to handle {@link ValidationException}s thrown by the mapper.
      */
     default <R> Validation<R> map(Function<? super T, ? extends R> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
         return (Validation<R>) switch (this) {
-            case Valid(var value) ->
-                    Try.of(() ->
-                        Validation.<R>valid(mapper.apply(value))
-                    ).recover(ValidationException.class, ve -> Validation.<R>invalid(ve.errors()))
-                    .get();
+            case Valid(var value) -> Validation.<R>valid(mapper.apply(value));
             default -> (Validation<R>) this;
         };
     }
 
     /**
-     * Like {@link #map(Function)}, but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
+     * Like {@link #map(Function)}, but catches {@link ValidationException}s thrown by the mapper and turns them into an invalid validation.
      * So this method does NOT have pure map semantics but is an easy alternative to having to flatMap and handle errors yourself.
-     * <p>
-     * <b>This method is somewhat dangerous because if the mapper function starts throwing totally unexpected Exceptions, they might get buried as "failed validations".</b>
-     * <p>
-     * {@link ValidationException}s that are thrown are handled cleanly, accumulating the errors present.
-     *
-     * <p>
-     * Error key: {@code could.not.be.mapped} but not if the mapper threw a {@link ValidationException}, in that case it's errors are used.
      */
     default <R> Validation<R> mapCatching(Function<? super T, ? extends R> mapper) {
-        return mapCatching(mapper, "could.not.be.mapped");
-    }
-
-    /**
-     * Like {@link #map(Function)}, but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
-     * So this method does NOT have pure map semantics but is an easy alternative to having to flatMap and handle errors yourself.
-     * <p>
-     * <b>This method is somewhat dangerous because if the mapper function starts throwing totally unexpected Exceptions, they might get buried as "failed validations".</b>
-     * <p>
-     * {@link ValidationException}s that are thrown are handled cleanly, accumulating the errors present.
-     *
-     * <p>Example: mapping that throws a RuntimeException with custom error message
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "mapCatching_customError"}
-     *
-     */
-    default <R> Validation<R> mapCatching(Function<? super T, ? extends R> mapper, String errorKey) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
-        Objects.requireNonNull(errorKey, "errorKey cannot be null");
         return switch (this) {
             case Valid(var value) -> {
                 try {
                     yield new Valid<>(mapper.apply(value));
                 } catch (ValidationException e) {
                     yield Validation.invalid(e.errors());
-                } catch (RuntimeException e) {
-                    yield Validation.invalid(errorKey);
                 }
             }
             default -> (Validation<R>) this;
@@ -248,9 +216,8 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
-     * Maps a valid value to a new validation, or returns this if invalid.
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "flatMap"}
-     *
+     * Maps a valid value to a new validation, or returns this if invalid.  If the mapper throws any Exceptions, they will be rethrown.
+     * Use {@link #flatMapCatching(Function)} if you want to handle {@link ValidationException}s thrown by the mapper.
      */
     default <R> Validation<R> flatMap(Function<? super T, Validation<? extends R>> flatMapper) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
@@ -261,41 +228,16 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
-     * Like {@link #flatMap(Function)}, but also catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
-     * <p>
-     * <b>This method is somewhat dangerous because if the mapper function starts throwing totally unexpected Exceptions, they might get buried as "failed validations".</b>
-     * <p>
-     * {@link ValidationException}s that are thrown are handled cleanly, accumulating the errors present.
-     *
-     * <p>Example: successful flatMapping
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "flatMapCatching_success"}
-     *
-     * <p>Example: flatMapping that throws a RuntimeException
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "flatMapCatching_runtimeException"}
+     * Like {@link #flatMap(Function)}, but catches {@link ValidationException}s thrown by the mapper and turns them into an invalid validation.
      */
     default <R> Validation<R> flatMapCatching(Function<? super T, Validation<? extends R>> flatMapper) {
-        return flatMapCatching(flatMapper, "could.not.be.mapped");
-    }
-
-    /**
-     * Like {@link #flatMap(Function)}, but catches runtime exceptions thrown by the mapper and turns them into an invalid validation.
-     * <p>
-     * <b>This method is somewhat dangerous because if the mapper function starts throwing totally unexpected Exceptions, they might get buried as "failed validations".</b>
-     * <p>
-     * {@link ValidationException}s that are thrown are handled cleanly, accumulating the errors present.
-     *
-     */
-    default <R> Validation<R> flatMapCatching(Function<? super T, Validation<? extends R>> flatMapper, String errorKey) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
-        Objects.requireNonNull(errorKey, "errorKey cannot be null");
         return switch (this) {
             case Valid(var value) -> {
                 try {
                     yield Validation.narrow(flatMapper.apply(value));
                 } catch (ValidationException e) {
                     yield Validation.invalid(e.errors());
-                } catch (RuntimeException e) {
-                    yield Validation.invalid(errorKey);
                 }
             }
             default -> (Validation<R>) this;
@@ -381,9 +323,6 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Transforms a {@link Seq} of {@link Validation}s into a single {@code Validation} of a {@link List}.
      * If any validation is invalid, the result will contain all accumulated errors.
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "transpose_seq"}
      *
      * @param validations the sequence of validations to sequence.
      */
@@ -394,12 +333,9 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Transforms a {@link Seq} of {@link Validation}s into a single {@code Validation} of a {@link List}.
      * If any validation is invalid, the result will contain all accumulated errors.
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "transpose_seq"}
      *
      * @param validations the sequence of validations to sequence.
-     * @param at          the path entry under which the errors will be mapped. e.g. at "foo" will get erromessages like "foo[1].some.message"
+     * @param at          the path entry under which the errors will be mapped. e.g., at "foo" will result in erromessages like "foo[1].some.message"
      *                    if the second entry in the list is invalid.
      */
     static <T> Validation<List<T>> transpose(Seq<? extends Validation<? extends T>> validations, String at) {
@@ -430,9 +366,6 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Transforms a {@code Option<Validation<T>>} into a {@code Validation<Option<T>>}.
      * If the Option is empty, the resulting Validation is considered to be {@link Valid}
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "transpose_option"}
      *
      */
     static <T> Validation<Option<T>> transpose(Option<? extends Validation<? extends T>> option) {
@@ -445,9 +378,6 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Transforms a {@code Optional<Validation<T>>} into a {@code Validation<Optional<T>>}.
      * If the Optional is empty, the resulting Validation is considered to be {@link Valid}
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "transpose_optional"}
      *
      */
     static <T> Validation<Optional<T>> transpose(Optional<? extends Validation<? extends T>> option) {
@@ -458,9 +388,6 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Transforms a {@link java.util.Collection} of {@link Validation}s into a single {@code Validation} of a {@link java.util.List}.
      * If any validation is invalid, the result will contain all accumulated errors.
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "transpose_collection"}
      *
      * @param validations the collection of validations to sequence.
      * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
@@ -473,9 +400,6 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Transforms a {@link java.util.Collection} of {@link Validation}s into a single {@code Validation} of a {@link java.util.List}.
      * If any validation is invalid, the result will contain all accumulated errors.
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "transpose_collection"}
      *
      * @param validations the collection of validations to sequence.
      * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
@@ -838,7 +762,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Creates a {@link Validation} from a {@link Supplier}.
      * If the supplier throws a {@link ValidationException}, the returned validation will be invalid with the same errors
      * as the thrown exception.
-     * If the supplier throws any other exception, the exception will be propagated. Use {@link Validation#from(Try)} if you want to catch all possible excetions.
+     * If the supplier throws any other exception, the exception will be propagated. Use {@link Validation#from(Try)} if you want to catch all possible exceptions.
      * This method is meant for interoperability with code that can throw {@link ValidationException}, for example
      * when using the "validate in constructor" pattern.
      */
@@ -852,12 +776,14 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Creates a {@link Validation} from a {@link Try}.
+     * If the Try throws a {@link ValidationException}, the returned validation will be invalid with the same errors
+     * as the thrown exception.
      * If the {@link Try} is successful, the returned validation will be valid with the value.
      * If the {@link Try} is failed, the returned validation will be invalid with the provided error message.
      */
     static <T> Validation<T> from(Try<? extends T> _try, ErrorMessage errorMessage) {
         return _try.fold(
-                ignored -> Validation.invalid(errorMessage),
+                e -> (e instanceof ValidationException ve) ? Validation.invalid(ve.errors()) : Validation.invalid(errorMessage),
                 Validation::valid
         );
     }
@@ -873,12 +799,14 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Creates a {@link Validation} from a {@link Try}.
+     * If the Try failed with a {@link ValidationException}, the returned validation will be invalid with the same errors
+     * as the thrown ValidationException.
      * If the {@link Try} is successful, the returned validation will be valid with the value.
-     * If the {@link Try} is failed, the returned validation will be invalid with the message of the thrown exception.
+     * If the {@link Try} is failed, the returned validation will be invalid with the message of the thrown exception or "failed.from.try" if the thrown exception has a null message.
      */
     static <T> Validation<T> from(Try<? extends T> _try) {
         return _try.fold(
-                e -> (e instanceof ValidationException ve) ? Validation.invalid(ve.errors()) : Validation.invalid(Objects.requireNonNullElse(e.getMessage(),"failed.from.try")),
+                e -> (e instanceof ValidationException ve) ? Validation.invalid(ve.errors()) : Validation.invalid(Objects.requireNonNullElse(e.getMessage(), "failed.from.try")),
                 Validation::valid
         );
     }
@@ -1038,7 +966,7 @@ public sealed interface Validation<T> extends Iterable<T> {
         public Invalid {
             Objects.requireNonNull(errors, "errors cannot be null");
             if (errors.isEmpty()) {
-                throw new IllegalStateException("errors cannot be empty");
+                throw new IllegalArgumentException("errors must be non-empty");
             }
             errors = errors.distinct();
         }

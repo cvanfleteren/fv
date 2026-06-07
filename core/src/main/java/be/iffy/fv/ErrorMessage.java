@@ -17,12 +17,11 @@ import java.util.Objects;
  * @param paths      the list of {@link Path} segments leading to the erroneous value.
  * @param parameters a map of dynamic parameters for the error message.
  */
-public record ErrorMessage(String errorKey, List<Path> paths, Map<String, Object> parameters) {
+public record ErrorMessage(String errorKey, List<Path> paths, Map<String, @Nullable Object> parameters) {
 
     /**
      * Creates a new {@link ErrorMessage}.
      *
-     
      */
     public ErrorMessage {
         Objects.requireNonNull(errorKey, "errorKey cannot be null");
@@ -34,8 +33,6 @@ public record ErrorMessage(String errorKey, List<Path> paths, Map<String, Object
      * Creates an {@link ErrorMessage} with the given key.
      *
      * @param errorKey the error errorKey key.
-     * @return a new {@link ErrorMessage} instance.
-     
      */
     public static ErrorMessage of(String errorKey) {
         return new ErrorMessage(errorKey, List.of(), HashMap.empty());
@@ -46,8 +43,6 @@ public record ErrorMessage(String errorKey, List<Path> paths, Map<String, Object
      *
      * @param message    the error message key.
      * @param parameters the dynamic parameters.
-     * @return a new {@link ErrorMessage} instance.
-     
      */
     public static ErrorMessage of(String message, Map<String, Object> parameters) {
         return new ErrorMessage(message, List.of(), parameters);
@@ -59,8 +54,6 @@ public record ErrorMessage(String errorKey, List<Path> paths, Map<String, Object
      * @param message the error message key.
      * @param key     the parameter name.
      * @param value   the parameter value.
-     * @return a new {@link ErrorMessage} instance.
-     
      */
     public static ErrorMessage of(String message, String key, @Nullable Object value) {
         return of(message, HashMap.of(key, value));
@@ -70,7 +63,6 @@ public record ErrorMessage(String errorKey, List<Path> paths, Map<String, Object
      * Prepends a {@link Path} segment to this error message.
      *
      * @param path the path segment to prepend.
-     * @return a new {@link ErrorMessage} with the prepended path.
      */
     public ErrorMessage prepend(Path path) {
         if (!paths.isEmpty() && paths.head().index.isDefined() && paths.head().text.isEmpty() && path.index.isEmpty()) {
@@ -86,7 +78,6 @@ public record ErrorMessage(String errorKey, List<Path> paths, Map<String, Object
      * If no paths exist, a new empty path segment with the given index is prepended.
      *
      * @param index the index (e.g., collection index or map key).
-     * @return a new {@link ErrorMessage} with the index applied.
      */
     public ErrorMessage atIndex(Object index) {
         if (paths.isEmpty()) {

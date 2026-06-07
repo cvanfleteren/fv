@@ -80,13 +80,6 @@ public class ValidationSnippets {
         // @end
     }
 
-    void mapCatching_customError() {
-        // @start region="mapCatching_customError"
-        Validation<String> v = Validation.valid("NaN");
-        Validation<Integer> result = v.mapCatching(Integer::parseInt, "not.a.number"); // returns Invalid("not.a.number")
-        // @end
-    }
-
     void flatMap() {
         // @start region="flatMap"
         Validation<String> v = Validation.valid("42");
@@ -108,13 +101,6 @@ public class ValidationSnippets {
         // @start region="flatMapCatching_runtimeException"
         Validation<String> v = Validation.valid("NaN");
         Validation<Integer> result = v.flatMapCatching(s -> Validation.valid(Integer.parseInt(s))); // returns Invalid("could.not.be.mapped")
-        // @end
-    }
-
-    void flatMapCatching_customError() {
-        // @start region="flatMapCatching_customError"
-        Validation<String> v = Validation.valid("NaN");
-        Validation<Integer> result = v.flatMapCatching(s -> Validation.valid(Integer.parseInt(s)), "not.a.number"); // returns Invalid("not.a.number")
         // @end
     }
 
