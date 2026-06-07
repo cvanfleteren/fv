@@ -734,18 +734,25 @@ Validation<ProcessedUser> processedV = userV.mapCatching(user -> new ProcessedUs
 > [!NOTE]
 > Other exceptions (like `RuntimeException` or `NullPointerException`) are **not** caught by these methods and will still be rethrown.
 
-#### `Validation.fromCatchingAll`
-If you need to catch **any** exception (not just `ValidationException`), you can use **`Validation.fromCatchingAll`**. 
+#### `Validation.fromCatchingAll` and `flatMapCatchingAll`
+If you need to catch **any** exception (not just `ValidationException`), you can use **`Validation.fromCatchingAll`** (static method) or **`flatMapCatchingAll`** (instance method).
 
-This static method takes a supplier and an error message (or an error key).
-- If the supplier succeeds, it returns `Valid`.
-- If the supplier throws a `ValidationException`, it returns `Invalid` with the errors from the exception.
-- If the supplier throws any other exception, it returns `Invalid` with the provided error message.
+These methods take an additional error message (or an error key) to use when an unexpected `RuntimeException` occurs.
+- If the operation succeeds, it returns `Valid`.
+- If a `ValidationException` is thrown, it returns `Invalid` with the errors from the exception.
+- If any other `RuntimeException` is thrown, it returns `Invalid` with the provided fallback error message.
 
 ```java
+// Using the static method to create a Validation from a throwing supplier
 Validation<URL> urlV = Validation.fromCatchingAll(
     () -> new URL(inputString), 
     "invalid.url"
+);
+
+// Using the instance method to chain a potentially throwing operation
+Validation<Integer> result = someValidation.flatMapCatchingAll(
+    s -> Validation.valid(Integer.parseInt(s)),
+    ErrorMessage.of("must.be.a.number")
 );
 ```
 

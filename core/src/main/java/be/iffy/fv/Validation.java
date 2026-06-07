@@ -220,6 +220,27 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
+     * Like {@link #flatMap(Function)}, but catches all {@link Exception}s thrown by the mapper and turns them into an invalid validation.
+     * Like {@link #flatMapCatching(Function)}, if a {@link ValidationException} is thrown, it's errors are used for the resulting Invalid.
+     */
+    default <R> Validation<R> flatMapCatchingAll(Function<? super T, Validation<? extends R>> flatMapper, ErrorMessage errorMessage) {
+        Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
+        Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
+        return switch (this) {
+            case Valid(var value) -> {
+                try {
+                    yield Validation.narrow(flatMapper.apply(value));
+                } catch (ValidationException e) {
+                    yield Validation.invalid(e.errors());
+                } catch (RuntimeException e) {
+                    yield Validation.invalid(errorMessage);
+                }
+            }
+            default -> (Validation<R>) this;
+        };
+    }
+
+    /**
      * Folds this validation into a single value by applying one of two functions.
      */
     default <R> R fold(Function<List<ErrorMessage>, ? extends R> whenInvalid, Function<? super T, ? extends R> whenValid) {

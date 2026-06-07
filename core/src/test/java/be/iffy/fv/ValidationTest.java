@@ -557,6 +557,117 @@ public class ValidationTest {
     }
 
     @Nested
+    class FlatMapCatchingAll {
+
+        @Test
+        void flatMapCatchingAll_whenValidAndFlatMapperReturnsValid_returnsThatValidation() {
+            // Arrange
+            Validation<String> valid = Validation.valid("123");
+            ErrorMessage error = ErrorMessage.of("fallback.error");
+
+            // Act
+            Validation<Integer> result = valid.flatMapCatchingAll(s -> Validation.valid(Integer.parseInt(s)), error);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo(123);
+        }
+
+        @Test
+        void flatMapCatchingAll_whenValidAndFlatMapperReturnsInvalid_returnsThatInvalid() {
+            // Arrange
+            Validation<String> valid = Validation.valid("whatever");
+            ErrorMessage error = ErrorMessage.of("some.error");
+            ErrorMessage fallbackError = ErrorMessage.of("fallback.error");
+
+            // Act
+            Validation<Integer> result = valid.flatMapCatchingAll(s -> Validation.invalid(error), fallbackError);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("some.error");
+        }
+
+        @Test
+        void flatMapCatchingAll_whenInvalid_returnsSameInvalidInstance() {
+            // Arrange
+            ErrorMessage error = ErrorMessage.of("Error");
+            Validation<String> invalid = Validation.invalid(error);
+            ErrorMessage fallbackError = ErrorMessage.of("fallback.error");
+
+            // Act
+            Validation<Integer> result = invalid.flatMapCatchingAll(s -> Validation.valid(Integer.parseInt(s)), fallbackError);
+
+            // Assert
+            assertThat(result).isSameAs(invalid);
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("Error");
+        }
+
+        @Test
+        void flatMapCatchingAll_whenValidAndFlatMapperThrowsRuntimeException_becomesInvalidWithErrorMessage() {
+            // Arrange
+            Validation<String> valid = Validation.valid("abc");
+            ErrorMessage fallbackError = ErrorMessage.of("fallback.error");
+
+            // Act
+            Validation<Integer> result = valid.flatMapCatchingAll(s -> {
+                throw new IllegalArgumentException("boom");
+            }, fallbackError);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("fallback.error");
+        }
+
+        @Test
+        void flatMapCatchingAll_whenValidAndFlatMapperThrowsValidationException_becomesInvalidWithThoseErrors() {
+            // Arrange
+            Validation<String> valid = Validation.valid("abc");
+            ErrorMessage e1 = ErrorMessage.of("error1");
+            ErrorMessage e2 = ErrorMessage.of("error2");
+            ErrorMessage fallbackError = ErrorMessage.of("fallback.error");
+
+            // Act
+            Validation<Integer> result = valid.flatMapCatchingAll(s -> {
+                throw new ValidationException(List.of(e1, e2));
+            }, fallbackError);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error1", "error2");
+        }
+
+        @Test
+        void flatMapCatchingAll_whenFlatMapperIsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+            ErrorMessage fallbackError = ErrorMessage.of("fallback.error");
+
+            // Act & Assert
+            assertThatCode(() -> valid.flatMapCatchingAll(null, fallbackError))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("flatMapper cannot be null");
+        }
+
+        @Test
+        void flatMapCatchingAll_whenErrorMessageIsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+
+            // Act & Assert
+            assertThatCode(() -> valid.flatMapCatchingAll(s -> Validation.valid(1), null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("errorMessage cannot be null");
+        }
+    }
+
+    @Nested
     class Fold {
 
         @Test
