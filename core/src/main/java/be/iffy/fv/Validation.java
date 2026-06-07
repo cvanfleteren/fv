@@ -54,6 +54,22 @@ import java.util.function.Supplier;
  * }
  * }</pre>
  *
+ * <h2>Exception handling</h2>
+ *
+ * <p>Most {@code Validation} operations do not catch unexpected runtime exceptions.
+ * Methods such as {@link #map(Function)}, {@link #flatMap(Function)},
+ * {@code mapN(...)} and {@code flatMapN(...)} are intended for regular functional
+ * composition. If a mapper throws, the exception is propagated.
+ *
+ * <p>Use methods whose names contain {@code Catching}, or {@link #from(Try, String)},
+ * when you intentionally want to convert {@link ValidationException} into validation errors.
+ *
+ * <p>Use methods whose names contain {@code CatchingAll}, or {@link #fromCatchingAll(Supplier, String)},
+ * when you intentionally want to convert <em>ANY Exception</em> into validation errors.
+ *
+ * <p>{@link ValidationException} is used by imperative validation APIs such as
+ * {@code getOrElseThrow()} and constructor validation helpers. APIs that explicitly
+ * catch validation failures preserve the errors contained in the exception.
  */
 public sealed interface Validation<T> extends Iterable<T> {
 
@@ -122,7 +138,29 @@ public sealed interface Validation<T> extends Iterable<T> {
     @SuppressWarnings("unchecked")
     default <U> Validation<U> orElse(Supplier<? extends Validation<? extends U>> supplier) {
         Objects.requireNonNull(supplier, "supplier cannot be null");
-        return isValid() ? (Validation<U>) this : Validation.narrow(Objects.requireNonNull(supplier.get(),"supplier result cannot be null"));
+        return isValid() ? (Validation<U>) this : Validation.narrow(Objects.requireNonNull(supplier.get(), "supplier result cannot be null"));
+    }
+
+    /**
+     * Converts the current result into an Optional containing the value if present,
+     * or an empty Optional if the result represents an error
+     */
+    default Optional<T> toOptional() {
+        return this.fold(
+                e -> Optional.empty(),
+                Optional::of
+        );
+    }
+
+    /**
+     * Converts the current result into an Optional containing the value if present,
+     * or an empty Optional if the result represents an error
+     */
+    default Option<T> toOption() {
+        return this.fold(
+                e -> Option.none(),
+                Option::of
+        );
     }
 
     /**
@@ -154,7 +192,7 @@ public sealed interface Validation<T> extends Iterable<T> {
     //region common functional operations on single validations
 
     /**
-     * Transforms the valid value using the provided mapper. If the mapper throws any Exceptions, they will be rethrown.
+     * Transforms the valid value using the provided mapper. If the mapper throws any {@link RuntimeException}s, they will be rethrown.
      * Use {@link #mapCatching(Function)} if you want to handle {@link ValidationException}s thrown by the mapper.
      */
     default <R> Validation<R> map(Function<? super T, ? extends R> mapper) {
@@ -184,7 +222,7 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
-     * Maps a valid value to a new validation, or returns this if invalid.  If the mapper throws any Exceptions, they will be rethrown.
+     * Maps a valid value to a new validation, or returns this if invalid.  If the mapper throws any {@link RuntimeException}s, they will be rethrown.
      * Use {@link #flatMapCatching(Function)} if you want to handle {@link ValidationException}s thrown by the mapper.
      */
     default <R> Validation<R> flatMap(Function<? super T, Validation<? extends R>> flatMapper) {
@@ -246,7 +284,6 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
-     * Refines this validation allowing a passed Function to test its value if this Validation was valid.
      * Alias for {@link #flatMap(Function)}.
      */
     default <R> Validation<R> refine(Function<? super T, ? extends Validation<R>> refinement) {
@@ -254,8 +291,9 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
-     * Applies a filter to the current validation logic using the specified predicate and error message.
-     * This method refines the validation by adding a rule that fails if the provided predicate fails.
+     * If this validation is valid, applies the predicate to its value.
+     * If the predicate returns false, returns Invalid(errorMessage).
+     * If this validation is already invalid, returns it unchanged.
      */
     default Validation<T> filter(Predicate<? super T> predicate, ErrorMessage errorMessage) {
         Rule<T> rule = Rule.narrow(Rule.of(predicate, errorMessage));
@@ -263,8 +301,9 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
-     * Applies a filter to the current validation logic using the specified predicate and error message key.
-     * This method refines the validation by adding a rule that fails if the provided predicate fails.
+     * If this validation is valid, applies the predicate to its value.
+     * If the predicate returns false, returns Invalid(errorKey).
+     * If this validation is already invalid, returns it unchanged.
      */
     default Validation<T> filter(Predicate<? super T> predicate, String errorKey) {
         return filter(predicate, ErrorMessage.of(errorKey));
@@ -288,7 +327,6 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Maps error messages by prepending the given name to the segments of each error message.
-     * Empty / null names will be ignored.
      *
      * @param name a logical name for the value being validated (e.g., the name of the field).
      * @return a new {@link Validation} instance.
@@ -325,7 +363,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If any validation is invalid, the result will contain all accumulated errors.
      *
      * @param validations the sequence of validations to sequence.
-     * @param name          the path entry under which the errors will be mapped. e.g., name "foo" will result in erromessages like "foo[1].some.message"
+     * @param name        the path entry under which the errors will be mapped. e.g., name "foo" will result in errormessages like "foo[1].some.message"
      *                    if the second entry in the list is invalid.
      */
     static <T> Validation<List<T>> transpose(Seq<? extends Validation<? extends T>> validations, String name) {
@@ -947,7 +985,6 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Narrows a {@code Validation<? super T>} to a {@code Validation<T>}.
-     *
      */
     @SuppressWarnings("unchecked")
     static <T> Validation<T> narrowSuper(Validation<? super T> validation) {
@@ -964,11 +1001,15 @@ public sealed interface Validation<T> extends Iterable<T> {
     default Validation<T> peek(Consumer<? super T> action) {
         Objects.requireNonNull(action, "action cannot be null");
         if (isValid()) {
-            action.accept(((Valid<T>) this).get());
+            action.accept(((Valid<T>) this).value());
         }
         return this;
     }
 
+    /**
+     * If this validation is valid, return a new Valid with the passed value.
+     * If this validation is already invalid, returns it unchanged.
+     */
     default <U> Validation<U> mapTo(U value) {
         return map(ignored -> value);
     }
@@ -988,10 +1029,6 @@ public sealed interface Validation<T> extends Iterable<T> {
         @Override
         public boolean isValid() {
             return true;
-        }
-
-        public T get() {
-            return value;
         }
 
         public Iterator<T> iterator() {

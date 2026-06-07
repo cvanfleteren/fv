@@ -1867,6 +1867,31 @@ public class ValidationTest {
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("supplier cannot be null");
         }
+
+        @Test
+        void orElseSupplier_whenInvalidAndSupplierReturnsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("error");
+
+            // Act & Assert
+            assertThatThrownBy(() -> invalid.orElse(() -> null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("supplier result cannot be null");
+        }
+
+        @Test
+        void orElseSupplier_whenValidAndSupplierReturnsNull_returnsValid() {
+            // Arrange
+            Validation<String> valid = Validation.valid("actual");
+
+            // Act
+            Validation<String> result = valid.orElse((Supplier<Validation<String>>) () -> null);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("actual");
+        }
     }
 
     @Nested
@@ -1936,6 +1961,62 @@ public class ValidationTest {
                     .isInstanceOf(ValidationException.class)
                     .extracting(ex -> ((ValidationException) ex).errors())
                     .isEqualTo(List.of(e1, e2));
+        }
+    }
+
+    @Nested
+    class ToOptional {
+
+        @Test
+        void toOptional_whenValid_returnsOptionalWithValue() {
+            // Arrange
+            Validation<String> valid = Validation.valid("actual");
+
+            // Act
+            Optional<String> result = valid.toOptional();
+
+            // Assert
+            assertThat(result).contains("actual");
+        }
+
+        @Test
+        void toOptional_whenInvalid_returnsEmptyOptional() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("error");
+
+            // Act
+            Optional<String> result = invalid.toOptional();
+
+            // Assert
+            assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    class ToOption {
+
+        @Test
+        void toOption_whenValid_returnsOptionWithValue() {
+            // Arrange
+            Validation<String> valid = Validation.valid("actual");
+
+            // Act
+            Option<String> result = valid.toOption();
+
+            // Assert
+            assertThat(result).contains("actual");
+        }
+
+        @Test
+        void toOption_whenInvalid_returnsNone() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("error");
+
+            // Act
+            Option<String> result = invalid.toOption();
+
+            // Assert
+            assertThat(result).isEmpty();
         }
     }
 
