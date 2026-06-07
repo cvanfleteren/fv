@@ -85,13 +85,6 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Returns the valid value, or throws {@link ValidationException} if this validation is invalid.
      *
-     * <p>Example: successful retrieval
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "getOrElseThrow_success"}
-     *
-     * <p>Example: handling validation failure
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "getOrElseThrow_failure"}
-     *
-     * @return the valid value.
      * @throws ValidationException if this validation is invalid.
      */
     default T getOrElseThrow() {
@@ -103,9 +96,6 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Returns the valid value, or the passed {@code defaultValue} if invalid.
-     *
-     * <p>Example:
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "getOrElse"}
      */
     default T getOrElse(T defaultValue) {
         return switch (this) {
@@ -116,11 +106,6 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Returns this validation if it is valid; otherwise returns the specified alternative validation.
-     *
-     * <p>Example:
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "orElse_value"}
-     *
-     * @param other the alternative validation.
      */
     @SuppressWarnings("unchecked")
     default <U> Validation<U> orElse(Validation<? extends U> other) {
@@ -131,9 +116,6 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Returns this validation if it is valid; otherwise returns the alternative validation
      * provided by the {@link Supplier}.
-     *
-     * <p>Example:
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "orElse_supplier"}
      *
      * @param supplier the alternative validation supplier.
      */
@@ -147,9 +129,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Executes the given consumer on the contained value if this {@code Validation} is valid;
      * otherwise, does nothing. This method is an alias for {@link #peek(Consumer)}.
      *
-     * <p>Example:
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "whenValid"}
-     *
      * @param consumer a consumer to apply to the contained value.
      * @return this {@code Validation} instance.
      * @see #peek(Consumer)
@@ -161,10 +140,6 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Executes the given consumer on the contained errors if this {@code Validation} is invalid;
      * otherwise, does nothing.
-     *
-     * <p>Example:
-     * {@snippet file = "be/iffy/fv/ValidationSnippets.java" region = "whenInvalid"}
-     *
      */
     default Validation<T> whenInvalid(Consumer<List<ErrorMessage>> consumer) {
         if (!isValid()) {

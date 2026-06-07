@@ -19,9 +19,6 @@ public class OptionalRules {
      * Fails if the {@link Optional} is empty while extracting the value from the {@link Optional}.
      * <p>
      * Error key: {@code must.not.be.empty}
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/rules/functional/OptionalSnippets.java" region = "required-example"}
      */
     public <T> MappingRule<Optional<T>, T> required() {
         return MappingRule.<Optional<T>>notNull().then(input ->

@@ -91,8 +91,6 @@ public class MapRules {
      * <ul>
      *     <li>{@code keys}: the set of keys that have {@code null} values ({@link Set})</li>
      * </ul>
-     *
-     * @return a {@link Rule} checking that all values in the map are non-null.
      */
     public <K, V> Rule<Map<K, V>> valuesNotNull() {
         return Rule.notNull().and(map -> {
@@ -113,11 +111,6 @@ public class MapRules {
 
     /**
      * Fails if not all values pass the {@code rule}.
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/rules/collections/MapRulesSnippets.java" region = "validate-values-with-example"}
-     *
-     * @param rule the rule to apply to each value.
      */
     public <K, V> Rule<Map<K, V>> validateValuesWith(Rule<? super V> rule) {
         return Rule.notNull().and(map -> {

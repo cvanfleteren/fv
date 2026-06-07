@@ -190,9 +190,6 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     /**
      * Fails if the input string is not a valid enum value for the given enum class while mapping to the enum. Is NOT case-sensitive.
      * <p>
-     * Usage example:
-     * {@snippet file="be/iffy/fv/rules/ObjectRulesSnippets.java" region="is-enum-example"}
-     * <p>
      * Error key: {@code must.be.valid.enum.value}
      * <p>
      * Parameters:
@@ -221,7 +218,6 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <ul>
      *     <li>{@code value}: the input string ({@link String})</li>
      * </ul>
-     *
      */
     public <E extends Enum<E>> Rule<String> canBeEnum(Class<E> clazz) {
         Objects.requireNonNull(clazz, "clazz cannot be null");

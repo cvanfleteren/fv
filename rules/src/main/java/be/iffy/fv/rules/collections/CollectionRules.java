@@ -147,10 +147,6 @@ public class CollectionRules {
 
     /**
      * Fails if one of the elements in the list does not match the passed {@link Rule}.
-     * <p>
-     * Usage example:
-     * {@snippet file="be/iffy/fv/rules/collections/CollectionRulesSnippets.java" region="all-match-rule-example"}
-     *
      */
     public <T> Rule<Collection<T>> allMatchRule(Rule<T> rule) {
         return CollectionRules.InnerRules.<T>inner().allMatchRule(rule);
@@ -160,10 +156,6 @@ public class CollectionRules {
      * Fails if any element in the collection matches the given {@link Rule}.
      * <p>
      * Error key: {@code must.none.match}
-     *
-     
-     * @param rule the Rule to test each element against.
-     * @return a {@link Rule} that validates if none of the elements match the {@link Rule}.
      */
     public <T> Rule<Collection<T>> noneMatchRule(Rule<T> rule) {
         return CollectionRules.InnerRules.<T>inner().noneMatchRule(rule);

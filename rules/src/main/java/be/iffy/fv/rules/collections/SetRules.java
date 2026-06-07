@@ -150,10 +150,6 @@ public class SetRules {
 
     /**
      * Fails if one of the elements in the list does not match the passed {@link Rule}.
-     * <p>
-     * Usage example:
-     * {@snippet file="be/iffy/fv/rules/collections/CollectionRulesSnippets.java" region="all-match-rule-example"}
-     *
      */
     public <T> Rule<Set<T>> allMatchRule(Rule<T> rule) {
         return InnerRules.<T>inner().allMatchRule(rule);
@@ -163,7 +159,6 @@ public class SetRules {
      * Fails if any element in the collection matches the given {@link Rule}.
      * <p>
      * Error key: {@code must.none.match}
-     *
      */
     public <T> Rule<Set<T>> noneMatchRule(Rule<T> rule) {
         return InnerRules.<T>inner().noneMatchRule(rule);

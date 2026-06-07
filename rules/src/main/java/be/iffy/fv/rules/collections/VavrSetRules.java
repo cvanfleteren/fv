@@ -170,10 +170,6 @@ public class VavrSetRules {
 
     /**
      * Fails if one of the elements in the list does not match the passed {@link Rule}.
-     * <p>
-     * Usage example:
-     * {@snippet file="be/iffy/fv/rules/collections/CollectionRulesSnippets.java" region="all-match-rule-example"}
-     *
      */
     public <T> Rule<Set<T>> allMatchRule(Rule<T> rule) {
         return InnerRules.<T>inner().allMatchRule(rule);

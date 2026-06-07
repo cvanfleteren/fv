@@ -165,10 +165,6 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
 
     /**
      * Fails if one of the elements in the list does not match the passed {@link Rule}.
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/rules/collections/CollectionRulesSnippets.java" region = "all-match-rule-example"}
-     *
      */
     public Rule<C> allMatchRule(Rule<T> rule) {
         return validateValuesWith(rule);
@@ -178,10 +174,6 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
      * Fails if any element in the collection matches the given {@link Rule}.
      * <p>
      * Error key: {@code must.none.match}
-     *
-     
-     * @param rule the Rule to test each element against.
-     * @return a {@link Rule} that validates if none of the elements match the {@link Rule}.
      */
     public Rule<C> noneMatchRule(Rule<T> rule) {
         return noneMatch(rule.toPredicate());
@@ -232,9 +224,6 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
      * <ul>
      *     <li>{@code element}: the required element ({@code T})</li>
      * </ul>
-     *
-     * @param element the element to check for.
-     * @return a {@link Rule} that validates if the collection contains the element.
      */
     public Rule<C> contains(T element) {
         return Rule.of(
@@ -299,14 +288,9 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
      *     <li>{@code key}: the key label ({@link String})</li>
      *     <li>{@code duplicates}: the duplicate keys and their indices ({@link Map})</li>
      * </ul>
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/rules/collections/CollectionRulesSnippets.java" region = "unique-by-example"}
      *
-     
      * @param keyExtractor the function to extract the unique key.
      * @param key          the label for the key (e.g., "email").
-     * @return a {@link Rule} checking for uniqueness by key.
      */
     public <K> Rule<C> uniqueBy(Function1<T, K> keyExtractor, String key) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");

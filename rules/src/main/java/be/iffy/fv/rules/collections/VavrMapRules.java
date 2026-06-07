@@ -46,8 +46,6 @@ public class VavrMapRules {
      *     <li>{@code key}: the required key ({@code K})</li>
      * </ul>
      *
-     
-     
      * @param key the required key.
      * @return a {@link Rule} checking for the presence of the key.
      */
@@ -96,10 +94,6 @@ public class VavrMapRules {
      * <ul>
      *     <li>{@code keys}: the set of keys that have {@code null} values ({@link Set})</li>
      * </ul>
-     *
-     
-     
-     * @return a {@link Rule} checking that all values in the map are non-null.
      */
     public <K,V> Rule<Map<K,V>> valuesNotNull() {
         return Rule.notNull().and(map -> {
@@ -114,14 +108,6 @@ public class VavrMapRules {
 
     /**
      * Fails if not all values pass the {@code rule}.
-     * <p>
-     * Usage example:
-     * {@snippet file = "be/iffy/fv/rules/collections/MapRulesSnippets.java" region = "validate-values-with-example"}
-     *
-     
-     
-     * @param rule the rule to apply to each value.
-     * @return a {@link Rule} that validates all map values.
      */
     public <K,V> Rule<Map<K,V>> validateValuesWith(Rule<? super V> rule) {
         return Rule.notNull().and(map -> {

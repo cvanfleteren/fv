@@ -15,9 +15,6 @@ import java.util.function.Supplier;
 /**
  * Entry point for the functional validation API.
  * This class provides static factory methods to create and execute validations.
- *
- * <h2>Example: Constructor validation using {@code assertAllValid}</h2>
- * {@snippet file = "be/iffy/fv/dsl/DSLSnippets.java" region = "assert-all-tuple-example"}
  */
 public class DSL {
 
@@ -118,9 +115,6 @@ public class DSL {
      * Asserts that all provided validations are valid, otherwise throws a {@link ValidationException} with all errors.
      * This method is useful in constructors or at the boundaries of your application where you want to ensure
      * that data is valid before proceeding
-     * <p>
-     * <b>Example:</b>
-     * {@snippet file = "be/iffy/fv/dsl/DSLSnippets.java" region = "assert-all-valid-example"}
      *
      * @throws ValidationException if any validation is invalid.
      */
