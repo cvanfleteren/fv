@@ -29,7 +29,7 @@ Welcome to the FAQ for the Iffy Functional Validation (FV) library. If you have 
 - [I have a Validation, but I want to add an extra check on the value](#i-have-a-validation-but-i-want-to-add-an-extra-check-on-the-value)
 - [If I have for example a Rule for Number, can I use it to also validate a subtype like BigDecimal?](#if-i-have-for-example-a-rule-for-number-can-i-use-it-to-also-validate-a-subtype-like-bigdecimal)
 - [How can I apply a rule only if a certain condition is met?](#how-can-i-apply-a-rule-only-if-a-certain-condition-is-met)
-- [How can I handle transformations that might throw an exception?](#how-can-i-handle-transformations-that-might-throw-an-exception)
+- [What's the difference between methods like map and mapCatching? What does catchingAll mean?](#whats-the-difference-between-methods-like-map-and-mapcatching-what-does-catchingall-mean)
 - [If a validation fails, can I provide a fallback value or another rule to try?](#if-a-validation-fails-can-i-provide-a-fallback-value-or-another-rule-to-try)
 - [What is the difference between `and()`, `andAlso()`, and `Rule.all()`?](#what-is-the-difference-between-and-andalso-and-ruleall)
 - [I want to perform a side effect (like logging) only if a validation is successful.](#i-want-to-perform-a-side-effect-like-logging-only-if-a-validation-is-successful)
@@ -715,9 +715,44 @@ Rule<String> rule = strings.minLength(10).onlyIf(() -> config.isValidationEnable
 
 ---
 
-### How can I handle transformations that might throw an exception?
+### What's the difference between methods like map and mapCatching? What does catchingAll mean?
 
-Explain the use of `Validation.mapCatching()` and `MappingRule.ofTry()`. Mention that these methods automatically catch exceptions and convert them into `Invalid` results with a configurable error key (defaulting to something like `transformation.failed`).
+The standard **`map`** and **`flatMap`** methods follow pure functional semantics: they expect the mapping function to be successful. If the function throws an exception (even a `ValidationException`), it will propagate up the call stack.
+
+#### `mapCatching` and `flatMapCatching`
+These methods are specifically designed to bridge the gap between "fail-fast" validation (which throws `ValidationException`) and "accumulating" validation (which returns `Validation` objects).
+
+If the function passed to `mapCatching` or `flatMapCatching` throws a **`ValidationException`**, the exception is caught, and its errors are automatically converted into an `Invalid` result. This allows you to use methods that throw exceptions inside a functional chain without manually catching them.
+
+```java
+Validation<User> userV = validateThat(dto).is(userRule);
+
+// If User constructor throws ValidationException, mapCatching captures it
+Validation<ProcessedUser> processedV = userV.mapCatching(user -> new ProcessedUser(user));
+```
+
+> [!NOTE]
+> Other exceptions (like `RuntimeException` or `NullPointerException`) are **not** caught by these methods and will still be rethrown.
+
+#### `Validation.fromCatchingAll`
+If you need to catch **any** exception (not just `ValidationException`), you can use **`Validation.fromCatchingAll`**. 
+
+This static method takes a supplier and an error message (or an error key).
+- If the supplier succeeds, it returns `Valid`.
+- If the supplier throws a `ValidationException`, it returns `Invalid` with the errors from the exception.
+- If the supplier throws any other exception, it returns `Invalid` with the provided error message.
+
+```java
+Validation<URL> urlV = Validation.fromCatchingAll(
+    () -> new URL(inputString), 
+    "invalid.url"
+);
+```
+
+#### `MappingRule.ofTry` and `MappingRule.of`
+Similar to `mapCatching`, you can create rules that handle exceptions using `MappingRule.ofTry` (for functions returning a Vavr `Try`) or `MappingRule.of(throwingMapper, errorMessage)` (for functions that might throw an exception).
+
+These are useful when you want to encapsulate the exception handling logic directly inside a reusable `Rule` or `MappingRule`.
 
 ---
 
