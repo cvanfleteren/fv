@@ -767,11 +767,64 @@ public sealed interface Validation<T> extends Iterable<T> {
      * when using the "validate in constructor" pattern.
      */
     static <T> Validation<T> from(Supplier<? extends T> supplier) {
+        Objects.requireNonNull(supplier, "supplier cannot be null");
         try {
             return Validation.valid(supplier.get());
         } catch (ValidationException e) {
             return Validation.invalid(e.errors());
         }
+    }
+
+    /**
+     * Creates a {@link Validation} from a {@link Supplier}.
+     * If the supplier throws a {@link ValidationException}, the returned validation will be invalid with the same errors
+     * as the thrown exception.
+     * If the supplier throws any other exception, the exception will also be converted to an Invalid, with the {@link ErrorMessage} created by the errorMessageMaker function.
+     * This method is meant for interoperability with code that can throw any {@link RuntimeException}, but is also somewhat dangerous
+     * as it can hide issues like {@link NullPointerException} and so on.
+     */
+    static <T> Validation<T> fromCatchingAll(Supplier<? extends T> supplier, Function<Exception, ErrorMessage> errorMessageMaker) {
+        Objects.requireNonNull(supplier, "supplier cannot be null");
+        Objects.requireNonNull(errorMessageMaker, "errorMessageMaker cannot be null");
+        try {
+            return Validation.valid(supplier.get());
+        } catch (ValidationException e) {
+            return Validation.invalid(e.errors());
+        } catch (RuntimeException e) {
+            return Validation.invalid(errorMessageMaker.apply(e));
+        }
+    }
+
+    /**
+     * Creates a {@link Validation} from a {@link Supplier}.
+     * If the supplier throws a {@link ValidationException}, the returned validation will be invalid with the same errors
+     * as the thrown exception.
+     * If the supplier throws any other exception, the exception will also be converted to an Invalid, with the passed {@link ErrorMessage}
+     * This method is meant for interoperability with code that can throw any {@link RuntimeException}, but is also somewhat dangerous
+     * as it can hide issues like {@link NullPointerException} and so on.
+     */
+    static <T> Validation<T> fromCatchingAll(Supplier<? extends T> supplier, ErrorMessage errorMessage) {
+        Objects.requireNonNull(supplier, "supplier cannot be null");
+        Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
+        try {
+            return Validation.valid(supplier.get());
+        } catch (ValidationException e) {
+            return Validation.invalid(e.errors());
+        } catch (RuntimeException e) {
+            return Validation.invalid(errorMessage);
+        }
+    }
+
+    /**
+     * Creates a {@link Validation} from a {@link Supplier}.
+     * If the supplier throws a {@link ValidationException}, the returned validation will be invalid with the same errors
+     * as the thrown exception.
+     * If the supplier throws any other exception, the exception will also be converted to an Invalid, with the passed {@link ErrorMessage}
+     * This method is meant for interoperability with code that can throw any {@link RuntimeException}, but is also somewhat dangerous
+     * as it can hide issues like {@link NullPointerException} and so on.
+     */
+    static <T> Validation<T> fromCatchingAll(Supplier<? extends T> supplier, String errorMessage) {
+        return fromCatchingAll(supplier, ErrorMessage.of(errorMessage));
     }
 
     /**

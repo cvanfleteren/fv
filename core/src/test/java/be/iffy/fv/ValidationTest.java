@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static be.iffy.fv.Rule.nullOk;
@@ -1867,6 +1868,119 @@ public class ValidationTest {
             assertThatThrownBy(() -> Validation.from(() -> {
                 throw boom;
             })).isSameAs(boom);
+        }
+    }
+
+    @Nested
+    class FromCatchingAll {
+
+        @Test
+        void fromCatchingAll_whenSupplierReturnsValue_returnsValidWithThatValue() {
+            // Arrange
+            ErrorMessage error = ErrorMessage.of("error");
+
+            // Act
+            Validation<String> result = Validation.fromCatchingAll(() -> "expected", error);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("expected");
+        }
+
+        @Test
+        void fromCatchingAll_whenSupplierThrowsValidationException_returnsInvalidWithSameErrors() {
+            // Arrange
+            ErrorMessage e1 = ErrorMessage.of("e1");
+            ErrorMessage e2 = ErrorMessage.of("e2");
+            ErrorMessage error = ErrorMessage.of("error");
+
+            // Act
+            Validation<Object> result = Validation.fromCatchingAll(() -> {
+                throw new ValidationException(List.of(e1, e2));
+            }, error);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("e1", "e2");
+        }
+
+        @Test
+        void fromCatchingAll_whenSupplierThrowsRuntimeException_returnsInvalidWithProvidedErrorMessage() {
+            // Arrange
+            ErrorMessage error = ErrorMessage.of("error");
+
+            // Act
+            Validation<Object> result = Validation.fromCatchingAll(() -> {
+                throw new RuntimeException("boom");
+            }, error);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error");
+        }
+
+        @Test
+        void fromCatchingAll_whenSupplierThrowsRuntimeException_returnsInvalidWithProvidedErrorMessageString() {
+            // Arrange && Act
+            Validation<Object> result = Validation.fromCatchingAll(() -> {
+                throw new RuntimeException("boom");
+            }, "error");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error");
+        }
+
+        @Test
+        void fromCatchingAll_withFunction_whenSupplierReturnsValue_returnsValidWithThatValue() {
+            // Arrange
+            Function<Exception, ErrorMessage> mapper = e -> ErrorMessage.of("error");
+
+            // Act
+            Validation<String> result = Validation.fromCatchingAll(() -> "expected", mapper);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("expected");
+        }
+
+        @Test
+        void fromCatchingAll_withFunction_whenSupplierThrowsValidationException_returnsInvalidWithSameErrors() {
+            // Arrange
+            ErrorMessage e1 = ErrorMessage.of("e1");
+            Function<Exception, ErrorMessage> mapper = e -> ErrorMessage.of("mapper");
+
+            // Act
+            Validation<Object> result = Validation.fromCatchingAll(() -> {
+                throw new ValidationException(List.of(e1));
+            }, mapper);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("e1");
+        }
+
+        @Test
+        void fromCatchingAll_withFunction_whenSupplierThrowsRuntimeException_returnsInvalidWithErrorMessageFromFunction() {
+            // Arrange
+            RuntimeException boom = new RuntimeException("boom");
+            Function<Exception, ErrorMessage> mapper = e -> ErrorMessage.of(e.getMessage().toUpperCase());
+
+            // Act
+            Validation<Object> result = Validation.fromCatchingAll(() -> {
+                throw boom;
+            }, mapper);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("BOOM");
         }
     }
 
