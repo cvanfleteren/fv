@@ -934,11 +934,16 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the Try failed with a {@link ValidationException}, the returned validation will be invalid with the same errors
      * as the thrown ValidationException.
      * If the {@link Try} is successful, the returned validation will be valid with the value.
-     * If the {@link Try} is failed, the returned validation will be invalid with the message of the thrown exception or "failed.from.try" if the thrown exception has a null message.
+     * If the {@link Try} is failed, the returned validation will be invalid with the error key "failed.from.try"
+     * and param "message" representing the message of the exception
      */
     static <T> Validation<T> from(Try<? extends T> _try) {
         return _try.fold(
-                e -> (e instanceof ValidationException ve) ? Validation.invalid(ve.errors()) : Validation.invalid(Objects.requireNonNullElse(e.getMessage(), "failed.from.try")),
+                e ->
+                    (e instanceof ValidationException ve) ?
+                    Validation.invalid(ve.errors()) :
+                    Validation.invalid(ErrorMessage.of("failed.from.try", "message",e.getMessage()))
+                ,
                 Validation::valid
         );
     }

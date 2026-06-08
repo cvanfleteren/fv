@@ -2281,7 +2281,7 @@ public class ValidationTest {
 
             assertThatValidation(v)
                     .isInvalid()
-                    .hasErrorMessages("foo");
+                    .formattedMessages().containsExactly("failed.from.try:{message:foo}");
         }
 
         @Test
