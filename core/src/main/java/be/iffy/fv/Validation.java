@@ -219,6 +219,42 @@ public sealed interface Validation<T> extends Iterable<T> {
             }
             default -> (Validation<R>) this;
         };
+    }   
+
+    /**
+     * Like {@link #mapCatching(Function)}, but catches all {@link Exception}s thrown by the mapper and turns them into an invalid validation.
+     * So this method does NOT have pure map semantics but is an easy alternative to having to flatMap and handle errors yourself.
+     * If an exception other than {@link ValidationException} is thrown, the exception's message is used as the error key.
+     */
+    default <R> Validation<R> mapCatchingAll(Function<? super T, ? extends R> mapper, ErrorMessage errorMessage) {
+        return mapCatchingAll(mapper, e -> errorMessage);
+    }
+
+    /**
+     * Like {@link #mapCatchingAll(Function, ErrorMessage)}, but uses the provided error key if an unexpected exception occurs.
+     */
+    default <R> Validation<R> mapCatchingAll(Function<? super T, ? extends R> mapper, String errorKey) {
+        return mapCatchingAll(mapper, ErrorMessage.of(errorKey));
+    }
+
+    /**
+     * Like {@link #mapCatchingAll(Function, ErrorMessage)}, but uses the provided mapper to create an {@link ErrorMessage} if an unexpected exception occurs.
+     */
+    default <R> Validation<R> mapCatchingAll(Function<? super T, ? extends R> mapper, Function<Exception, ErrorMessage> errorMessageMaker) {
+        Objects.requireNonNull(mapper, "mapper cannot be null");
+        Objects.requireNonNull(errorMessageMaker, "errorMessageMaker cannot be null");
+        return switch (this) {
+            case Valid(var value) -> {
+                try {
+                    yield new Valid<>(mapper.apply(value));
+                } catch (ValidationException e) {
+                    yield Validation.invalid(e.errors());
+                } catch (Exception e) {
+                    yield Validation.invalid(errorMessageMaker.apply(e));
+                }
+            }
+            default -> (Validation<R>) this;
+        };
     }
 
     /**
@@ -252,19 +288,34 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Like {@link #flatMap(Function)}, but catches all {@link Exception}s thrown by the mapper and turns them into an invalid validation.
-     * Like {@link #flatMapCatching(Function)}, if a {@link ValidationException} is thrown, it's errors are used for the resulting Invalid.
+     * Like {@link #flatMapCatching(Function)}, if a {@link ValidationException} is thrown, its errors are used for the resulting Invalid.
+     * If an exception other than {@link ValidationException} is thrown, the provided {@link ErrorMessage} is used.
      */
     default <R> Validation<R> flatMapCatchingAll(Function<? super T, Validation<? extends R>> flatMapper, ErrorMessage errorMessage) {
+        return flatMapCatchingAll(flatMapper, e -> errorMessage);
+    }
+
+    /**
+     * Like {@link #flatMapCatchingAll(Function, ErrorMessage)}, but uses the provided error key.
+     */
+    default <R> Validation<R> flatMapCatchingAll(Function<? super T, Validation<? extends R>> flatMapper, String errorKey) {
+        return flatMapCatchingAll(flatMapper, ErrorMessage.of(errorKey));
+    }
+
+    /**
+     * Like {@link #flatMapCatchingAll(Function, ErrorMessage)}, but uses the provided mapper to create an {@link ErrorMessage}.
+     */
+    default <R> Validation<R> flatMapCatchingAll(Function<? super T, Validation<? extends R>> flatMapper, Function<Exception, ErrorMessage> errorMessageMaker) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
-        Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
+        Objects.requireNonNull(errorMessageMaker, "errorMessageMaker cannot be null");
         return switch (this) {
             case Valid(var value) -> {
                 try {
                     yield Validation.narrow(flatMapper.apply(value));
                 } catch (ValidationException e) {
                     yield Validation.invalid(e.errors());
-                } catch (RuntimeException e) {
-                    yield Validation.invalid(errorMessage);
+                } catch (Exception e) {
+                    yield Validation.invalid(errorMessageMaker.apply(e));
                 }
             }
             default -> (Validation<R>) this;
@@ -808,7 +859,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the supplier throws a {@link ValidationException}, the returned validation will be invalid with the same errors
      * as the thrown exception.
      * If the supplier throws any other exception, the exception will also be converted to an Invalid, with the {@link ErrorMessage} created by the errorMessageMaker function.
-     * This method is meant for interoperability with code that can throw any {@link RuntimeException}, but is also somewhat dangerous
+     * This method is meant for interoperability with code that can throw any {@link Exception}, but is also somewhat dangerous
      * as it can hide issues like {@link NullPointerException} and so on.
      */
     static <T> Validation<T> fromCatchingAll(Supplier<? extends T> supplier, Function<Exception, ErrorMessage> errorMessageMaker) {
@@ -818,7 +869,7 @@ public sealed interface Validation<T> extends Iterable<T> {
             return Validation.valid(supplier.get());
         } catch (ValidationException e) {
             return Validation.invalid(e.errors());
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             return Validation.invalid(errorMessageMaker.apply(e));
         }
     }
@@ -838,7 +889,7 @@ public sealed interface Validation<T> extends Iterable<T> {
             return Validation.valid(supplier.get());
         } catch (ValidationException e) {
             return Validation.invalid(e.errors());
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             return Validation.invalid(errorMessage);
         }
     }
@@ -848,7 +899,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the supplier throws a {@link ValidationException}, the returned validation will be invalid with the same errors
      * as the thrown exception.
      * If the supplier throws any other exception, the exception will also be converted to an Invalid, with the passed {@link ErrorMessage}
-     * This method is meant for interoperability with code that can throw any {@link RuntimeException}, but is also somewhat dangerous
+     * This method is meant for interoperability with code that can throw any {@link Exception}, but is also somewhat dangerous
      * as it can hide issues like {@link NullPointerException} and so on.
      */
     static <T> Validation<T> fromCatchingAll(Supplier<? extends T> supplier, String errorMessage) {
@@ -909,8 +960,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Creates a {@link Validation} from an {@link Option}.
      * If the {@link Option} is defined, the returned validation will be valid with the value.
      * If the {@link Option} is empty, the returned validation will be invalid with the provided error message key.
-     * <p>
-     * Error key: {@code value.is.none}
      */
     static <T> Validation<T> from(Option<? extends T> option, String errorKey) {
         return from(option, ErrorMessage.of(errorKey));
@@ -922,7 +971,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the {@link Option} is empty, the returned validation will be invalid with the default error message {@code "value.is.none"}.
      * <p>
      * Error key: {@code value.is.none}
-     *
      */
     static <T> Validation<T> from(Option<? extends T> option) {
         return from(option, "value.is.none");
@@ -954,7 +1002,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Creates a {@link Validation} from a standard Java {@link java.util.Optional}.
      * If the optional is present, the returned validation will be valid with the value.
      * If the optional is empty, the returned validation will be invalid with the provided error key.
-     *
      */
     static <T> Validation<T> from(Optional<? extends T> optional, String errorKey) {
         return from(Option.ofOptional(optional), errorKey);
@@ -964,7 +1011,6 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Creates a {@link Validation} from a standard Java {@link java.util.Optional}.
      * If the optional is present, the returned validation will be valid with the value.
      * If the optional is empty, the returned validation will be invalid with the provided error message.
-     *
      */
     static <T> Validation<T> from(Optional<? extends T> optional, ErrorMessage errorMessage) {
         return from(Option.ofOptional(optional), errorMessage);

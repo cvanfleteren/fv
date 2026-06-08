@@ -407,6 +407,54 @@ public class ValidationTest {
     }
 
     @Nested
+    class MapCatchingAll {
+
+        @Test
+        void mapCatchingAllWithErrorMessage_whenValidAndMapperThrowsRuntimeException_becomesInvalidWithErrorMessage() {
+            // Arrange
+            Validation<String> valid = Validation.valid("abc");
+            ErrorMessage error = ErrorMessage.of("fallback");
+
+            // Act
+            Validation<Integer> result = valid.mapCatchingAll(v -> {
+                throw new RuntimeException("Unexpected error");
+            }, error);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("fallback");
+        }
+
+        @Test
+        void mapCatchingAllWithErrorKey_whenValidAndMapperThrowsRuntimeException_becomesInvalidWithErrorMessage() {
+            // Arrange
+            Validation<String> valid = Validation.valid("abc");
+
+            // Act
+            Validation<Integer> result = valid.mapCatchingAll(v -> {
+                throw new RuntimeException("Unexpected error");
+            }, "fallback.key");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("fallback.key");
+        }
+
+        @Test
+        void mapCatchingAll_whenErrorMessageMakerIsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+
+            // Act & Assert
+            assertThatCode(() -> valid.mapCatchingAll(v -> v, (Function<Exception, ErrorMessage>) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("errorMessageMaker cannot be null");
+        }
+    }
+
+    @Nested
     class FlatMap {
 
         @Test
@@ -656,14 +704,30 @@ public class ValidationTest {
         }
 
         @Test
-        void flatMapCatchingAll_whenErrorMessageIsNull_throwsNullPointerException() {
+        void flatMapCatchingAllWithErrorKey_whenValidAndFlatMapperThrowsRuntimeException_becomesInvalidWithErrorMessage() {
+            // Arrange
+            Validation<String> valid = Validation.valid("abc");
+
+            // Act
+            Validation<Integer> result = valid.flatMapCatchingAll(s -> {
+                throw new IllegalArgumentException("boom");
+            }, "fallback.key");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("fallback.key");
+        }
+
+        @Test
+        void flatMapCatchingAll_whenErrorMessageMakerIsNull_throwsNullPointerException() {
             // Arrange
             Validation<String> valid = Validation.valid("Success");
 
             // Act & Assert
-            assertThatCode(() -> valid.flatMapCatchingAll(s -> Validation.valid(1), null))
+            assertThatCode(() -> valid.flatMapCatchingAll(s -> Validation.valid(1), (Function<Exception, ErrorMessage>) null))
                     .isInstanceOf(NullPointerException.class)
-                    .hasMessage("errorMessage cannot be null");
+                    .hasMessage("errorMessageMaker cannot be null");
         }
     }
 
