@@ -148,7 +148,7 @@ public sealed interface Validation<T> extends Iterable<T> {
     default Optional<T> toOptional() {
         return this.fold(
                 e -> Optional.empty(),
-                Optional::of
+                Optional::ofNullable
         );
     }
 
@@ -204,8 +204,9 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
-     * Like {@link #map(Function)}, but catches {@link ValidationException}s thrown by the mapper and turns them into an invalid validation.
-     * So this method does NOT have pure map semantics but is an easy alternative to having to flatMap and handle errors yourself.
+     * Like map, but catches only ValidationException and takes its errors to make an Invalid..
+     * Other RuntimeExceptions are propagated.
+     * So this method does not have pure map semantics.
      */
     default <R> Validation<R> mapCatching(Function<? super T, ? extends R> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
@@ -222,9 +223,7 @@ public sealed interface Validation<T> extends Iterable<T> {
     }   
 
     /**
-     * Like {@link #mapCatching(Function)}, but catches all {@link Exception}s thrown by the mapper and turns them into an invalid validation.
-     * So this method does NOT have pure map semantics but is an easy alternative to having to flatMap and handle errors yourself.
-     * If an exception other than {@link ValidationException} is thrown, the exception's message is used as the error key.
+     * Like {@link #mapCatching(Function)}, but catches all {@link Exception}s thrown by the mapper.
      */
     default <R> Validation<R> mapCatchingAll(Function<? super T, ? extends R> mapper, ErrorMessage errorMessage) {
         return mapCatchingAll(mapper, e -> errorMessage);
@@ -338,6 +337,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Alias for {@link #flatMap(Function)}.
      */
     default <R> Validation<R> refine(Function<? super T, ? extends Validation<R>> refinement) {
+        Objects.requireNonNull(refinement, "refinement cannot be null");
         return this.flatMap(refinement::apply);
     }
 
@@ -841,7 +841,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Creates a {@link Validation} from a {@link Supplier}.
      * If the supplier throws a {@link ValidationException}, the returned validation will be invalid with the same errors
      * as the thrown exception.
-     * If the supplier throws any other exception, the exception will be propagated. Use {@link Validation#from(Try)} if you want to catch all possible exceptions.
+     * If the supplier throws any other exception, the exception will be propagated. Use {@link Validation#fromCatchingAll(Supplier, ErrorMessage)} or {@link Validation#from(Try)} if you want to catch all possible exceptions.
      * This method is meant for interoperability with code that can throw {@link ValidationException}, for example
      * when using the "validate in constructor" pattern.
      */
@@ -902,8 +902,8 @@ public sealed interface Validation<T> extends Iterable<T> {
      * This method is meant for interoperability with code that can throw any {@link Exception}, but is also somewhat dangerous
      * as it can hide issues like {@link NullPointerException} and so on.
      */
-    static <T> Validation<T> fromCatchingAll(Supplier<? extends T> supplier, String errorMessage) {
-        return fromCatchingAll(supplier, ErrorMessage.of(errorMessage));
+    static <T> Validation<T> fromCatchingAll(Supplier<? extends T> supplier, String errorKey) {
+        return fromCatchingAll(supplier, ErrorMessage.of(errorKey));
     }
 
     /**
@@ -914,6 +914,8 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the {@link Try} is failed, the returned validation will be invalid with the provided error message.
      */
     static <T> Validation<T> from(Try<? extends T> _try, ErrorMessage errorMessage) {
+        Objects.requireNonNull(_try, "_try cannot be null");
+        Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return _try.fold(
                 e -> (e instanceof ValidationException ve) ? Validation.invalid(ve.errors()) : Validation.invalid(errorMessage),
                 Validation::valid
@@ -964,7 +966,7 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Creates a {@link Validation} from an {@link Option}.
      * If the {@link Option} is defined, the returned validation will be valid with the value.
-     * If the {@link Option} is empty, the returned validation will be invalid with the provided error message key.
+     * If the {@link Option} is empty, the returned validation will be invalid with the provided error key.
      */
     static <T> Validation<T> from(Option<? extends T> option, String errorKey) {
         return from(option, ErrorMessage.of(errorKey));

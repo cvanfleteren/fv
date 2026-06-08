@@ -40,7 +40,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
 
     /**
      * Creates a new MappingRule that applies the given mapper function to the input.
-     * If the supplier throws a {@link ValidationException}, the returned validation will be invalid with the same errors
+     * If the mapper throws a {@link ValidationException}, the returned validation will be invalid with the same errors
      * as the thrown exception.
      * If the mapper throws any other exceptions, the rule will fail with the specified error message.
      */
