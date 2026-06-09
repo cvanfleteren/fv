@@ -532,10 +532,10 @@ class MappingRuleTest {
                     .hasErrorMessages("error.1", "error.2");
         }
         @Test
-        void ofTry_withErrorMessage_whenMapperIsNull_throwsNullPointerException() {
+        void ofTry_withErrorMessage_whenTryProviderIsNull_throwsNullPointerException() {
             assertThatCode(() -> MappingRule.ofTry(null, ErrorMessage.of("error")))
                     .isInstanceOf(NullPointerException.class)
-                    .hasMessage("mapper cannot be null");
+                    .hasMessage("tryProvider cannot be null");
         }
         @Test
         void ofTry_withErrorMessage_whenErrorMessageIsNull_throwsNullPointerException() {

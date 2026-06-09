@@ -21,7 +21,7 @@ public class RulesTest {
                 .isEqualTo(expected);
     }
 
-    public static <T, R> InvalidValidationAssert<?, Validation.Invalid, R> invalidTest(T value, MappingRule<? super T, R> rule, String... errorKeys) {
+    public static <T, R> InvalidValidationAssert<?, Validation.Invalid<R>, R> invalidTest(T value, MappingRule<? super T, R> rule, String... errorKeys) {
         return assertThatValidation(rule.test(value))
                 .isInvalid()
                 .hasErrorKeys(errorKeys);

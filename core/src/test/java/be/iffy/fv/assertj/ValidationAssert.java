@@ -18,7 +18,7 @@ public class ValidationAssert<SELF extends ValidationAssert<SELF, VALIDATION, T>
         return new ObjectAssert<>(actual.getOrElseThrow());
     }
 
-    public InvalidValidationAssert<?, Validation.Invalid, T> isInvalid() {
+    public InvalidValidationAssert<?, Validation.Invalid<T>, T> isInvalid() {
         assertThat(actual.isValid()).as("Expected validation to be invalid but was valid").isFalse();
         return new InvalidValidationAssert<>((Validation.Invalid) actual);
     }

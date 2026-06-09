@@ -839,7 +839,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      */
     @SuppressWarnings("unchecked")
     static <T> Validation<T> invalid(ErrorMessage error, ErrorMessage... moreErrors) {
-        return (Validation<T>) new Invalid(List.of(error).appendAll(List.of(moreErrors)));
+        return new Invalid<>(List.of(error).appendAll(List.of(moreErrors)));
     }
 
     /**
@@ -847,7 +847,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      */
     @SuppressWarnings("unchecked")
     static <T> Validation<T> invalid(String errorKey) {
-        return (Validation<T>) new Invalid(List.of(ErrorMessage.of(errorKey)));
+        return new Invalid<>(List.of(ErrorMessage.of(errorKey)));
     }
 
     /**
@@ -1131,7 +1131,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      *
      * @param errors the list of error messages that describe the validation failure. Errors cannot be empty and will be deduplicated.
      */
-    record Invalid(List<ErrorMessage> errors) implements Validation<Object> {
+    record Invalid<T>(List<ErrorMessage> errors) implements Validation<T> {
 
         public Invalid {
             Objects.requireNonNull(errors, "errors cannot be null");
@@ -1147,7 +1147,7 @@ public sealed interface Validation<T> extends Iterable<T> {
         }
 
         @Override
-        public Iterator<Object> iterator() {
+        public Iterator<T> iterator() {
             return Iterator.empty();
         }
     }

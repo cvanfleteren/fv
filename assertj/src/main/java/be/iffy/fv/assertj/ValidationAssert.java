@@ -30,7 +30,7 @@ public class ValidationAssert<SELF extends ValidationAssert<SELF, VALIDATION, T>
      *
      * @return an {@link InvalidValidationAssert} for further assertions.
      */
-    public InvalidValidationAssert<?, Validation.Invalid, T> isInvalid() {
+    public InvalidValidationAssert<?, Validation.Invalid<T>, T> isInvalid() {
         assertThat(actual.isValid()).as("Expected validation to be invalid but was valid").isFalse();
         return new InvalidValidationAssert<>((Validation.Invalid) actual);
     }
@@ -65,18 +65,18 @@ public class ValidationAssert<SELF extends ValidationAssert<SELF, VALIDATION, T>
      
      * @return an {@link InvalidValidationAssert} for further assertions.
      */
-    public static <T> InvalidValidationAssert<?, Validation.Invalid, T> assertInvalid(Validation<T> actual) {
+    public static <T> InvalidValidationAssert<?, Validation.Invalid<T>, T> assertInvalid(Validation<T> actual) {
         assertThat(actual.isValid()).as("Expected validation to be invalid but was valid").isFalse();
-        return new InvalidValidationAssert<>((Validation.Invalid) actual);
+        return new InvalidValidationAssert<>((Validation.Invalid<T>) actual);
     }
 
     /**
      * Asserts that code passed will throw a ValidationException.
      */
-    public static <T> InvalidValidationAssert<?, Validation.Invalid, T> assertInvalid(Supplier<T> codeThrowingValidationException) {
+    public static <T> InvalidValidationAssert<?, Validation.Invalid<T>, T> assertInvalid(Supplier<T> codeThrowingValidationException) {
         Validation<T> validation = Validation.fromCatching(codeThrowingValidationException);
         assertThat(validation.isInvalid()).as("Expected validation to be invalid but was valid").isTrue();
-        return new InvalidValidationAssert<>((Validation.Invalid) validation);
+        return new InvalidValidationAssert<>((Validation.Invalid<T>) validation);
     }
 
 }
