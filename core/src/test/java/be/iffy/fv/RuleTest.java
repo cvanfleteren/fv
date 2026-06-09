@@ -181,28 +181,6 @@ class RuleTest {
                     .hasErrorKeys("must.not.be.null");
         }
 
-        @Test
-        void ok_withDefaultValue_whenCalled_returnsValidWithDefaultValue() {
-            // Arrange
-            String defaultValue = "default";
-            Rule<String> rule = Rule.ok(defaultValue);
-
-            // Act
-            Validation<String> result = rule.test("any input");
-
-            // Assert
-            assertThatValidation(result)
-                    .isValid()
-                    .isEqualTo(defaultValue);
-        }
-
-        @Test
-        void ok_withDefaultValue_whenDefaultValueIsNull_throwsNullPointerException() {
-            // Act & Assert
-            assertThatCode(() -> Rule.ok((String) null))
-                    .isInstanceOf(NullPointerException.class)
-                    .hasMessage("defaultValue can not be null");
-        }
     }
 
     @Nested

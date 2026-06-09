@@ -34,11 +34,14 @@ public class VavrListValidationDslTest {
     @Test
     void validateList_whenUsingCompactIs_shouldCollectAllErrors() {
         // Arrange
+        record ListHolder(List<String> roles) {
+
+        }
         List<String> roles = List.of("A");
 
         //TODO CVF
         // Act
-        Validation<List<Role>> result = validateThatList(roles, "roles")
+        Validation<List<Role>> result = validateThatList(roles, ListHolder::roles)
                 .is(vavrLists.minSize(2))
                 .eachIs(strings.minLength(2).map(Role::new))
                 .validate();

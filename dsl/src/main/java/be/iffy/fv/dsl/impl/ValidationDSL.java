@@ -71,7 +71,11 @@ public class ValidationDSL<T> {
     public <R> Validation<R> is(Function<? super T, ? extends Validation<? extends R>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
         return Validation.narrow(
-                validation.flatMap(value -> Validation.narrow(rule.apply(value))).at(name)
+                validation.flatMap(value ->
+                        Validation.narrow(
+                                Objects.requireNonNull(rule.apply(value),"rule cannot return null Validation")
+                        )
+                ).at(name)
         );
     }
 

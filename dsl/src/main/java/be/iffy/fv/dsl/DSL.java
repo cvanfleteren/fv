@@ -360,7 +360,7 @@ public class DSL {
     /**
      * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
      */
-    public static <ANY, T> VListValidationDSL<T, T> validateThatList(List<T> value, PropertySelector<ANY, T> name) {
+    public static <ANY, T> VListValidationDSL<T, T> validateThatList(List<T> value, PropertySelector<ANY, List<T>> name) {
         Objects.requireNonNull(name, "name cannot be null");
         return new VListValidationDSL<>(value, name.getPropertyName());
     }
@@ -375,7 +375,7 @@ public class DSL {
     /**
      * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
      */
-    public static <ANY, T> JListValidationDSL<T, T> validateThatList(java.util.List<T> value, PropertySelector<ANY, T> name) {
+    public static <ANY, T> JListValidationDSL<T, T> validateThatList(java.util.List<T> value, PropertySelector<ANY, java.util.List<T>> name) {
         Objects.requireNonNull(name, "name cannot be null");
         return new JListValidationDSL<>(value, name.getPropertyName());
     }

@@ -325,7 +325,9 @@ public sealed interface Validation<T> extends Iterable<T> {
         return switch (this) {
             case Valid(var value) -> {
                 try {
-                    yield Validation.narrow(flatMapper.apply(value));
+                    yield Validation.narrow(
+                            Objects.requireNonNull(flatMapper.apply(value),"flatMapper cannot return null Validation")
+                    );
                 } catch (ValidationException e) {
                     yield Validation.invalid(e.errors());
                 } catch (Exception e) {
@@ -402,6 +404,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * @return a new {@link Validation} instance.
      */
     default Validation<T> at(String name) {
+        Objects.requireNonNull(name, "name cannot be null");
         return mapErrors(errors -> errors.map(error -> error.prepend(ErrorMessage.Path.of(name))));
     }
 
@@ -1136,6 +1139,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * @param errors the list of error messages that describe the validation failure. Errors cannot be empty and will be deduplicated.
      */
     record Invalid<T>(List<ErrorMessage> errors) implements Validation<T> {
+        private static final Invalid notNull = new Invalid<>(List.of(ErrorMessage.of("must.not.be.null")));
 
         public Invalid {
             Objects.requireNonNull(errors, "errors cannot be null");
@@ -1153,6 +1157,11 @@ public sealed interface Validation<T> extends Iterable<T> {
         @Override
         public Iterator<T> iterator() {
             return Iterator.empty();
+        }
+
+        @SuppressWarnings("unchecked")
+        static <T> Invalid<T> notNull() {
+            return (Invalid<T>) notNull;
         }
     }
 }

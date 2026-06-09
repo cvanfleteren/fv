@@ -1,5 +1,6 @@
 package be.iffy.fv;
 
+import be.iffy.fv.Validation.Invalid;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
@@ -14,10 +15,12 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static be.iffy.fv.Validation.invalid;
+
 /**
  * Represents a rule for mapping an input of type T to an output of type R,
  * with built-in validation support.
- * The mapping can either succeed (producing a {@link Validation.Valid} R) or fail (producing an {@link Validation.Invalid} with error details).
+ * The mapping can either succeed (producing a {@link Validation.Valid} R) or fail (producing an {@link Invalid} with error details).
  *
  */
 @FunctionalInterface
@@ -28,7 +31,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      *
      * @param value the value to be processed by this {@link MappingRule}
      * @return a {@link Validation} instance representing the outcome: either a {@link Validation.Valid}
-     * with the successfully transformed value or a {@link Validation.Invalid} containing the errors encountered during
+     * with the successfully transformed value or a {@link Invalid} containing the errors encountered during
      * mapping or validation.
      */
     Validation<R> test(T value);
@@ -61,15 +64,15 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return input -> {
             if (input == null) {
-                return Validation.invalid("must.not.be.null");
+                return Invalid.notNull();
             }
             Try<? extends R> _try = Objects.requireNonNull(tryProvider.apply(input), "tryProvider cannot return null Try");
             return _try.fold(
                     t -> {
                         if (t instanceof ValidationException ve) {
-                            return Validation.invalid(ve.errors());
+                            return invalid(ve.errors());
                         } else {
-                            return Validation.invalid(errorMessage);
+                            return invalid(errorMessage);
                         }
                     },
                     Validation::valid
@@ -170,7 +173,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
                 return second;
             }
 
-            return Validation.invalid(first.errors().appendAll(second.errors()));
+            return invalid(first.errors().appendAll(second.errors()));
         };
     }
 
@@ -212,6 +215,9 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      */
     default MappingRule<List<T>, List<R>> liftToVavrList() {
         return values -> {
+            if (values == null) {
+                return Invalid.notNull();
+            }
             List<Validation<R>> validations = values.map(this::test);
             // Validation.sequence already adds the [index] path segment, so we don't do it here.
             return Validation.transpose(validations);
@@ -224,6 +230,9 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      */
     default MappingRule<java.util.List<T>, java.util.List<R>> liftToList() {
         return values -> {
+            if (values == null) {
+                return Invalid.notNull();
+            }
             java.util.List<Validation<R>> validations = values.stream().map(this::test).toList();
             // Validation.sequence already adds the [index] path segment, so we don't do it here.
             return Validation.transpose(validations);
@@ -235,9 +244,13 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * Empty Options (None) are considered to be valid.
      */
     default MappingRule<Option<T>, Option<R>> liftToOption() {
-        return opt -> opt
-                .map(v -> this.test(v).map(Option::of))
-                .getOrElse(() -> Validation.valid(Option.none()));
+        return opt -> {
+            if (opt == null) {
+                return Invalid.notNull();
+            }
+            return opt.map(v -> this.test(v).map(Option::of))
+                    .getOrElse(() -> Validation.valid(Option.none()));
+        };
     }
 
     /**
@@ -245,9 +258,14 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * Empty Optionals are considered to be valid.
      */
     default MappingRule<Optional<T>, Optional<R>> liftToOptional() {
-        return opt -> opt
-                .map(v -> this.test(v).map(Optional::of))
-                .orElse(Validation.valid(Optional.empty()));
+        return opt -> {
+            if (opt == null) {
+                return Invalid.notNull();
+            }
+            return opt
+                    .map(v -> this.test(v).map(Optional::of))
+                    .orElse(Validation.valid(Optional.empty()));
+        };
     }
 
     /**
@@ -282,6 +300,9 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
     default <K> MappingRule<Map<K, T>, Map<K, R>> liftToVavrMap(Function<K, Object> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
         return map -> {
+            if(map == null) {
+                return Invalid.notNull();
+            }
             Seq<Tuple2<K, Validation<R>>> validations = map.map(tuple ->
                     Tuple.of(tuple._1, this.test(tuple._2).mapErrors(errors ->
                             errors.map(e -> e.atIndex(keyExtractor.apply(tuple._1)))
@@ -290,7 +311,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
 
             var validAndInvalid = validations.partition(t -> t._2.isValid());
             if (validAndInvalid._2.nonEmpty()) {
-                return Validation.invalid(validAndInvalid._2.flatMap(t -> t._2.errors()).toList());
+                return invalid(validAndInvalid._2.flatMap(t -> t._2.errors()).toList());
             } else {
                 return Validation.valid(
                         validAndInvalid._1.toMap(
@@ -346,7 +367,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      */
     static <T> MappingRule<T, T> notNull() {
         return input ->
-                input == null ? Validation.invalid("must.not.be.null") : Validation.valid(input);
+                input == null ? Invalid.notNull() : Validation.valid(input);
     }
 
     /**
