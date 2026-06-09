@@ -471,23 +471,9 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
-     * Returns a {@link Rule} that returns a Valid if the input is null, or the result of the passed Rule otherwise.
-     * Be careful, once you start combining this resulting Rule with other Rules, (e.g. using {@link #and(Rule)}, the null will be passed to
-     * the other rule and null will once again be considered invalid. So this Rule should always be the "outer rule".
-     */
-    static <T> Rule<T> nullOk(Rule<? super T> whenNotNull) {
-        return input -> {
-            if (input == null) {
-                return Validation.valid(null);
-            } else {
-                return Rule.<T>narrow(whenNotNull).test(input);
-            }
-        };
-    }
-
-    /**
      * Creates a new {@link Rule} that always returns a valid result for any non-null input.
-     * If you want to allow null, use {@link Rule#nullOk(Rule)}.
+     * <p>
+     * Error key: {@code must.not.be.null} if input was null.
      */
     static <T> Rule<T> ok() {
         return input ->

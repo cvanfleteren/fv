@@ -1111,6 +1111,10 @@ public sealed interface Validation<T> extends Iterable<T> {
      */
     record Valid<T>(T value) implements Validation<T> {
 
+        public Valid {
+            Objects.requireNonNull(value, "value cannot be null");
+        }
+
         @Override
         public List<ErrorMessage> errors() {
             return List.of();

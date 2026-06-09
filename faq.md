@@ -9,7 +9,6 @@ Welcome to the FAQ for the Iffy Functional Validation (FV) library. If you have 
 - [How do I combine multiple rules?](#how-do-i-combine-multiple-rules)
 - [How can I negate an existing rule?](#how-can-i-negate-an-existing-rule)
 - [Are rules null-safe by default?](#are-rules-null-safe-by-default)
-- [Null seems to be an invalid value by default, but I really like null, how can I accept it but still validate if it's not null?](#null-seems-to-be-an-invalid-value-by-default-but-i-really-like-null-how-can-i-accept-it-but-still-validate-if-its-not-null)
 - [How can I validate a property of an object?](#how-can-i-validate-a-property-of-an-object)
 - [Can I use my own error messages?](#can-i-use-my-own-error-messages)
 - [How can I easily make my own rule, e.g., for checking that a string is a palindrome?](#how-can-i-easily-make-my-own-rule-eg-for-checking-that-a-string-is-a-palindrome)
@@ -157,44 +156,6 @@ mustNotStartWithH.test("World"); // Valid
 Most factory methods like `Rule.of(Predicate, ...)` include a null check. If the input is `null`, they will return a `Validation.invalid("must.not.be.null")` without calling your predicate.
 
 However, if you implement the `Rule` interface directly or use certain combinators, you should be aware of nullability. It is generally recommended to start your validation chain with `Rule.notNull()` if you expect a non-null value.
-
----
-
-### Null seems to be an invalid value by default, but I really like null, how can I accept it but still validate if it's not null?
-
-By default, all rules in the library consider `null` to be an invalid value. This is a design choice to encourage safer, more explicit handling of optionality and make implementing rules easier.
-
-However, if you have a scenario where `null` is a perfectly valid state, but you still want to apply validation rules if a value *is* present, you can use **`Rule.nullOk(someOtherRule)`**.
-
-The `nullOk` method wraps another rule. If the input is `null`, it returns a `Valid(null)`. If the input is not null, it applies the wrapped rule.
-
-#### Example: Optional string validation
-
-```java
-Rule<String> optionalDescription = Rule.nullOk(strings.minLength(10));
-
-// Returns Valid(null)
-Validation<String> result1 = optionalDescription.test(null);
-
-// Returns Invalid (too short)
-Validation<String> result2 = optionalDescription.test("too short");
-
-// Returns Valid("a very long description")
-Validation<String> result3 = optionalDescription.test("a very long description");
-```
-
-> [!IMPORTANT]
-> Be careful when combining a `nullOk` rule with other rules using `.and()` or similar methods. If the other rule doesn't handle `null`, you might still end up with a validation error (or a `NullPointerException` if that rule is not null-safe). It is often best to keep `nullOk` as the "outermost" wrapper.  
-> So use something like `Rule.nullOk(strings.minLength(10).and(strings.startsWith("A")))` instead of `Rule.nullOk(strings.minLength(10)).and(strings.startsWith("A"))`.
----
-
-### How can I validate a property of an object?
-
-You can use the `Rule.with(selector, rule)` or `MappingRule.with(selector, rule)` methods. This allows you to "focus" a rule on a specific part of an object.
-
-```java
-Rule<User> userRule = Rule.with(User::getEmail, emailRule);
-```
 
 ---
 

@@ -10,7 +10,7 @@ public class AssertDSL<T> {
     private final Validation<T> validation;
 
     public AssertDSL(T value, String name) {
-        this.validation = Validation.valid(value);
+        this.validation = Rule.<T>notNull().test(value);
         this.name = name;
     }
 

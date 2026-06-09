@@ -16,22 +16,11 @@ class AssertDSLTest {
 
     @Nested
     class NullInput {
-        @Test
-        void nullInput_whenNullOk_isNull() {
-            String result = assertThat((String)null, "field").map(StringOps.trim()).is(Rule.nullOk(strings.minLength(4)));
-            assertThat(result).isNull();
-        }
 
         @Test
         void nullInput_noNullOk_throws() {
             assertThatThrownBy(()  -> assertThat((String)null, "field").map(StringOps.trim()).is(strings.minLength(4)))
                     .isInstanceOf(ValidationException.class).hasMessage("field.must.not.be.null");
-        }
-
-        @Test
-        void nullInput_throwsValidationException() {
-            String result = assertThat(" 1234", "field").map(StringOps.trim()).is(Rule.nullOk(strings.minLength(4)));
-            assertThat(result).isEqualTo("1234");
         }
     }
 

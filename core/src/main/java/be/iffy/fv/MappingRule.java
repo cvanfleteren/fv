@@ -231,11 +231,8 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
     }
 
     /**
-     * Lifts this {@link MappingRule} so it applies to an {@link Option} of T.
-     * <p>
-     * Semantics:
-     * - None =&gt; {@code valid(None)} (nothing to validate)
-     * - Some(x) =&gt; validate x, and return {@code valid(Some(x))} or {@code invalid(errors)}
+     * Lifts the current mapping rule to operate on the content of {@link Option} containers.
+     * Empty Options (None) are considered to be valid.
      */
     default MappingRule<Option<T>, Option<R>> liftToOption() {
         return opt -> opt
@@ -244,11 +241,8 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
     }
 
     /**
-     * Lifts this {@link MappingRule} so it applies to an {@link java.util.Optional} of T.
-     * <p>
-     * Semantics:
-     * - empty =&gt; {@code valid(Optional.empty)} (nothing to validate)
-     * - not empty =&gt; validate x, and return {@code valid(Optional.of(x))} or {@code invalid(errors)}
+     * Lifts the current mapping rule to operate on the content of {@link Optional} containers.
+     * Empty Optionals are considered to be valid.
      */
     default MappingRule<Optional<T>, Optional<R>> liftToOptional() {
         return opt -> opt

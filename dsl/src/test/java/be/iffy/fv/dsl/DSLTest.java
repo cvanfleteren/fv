@@ -180,7 +180,7 @@ public class DSLTest {
 
             @Test
             void isNotNull_whenValueIsNotNull_returnsValid() {
-                Validation<String> v = validateThat((String) null, "field").map(StringOps.trim()).is(Rule.nullOk(strings.minLength(4)));
+                Validation<String> v = validateThat((String) null, "field").map(StringOps.trim()).is(strings.minLength(4));
                 assertThatValidation(v).isInvalid().hasErrorMessage("field.must.not.be.null");
             }
         }
