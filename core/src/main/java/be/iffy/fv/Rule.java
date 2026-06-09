@@ -515,8 +515,9 @@ public interface Rule<T> extends MappingRule<T, T> {
         Objects.requireNonNull(selector, "selector cannot be null");
         Objects.requireNonNull(rule, "rule cannot be null");
         return input ->
-                rule.apply(selector.apply(input))
-                        .map(ignore -> input);
+                Objects.requireNonNull(
+                        rule.apply(selector.apply(input)),"rule cannot return a null Validation"
+                ).map(ignore -> input);
     }
     
     /**

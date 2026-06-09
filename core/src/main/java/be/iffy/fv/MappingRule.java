@@ -125,7 +125,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * @param rule the rule to apply after this rule if this rule is successful.
      * @return a composed {@link MappingRule} that applies both rules in sequence.
      */
-    default <Z> MappingRule<T, Z> then(Function<? super R, ? extends Validation<Z>> rule) {
+    default <Z> MappingRule<T, Z> then(Function<? super R, ? extends Validation<? extends Z>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
         return (T input) -> this.test(input).flatMap(rule::apply);
     }
@@ -160,7 +160,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * @param other the other rule to compose with.
      */
     @SuppressWarnings("unchecked")
-    default MappingRule<T, R> orElse(Function<? super T, ? extends Validation<R>> other) {
+    default MappingRule<T, R> orElse(Function<? super T, ? extends Validation<? extends R>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input -> {
             Validation<R> first = this.test(input);
@@ -168,7 +168,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
                 return first;
             }
 
-            Validation<R> second = Objects.requireNonNull(other.apply(input), "other cannot return null Validation");
+            Validation<R> second = (Validation<R>) Objects.requireNonNull(other.apply(input), "other cannot return null Validation");
             if (second.isValid()) {
                 return second;
             }
