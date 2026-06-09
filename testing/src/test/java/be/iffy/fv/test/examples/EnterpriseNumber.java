@@ -17,6 +17,6 @@ public record EnterpriseNumber(String value) {
     }
 
     public static Validation<EnterpriseNumber> from(String value) {
-        return Validation.from(() -> new EnterpriseNumber(value));
+        return Validation.fromCatching(() -> new EnterpriseNumber(value));
     }
 }

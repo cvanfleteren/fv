@@ -55,7 +55,7 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
     }
 
     Validation<Command.Transaction> validateTransaction(QueueMessage.Transaction transaction) {
-        return Validation.from(() -> {
+        return Validation.fromCatching(() -> {
             MonetaryAmount amount = assertThat(transaction.amount, "amount").is(objects.canBe(MonetaryAmount::new, "must.be.monetaryAmount"));
             return new Command.Transaction(amount);
         });
@@ -65,7 +65,7 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
         return validateThat(address.country, "country")
                 .is(optionals.matches(strings.asEnum(Country.class)))
                 .flatMap(country ->
-                        Validation.from(() -> new Command.Address(address.street, address.houseNumber, address.city))
+                        Validation.fromCatching(() -> new Command.Address(address.street, address.houseNumber, address.city))
                 );
     }
 
@@ -97,7 +97,7 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
                 );
             } else {
                 // no amendment indicator, ignore the other amendment fields
-                return Validation.from(() -> new Command.MandateInfo(mandateInfo.mandateId(), mandateInfo.dateOfSignature(), Optional.empty()));
+                return Validation.fromCatching(() -> new Command.MandateInfo(mandateInfo.mandateId(), mandateInfo.dateOfSignature(), Optional.empty()));
             }
         });
     }

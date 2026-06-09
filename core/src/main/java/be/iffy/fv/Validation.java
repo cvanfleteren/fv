@@ -60,12 +60,13 @@ import java.util.function.Supplier;
  * Methods such as {@link #map(Function)}, {@link #flatMap(Function)},
  * {@code mapN(...)} and {@code flatMapN(...)} are intended for regular functional
  * composition. If a mapper throws, the exception is propagated.
- *
- * <p>Use methods whose names contain {@code Catching}, or {@link #from(Try, String)},
+ * <p>
+ * Use methods named {@code mapCatching}, {@code flatMapCatching}, or {@code fromCatching}
  * when you intentionally want to convert {@link ValidationException} into validation errors.
- *
- * <p>Use methods whose names contain {@code CatchingAll}, or {@link #fromCatchingAll(Supplier, String)},
- * when you intentionally want to convert <em>ANY Exception</em> into validation errors.
+ * <p>
+ * Use methods whose names contain {@code CatchingAll} when you intentionally want to convert
+ * {@link ValidationException} and other {@link Exception}s thrown by user code into validation errors.
+ * These methods do not catch {@link Error}s.
  *
  * <p>{@link ValidationException} is used by imperative validation APIs such as
  * {@code getOrElseThrow()} and constructor validation helpers. APIs that explicitly
@@ -142,8 +143,9 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
-     * Converts the current result into an Optional containing the value if present,
-     * or an empty Optional if the result represents an error
+     * Converts this validation into a Java {@link Optional}.
+     * Returns {@code Optional.of(value)} when valid and the value is non-null,
+     * otherwise {@code Optional.empty()}. A {@code Valid(null)} is converted to empty.
      */
     default Optional<T> toOptional() {
         return this.fold(
@@ -153,8 +155,9 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
-     * Converts the current result into an Optional containing the value if present,
-     * or an empty Optional if the result represents an error
+     * Converts this validation into a Vavr {@link Option}.
+     * Returns {@code Some(value)} when valid and the value is non-null,
+     * otherwise {@code None}. A {@code Valid(null)} is converted to {@code None}.
      */
     default Option<T> toOption() {
         return this.fold(
@@ -204,9 +207,11 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
-     * Like map, but catches only ValidationException and takes its errors to make an Invalid..
-     * Other RuntimeExceptions are propagated.
-     * So this method does not have pure map semantics.
+     * Like {@link #map(Function)}, but catches only {@link ValidationException}
+     * and returns an invalid validation with the exception's errors.
+     * Other {@link RuntimeException}s are propagated.
+     *
+     * <p>This method does not have pure map semantics.
      */
     default <R> Validation<R> mapCatching(Function<? super T, ? extends R> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
@@ -220,12 +225,14 @@ public sealed interface Validation<T> extends Iterable<T> {
             }
             default -> (Validation<R>) this;
         };
-    }   
+    }
 
     /**
      * Like {@link #mapCatching(Function)}, but catches all {@link Exception}s thrown by the mapper.
+     * Does not catch {@link Error}s.
      */
     default <R> Validation<R> mapCatchingAll(Function<? super T, ? extends R> mapper, ErrorMessage errorMessage) {
+        Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return mapCatchingAll(mapper, e -> errorMessage);
     }
 
@@ -249,7 +256,9 @@ public sealed interface Validation<T> extends Iterable<T> {
                 } catch (ValidationException e) {
                     yield Validation.invalid(e.errors());
                 } catch (Exception e) {
-                    yield Validation.invalid(errorMessageMaker.apply(e));
+                    yield Validation.invalid(
+                            Objects.requireNonNull(errorMessageMaker.apply(e), "errorMessageMaker result cannot be null")
+                    );
                 }
             }
             default -> (Validation<R>) this;
@@ -263,7 +272,9 @@ public sealed interface Validation<T> extends Iterable<T> {
     default <R> Validation<R> flatMap(Function<? super T, Validation<? extends R>> flatMapper) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
         return switch (this) {
-            case Valid(var value) -> Validation.narrow(flatMapper.apply(value));
+            case Valid(var value) -> Validation.narrow(
+                    Objects.requireNonNull(flatMapper.apply(value),"flatMapper cannot return null Validation")
+            );
             default -> (Validation<R>) this;
         };
     }
@@ -276,7 +287,9 @@ public sealed interface Validation<T> extends Iterable<T> {
         return switch (this) {
             case Valid(var value) -> {
                 try {
-                    yield Validation.narrow(flatMapper.apply(value));
+                    yield Validation.narrow(
+                            Objects.requireNonNull(flatMapper.apply(value),"flatMapper cannot return null Validation")
+                    );
                 } catch (ValidationException e) {
                     yield Validation.invalid(e.errors());
                 }
@@ -289,8 +302,10 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Like {@link #flatMap(Function)}, but catches all {@link Exception}s thrown by the mapper and turns them into an invalid validation.
      * Like {@link #flatMapCatching(Function)}, if a {@link ValidationException} is thrown, its errors are used for the resulting Invalid.
      * If an exception other than {@link ValidationException} is thrown, the provided {@link ErrorMessage} is used.
+     * Does not catch {@link Error}s.
      */
     default <R> Validation<R> flatMapCatchingAll(Function<? super T, Validation<? extends R>> flatMapper, ErrorMessage errorMessage) {
+        Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return flatMapCatchingAll(flatMapper, e -> errorMessage);
     }
 
@@ -314,7 +329,9 @@ public sealed interface Validation<T> extends Iterable<T> {
                 } catch (ValidationException e) {
                     yield Validation.invalid(e.errors());
                 } catch (Exception e) {
-                    yield Validation.invalid(errorMessageMaker.apply(e));
+                    yield Validation.invalid(
+                            Objects.requireNonNull(errorMessageMaker.apply(e), "errorMessageMaker result cannot be null")
+                    );
                 }
             }
             default -> (Validation<R>) this;
@@ -366,13 +383,15 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Maps the error messages of an invalid validation using the provided mapper function.
      * If this validation is valid, the mapper is not applied.
-     * The mapper cannot return an empty List.
+     * The mapper must return a non-null, non-empty list.
      */
     default Validation<T> mapErrors(Function<List<ErrorMessage>, List<ErrorMessage>> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
         return switch (this) {
             case Valid<T> v -> v;
-            case Invalid(var errors) -> invalid(mapper.apply(errors));
+            case Invalid(var errors) -> invalid(
+                    Objects.requireNonNull(mapper.apply(errors), "mapper result cannot be null")
+            );
         };
     }
 
@@ -392,8 +411,8 @@ public sealed interface Validation<T> extends Iterable<T> {
      * @param selector The selector for the value that was validated (e.g., SomeRecord::someField or SomeBean::getProperty).
      */
     default <ANY> Validation<T> at(PropertySelector<ANY, T> selector) {
-        String name = selector.getPropertyName();
-        return at(name);
+        Objects.requireNonNull(selector, "selector cannot be null");
+        return at(selector.getPropertyName());
     }
     //endregion
 
@@ -418,6 +437,8 @@ public sealed interface Validation<T> extends Iterable<T> {
      *                    if the second entry in the list is invalid.
      */
     static <T> Validation<List<T>> transpose(Seq<? extends Validation<? extends T>> validations, String name) {
+        Objects.requireNonNull(validations, "validations cannot be null");
+        Objects.requireNonNull(name, "name cannot be null");
         return validations
                 .zipWithIndex()
                 .foldLeft(
@@ -472,6 +493,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
      */
     static <T> Validation<java.util.List<T>> transpose(java.util.Collection<? extends Validation<? extends T>> validations) {
+        Objects.requireNonNull(validations, "validations cannot be null");
         return transpose(List.ofAll(validations))
                 .map(List::asJava);
     }
@@ -484,6 +506,8 @@ public sealed interface Validation<T> extends Iterable<T> {
      * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
      */
     static <T> Validation<java.util.List<T>> transpose(java.util.Collection<? extends Validation<? extends T>> validations, String at) {
+        Objects.requireNonNull(validations, "validations cannot be null");
+        Objects.requireNonNull(at, "at cannot be null");
         return transpose(List.ofAll(validations), at)
                 .map(List::asJava);
     }
@@ -513,13 +537,13 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If all validations are valid, the result is the result of the flatMapper.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
      */
-    static <R, T1, T2> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Function2<? super T1, ? super T2, Validation<? extends R>> mapper) {
+    static <R, T1, T2> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Function2<? super T1, ? super T2, Validation<? extends R>> flatMapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
-        Objects.requireNonNull(mapper, "mapper cannot be null");
+        Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
 
         if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2)) {
-            return Validation.narrow(mapper.apply(t1, t2));
+            return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2), "flatMapper result cannot be null"));
         } else {
             return invalid(List.of(v1.errors(), v2.errors()).flatMap(Function.identity()));
         }
@@ -548,14 +572,14 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If all validations are valid, the result is the result of the flatMapper.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
      */
-    static <R, T1, T2, T3> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Function3<? super T1, ? super T2, ? super T3, Validation<? extends R>> mapper) {
+    static <R, T1, T2, T3> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Function3<? super T1, ? super T2, ? super T3, Validation<? extends R>> flatMapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
-        Objects.requireNonNull(mapper, "mapper cannot be null");
+        Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
 
         if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3)) {
-            return Validation.narrow(mapper.apply(t1, t2, t3));
+            return Validation.narrow(flatMapper.apply(t1, t2, t3));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors()).flatMap(Function.identity()));
         }
@@ -587,17 +611,17 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If all validations are valid, the result is the result of the flatMapper.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
      */
-    static <R, T1, T2, T3, T4> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Function4<? super T1, ? super T2, ? super T3, ? super T4, Validation<? extends R>> mapper) {
+    static <R, T1, T2, T3, T4> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Function4<? super T1, ? super T2, ? super T3, ? super T4, Validation<? extends R>> flatMapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
         Objects.requireNonNull(v4, "v4 validation cannot be null");
-        Objects.requireNonNull(mapper, "mapper cannot be null");
+        Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
 
         if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
                 var t3
         ) && v4 instanceof Valid(var t4)) {
-            return Validation.narrow(mapper.apply(t1, t2, t3, t4));
+            return Validation.narrow(flatMapper.apply(t1, t2, t3, t4));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors()).flatMap(Function.identity()));
         }
@@ -629,18 +653,18 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If all validations are valid, the result is the result of the flatMapper.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
      */
-    static <R, T1, T2, T3, T4, T5> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, Validation<? extends R>> mapper) {
+    static <R, T1, T2, T3, T4, T5> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, Validation<? extends R>> flatMapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
         Objects.requireNonNull(v4, "v4 validation cannot be null");
         Objects.requireNonNull(v5, "v5 validation cannot be null");
-        Objects.requireNonNull(mapper, "mapper cannot be null");
+        Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
 
         if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
                 var t3
         ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5)) {
-            return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5));
+            return Validation.narrow(flatMapper.apply(t1, t2, t3, t4, t5));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors()).flatMap(Function.identity()));
         }
@@ -674,19 +698,19 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If all validations are valid, the result is the result of the flatMapper.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
      */
-    static <R, T1, T2, T3, T4, T5, T6> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Function6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, Validation<? extends R>> mapper) {
+    static <R, T1, T2, T3, T4, T5, T6> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Function6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, Validation<? extends R>> flatMapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
         Objects.requireNonNull(v4, "v4 validation cannot be null");
         Objects.requireNonNull(v5, "v5 validation cannot be null");
         Objects.requireNonNull(v6, "v6 validation cannot be null");
-        Objects.requireNonNull(mapper, "mapper cannot be null");
+        Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
 
         if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
                 var t3
         ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6)) {
-            return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5, t6));
+            return Validation.narrow(flatMapper.apply(t1, t2, t3, t4, t5, t6));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors()).flatMap(Function.identity()));
         }
@@ -723,7 +747,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If all validations are valid, the result is the result of the flatMapper.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
      */
-    static <R, T1, T2, T3, T4, T5, T6, T7> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Function7<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, Validation<? extends R>> mapper) {
+    static <R, T1, T2, T3, T4, T5, T6, T7> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Function7<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, Validation<? extends R>> flatMapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -731,14 +755,14 @@ public sealed interface Validation<T> extends Iterable<T> {
         Objects.requireNonNull(v5, "v5 validation cannot be null");
         Objects.requireNonNull(v6, "v6 validation cannot be null");
         Objects.requireNonNull(v7, "v7 validation cannot be null");
-        Objects.requireNonNull(mapper, "mapper cannot be null");
+        Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
 
         if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
                 var t3
         ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(
                 var t6
         ) && v7 instanceof Valid(var t7)) {
-            return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5, t6, t7));
+            return Validation.narrow(flatMapper.apply(t1, t2, t3, t4, t5, t6, t7));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors()).flatMap(Function.identity()));
         }
@@ -776,7 +800,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If all validations are valid, the result is the result of the flatMapper.
      * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
      */
-    static <R, T1, T2, T3, T4, T5, T6, T7, T8> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Validation<? extends T8> v8, Function8<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? super T8, Validation<? extends R>> mapper) {
+    static <R, T1, T2, T3, T4, T5, T6, T7, T8> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Validation<? extends T8> v8, Function8<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? super T8, Validation<? extends R>> flatMapper) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -785,14 +809,14 @@ public sealed interface Validation<T> extends Iterable<T> {
         Objects.requireNonNull(v6, "v6 validation cannot be null");
         Objects.requireNonNull(v7, "v7 validation cannot be null");
         Objects.requireNonNull(v8, "v8 validation cannot be null");
-        Objects.requireNonNull(mapper, "mapper cannot be null");
+        Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
 
         if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
                 var t3
         ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(
                 var t6
         ) && v7 instanceof Valid(var t7) && v8 instanceof Valid(var t8)) {
-            return Validation.narrow(mapper.apply(t1, t2, t3, t4, t5, t6, t7, t8));
+            return Validation.narrow(flatMapper.apply(t1, t2, t3, t4, t5, t6, t7, t8));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors(), v8.errors()).flatMap(Function.identity()));
         }
@@ -841,11 +865,12 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Creates a {@link Validation} from a {@link Supplier}.
      * If the supplier throws a {@link ValidationException}, the returned validation will be invalid with the same errors
      * as the thrown exception.
-     * If the supplier throws any other exception, the exception will be propagated. Use {@link Validation#fromCatchingAll(Supplier, ErrorMessage)} or {@link Validation#from(Try)} if you want to catch all possible exceptions.
-     * This method is meant for interoperability with code that can throw {@link ValidationException}, for example
-     * when using the "validate in constructor" pattern.
+     * If the supplier throws any other exception, the exception is propagated.
+     * Use {@link #fromCatchingAll(Supplier, ErrorMessage)} when you intentionally want
+     * to convert other exceptions into validation errors, or create a {@link Try}
+     * yourself and pass it to {@link #from(Try, ErrorMessage)}.
      */
-    static <T> Validation<T> from(Supplier<? extends T> supplier) {
+    static <T> Validation<T> fromCatching(Supplier<? extends T> supplier) {
         Objects.requireNonNull(supplier, "supplier cannot be null");
         try {
             return Validation.valid(supplier.get());
@@ -870,7 +895,9 @@ public sealed interface Validation<T> extends Iterable<T> {
         } catch (ValidationException e) {
             return Validation.invalid(e.errors());
         } catch (Exception e) {
-            return Validation.invalid(errorMessageMaker.apply(e));
+            return Validation.invalid(
+                    Objects.requireNonNull(errorMessageMaker.apply(e), "errorMessageMaker result cannot be null")
+            );
         }
     }
 
@@ -879,19 +906,13 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the supplier throws a {@link ValidationException}, the returned validation will be invalid with the same errors
      * as the thrown exception.
      * If the supplier throws any other exception, the exception will also be converted to an Invalid, with the passed {@link ErrorMessage}
-     * This method is meant for interoperability with code that can throw any {@link RuntimeException}, but is also somewhat dangerous
+     * This method is meant for interoperability with code that can throw any {@link Exception}, but is also somewhat dangerous
      * as it can hide issues like {@link NullPointerException} and so on.
+     * Does not catch {@link Error}s.
      */
     static <T> Validation<T> fromCatchingAll(Supplier<? extends T> supplier, ErrorMessage errorMessage) {
-        Objects.requireNonNull(supplier, "supplier cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
-        try {
-            return Validation.valid(supplier.get());
-        } catch (ValidationException e) {
-            return Validation.invalid(e.errors());
-        } catch (Exception e) {
-            return Validation.invalid(errorMessage);
-        }
+       return fromCatchingAll(supplier, e -> errorMessage);
     }
 
     /**
@@ -940,12 +961,11 @@ public sealed interface Validation<T> extends Iterable<T> {
      * and param "message" representing the message of the exception
      */
     static <T> Validation<T> from(Try<? extends T> _try) {
+        Objects.requireNonNull(_try, "_try cannot be null");
         return _try.fold(
-                e ->
-                    (e instanceof ValidationException ve) ?
-                    Validation.invalid(ve.errors()) :
-                    Validation.invalid(ErrorMessage.of("failed.from.try", "message",e.getMessage()))
-                ,
+                e -> e instanceof ValidationException ve
+                        ? Validation.invalid(ve.errors())
+                        : Validation.invalid(ErrorMessage.of("failed.from.try", "message", e.getMessage())),
                 Validation::valid
         );
     }
@@ -957,6 +977,8 @@ public sealed interface Validation<T> extends Iterable<T> {
      *
      */
     static <T> Validation<T> from(Option<? extends T> option, ErrorMessage errorMessage) {
+        Objects.requireNonNull(option, "option cannot be null");
+        Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return option.fold(
                 () -> Validation.invalid(errorMessage),
                 Validation::valid
@@ -969,6 +991,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the {@link Option} is empty, the returned validation will be invalid with the provided error key.
      */
     static <T> Validation<T> from(Option<? extends T> option, String errorKey) {
+        Objects.requireNonNull(option, "option cannot be null");
         return from(option, ErrorMessage.of(errorKey));
     }
 
@@ -980,6 +1003,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Error key: {@code value.is.none}
      */
     static <T> Validation<T> from(Option<? extends T> option) {
+        Objects.requireNonNull(option, "option cannot be null");
         return from(option, "value.is.none");
     }
 
@@ -989,8 +1013,15 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the {@link Either} is left, the returned validation will be invalid with the error message mapped from the left value.
      */
     static <L, R> Validation<R> from(Either<L, ? extends R> either, Function1<? super L, ErrorMessage> errorMapper) {
+        Objects.requireNonNull(either, "either cannot be null");
+        Objects.requireNonNull(errorMapper, "errorMapper cannot be null");
         return either.fold(
-                l -> Validation.invalid(errorMapper.apply(l)),
+                l -> Validation.invalid(
+                        Objects.requireNonNull(
+                                errorMapper.apply(l),
+                                "errorMapper result cannot be null"
+                        )
+                ),
                 Validation::valid
         );
     }
@@ -1002,6 +1033,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      *
      */
     static <T> Validation<T> from(Optional<? extends T> optional) {
+        Objects.requireNonNull(optional, "optional cannot be null");
         return from(Option.ofOptional(optional));
     }
 
@@ -1011,6 +1043,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the optional is empty, the returned validation will be invalid with the provided error key.
      */
     static <T> Validation<T> from(Optional<? extends T> optional, String errorKey) {
+        Objects.requireNonNull(optional, "optional cannot be null");
         return from(Option.ofOptional(optional), errorKey);
     }
 
@@ -1020,6 +1053,8 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the optional is empty, the returned validation will be invalid with the provided error message.
      */
     static <T> Validation<T> from(Optional<? extends T> optional, ErrorMessage errorMessage) {
+        Objects.requireNonNull(optional, "optional cannot be null");
+        Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return from(Option.ofOptional(optional), errorMessage);
     }
 
@@ -1033,6 +1068,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      */
     @SuppressWarnings("unchecked")
     static <T> Validation<T> narrow(Validation<? extends T> validation) {
+        Objects.requireNonNull(validation, "validation cannot be null");
         return (Validation<T>) validation;
     }
 
@@ -1041,6 +1077,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      */
     @SuppressWarnings("unchecked")
     static <T> Validation<T> narrowSuper(Validation<? super T> validation) {
+        Objects.requireNonNull(validation, "validation cannot be null");
         return (Validation<T>) validation;
     }
     //endregion

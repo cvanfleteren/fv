@@ -2090,7 +2090,7 @@ public class ValidationTest {
         @Test
         void from_whenSupplierReturnsValue_returnsValidWithThatValue() {
             // Act
-            Validation<String> result = Validation.from(() -> "expected");
+            Validation<String> result = Validation.fromCatching(() -> "expected");
 
             // Assert
             assertThatValidation(result)
@@ -2105,7 +2105,7 @@ public class ValidationTest {
             ErrorMessage e2 = ErrorMessage.of("age.too.young");
 
             // Act
-            Validation<Object> result = Validation.from(() -> {
+            Validation<Object> result = Validation.fromCatching(() -> {
                 throw new ValidationException(List.of(e1, e2));
             });
 
@@ -2121,7 +2121,7 @@ public class ValidationTest {
             RuntimeException boom = new RuntimeException("boom");
 
             // Act
-            assertThatThrownBy(() -> Validation.from(() -> {
+            assertThatThrownBy(() -> Validation.fromCatching(() -> {
                 throw boom;
             })).isSameAs(boom);
         }

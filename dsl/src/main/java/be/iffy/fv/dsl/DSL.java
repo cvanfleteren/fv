@@ -45,7 +45,10 @@ public class DSL {
      * </pre>
      */
     public static <T> AfterDSL<T> after(Supplier<be.iffy.fv.Transformation<T>> transformation) {
-        return new AfterDSL<>(transformation.get());
+        Objects.requireNonNull(transformation,"transformation cannot be null");
+        return new AfterDSL<>(
+                Objects.requireNonNull(transformation.get(),"transformation result cannot be null")
+        );
     }
 
     /**
@@ -108,6 +111,7 @@ public class DSL {
      * Build a Validation that asserts that the valid is {@link be.iffy.fv.Validation.Valid} and returns its value, throwing a {@link ValidationException} otherwise.
      */
     public static <T, Z> AssertDSL<T> assertThat(T value, PropertySelector<Z, T> selector) {
+        Objects.requireNonNull(selector, "selector cannot be null");
         return new AssertDSL<>(value, selector.getPropertyName());
     }
 
@@ -119,7 +123,10 @@ public class DSL {
      * @throws ValidationException if any validation is invalid.
      */
     public static void assertAllValid(Validation<?>... validations) {
-        Iterator<ErrorMessage> it = Iterator.of(validations).flatMap(Validation::errors);
+        Objects.requireNonNull(validations, "validations cannot be null");
+        Iterator<ErrorMessage> it = Iterator.of(validations)
+                .map(v -> Objects.requireNonNull(v, "validation cannot be null"))
+                .flatMap(Validation::errors);
         if (!it.isEmpty()) {
             throw new ValidationException(it.toList());
         }
@@ -264,6 +271,7 @@ public class DSL {
      * @see be.iffy.fv.rules.functional.OptionalRules#required()
      */
     public static <T> Rule<Optional<T>> optional(Rule<T> rule) {
+        Objects.requireNonNull(rule, "rule cannot be null");
         return rule.liftToOptional();
     }
 
@@ -292,6 +300,8 @@ public class DSL {
      * @see be.iffy.fv.rules.functional.OptionRules#required()
      */
     public static <T> Rule<Option<T>> option(Rule<T> rule) {
+
+        Objects.requireNonNull(rule, "rule cannot be null");
         return rule.liftToOption();
     }
 
@@ -319,6 +329,7 @@ public class DSL {
      * @param name a selector for the name of the value (e.g., Field::name).
      */
     public static <ANY, T> ValidationDSL<T> validateThat(T value, PropertySelector<ANY, T> name) {
+        Objects.requireNonNull(name, "name cannot be null");
         return new ValidationDSL<>(value, name.getPropertyName());
     }
 
@@ -333,6 +344,7 @@ public class DSL {
      * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
      */
     public static <ANY, T> VListValidationDSL<T, T> validateThatList(List<T> value, PropertySelector<ANY, T> name) {
+        Objects.requireNonNull(name, "name cannot be null");
         return new VListValidationDSL<>(value, name.getPropertyName());
     }
 
@@ -347,6 +359,7 @@ public class DSL {
      * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
      */
     public static <ANY, T> JListValidationDSL<T, T> validateThatList(java.util.List<T> value, PropertySelector<ANY, T> name) {
+        Objects.requireNonNull(name, "name cannot be null");
         return new JListValidationDSL<>(value, name.getPropertyName());
     }
 

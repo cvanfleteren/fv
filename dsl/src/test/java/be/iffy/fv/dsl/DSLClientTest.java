@@ -75,8 +75,8 @@ public class DSLClientTest {
         PersonDto dtoA = new PersonDto("X", 18);
         PersonDto dtoB = new PersonDto("John", 16);
 
-        Validation<Person> personAV = Validation.from(() -> new Person(dtoA.name, dtoA.age)).at("a");
-        Validation<Person> personBV = Validation.from(() -> new Person(dtoB.name, dtoB.age)).at("b");
+        Validation<Person> personAV = Validation.fromCatching(() -> new Person(dtoA.name, dtoA.age)).at("a");
+        Validation<Person> personBV = Validation.fromCatching(() -> new Person(dtoB.name, dtoB.age)).at("b");
 
         Validation<Couple> coupleV = Validation.mapN(personAV, personBV, Couple::new);
 

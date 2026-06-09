@@ -5,6 +5,7 @@ import be.iffy.fv.Rule;
 import be.iffy.fv.Transformation;
 import be.iffy.fv.Validation;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 
@@ -23,6 +24,7 @@ public class AfterDSL<T> {
     private final Transformation<T> transformer;
 
     public AfterDSL(Transformation<T> transformer) {
+        Objects.requireNonNull(transformer, "transformer cannot be null");
         this.transformer = in -> {
             if (in == null) {
                 return null;
@@ -32,17 +34,29 @@ public class AfterDSL<T> {
         };
     }
 
+    /**
+     * Creates a rule that applies the transformation to the input before evaluating it against the specified rule.
+     *
+     * @param rule the rule to apply to the transformed input
+     */
     public Rule<T> is(Rule<T> rule) {
+        Objects.requireNonNull(rule, "rule cannot be null");
         return input -> {
             T transformed = transformer.apply(input);
             return rule.test(transformed);
         };
     }
 
-    public <R> MappingRule<T, R> is(Function<? super T, ? extends Validation<R>> rule) {
+    /**
+     * Creates a mapping rule that applies the transformation to the input before applying the provided rule function.
+     *
+     * @param ruleFunction the function to apply to the transformed input
+     */
+    public <R> MappingRule<T, R> is(Function<? super T, ? extends Validation<R>> ruleFunction) {
+        Objects.requireNonNull(ruleFunction, "ruleFunction cannot be null");
         return input -> {
             T transformed = transformer.apply(input);
-            return rule.apply(transformed);
+            return ruleFunction.apply(transformed);
         };
     }
 }

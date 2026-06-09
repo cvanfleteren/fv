@@ -80,7 +80,7 @@ public class ClientViewTest {
                     ).map(Mandate::new);
 
                 } else {
-                    return Validation.from(() -> new Mandate(testDTO.date, Option.none()));
+                    return Validation.fromCatching(() -> new Mandate(testDTO.date, Option.none()));
                 }
             });
         };

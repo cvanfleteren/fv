@@ -62,12 +62,12 @@ public class ValidationDSLTest {
 
     @Test
     void scenario() {
-        assertThatValidation(Validation.from(() ->
+        assertThatValidation(Validation.fromCatching(() ->
                         new SomeClass(SomeStatus.FAILURE, List.of("some failure"), Option.of(Instant.now()), Option.of(Instant.now().plusSeconds(1)))
                 )
         ).isValid();
 
-        assertThatValidation(Validation.from(() ->
+        assertThatValidation(Validation.fromCatching(() ->
                         new SomeClass(SomeStatus.SUCCESS, List.of("some failure"), Option.of(Instant.now()), Option.of(Instant.now().plusSeconds(1)))
                 )
         ).isInvalid().hasErrorMessages("errors.must.be.empty");
