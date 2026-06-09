@@ -568,12 +568,16 @@ class RuleTest {
     @Nested
     class Xor {
 
+
+        Validation<String> isLongerThan5(String in) {
+            return Rule.<String>of(s -> s.length() > 5, "too.short").test(in);
+        }
+
         @Test
         void xor_whenFirstRulePassesAndSecondRuleFails_returnsValidResult() {
             // Arrange
             Rule<String> startsWithH = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> isLongerThan5 = Rule.of(s -> s.length() > 5, "too.short");
-            Rule<String> combined = startsWithH.xor(isLongerThan5, "exactly.one.must.match");
+            Rule<String> combined = startsWithH.xor(this::isLongerThan5, "exactly.one.must.match");
 
             // Act
             Validation<String> result = combined.test("hello");

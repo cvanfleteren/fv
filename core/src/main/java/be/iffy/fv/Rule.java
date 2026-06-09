@@ -55,6 +55,13 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Make a {@code Rule<T>} from a function that shares the same signature.
      */
     static <T> Rule<T> of(Function<? super T, ? extends Validation<? extends T>> ruleLikeFunction) {
+        if(ruleLikeFunction instanceof Rule) {
+            // no need to wrap if the function is already a Rule
+            @SuppressWarnings("unchecked")
+            Rule<T> alreadyRule = (Rule<T>) ruleLikeFunction;
+            return alreadyRule;
+        }
+
         Objects.requireNonNull(ruleLikeFunction, "ruleLikeFunction cannot be null");
         return input -> {
             if(input == null) {
@@ -90,16 +97,16 @@ public interface Rule<T> extends MappingRule<T, T> {
      * The combined rule is successful only if both this and the other rule are successful.
      * If this rule fails, the evaluation stops and the other rule is not evaluated.
      * <p>
-     * If you want to evaluate both rules and accumulate their errors, use {@link #andAlso(Rule)}.
+     * If you want to evaluate both rules and accumulate their errors, use {@link #andAlso(Function)}.
      *
-     * @see #andAlso(Rule)
+     * @see #andAlso(Function)
      * @see #then(Function)
      */
-    default <S extends T> Rule<S> and(Rule<? super S> other) {
+    default <S extends T> Rule<S> and(Function<? super S, ? extends Validation<?>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input ->
             test(input).flatMap(v ->
-                    other.test(input).map(ignored -> input)
+                    other.apply(input).map(ignored -> input)
 
             );
     }
@@ -109,25 +116,26 @@ public interface Rule<T> extends MappingRule<T, T> {
      * The combined rule is successful only if both this and the other rule are successful.
      * If both rules fail, their errors are combined.
      * <p>
-     * If you want to stop evaluation after the first failure, use {@link #and(Rule)}.
+     * If you want to stop evaluation after the first failure, use {@link #and(Function)}.
      *
-     * @see #and(Rule)
+     * @see #and(Function)
      */
-    default <S extends T> Rule<S> andAlso(Rule<? super S> other) {
+    default <S extends T> Rule<S> andAlso(Function<? super S, ? extends Validation<?>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         // map back to original input so we're protected against other returning an incompatible value
         return input ->
-            Validation.mapN(test(input), other.test(input), (v, o) -> v).map(ignore -> input);
+            Validation.mapN(test(input), other.apply(input), (v, o) -> v).map(ignore -> input);
     }
 
     /**
      * Composes this rule with another rule using "or" logic.
      * The combined rule is successful if either this or the other rule is successful.
      * If both rules fail, their errors are combined.
-     * Both rules are evaluated at most once and the other rule is only evaluated when this rule fails.
+     * Both rules are evaluated at most once, and the other rule is only evaluated when this rule fails.
      */
     @SuppressWarnings("unchecked")
-    default <S extends T> Rule<S> or(Rule<? super S> other) {
+    default <S extends T> Rule<S> or(Function<? super S, ? extends Validation<?>> other) {
+
         Objects.requireNonNull(other, "other rule cannot be null");
         return input -> {
             Validation<S> first = (Validation<S>) test(input);
@@ -135,7 +143,7 @@ public interface Rule<T> extends MappingRule<T, T> {
                 return first;
             }
 
-            Validation<S> second = other.test(input).map(ignore -> input);
+            Validation<S> second = other.apply(input).map(ignore -> input);
             if (second.isValid()) {
                 return second;
             }
@@ -149,12 +157,12 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Successful only if exactly one of the rules is successful.
      */
     @SuppressWarnings("unchecked")
-    default <S extends T> Rule<S> xor(Rule<? super S> other, String errorKey) {
+    default <S extends T> Rule<S> xor(Function<? super S, ? extends Validation<?>> other, String errorKey) {
         Objects.requireNonNull(other, "other rule cannot be null");
         Objects.requireNonNull(errorKey, "errorKey cannot be null");
         return input -> {
             boolean v1Valid = this.test(input).isValid();
-            boolean v2Valid = other.test(input).isValid();
+            boolean v2Valid = other.apply(input).isValid();
             if (v1Valid ^ v2Valid) {
                 return Validation.valid(input);
             }
@@ -225,7 +233,7 @@ public interface Rule<T> extends MappingRule<T, T> {
     /**
      * Returns a new {@link Rule} that first applies this rule, and if the input is invalid, falls back to the {@code other} rule.
      * Like {@link MappingRule#recoverWith}, but the fallback is a {@link Rule}.
-     * The difference with {@link #or(Rule)} is that only the errors of the {@code other} Rule will be returned if both fail.
+     * The difference with {@link #or(Function)} is that only the errors of the {@code other} Rule will be returned if both fail.
      * The fallback rule is evaluated only when this rule fails.
      *
      * @param other the other rule to use as a fallback if this rule fails
@@ -417,7 +425,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * The combined rule is successful only if both rules are successful.
      * If both rules fail, the errors are combined.
      *
-     * @see #andAlso(Rule)
+     * @see #andAlso(Function)
      */
     static <T> Rule<T> both(Rule<? super T> first, Rule<? super T> second) {
         Objects.requireNonNull(first, "first rule cannot be null");
@@ -523,21 +531,21 @@ public interface Rule<T> extends MappingRule<T, T> {
     /**
      * Only apply the Rule when condition evaluates to {@code true}, return a Valid otherwise without evaluating the Rule.
      */
-    static <T> Rule<T> when(boolean condition, Rule<T> rule) {
+    static <T> Rule<T> when(boolean condition, Function<? super T, ? extends Validation<T>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return rule.onlyIf(() -> condition);
+        return Rule.of(rule).onlyIf(() -> condition);
     }
 
     /**
-     * Selects and returns one of the provided rules based on the given condition. As opposed to {@link #when(boolean, Rule)}, there's always
+     * Selects and returns one of the provided rules based on the given condition. As opposed to {@link #when(boolean, Function)}, there's always
      * a Rule beinng applied.
      *
      * @param condition a boolean determining which rule to select; if true, the first rule is chosen, otherwise the fallback rule
      */
-    static <T> Rule<T> choose(boolean condition, Rule<T> rule, Rule<T> fallback) {
+    static <T> Rule<T> choose(boolean condition, Function<? super T, ? extends Validation<T>> rule, Function<? super T, ? extends Validation<T>> fallback) {
         Objects.requireNonNull(rule, "rule cannot be null");
         Objects.requireNonNull(fallback, "fallback cannot be null");
-        return condition ? rule : fallback;
+        return condition ? Rule.of(rule) : Rule.of(fallback);
     }
 
 }
