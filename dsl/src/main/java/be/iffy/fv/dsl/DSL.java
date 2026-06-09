@@ -265,47 +265,6 @@ public class DSL {
     }
 
     /**
-     * For any given {@code Rule<T>}, returns a Rule that can work on an {@code Rule<Optional<T>>} instead.
-     * An empty {@link Optional} is considered to be valid.
-     *
-     * @see be.iffy.fv.rules.functional.OptionalRules#required()
-     */
-    public static <T> Rule<Optional<T>> optional(Rule<T> rule) {
-        Objects.requireNonNull(rule, "rule cannot be null");
-        return rule.liftToOptional();
-    }
-
-    /**
-     * For any given {@code Function<T, Validation<R>>}, returns a MappingRule that can work on a {@code  MappingRule<Optional<T>, Optional<R>>} instead.
-     * An empty {@link Optional} is considered to be valid.
-     */
-    public static <T,R> MappingRule<Optional<T>, Optional<R>> optional(Function<T, ? extends Validation<R>> ruleLike) {
-        return MappingRule.of(ruleLike).liftToOptional();
-    }
-
-    /**
-     * For any given {@code MappingRule<T, R>}, returns a MappingRule that can work on an {@code MappingRule<Option<T>, Option<R>>} instead.
-     * An empty {@link Option} is considered to be valid.
-     *
-     * @see be.iffy.fv.rules.functional.OptionRules#required()
-     */
-    public static <T, R> MappingRule<Option<T>, Option<R>> option(Function<T, ? extends Validation<R>> ruleLike) {
-        return MappingRule.of(ruleLike).liftToOption();
-    }
-
-    /**
-     * For any given {@code Rule<T>}, returns a Rule that can work on an {@code Rule<Option<T>>} instead.
-     * An empty {@link Option} is considered to be valid.
-     *
-     * @see be.iffy.fv.rules.functional.OptionRules#required()
-     */
-    public static <T> Rule<Option<T>> option(Rule<T> rule) {
-
-        Objects.requireNonNull(rule, "rule cannot be null");
-        return rule.liftToOption();
-    }
-
-    /**
      * Starts a validation process for a single value.
      */
     public static <T> ValidationDSL<T> validateThat(T value) {

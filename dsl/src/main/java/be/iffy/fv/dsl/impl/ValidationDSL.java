@@ -41,10 +41,18 @@ public class ValidationDSL<T> {
      * If the mapper throws an Exception, it is caught and the validation becomes {@link Validation.Invalid}
      */
     public ValidationDSL<T> map(be.iffy.fv.Transformation<T> mapper) {
+        Objects.requireNonNull(mapper, "mapper cannot be null");
         return new ValidationDSL<>(validation.mapCatching(mapper::apply), name);
     }
 
+    /**
+     * Transforms the validation from type T to type R using the provided mapping rule.
+     *
+     * @param mapper the mapping rule used to refine and transform the validation
+     * @return a new ValidationDSL instance representing the transformed validation
+     */
     public <R> ValidationDSL<R> map(MappingRule<T, R> mapper) {
+        Objects.requireNonNull(mapper, "mapper cannot be null");
         return new ValidationDSL<>(validation.refine(mapper), name);
     }
 

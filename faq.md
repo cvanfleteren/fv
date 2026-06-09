@@ -230,17 +230,12 @@ These methods "lift" a rule that works on a single value to work on an optional 
 Rule<String> minLengthRule = strings.minLength(5);
 Rule<Optional<String>> optionalRule = minLengthRule.liftToOptional();
 
-// or alternatively with the DSL:
-Rule<Optional<String>> dsl = optional(strings.minLength(5));
+// or alternatively with the OptionalRules:
+Rule<Optional<String>> fromOptionals = optionals.contains(strings.minLength(5));
 
 optionalRule.test(Optional.empty()); // Valid
 optionalRule.test(Optional.of("abc")); // Invalid (must be at least 5)
 optionalRule.test(Optional.of("abcdef")); // Valid
-```
-Or with the predefined Option(al)Rules:
-
-```java
-MappingRule<Optional<String>,String> rule = optionals.matches(strings.minLength(5)); // empty optional is still valid
 ```
 
 ---
