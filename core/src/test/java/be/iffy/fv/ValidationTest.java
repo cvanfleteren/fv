@@ -86,6 +86,48 @@ public class ValidationTest {
     }
 
     @Nested
+    class Of {
+        @Test
+        void invalid_whenGivenDuplicateErrors_makesThemUniqueWhileKeepingOrder() {
+            // Arrange
+            ErrorMessage error1 = ErrorMessage.of("Error 1");
+            ErrorMessage error2 = ErrorMessage.of("Error 2");
+            ErrorMessage error1Duplicate = ErrorMessage.of("Error 1");
+
+            // Act
+            Validation<String> result = Validation.invalid(List.of(error1, error2, error1Duplicate));
+
+            // Assert
+            assertThat(result.errors()).containsExactly(error1, error2);
+        }
+
+        @Test
+        void of_whenGivenNonNullValue_returnsValidValidation() {
+            // Arrange
+            String value = "Success";
+
+            // Act
+            Validation<String> result = Validation.of(value);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isSameAs(value);
+        }
+
+        @Test
+        void of_whenGivenNull_returnsInvalidValidationWithNotNullError() {
+            // Act
+            Validation<String> result = Validation.of(null);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("must.not.be.null");
+        }
+    }
+
+    @Nested
     class Assertions {
         //test against the Assertion helpers, getting meta :)
 
@@ -262,6 +304,18 @@ public class ValidationTest {
     class Map {
 
         @Test
+        void map_whenMapperReturnsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+
+            // Act & Assert
+            assertThatCode(() -> valid.map(s -> null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("value cannot be null");
+        }
+
+
+        @Test
         void map_whenValid_returnsMappedValue() {
             // Arrange
             Validation<String> valid = Validation.valid("123");
@@ -317,6 +371,17 @@ public class ValidationTest {
 
     @Nested
     class MapCatching {
+
+        @Test
+        void mapCatching_whenMapperReturnsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+
+            // Act & Assert
+            assertThatCode(() -> valid.mapCatching(s -> null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("value cannot be null");
+        }
 
         @Test
         void mapCatching_whenValidAndMapperSucceeds_returnsMappedValue() {
@@ -392,6 +457,17 @@ public class ValidationTest {
     class MapCatchingAll {
 
         @Test
+        void mapCatchingAll_whenMapperReturnsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+
+            // Act & Assert
+            assertThatValidation(valid.mapCatchingAll(s -> null, "error"))
+                    .isInvalid()
+                    .hasErrorMessages("error");
+        }
+
+        @Test
         void mapCatchingAllWithErrorMessage_whenValidAndMapperThrowsRuntimeException_becomesInvalidWithErrorMessage() {
             // Arrange
             Validation<String> valid = Validation.valid("abc");
@@ -438,6 +514,17 @@ public class ValidationTest {
 
     @Nested
     class FlatMap {
+
+        @Test
+        void flatMap_whenFlatMapperReturnsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+
+            // Act & Assert
+            assertThatCode(() -> valid.flatMap(s -> null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("flatMapper cannot return null Validation");
+        }
 
         @Test
         void flatMap_whenValidAndMapperReturnsValid_returnsValidValidation() {
@@ -584,6 +671,17 @@ public class ValidationTest {
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("flatMapper cannot be null");
         }
+
+        @Test
+        void flatMapCatching_whenFlatMapperReturnsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+
+            // Act & Assert
+            assertThatCode(() -> valid.flatMapCatching(s -> null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("flatMapper cannot return null Validation");
+        }
     }
 
     @Nested
@@ -710,6 +808,17 @@ public class ValidationTest {
             assertThatCode(() -> valid.flatMapCatchingAll(s -> Validation.valid(1), (Function<Exception, ErrorMessage>) null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("errorMessageMaker cannot be null");
+        }
+
+        @Test
+        void flatMapCatchingAll_whenFlatMapperReturnsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> valid = Validation.valid("Success");
+
+            // Act & Assert
+            assertThatValidation(valid.flatMapCatchingAll(s -> null, "error"))
+                    .isInvalid()
+                    .hasErrorMessages("error");
         }
     }
 

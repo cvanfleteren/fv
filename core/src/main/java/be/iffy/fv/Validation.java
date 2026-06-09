@@ -144,8 +144,7 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Converts this validation into a Java {@link Optional}.
-     * Returns {@code Optional.of(value)} when valid and the value is non-null,
-     * otherwise {@code Optional.empty()}. A {@code Valid(null)} is converted to empty.
+     * Returns {@code Optional.of(value)} when valid, otherwise {@code Optional.empty()}.
      */
     default Optional<T> toOptional() {
         return this.fold(
@@ -156,8 +155,7 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Converts this validation into a Vavr {@link Option}.
-     * Returns {@code Some(value)} when valid and the value is non-null,
-     * otherwise {@code None}. A {@code Valid(null)} is converted to {@code None}.
+     * Returns {@code Some(value)} when valid, otherwise {@code None}.
      */
     default Option<T> toOption() {
         return this.fold(
@@ -391,9 +389,13 @@ public sealed interface Validation<T> extends Iterable<T> {
         Objects.requireNonNull(mapper, "mapper cannot be null");
         return switch (this) {
             case Valid<T> v -> v;
-            case Invalid(var errors) -> invalid(
-                    Objects.requireNonNull(mapper.apply(errors), "mapper result cannot be null")
-            );
+            case Invalid(var errors) -> {
+                List<ErrorMessage> mapped = Objects.requireNonNull(mapper.apply(errors), "mapper result cannot be null");
+                if (mapped.isEmpty()) {
+                    throw new IllegalArgumentException("mapper result cannot be empty");
+                }
+                yield invalid(mapped);
+            }
         };
     }
 
@@ -442,6 +444,8 @@ public sealed interface Validation<T> extends Iterable<T> {
     static <T> Validation<List<T>> transpose(Seq<? extends Validation<? extends T>> validations, String name) {
         Objects.requireNonNull(validations, "validations cannot be null");
         Objects.requireNonNull(name, "name cannot be null");
+        validations.forEach(v -> Objects.requireNonNull(v, "validations cannot contains null"));
+
         return validations
                 .zipWithIndex()
                 .foldLeft(
@@ -469,9 +473,9 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Transforms a {@code Option<Validation<T>>} into a {@code Validation<Option<T>>}.
      * If the Option is empty, the resulting Validation is considered to be {@link Valid}
-     *
      */
     static <T> Validation<Option<T>> transpose(Option<? extends Validation<? extends T>> option) {
+        Objects.requireNonNull(option, "option cannot be null");
         return option.fold(
                 () -> Validation.valid(Option.none()),
                 validation -> validation.map(Option::of)
@@ -481,10 +485,10 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Transforms a {@code Optional<Validation<T>>} into a {@code Validation<Optional<T>>}.
      * If the Optional is empty, the resulting Validation is considered to be {@link Valid}
-     *
      */
-    static <T> Validation<Optional<T>> transpose(Optional<? extends Validation<? extends T>> option) {
-        return option.<Validation<Optional<T>>>map(validation -> validation.map(Optional::ofNullable))
+    static <T> Validation<Optional<T>> transpose(Optional<? extends Validation<? extends T>> optional) {
+        Objects.requireNonNull(optional, "optional cannot be null");
+        return optional.<Validation<Optional<T>>>map(validation -> validation.map(Optional::ofNullable))
                 .orElseGet(() -> Validation.valid(Optional.empty()));
     }
 
@@ -492,7 +496,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Transforms a {@link java.util.Collection} of {@link Validation}s into a single {@code Validation} of a {@link java.util.List}.
      * If any validation is invalid, the result will contain all accumulated errors.
      *
-     * @param validations the collection of validations to sequence.
+     * @param validations the collection of validations to transpose.
      * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
      */
     static <T> Validation<java.util.List<T>> transpose(java.util.Collection<? extends Validation<? extends T>> validations) {
@@ -829,9 +833,22 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     //region factory methods for known values
 
+
+    /**
+     * Creates a validation containing the provided value.
+     * Any non-null values are considered Valid.
+     */
+    static <T> Validation<T> of(T value) {
+        if(value == null) {
+            return Invalid.notNull();
+        } else {
+            return new Valid<>(value);
+        }
+    }
+
     /**
      * Creates a successful validation containing the provided value.
-     * Null is technically allowed as a valid value but highly discouraged.
+     * Null is not allowed as a valid value.
      */
     static <T> Validation<T> valid(T value) {
         return new Valid<>(value);
@@ -842,6 +859,8 @@ public sealed interface Validation<T> extends Iterable<T> {
      */
     @SuppressWarnings("unchecked")
     static <T> Validation<T> invalid(ErrorMessage error, ErrorMessage... moreErrors) {
+        Objects.requireNonNull(error, "error cannot be null");
+        Objects.requireNonNull(moreErrors, "moreErrors cannot be null");
         return new Invalid<>(List.of(error).appendAll(List.of(moreErrors)));
     }
 
@@ -869,6 +888,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the supplier throws a {@link ValidationException}, the returned validation will be invalid with the same errors
      * as the thrown exception.
      * If the supplier throws any other exception, the exception is propagated.
+     * If the supplier returns null, NullPointerException is thrown.
      * Use {@link #fromCatchingAll(Supplier, ErrorMessage)} when you intentionally want
      * to convert other exceptions into validation errors, or create a {@link Try}
      * yourself and pass it to {@link #from(Try, ErrorMessage)}.
@@ -887,6 +907,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the supplier throws a {@link ValidationException}, the returned validation will be invalid with the same errors
      * as the thrown exception.
      * If the supplier throws any other exception, the exception will also be converted to an Invalid, with the {@link ErrorMessage} created by the errorMessageMaker function.
+     * If the supplier returns null, the resulting NullPointerException is converted to an invalid validation using the provided errorMessageMaker function.
      * This method is meant for interoperability with code that can throw any {@link Exception}, but is also somewhat dangerous
      * as it can hide issues like {@link NullPointerException} and so on.
      */
@@ -960,6 +981,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If the Try failed with a {@link ValidationException}, the returned validation will be invalid with the same errors
      * as the thrown ValidationException.
      * If the {@link Try} is successful, the returned validation will be valid with the value.
+     * But if the Try succeeds with null, the return validation will be invalid with the key "must.not.be.null".
      * If the {@link Try} is failed, the returned validation will be invalid with the error key "failed.from.try"
      * and param "message" representing the message of the exception
      */
@@ -969,22 +991,21 @@ public sealed interface Validation<T> extends Iterable<T> {
                 e -> e instanceof ValidationException ve
                         ? Validation.invalid(ve.errors())
                         : Validation.invalid(ErrorMessage.of("failed.from.try", "message", e.getMessage())),
-                Validation::valid
+                Validation::of
         );
     }
 
     /**
      * Creates a {@link Validation} from an {@link Option}.
-     * If the {@link Option} is defined, the returned validation will be valid with the value.
-     * If the {@link Option} is empty, the returned validation will be invalid with the provided error message.
-     *
+     * If the {@link Option} is defined, the returned validation will be valid with the value provided the value is not null.
+     * If the {@link Option} is empty or contains null, the returned validation will be invalid with the provided error message.
      */
     static <T> Validation<T> from(Option<? extends T> option, ErrorMessage errorMessage) {
         Objects.requireNonNull(option, "option cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return option.fold(
                 () -> Validation.invalid(errorMessage),
-                Validation::valid
+                Validation::of
         );
     }
 
@@ -1100,10 +1121,11 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
-     * If this validation is valid, return a new Valid with the passed value.
+     * If this validation is valid, return a new Valid with the passed, non-null value.
      * If this validation is already invalid, returns it unchanged.
      */
     default <U> Validation<U> mapTo(U value) {
+        Objects.requireNonNull(value, "value cannot be null");
         return map(ignored -> value);
     }
 
@@ -1136,7 +1158,7 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Represents an invalid validation.
      *
-     * @param errors the list of error messages that describe the validation failure. Errors cannot be empty and will be deduplicated.
+     * @param errors the list of error messages that describe the validation failure. Errors cannot be empty, cannot contain nulls and will be deduplicated.
      */
     record Invalid<T>(List<ErrorMessage> errors) implements Validation<T> {
         private static final Invalid notNull = new Invalid<>(List.of(ErrorMessage.of("must.not.be.null")));
@@ -1146,6 +1168,7 @@ public sealed interface Validation<T> extends Iterable<T> {
             if (errors.isEmpty()) {
                 throw new IllegalArgumentException("errors must be non-empty");
             }
+            errors.forEach(error -> Objects.requireNonNull(error, "errors cannot contain null"));
             errors = errors.distinct();
         }
 

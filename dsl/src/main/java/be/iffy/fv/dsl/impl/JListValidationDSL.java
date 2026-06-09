@@ -18,9 +18,12 @@ public class JListValidationDSL<L, E> {
     private final String name;
 
     public JListValidationDSL(List<L> value, String name) {
-        this.listValidation = Rule.<List<L>>notNull().test(value);
-        this.elementValidation = listValidation.mapTo((List<E>) value);
-        this.name = name;
+        this(
+                Rule.<List<L>>notNull().test(value),
+                //E and L start out the same
+                Rule.<List<E>>notNull().test((List<E>) value),
+                name
+        );
     }
 
     private JListValidationDSL(Validation<List<L>> listValidation, Validation<List<E>> elementValidation, String name) {
