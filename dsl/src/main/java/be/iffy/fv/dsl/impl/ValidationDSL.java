@@ -12,7 +12,7 @@ import java.util.function.Function;
  * DSL class for validating a single value.
  *
  */
-public class ValidationDSL<T> {
+public final class ValidationDSL<T> {
 
     private final Validation<T> validation;
     private String name = "";

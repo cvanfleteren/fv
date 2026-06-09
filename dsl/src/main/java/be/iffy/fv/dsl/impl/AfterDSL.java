@@ -20,7 +20,7 @@ import java.util.function.Function;
  * }
  * </pre>
  */
-public class AfterDSL<T> {
+public final class AfterDSL<T> {
     private final Transformation<T> transformer;
 
     public AfterDSL(Transformation<T> transformer) {

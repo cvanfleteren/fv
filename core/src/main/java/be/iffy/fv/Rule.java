@@ -223,7 +223,8 @@ public interface Rule<T> extends MappingRule<T, T> {
     default Rule<T> onlyIf(Supplier<Boolean> condition) {
         Objects.requireNonNull(condition, "condition cannot be null");
         return input -> {
-            if (condition.get()) {
+            Boolean shouldRun = Objects.requireNonNull(condition.get(), "condition result cannot be null");
+            if (shouldRun) {
                 return this.test(input);
             }
             return Validation.valid(input);
@@ -509,8 +510,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Error key: {@code must.not.be.null} if input was null.
      */
     static <T> Rule<T> ok() {
-        return input ->
-                input == null ? Validation.invalid("must.not.be.null") : Validation.valid(input);
+        return Rule.notNull();
     }
 
     /**

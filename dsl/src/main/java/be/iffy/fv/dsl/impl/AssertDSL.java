@@ -5,7 +5,7 @@ import be.iffy.fv.*;
 import java.util.Objects;
 import java.util.function.Function;
 
-public class AssertDSL<T> {
+public final class AssertDSL<T> {
     private final String name;
     private final Validation<T> validation;
 

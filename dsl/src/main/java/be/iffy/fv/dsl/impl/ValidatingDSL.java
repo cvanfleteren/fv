@@ -8,7 +8,7 @@ import java.util.Objects;
 /**
  * A small DSL that's basically just a wrapper around Validation.mapN / Validation.flatmapN
  */
-public class ValidatingDSL {
+public final class ValidatingDSL {
 
     public static class ValidatingBuilder2<T1, T2> {
         final Tuple2<Validation<T1>, Validation<T2>> vs;

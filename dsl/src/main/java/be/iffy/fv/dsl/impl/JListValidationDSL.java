@@ -12,7 +12,7 @@ import java.util.function.Function;
  * DSL class for validating a vavr List, allowing you to easily express rules on the list itself
  * and on the elements within the list.
  */
-public class JListValidationDSL<L, E> {
+public final class JListValidationDSL<L, E> {
     private final Validation<List<L>> listValidation;
     private final Validation<List<E>> elementValidation;
     private final String name;

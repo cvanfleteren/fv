@@ -935,7 +935,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Does not catch {@link Error}s.
      */
     static <T> Validation<T> fromCatchingAll(Supplier<? extends T> supplier, ErrorMessage errorMessage) {
-        Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
+       Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
        return fromCatchingAll(supplier, e -> errorMessage);
     }
 
@@ -1012,7 +1012,7 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Creates a {@link Validation} from an {@link Option}.
      * If the {@link Option} is defined, the returned validation will be valid with the value.
-     * If the {@link Option} is empty, the returned validation will be invalid with the provided error key.
+     * If the {@link Option} is empty or contains null, the returned validation will be invalid with the provided error key.
      */
     static <T> Validation<T> from(Option<? extends T> option, String errorKey) {
         Objects.requireNonNull(option, "option cannot be null");
@@ -1022,7 +1022,7 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Creates a {@link Validation} from an {@link Option}.
      * If the {@link Option} is defined, the returned validation will be valid with the value.
-     * If the {@link Option} is empty, the returned validation will be invalid with the default error message {@code "value.is.none"}.
+     * If the {@link Option} is empty or contains null, the returned validation will be invalid with the default error message {@code "value.is.none"}.
      * <p>
      * Error key: {@code value.is.none}
      */

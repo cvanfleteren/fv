@@ -24,7 +24,7 @@ import java.util.function.Supplier;
  * Entry point for the functional validation API.
  * This class provides static factory methods to create and execute validations.
  */
-public class DSL {
+public final class DSL {
 
     public static final ObjectRules objects = ObjectRules.objects;
 
