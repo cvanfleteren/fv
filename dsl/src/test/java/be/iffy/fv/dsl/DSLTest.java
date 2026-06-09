@@ -3,21 +3,18 @@ package be.iffy.fv.dsl;
 import be.iffy.fv.*;
 import be.iffy.fv.rules.text.StringOps;
 import io.vavr.collection.HashMap;
+import io.vavr.collection.List;
 import io.vavr.collection.Map;
-import io.vavr.control.Option;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static be.iffy.fv.dsl.DSL.*;
-import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
-import static be.iffy.fv.rules.Rules.*;
-import static org.assertj.core.api.Assertions.*;
-
-import io.vavr.collection.List;
-
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.function.Function;
+
+import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
+import static be.iffy.fv.dsl.DSL.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DSLTest {
 

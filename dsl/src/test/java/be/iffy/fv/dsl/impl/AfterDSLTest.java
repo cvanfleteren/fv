@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
-import static be.iffy.fv.dsl.DSL.after;
-import static be.iffy.fv.rules.Rules.strings;
+import static be.iffy.fv.dsl.DSL.*;
 
 class AfterDSLTest {
 

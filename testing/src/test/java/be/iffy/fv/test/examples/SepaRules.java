@@ -3,7 +3,7 @@ package be.iffy.fv.test.examples;
 import be.iffy.fv.Rule;
 
 import static be.iffy.fv.dsl.DSL.after;
-import static be.iffy.fv.rules.Rules.strings;
+import static be.iffy.fv.dsl.DSL.strings;
 import static be.iffy.fv.rules.text.StringOps.trim;
 
 //example of composing rules combined with transforming input

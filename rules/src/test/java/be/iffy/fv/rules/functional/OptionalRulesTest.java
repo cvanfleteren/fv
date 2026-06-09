@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static be.iffy.fv.rules.Rules.strings;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
 import static be.iffy.fv.rules.functional.OptionalRules.optionals;
+import static be.iffy.fv.rules.text.StringRules.strings;
 
 class OptionalRulesTest {
 

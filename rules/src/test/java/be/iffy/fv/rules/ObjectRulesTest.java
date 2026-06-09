@@ -15,9 +15,9 @@ import java.math.BigInteger;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static be.iffy.fv.rules.ObjectRules.objects;
-import static be.iffy.fv.rules.Rules.strings;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
+import static be.iffy.fv.rules.text.StringRules.strings;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ObjectRulesTest {

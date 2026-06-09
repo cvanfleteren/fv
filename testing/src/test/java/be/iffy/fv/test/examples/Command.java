@@ -9,8 +9,6 @@ import java.util.Optional;
 
 import static be.iffy.fv.dsl.DSL.*;
 import static be.iffy.fv.dsl.DSL.validateThat;
-import static be.iffy.fv.rules.Rules.bigDecimals;
-import static be.iffy.fv.rules.Rules.strings;
 
 public record Command(Debtor debtor, KboNumber kboNumber, List<Transaction> transactions) {
 

@@ -6,8 +6,7 @@ import be.iffy.fv.rules.text.StringOps;
 
 import java.util.regex.Pattern;
 
-import static be.iffy.fv.dsl.DSL.assertThat;
-import static be.iffy.fv.rules.Rules.strings;
+import static be.iffy.fv.dsl.DSL.*;
 
 public record Bic(String value) {
 

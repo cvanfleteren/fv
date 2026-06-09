@@ -13,14 +13,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.function.Function;
 
-import static be.iffy.fv.dsl.DSL.assertAllValid;
-import static be.iffy.fv.dsl.DSL.validateThat;
-import static be.iffy.fv.dsl.DSL.validating;
+import static be.iffy.fv.dsl.DSL.*;
 import static be.iffy.fv.dsl.experimental.Validator.validatorFor;
-import static be.iffy.fv.rules.BooleanRules.booleans;
-import static be.iffy.fv.rules.ObjectRules.objects;
-import static be.iffy.fv.rules.Rules.*;
-import static be.iffy.fv.rules.text.StringRules.strings;
 
 public class ClientViewTest {
 

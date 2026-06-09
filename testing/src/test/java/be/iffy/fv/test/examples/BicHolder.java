@@ -4,9 +4,8 @@ import be.iffy.fv.MappingRule;
 import be.iffy.fv.Validation;
 
 import java.util.Optional;
-
+import static be.iffy.fv.dsl.DSL.optionals;
 import static be.iffy.fv.dsl.DSL.validateThat;
-import static be.iffy.fv.rules.Rules.optionals;
 
 public class BicHolder {
 

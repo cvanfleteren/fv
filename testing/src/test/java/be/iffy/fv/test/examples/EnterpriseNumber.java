@@ -4,9 +4,7 @@ import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 import be.iffy.fv.rules.text.StringOps;
 
-import static be.iffy.fv.dsl.DSL.after;
-import static be.iffy.fv.dsl.DSL.assertThat;
-import static be.iffy.fv.rules.Rules.strings;
+import static be.iffy.fv.dsl.DSL.*;
 
 public record EnterpriseNumber(String value) {
 

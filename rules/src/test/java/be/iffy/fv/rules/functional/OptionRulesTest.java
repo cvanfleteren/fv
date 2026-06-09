@@ -5,9 +5,9 @@ import io.vavr.control.Option;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static be.iffy.fv.rules.Rules.strings;
 import static be.iffy.fv.rules.functional.OptionRules.options;
 import static be.iffy.fv.rules.RulesTest.*;
+import static be.iffy.fv.rules.text.StringRules.strings;
 
 class OptionRulesTest {
 

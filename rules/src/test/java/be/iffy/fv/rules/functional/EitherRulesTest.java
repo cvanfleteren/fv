@@ -1,17 +1,16 @@
 package be.iffy.fv.rules.functional;
 
-import io.vavr.control.Either;
 import be.iffy.fv.Rule;
-import be.iffy.fv.rules.numbers.IntegerRules;
 import be.iffy.fv.rules.text.StringRules;
+import io.vavr.control.Either;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
-import static be.iffy.fv.rules.Rules.ints;
-import static be.iffy.fv.rules.functional.EitherRules.eithers;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
+import static be.iffy.fv.rules.functional.EitherRules.eithers;
+import static be.iffy.fv.rules.numbers.IntegerRules.ints;
 
 class EitherRulesTest {
 

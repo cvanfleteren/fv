@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import static be.iffy.fv.dsl.DSL.*;
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
-import static be.iffy.fv.rules.Rules.objects;
-import static be.iffy.fv.rules.text.StringRules.strings;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ObjectGraphValidationTest {

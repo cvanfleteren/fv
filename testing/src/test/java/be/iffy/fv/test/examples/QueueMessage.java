@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static be.iffy.fv.dsl.DSL.*;
-import static be.iffy.fv.rules.Rules.*;
 
 @NullMarked
 public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> transactions) {

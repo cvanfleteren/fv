@@ -3,9 +3,7 @@ package be.iffy.fv.test.examples;
 import be.iffy.fv.Rule;
 import be.iffy.fv.rules.text.StringOps;
 
-import static be.iffy.fv.dsl.DSL.after;
-import static be.iffy.fv.dsl.DSL.assertThat;
-import static be.iffy.fv.rules.Rules.strings;
+import static be.iffy.fv.dsl.DSL.*;
 
 public record KboNumber(String value) {
 

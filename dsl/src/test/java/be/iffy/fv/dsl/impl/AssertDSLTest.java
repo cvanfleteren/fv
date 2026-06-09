@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.util.function.Function;
 
 import static be.iffy.fv.dsl.DSL.assertThat;
-import static be.iffy.fv.rules.Rules.strings;
+import static be.iffy.fv.dsl.DSL.strings;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

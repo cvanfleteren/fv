@@ -5,7 +5,6 @@ import be.iffy.fv.Rule;
 import java.util.List;
 
 import static be.iffy.fv.dsl.DSL.*;
-import static be.iffy.fv.rules.Rules.lists;
 
 record StepChanged(String source,
                    ProcessingStatus status,

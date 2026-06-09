@@ -2,6 +2,14 @@ package be.iffy.fv.dsl;
 
 import be.iffy.fv.*;
 import be.iffy.fv.dsl.impl.*;
+import be.iffy.fv.rules.BooleanRules;
+import be.iffy.fv.rules.ObjectRules;
+import be.iffy.fv.rules.collections.*;
+import be.iffy.fv.rules.functional.OptionRules;
+import be.iffy.fv.rules.functional.OptionalRules;
+import be.iffy.fv.rules.numbers.*;
+import be.iffy.fv.rules.text.StringRules;
+import be.iffy.fv.rules.time.*;
 import io.vavr.*;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
@@ -17,6 +25,56 @@ import java.util.function.Supplier;
  * This class provides static factory methods to create and execute validations.
  */
 public class DSL {
+
+    public static final ObjectRules objects = ObjectRules.objects;
+
+    public static final BooleanRules booleans = BooleanRules.booleans;
+
+    public static final StringRules strings = StringRules.strings;
+
+    public static final BigDecimalRules bigDecimals = BigDecimalRules.bigDecimals;
+
+    public static final BigIntegerRules bigInts= BigIntegerRules.bigInts;
+
+    public static final DoubleRules doubles = DoubleRules.doubles;
+
+    public static final FloatRules floats = FloatRules.floats;
+
+    public static final IntegerRules ints = IntegerRules.ints;
+
+    public static final LongRules longs = LongRules.longs;
+
+    public static final DurationRules durations = DurationRules.durations;
+
+    public static final InstantRules instants = InstantRules.instants;
+
+    public static final LocalDateRules localDates = LocalDateRules.localDates;
+
+    public static final LocalDateTimeRules localDateTimes = LocalDateTimeRules.localDateTimes;
+
+    public static final LocalTimeRules localTimes = LocalTimeRules.localTimes;
+
+    public static final YearMonthRules yearMonths = YearMonthRules.yearMonths;
+
+    public static final ZonedDateTimeRules zonedDateTimes = ZonedDateTimeRules.zonedDateTimes;
+
+    public static final VavrListRules vavrLists = VavrListRules.vavrLists;
+
+    public static final ListRules lists = ListRules.lists;
+
+    public static final CollectionRules collections = CollectionRules.collections;
+
+    public static final SetRules sets = SetRules.sets;
+
+    public static final VavrSetRules vavrSets = VavrSetRules.vavrSets;
+
+    public static final VavrMapRules vavrMaps = VavrMapRules.vavrMaps;
+
+    public static final MapRules maps = MapRules.maps;
+
+    public static final OptionRules options = OptionRules.options;
+
+    public static final OptionalRules optionals = OptionalRules.optionals;
 
     /**
      * A tiny DSL for helping to define Rules that transform their input before running their actual logic on it.
