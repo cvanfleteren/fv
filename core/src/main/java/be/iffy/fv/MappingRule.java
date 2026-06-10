@@ -391,7 +391,10 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
         Objects.requireNonNull(selector, "selector cannot be null");
         Objects.requireNonNull(rule, "rule cannot be null");
         return input -> Validation.narrow(
-                Objects.requireNonNull(rule.apply(selector.apply(input)), "rule cannot return null Validation")
+                Objects.requireNonNull(
+                        rule.apply(selector.apply(input)),
+                        "rule cannot return null Validation"
+                )
         );
     }
 }

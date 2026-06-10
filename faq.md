@@ -75,7 +75,7 @@ Both `Rule<T>` and `MappingRule<T, R>` actually extend this functional interface
 
 ### I have an Invalid validation, how can I know what was wrong?
 
-When a validation fails, it returns an **`Invalid`** object. You can access the errors using the `getErrors()` method, which returns a `List<ErrorMessage>`.
+When a validation fails, it returns an **`Invalid`** object. You can access the errors using the `errors()` method, which returns a `List<ErrorMessage>`.
 
 Each **`ErrorMessage`** contains:
 *   **`errorKey`**: A unique string identifying the type of error (e.g., `"must.have.length.between"`).
@@ -132,7 +132,7 @@ You can combine rules using several composition methods:
 *   **`andAlso(Rule)`**: Non-short-circuiting "and". Both rules are executed, and if both fail, their errors are combined.
 *   **`or(Rule)`**: If the first rule succeeds, the result is valid. If it fails, it tries the second rule. If both fail, errors are combined.
 *   **`xor(Rule, String)`**: Exactly one of the rules must pass or the result is invalid with the passed errorKey.
-*   **`Rule.any(Rule...)`**: a more general or, acception multiple rules. As long as a single rule passes, the result is valid. If all fail, errors are combined. 
+*   **`Rule.any(Rule...)`**: a more general or, accepting multiple rules. As long as a single rule passes, the result is valid. If all fail, errors are combined. 
 *   **`Rule.all(Rule...)`**: Combines multiple rules. All must pass, and it collects all errors from failing rules.
 
 ---

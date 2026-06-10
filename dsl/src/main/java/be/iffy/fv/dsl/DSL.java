@@ -34,7 +34,7 @@ public final class DSL {
 
     public static final BigDecimalRules bigDecimals = BigDecimalRules.bigDecimals;
 
-    public static final BigIntegerRules bigInts= BigIntegerRules.bigInts;
+    public static final BigIntegerRules bigInts = BigIntegerRules.bigInts;
 
     public static final DoubleRules doubles = DoubleRules.doubles;
 
@@ -80,7 +80,7 @@ public final class DSL {
      * A tiny DSL for helping to define Rules that transform their input before running their actual logic on it.
      * Usage would look like this:
      * <pre>
-     *{@code
+     * {@code
      * ...
      * Rule<String> originalRule = after(StringOps.trim()).is(strings.length(5));
      * ...
@@ -95,7 +95,7 @@ public final class DSL {
      * A tiny DSL for helping to define Rules that transform their input before running their actual logic on it.
      * Usage would look like this:
      * <pre>
-     *{@code
+     * {@code
      * ...
      * Rule<String> originalRule = after(String::trim).is(strings.length(5));
      * ...
@@ -103,9 +103,9 @@ public final class DSL {
      * </pre>
      */
     public static <T> AfterDSL<T> after(Supplier<be.iffy.fv.Transformation<T>> transformation) {
-        Objects.requireNonNull(transformation,"transformation cannot be null");
+        Objects.requireNonNull(transformation, "transformation cannot be null");
         return new AfterDSL<>(
-                Objects.requireNonNull(transformation.get(),"transformation result cannot be null")
+                Objects.requireNonNull(transformation.get(), "transformation result cannot be null")
         );
     }
 

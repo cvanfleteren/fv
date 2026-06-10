@@ -223,7 +223,7 @@ public interface Rule<T> extends MappingRule<T, T> {
     default Rule<T> onlyIf(Supplier<Boolean> condition) {
         Objects.requireNonNull(condition, "condition cannot be null");
         return input -> {
-            Boolean shouldRun = Objects.requireNonNull(condition.get(), "condition result cannot be null");
+            boolean shouldRun = Objects.requireNonNull(condition.get(), "condition result cannot be null");
             if (shouldRun) {
                 return this.test(input);
             }
@@ -524,7 +524,8 @@ public interface Rule<T> extends MappingRule<T, T> {
         Objects.requireNonNull(rule, "rule cannot be null");
         return input ->
                 Objects.requireNonNull(
-                        rule.apply(selector.apply(input)), "rule cannot return a null Validation"
+                        rule.apply(selector.apply(input)),
+                        "rule cannot return a null Validation"
                 ).map(ignore -> input);
     }
 
@@ -538,7 +539,7 @@ public interface Rule<T> extends MappingRule<T, T> {
 
     /**
      * Selects and returns one of the provided rules based on the given condition. As opposed to {@link #when(boolean, Function)}, there's always
-     * a Rule beinng applied.
+     * a Rule being applied.
      *
      * @param condition a boolean determining which rule to select; if true, the first rule is chosen, otherwise the fallback rule
      */

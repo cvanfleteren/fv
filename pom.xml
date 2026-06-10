@@ -5,7 +5,7 @@
     <artifactId>fv-parent</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
-    <name>Functional Validaton (Parent POM)</name>
+    <name>FV - Functional Validation (Parent POM)</name>
     <description>Parent/aggregator POM for the FV - Functional Validation project.</description>
     <url>https://github.com/cvanfleteren/fv</url>
     <licenses>
