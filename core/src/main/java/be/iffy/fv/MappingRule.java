@@ -191,7 +191,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * If both rules fail, only the errors of the fallback rule are returned.
      * The fallback rule is evaluated only when this rule fails.
      */
-    default <Z> MappingRule<T, R> recoverWith(Function<? super T, ? extends Validation<R>> other) {
+    default MappingRule<T, R> recoverWith(Function<? super T, ? extends Validation<R>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input -> {
             Validation<R> first = this.test(input);

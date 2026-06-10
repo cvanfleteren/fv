@@ -53,6 +53,7 @@ public interface Rule<T> extends MappingRule<T, T> {
 
     /**
      * Make a {@code Rule<T>} from a function that shares the same signature.
+     * Rule semantics will be enforced, so the ruleLikeFunction won't be able to return another value.
      */
     static <T> Rule<T> of(Function<? super T, ? extends Validation<? extends T>> ruleLikeFunction) {
         if (ruleLikeFunction instanceof Rule) {
@@ -68,7 +69,7 @@ public interface Rule<T> extends MappingRule<T, T> {
                 return Invalid.notNull();
             }
             return Validation.narrow(
-                    Objects.requireNonNull(ruleLikeFunction.apply(input), "ruleLikeFunction cannot return null Validation")
+                    Objects.requireNonNull(ruleLikeFunction.apply(input), "ruleLikeFunction cannot return null Validation").mapTo(input)
             );
         };
     }
