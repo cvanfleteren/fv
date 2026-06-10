@@ -55,7 +55,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      * Make a {@code Rule<T>} from a function that shares the same signature.
      */
     static <T> Rule<T> of(Function<? super T, ? extends Validation<? extends T>> ruleLikeFunction) {
-        if(ruleLikeFunction instanceof Rule) {
+        if (ruleLikeFunction instanceof Rule) {
             // no need to wrap if the function is already a Rule
             @SuppressWarnings("unchecked")
             Rule<T> alreadyRule = (Rule<T>) ruleLikeFunction;
@@ -64,11 +64,11 @@ public interface Rule<T> extends MappingRule<T, T> {
 
         Objects.requireNonNull(ruleLikeFunction, "ruleLikeFunction cannot be null");
         return input -> {
-            if(input == null) {
+            if (input == null) {
                 return Invalid.notNull();
             }
             return Validation.narrow(
-                    Objects.requireNonNull(ruleLikeFunction.apply(input),"ruleLikeFunction cannot return null Validation")
+                    Objects.requireNonNull(ruleLikeFunction.apply(input), "ruleLikeFunction cannot return null Validation")
             );
         };
     }
@@ -105,10 +105,10 @@ public interface Rule<T> extends MappingRule<T, T> {
     default <S extends T> Rule<S> and(Function<? super S, ? extends Validation<?>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input ->
-            test(input).flatMap(v ->
-                    other.apply(input).map(ignored -> input)
+                test(input).flatMap(v ->
+                        other.apply(input).map(ignored -> input)
 
-            );
+                );
     }
 
     /**
@@ -124,7 +124,7 @@ public interface Rule<T> extends MappingRule<T, T> {
         Objects.requireNonNull(other, "other rule cannot be null");
         // map back to original input so we're protected against other returning an incompatible value
         return input ->
-            Validation.mapN(test(input), other.apply(input), (v, o) -> v).map(ignore -> input);
+                Validation.mapN(test(input), other.apply(input), (v, o) -> v).map(ignore -> input);
     }
 
     /**
@@ -204,7 +204,7 @@ public interface Rule<T> extends MappingRule<T, T> {
     default Rule<T> onlyIf(Predicate<? super T> condition) {
         Objects.requireNonNull(condition, "condition cannot be null");
         return input -> {
-            if(input == null) {
+            if (input == null) {
                 return Invalid.notNull();
             }
             if (condition.test(input)) {
@@ -257,7 +257,7 @@ public interface Rule<T> extends MappingRule<T, T> {
     default Rule<T> withErrorKey(String errorKey) {
         Objects.requireNonNull(errorKey, "errorKey cannot be null");
         return input ->
-            this.test(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
+                this.test(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
     }
 
     /**
@@ -467,7 +467,7 @@ public interface Rule<T> extends MappingRule<T, T> {
     @SafeVarargs
     static <T> Rule<T> any(Rule<? super T>... rules) {
         Objects.requireNonNull(rules, "rules cannot be null");
-        if(rules.length == 0) {
+        if (rules.length == 0) {
             throw new IllegalArgumentException("rules cannot be empty");
         }
 
@@ -524,10 +524,10 @@ public interface Rule<T> extends MappingRule<T, T> {
         Objects.requireNonNull(rule, "rule cannot be null");
         return input ->
                 Objects.requireNonNull(
-                        rule.apply(selector.apply(input)),"rule cannot return a null Validation"
+                        rule.apply(selector.apply(input)), "rule cannot return a null Validation"
                 ).map(ignore -> input);
     }
-    
+
     /**
      * Only apply the Rule when condition evaluates to {@code true}, return a Valid otherwise without evaluating the Rule.
      */
