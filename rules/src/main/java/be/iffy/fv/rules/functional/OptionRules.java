@@ -1,5 +1,6 @@
 package be.iffy.fv.rules.functional;
 
+import be.iffy.fv.Validations;
 import io.vavr.control.Option;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
@@ -35,7 +36,7 @@ public class OptionRules {
     public <T, R> MappingRule<Option<T>, Option<R>> matches(Function<? super T, Validation<R>> mappingRuleLike) {
         return input -> {
             Option<Validation<R>> res = input.map(mappingRuleLike);
-            return Validation.transpose(res);
+            return Validations.transpose(res);
         };
     }
 

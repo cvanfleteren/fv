@@ -12,6 +12,7 @@ import io.vavr.control.Try;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -56,13 +57,34 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * If the throwingMapper throws {@link ValidationException}, the rule will fail with its errors.
      */
     static <T, R> MappingRule<T, R> catching(Function<? super T, ? extends R> throwingMapper, ErrorMessage errorMessage) {
-        Objects.requireNonNull(throwingMapper, "mapper cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
+        return catching(throwingMapper, (input, exception) -> errorMessage);
+    }
+
+    /**
+     * Creates a new MappingRule that applies the given mapper function to the input.
+     * If the throwingMapper throws an exception, the rule will fail with an {@link ErrorMessage} created by the provided maker.
+     * If the throwingMapper throws {@link ValidationException}, the rule will fail with its errors.
+     */
+    static <T, R> MappingRule<T, R> catching(Function<? super T, ? extends R> throwingMapper, BiFunction<? super T, Exception, ErrorMessage> errorMessageMaker) {
+        Objects.requireNonNull(throwingMapper, "mapper cannot be null");
+        Objects.requireNonNull(errorMessageMaker, "errorMessageMaker cannot be null");
         return input -> {
-            if(input == null) {
+            if (input == null) {
                 return Invalid.notNull();
             }
-            return Validation.from(Try.of(() -> throwingMapper.apply(input)), errorMessage);
+            try {
+                return Validation.valid(throwingMapper.apply(input));
+            } catch (ValidationException ve) {
+                return invalid(ve.errors());
+            } catch (Exception e) {
+                return invalid(
+                        Objects.requireNonNull(
+                                errorMessageMaker.apply(input, e),
+                                "errorMessageMaker result cannot be null"
+                        )
+                );
+            }
         };
     }
 
@@ -77,7 +99,10 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
                 return Invalid.notNull();
             }
             return Validation.narrow(
-                    Objects.requireNonNull(validationFunction.apply(input), "validationFunction cannot return null Validation")
+                    Objects.requireNonNull(
+                            validationFunction.apply(input),
+                            "validationFunction cannot return null Validation"
+                    )
             );
         };
     }
@@ -229,7 +254,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
             }
             List<Validation<R>> validations = values.map(this::test);
             // Validation.sequence already adds the [index] path segment, so we don't do it here.
-            return Validation.transpose(validations);
+            return Validations.transpose(validations);
         };
     }
 
@@ -244,7 +269,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
             }
             java.util.List<Validation<R>> validations = values.stream().map(this::test).toList();
             // Validation.sequence already adds the [index] path segment, so we don't do it here.
-            return Validation.transpose(validations);
+            return Validations.transpose(validations);
         };
     }
 

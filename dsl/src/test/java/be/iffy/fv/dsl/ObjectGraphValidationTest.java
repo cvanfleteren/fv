@@ -1,5 +1,6 @@
 package be.iffy.fv.dsl;
 
+import be.iffy.fv.Validations;
 import be.iffy.fv.rules.collections.VavrListRules;
 import io.vavr.collection.List;
 import be.iffy.fv.MappingRule;
@@ -70,7 +71,7 @@ class ObjectGraphValidationTest {
 
         static Validation<Address> validateAddress(AddressDTO addressDTO) {
 
-            return notNull(addressDTO).flatMap(dto -> Validation.combine(
+            return notNull(addressDTO).flatMap(dto -> Validations.combine(
                     validateThat(dto.street, "street").is(strings.minLength(1)),
                     validateThat(dto.city, "city").is(strings.minLength(1)),
                     validateThat(dto.zipCode, "zipCode").is(strings.minLength(4))
@@ -82,7 +83,7 @@ class ObjectGraphValidationTest {
             MappingRule<String, Role> canBeRole = strings.asEnum(Role.class);
             MappingRule<String, Email> canBeEmail = strings.minLength(2).and(strings.contains("@")).then(MappingRule.catching(Email::new, "must.be.email"));
 
-            return Validation.combine(
+            return Validations.combine(
                     validateThat(dto.username, "username").is(objects.canBe(Username::new, "must.be.username")),
                     validateThat(dto.email, "email").is(canBeEmail),
                     validateAddress(dto.address).at("address"),

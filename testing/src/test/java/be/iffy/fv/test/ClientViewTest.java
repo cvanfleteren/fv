@@ -2,6 +2,7 @@ package be.iffy.fv.test;
 
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Validation;
+import be.iffy.fv.Validations;
 import be.iffy.fv.dsl.DSL;
 import be.iffy.fv.PropertySelector;
 import io.vavr.Function2;
@@ -74,7 +75,7 @@ public class ClientViewTest {
                     ).map(Mandate::new);
 
                 } else {
-                    return Validation.fromCatching(() -> new Mandate(testDTO.date, Option.none()));
+                    return Validations.fromCatching(() -> new Mandate(testDTO.date, Option.none()));
                 }
             });
         };
@@ -157,7 +158,7 @@ public class ClientViewTest {
             return t -> {
                 Validation<R1> v1 = rule1.test(t);
                 Validation<R2> v2 = rule2.test(t);
-                return Validation.combine(v1, v2).map(mapper);
+                return Validations.combine(v1, v2).map(mapper);
             };
         }
     }
@@ -181,7 +182,7 @@ public class ClientViewTest {
                 Validation<? extends R2> v2 = rule2.test(t);
                 Validation<? extends R3> v3 = rule3.test(t);
                 // Validation.combine should handle the wildcards
-                return Validation.combine(v1, v2, v3).map(mapper);
+                return Validations.combine(v1, v2, v3).map(mapper);
             };
         }
     }

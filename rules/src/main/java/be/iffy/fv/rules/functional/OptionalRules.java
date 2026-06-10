@@ -3,6 +3,7 @@ package be.iffy.fv.rules.functional;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
+import be.iffy.fv.Validations;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -33,7 +34,7 @@ public class OptionalRules {
     public <T, R> MappingRule<Optional<T>, Optional<R>> matches(Function<? super T, Validation<R>> mappingRuleLike) {
         return input -> {
             Optional<Validation<R>> res = input.map(mappingRuleLike);
-            return Validation.transpose(res);
+            return Validations.transpose(res);
         };
     }
 

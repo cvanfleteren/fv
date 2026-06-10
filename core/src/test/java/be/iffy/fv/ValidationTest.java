@@ -891,7 +891,7 @@ public class ValidationTest {
             );
 
             // Act
-            Validation<List<Integer>> result = Validation.transpose(validations);
+            Validation<List<Integer>> result = Validations.transpose(validations);
 
             // Assert
             assertThatValidation(result)
@@ -909,7 +909,7 @@ public class ValidationTest {
             );
 
             // Act
-            Validation<List<Integer>> result = Validation.transpose(validations);
+            Validation<List<Integer>> result = Validations.transpose(validations);
 
             // Assert
             assertThatValidation(result)
@@ -927,7 +927,7 @@ public class ValidationTest {
             );
 
             // Act
-            Validation<List<Integer>> result = Validation.transpose(validations, "first");
+            Validation<List<Integer>> result = Validations.transpose(validations, "first");
 
             // Assert
             assertThatValidation(result)
@@ -941,7 +941,7 @@ public class ValidationTest {
             List<Validation<Integer>> validations = List.empty();
 
             // Act
-            Validation<List<Integer>> result = Validation.transpose(validations);
+            Validation<List<Integer>> result = Validations.transpose(validations);
 
             // Assert
             assertThatValidation(result)
@@ -956,7 +956,7 @@ public class ValidationTest {
             Validation<Integer> intV = Validation.valid(1);
 
             // Act
-            Validation<List<Number>> result = Validation.transpose(List.of(intV));
+            Validation<List<Number>> result = Validations.transpose(List.of(intV));
 
             // Assert
             assertThatValidation(result)
@@ -974,7 +974,7 @@ public class ValidationTest {
             Option<Validation<Integer>> option = Option.some(Validation.valid(1));
 
             // Act
-            Validation<Option<Integer>> result = Validation.transpose(option.map(v -> v));
+            Validation<Option<Integer>> result = Validations.transpose(option.map(v -> v));
 
             // Assert
             assertThatValidation(result)
@@ -988,7 +988,7 @@ public class ValidationTest {
             Option<Validation<Integer>> option = Option.some(Validation.invalid(ErrorMessage.of("error")));
 
             // Act
-            Validation<Option<Integer>> result = Validation.transpose(option.map(v -> v));
+            Validation<Option<Integer>> result = Validations.transpose(option.map(v -> v));
 
             // Assert
             assertThatValidation(result)
@@ -1002,7 +1002,7 @@ public class ValidationTest {
             Option<Validation<Integer>> option = Option.none();
 
             // Act
-            Validation<Option<Integer>> result = Validation.transpose(option.map(v -> v));
+            Validation<Option<Integer>> result = Validations.transpose(option.map(v -> v));
 
             // Assert
             assertThatValidation(result)
@@ -1016,7 +1016,7 @@ public class ValidationTest {
             Option<Validation<Integer>> option = Option.some(Validation.valid(1));
 
             // Act
-            Validation<Option<Number>> result = Validation.transpose(option.map(v -> v));
+            Validation<Option<Number>> result = Validations.transpose(option.map(v -> v));
 
             // Assert
             assertThatValidation(result)
@@ -1034,7 +1034,7 @@ public class ValidationTest {
             Optional<Validation<Integer>> optional = Optional.of(Validation.valid(1));
 
             // Act
-            Validation<Optional<Integer>> result = Validation.transpose(optional);
+            Validation<Optional<Integer>> result = Validations.transpose(optional);
 
             // Assert
             assertThatValidation(result)
@@ -1048,7 +1048,7 @@ public class ValidationTest {
             Optional<Validation<Integer>> optional = Optional.of(Validation.invalid(ErrorMessage.of("error")));
 
             // Act
-            Validation<Optional<Integer>> result = Validation.transpose(optional);
+            Validation<Optional<Integer>> result = Validations.transpose(optional);
 
             // Assert
             assertThatValidation(result)
@@ -1062,7 +1062,7 @@ public class ValidationTest {
             Optional<Validation<Integer>> optional = Optional.empty();
 
             // Act
-            Validation<Optional<Integer>> result = Validation.transpose(optional);
+            Validation<Optional<Integer>> result = Validations.transpose(optional);
 
             // Assert
             assertThatValidation(result)
@@ -1076,7 +1076,7 @@ public class ValidationTest {
             Optional<Validation<Integer>> optional = Optional.of(Validation.valid(1));
 
             // Act
-            Validation<Optional<Number>> result = Validation.transpose(optional);
+            Validation<Optional<Number>> result = Validations.transpose(optional);
 
             // Assert
             assertThatValidation(result)
@@ -1345,7 +1345,7 @@ public class ValidationTest {
             Validation<String> invalid2 = Validation.invalid(ErrorMessage.of("error1"), ErrorMessage.of("error2"));
 
             // Act
-            Validation<List<String>> result = Validation.transpose(List.of(invalid, invalid2)).at("field");
+            Validation<List<String>> result = Validations.transpose(List.of(invalid, invalid2)).at("field");
 
             // Assert
             assertThatValidation(result)
@@ -1364,7 +1364,7 @@ public class ValidationTest {
 
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2).map((s, i) -> s + i);
+            Validation<String> result = Validations.combine(v1, v2).map((s, i) -> s + i);
 
             // Assert
             assertThatValidation(result)
@@ -1381,7 +1381,7 @@ public class ValidationTest {
             Function2<Object, Number, String> mapper = (o, n) -> o.toString() + n.intValue();
 
             // Act
-            Validation<CharSequence> result = Validation.combine(v1, v2).map(mapper);
+            Validation<CharSequence> result = Validations.combine(v1, v2).map(mapper);
 
             // Assert
             assertThatValidation(result)
@@ -1396,7 +1396,7 @@ public class ValidationTest {
             Validation<Integer> v2 = Validation.invalid("error2");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2).map((s, i) -> s + i);
+            Validation<String> result = Validations.combine(v1, v2).map((s, i) -> s + i);
 
             // Assert
             assertThatValidation(result)
@@ -1412,7 +1412,7 @@ public class ValidationTest {
             Validation<String> v3 = Validation.valid("c");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3).map((s1, s2, s3) -> s1 + s2 + s3);
+            Validation<String> result = Validations.combine(v1, v2, v3).map((s1, s2, s3) -> s1 + s2 + s3);
 
             // Assert
             assertThatValidation(result)
@@ -1428,7 +1428,7 @@ public class ValidationTest {
             Validation<String> v3 = Validation.valid("b");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3).map((Object o1, Number n1, Object o2) -> o1.toString() + n1.intValue() + o2.toString());
+            Validation<String> result = Validations.combine(v1, v2, v3).map((Object o1, Number n1, Object o2) -> o1.toString() + n1.intValue() + o2.toString());
 
             // Assert
             assertThatValidation(result)
@@ -1444,7 +1444,7 @@ public class ValidationTest {
             Validation<String> v3 = Validation.invalid("error3");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3).map((s1, s2, s3) -> s1 + s2 + s3);
+            Validation<String> result = Validations.combine(v1, v2, v3).map((s1, s2, s3) -> s1 + s2 + s3);
 
             // Assert
             assertThatValidation(result)
@@ -1461,7 +1461,7 @@ public class ValidationTest {
             Validation<Integer> v4 = Validation.valid(2);
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4).map((s1, i1, s2, i2) -> s1 + i1 + s2 + i2);
+            Validation<String> result = Validations.combine(v1, v2, v3, v4).map((s1, i1, s2, i2) -> s1 + i1 + s2 + i2);
 
             // Assert
             assertThatValidation(result)
@@ -1478,7 +1478,7 @@ public class ValidationTest {
             Validation<String> v4 = Validation.invalid("error4");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4).map((s1, s2, s3, s4) -> s1 + s2 + s3 + s4);
+            Validation<String> result = Validations.combine(v1, v2, v3, v4).map((s1, s2, s3, s4) -> s1 + s2 + s3 + s4);
 
             // Assert
             assertThatValidation(result)
@@ -1496,7 +1496,7 @@ public class ValidationTest {
             Validation<String> v5 = Validation.valid("c");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4, v5).map((s1, i1, s2, i2, s3) -> s1 + i1 + s2 + i2 + s3);
+            Validation<String> result = Validations.combine(v1, v2, v3, v4, v5).map((s1, i1, s2, i2, s3) -> s1 + i1 + s2 + i2 + s3);
 
             // Assert
             assertThatValidation(result)
@@ -1514,7 +1514,7 @@ public class ValidationTest {
             Validation<String> v5 = Validation.invalid("error5");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4, v5).map((s1, s2, s3, s4, s5) -> s1 + s2 + s3 + s4 + s5);
+            Validation<String> result = Validations.combine(v1, v2, v3, v4, v5).map((s1, s2, s3, s4, s5) -> s1 + s2 + s3 + s4 + s5);
 
             // Assert
             assertThatValidation(result)
@@ -1533,7 +1533,7 @@ public class ValidationTest {
             Validation<Integer> v6 = Validation.valid(3);
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4, v5, v6).map((s1, i1, s2, i2, s3, i3) -> s1 + i1 + s2 + i2 + s3 + i3);
+            Validation<String> result = Validations.combine(v1, v2, v3, v4, v5, v6).map((s1, i1, s2, i2, s3, i3) -> s1 + i1 + s2 + i2 + s3 + i3);
 
             // Assert
             assertThatValidation(result)
@@ -1552,7 +1552,7 @@ public class ValidationTest {
             Validation<String> v6 = Validation.invalid("error6");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4, v5, v6).map((s1, s2, s3, s4, s5, s6) -> s1 + s2 + s3 + s4 + s5 + s6);
+            Validation<String> result = Validations.combine(v1, v2, v3, v4, v5, v6).map((s1, s2, s3, s4, s5, s6) -> s1 + s2 + s3 + s4 + s5 + s6);
 
             // Assert
             assertThatValidation(result)
@@ -1572,7 +1572,7 @@ public class ValidationTest {
             Validation<String> v7 = Validation.valid("d");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4, v5, v6, v7).map((s1, i1, s2, i2, s3, i3, s4) -> s1 + i1 + s2 + i2 + s3 + i3 + s4);
+            Validation<String> result = Validations.combine(v1, v2, v3, v4, v5, v6, v7).map((s1, i1, s2, i2, s3, i3, s4) -> s1 + i1 + s2 + i2 + s3 + i3 + s4);
 
             // Assert
             assertThatValidation(result)
@@ -1592,7 +1592,7 @@ public class ValidationTest {
             Validation<String> v7 = Validation.invalid("error7");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4, v5, v6, v7).map((s1, s2, s3, s4, s5, s6, s7) -> s1 + s2 + s3 + s4 + s5 + s6 + s7);
+            Validation<String> result = Validations.combine(v1, v2, v3, v4, v5, v6, v7).map((s1, s2, s3, s4, s5, s6, s7) -> s1 + s2 + s3 + s4 + s5 + s6 + s7);
 
             // Assert
             assertThatValidation(result)
@@ -1613,7 +1613,7 @@ public class ValidationTest {
             Validation<Integer> v8 = Validation.valid(4);
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4, v5, v6, v7, v8).map((s1, i1, s2, i2, s3, i3, s4, i4) -> s1 + i1 + s2 + i2 + s3 + i3 + s4 + i4);
+            Validation<String> result = Validations.combine(v1, v2, v3, v4, v5, v6, v7, v8).map((s1, i1, s2, i2, s3, i3, s4, i4) -> s1 + i1 + s2 + i2 + s3 + i3 + s4 + i4);
 
             // Assert
             assertThatValidation(result)
@@ -1634,7 +1634,7 @@ public class ValidationTest {
             Validation<String> v8 = Validation.invalid("error8");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4, v5, v6, v7, v8).map((s1, s2, s3, s4, s5, s6, s7, s8) -> s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8);
+            Validation<String> result = Validations.combine(v1, v2, v3, v4, v5, v6, v7, v8).map((s1, s2, s3, s4, s5, s6, s7, s8) -> s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8);
 
             // Assert
             assertThatValidation(result)
@@ -1648,7 +1648,7 @@ public class ValidationTest {
             Validation<Integer> v2 = Validation.valid(5);
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2).flatMap((s, i) -> Validation.valid(s + i));
+            Validation<String> result = Validations.combine(v1, v2).flatMap((s, i) -> Validation.valid(s + i));
 
             // Assert
             assertThatValidation(result)
@@ -1663,7 +1663,7 @@ public class ValidationTest {
             Validation<Integer> v2 = Validation.invalid("error2");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2).flatMap((s, i) -> Validation.valid(s + i));
+            Validation<String> result = Validations.combine(v1, v2).flatMap((s, i) -> Validation.valid(s + i));
 
             // Assert
             assertThatValidation(result)
@@ -1679,7 +1679,7 @@ public class ValidationTest {
             Validation<String> v3 = Validation.valid("c");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3).flatMap((s1, s2, s3) -> Validation.valid(s1 + s2 + s3));
+            Validation<String> result = Validations.combine(v1, v2, v3).flatMap((s1, s2, s3) -> Validation.valid(s1 + s2 + s3));
 
             // Assert
             assertThatValidation(result)
@@ -1695,7 +1695,7 @@ public class ValidationTest {
             Validation<String> v3 = Validation.invalid("error3");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3).flatMap((s1, s2, s3) -> Validation.valid(s1 + s2 + s3));
+            Validation<String> result = Validations.combine(v1, v2, v3).flatMap((s1, s2, s3) -> Validation.valid(s1 + s2 + s3));
 
             // Assert
             assertThatValidation(result)
@@ -1712,7 +1712,7 @@ public class ValidationTest {
             Validation<Integer> v4 = Validation.valid(2);
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4).flatMap((s1, i1, s2, i2) -> Validation.valid(s1 + i1 + s2 + i2));
+            Validation<String> result = Validations.combine(v1, v2, v3, v4).flatMap((s1, i1, s2, i2) -> Validation.valid(s1 + i1 + s2 + i2));
 
             // Assert
             assertThatValidation(result)
@@ -1729,7 +1729,7 @@ public class ValidationTest {
             Validation<String> v4 = Validation.invalid("error4");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4).flatMap((s1, s2, s3, s4) -> Validation.valid(s1 + s2 + s3 + s4));
+            Validation<String> result = Validations.combine(v1, v2, v3, v4).flatMap((s1, s2, s3, s4) -> Validation.valid(s1 + s2 + s3 + s4));
 
             // Assert
             assertThatValidation(result)
@@ -1747,7 +1747,7 @@ public class ValidationTest {
             Validation<String> v5 = Validation.valid("c");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4, v5).flatMap((s1, i1, s2, i2, s3) -> Validation.valid(s1 + i1 + s2 + i2 + s3));
+            Validation<String> result = Validations.combine(v1, v2, v3, v4, v5).flatMap((s1, i1, s2, i2, s3) -> Validation.valid(s1 + i1 + s2 + i2 + s3));
 
             // Assert
             assertThatValidation(result)
@@ -1765,7 +1765,7 @@ public class ValidationTest {
             Validation<String> v5 = Validation.invalid("error5");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4, v5).flatMap((s1, s2, s3, s4, s5) -> Validation.valid(s1 + s2 + s3 + s4 + s5));
+            Validation<String> result = Validations.combine(v1, v2, v3, v4, v5).flatMap((s1, s2, s3, s4, s5) -> Validation.valid(s1 + s2 + s3 + s4 + s5));
 
             // Assert
             assertThatValidation(result)
@@ -1784,7 +1784,7 @@ public class ValidationTest {
             Validation<Integer> v6 = Validation.valid(3);
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4, v5, v6).flatMap((s1, i1, s2, i2, s3, i3) -> Validation.valid(s1 + i1 + s2 + i2 + s3 + i3));
+            Validation<String> result = Validations.combine(v1, v2, v3, v4, v5, v6).flatMap((s1, i1, s2, i2, s3, i3) -> Validation.valid(s1 + i1 + s2 + i2 + s3 + i3));
 
             // Assert
             assertThatValidation(result)
@@ -1803,7 +1803,7 @@ public class ValidationTest {
             Validation<String> v6 = Validation.invalid("error6");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4, v5, v6).flatMap((s1, s2, s3, s4, s5, s6) -> Validation.valid(s1 + s2 + s3 + s4 + s5 + s6));
+            Validation<String> result = Validations.combine(v1, v2, v3, v4, v5, v6).flatMap((s1, s2, s3, s4, s5, s6) -> Validation.valid(s1 + s2 + s3 + s4 + s5 + s6));
 
             // Assert
             assertThatValidation(result)
@@ -1823,7 +1823,7 @@ public class ValidationTest {
             Validation<String> v7 = Validation.valid("d");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4, v5, v6, v7).flatMap((s1, i1, s2, i2, s3, i3, s4) -> Validation.valid(s1 + i1 + s2 + i2 + s3 + i3 + s4));
+            Validation<String> result = Validations.combine(v1, v2, v3, v4, v5, v6, v7).flatMap((s1, i1, s2, i2, s3, i3, s4) -> Validation.valid(s1 + i1 + s2 + i2 + s3 + i3 + s4));
 
             // Assert
             assertThatValidation(result)
@@ -1843,7 +1843,7 @@ public class ValidationTest {
             Validation<String> v7 = Validation.invalid("error7");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4, v5, v6, v7).flatMap((s1, s2, s3, s4, s5, s6, s7) -> Validation.valid(s1 + s2 + s3 + s4 + s5 + s6 + s7));
+            Validation<String> result = Validations.combine(v1, v2, v3, v4, v5, v6, v7).flatMap((s1, s2, s3, s4, s5, s6, s7) -> Validation.valid(s1 + s2 + s3 + s4 + s5 + s6 + s7));
 
             // Assert
             assertThatValidation(result)
@@ -1864,7 +1864,7 @@ public class ValidationTest {
             Validation<Integer> v8 = Validation.valid(4);
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4, v5, v6, v7, v8).flatMap((s1, i1, s2, i2, s3, i3, s4, i4) -> Validation.valid(s1 + i1 + s2 + i2 + s3 + i3 + s4 + i4));
+            Validation<String> result = Validations.combine(v1, v2, v3, v4, v5, v6, v7, v8).flatMap((s1, i1, s2, i2, s3, i3, s4, i4) -> Validation.valid(s1 + i1 + s2 + i2 + s3 + i3 + s4 + i4));
 
             // Assert
             assertThatValidation(result)
@@ -1885,7 +1885,7 @@ public class ValidationTest {
             Validation<String> v8 = Validation.invalid("error8");
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2, v3, v4, v5, v6, v7, v8).flatMap((s1, s2, s3, s4, s5, s6, s7, s8) -> Validation.valid(s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8));
+            Validation<String> result = Validations.combine(v1, v2, v3, v4, v5, v6, v7, v8).flatMap((s1, s2, s3, s4, s5, s6, s7, s8) -> Validation.valid(s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8));
 
             // Assert
             assertThatValidation(result)
@@ -1900,7 +1900,7 @@ public class ValidationTest {
 
             // Act + Assert
             assertThatNullPointerException()
-                    .isThrownBy(() -> Validation.combine(null, v2))
+                    .isThrownBy(() -> Validations.combine(null, v2))
                     .withMessage("v1 validation cannot be null");
         }
 
@@ -1911,7 +1911,7 @@ public class ValidationTest {
 
             // Act + Assert
             assertThatNullPointerException()
-                    .isThrownBy(() -> Validation.combine(v1, null))
+                    .isThrownBy(() -> Validations.combine(v1, null))
                     .withMessage("v2 validation cannot be null");
         }
 
@@ -1923,7 +1923,7 @@ public class ValidationTest {
 
             // Act + Assert
             assertThatNullPointerException()
-                    .isThrownBy(() -> Validation.combine(v1, v2).map(null))
+                    .isThrownBy(() -> Validations.combine(v1, v2).map(null))
                     .withMessage("mapper cannot be null");
         }
 
@@ -1935,7 +1935,7 @@ public class ValidationTest {
 
             // Act + Assert
             assertThatNullPointerException()
-                    .isThrownBy(() -> Validation.combine(v1, v2).flatMap(null))
+                    .isThrownBy(() -> Validations.combine(v1, v2).flatMap(null))
                     .withMessage("flatMapper cannot be null");
         }
 
@@ -1947,7 +1947,7 @@ public class ValidationTest {
 
             // Act + Assert
             assertThatNullPointerException()
-                    .isThrownBy(() -> Validation.combine(v1, v2).flatMap((s, i) -> null))
+                    .isThrownBy(() -> Validations.combine(v1, v2).flatMap((s, i) -> null))
                     .withMessage("flatMapper result cannot be null");
         }
 
@@ -1958,7 +1958,7 @@ public class ValidationTest {
             Validation<Integer> v2 = Validation.valid(5);
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2).flatMap((s, i) -> Validation.invalid("mapped.error"));
+            Validation<String> result = Validations.combine(v1, v2).flatMap((s, i) -> Validation.invalid("mapped.error"));
 
             // Assert
             assertThatValidation(result)
@@ -1974,7 +1974,7 @@ public class ValidationTest {
             AtomicBoolean mapperInvoked = new AtomicBoolean(false);
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2).map((s, i) -> {
+            Validation<String> result = Validations.combine(v1, v2).map((s, i) -> {
                 mapperInvoked.set(true);
                 return s + i;
             });
@@ -1994,7 +1994,7 @@ public class ValidationTest {
             AtomicBoolean flatMapperInvoked = new AtomicBoolean(false);
 
             // Act
-            Validation<String> result = Validation.combine(v1, v2).flatMap((s, i) -> {
+            Validation<String> result = Validations.combine(v1, v2).flatMap((s, i) -> {
                 flatMapperInvoked.set(true);
                 return Validation.valid(s + i);
             });
@@ -2290,7 +2290,7 @@ public class ValidationTest {
         @Test
         void from_whenSupplierReturnsValue_returnsValidWithThatValue() {
             // Act
-            Validation<String> result = Validation.fromCatching(() -> "expected");
+            Validation<String> result = Validations.fromCatching(() -> "expected");
 
             // Assert
             assertThatValidation(result)
@@ -2305,7 +2305,7 @@ public class ValidationTest {
             ErrorMessage e2 = ErrorMessage.of("age.too.young");
 
             // Act
-            Validation<Object> result = Validation.fromCatching(() -> {
+            Validation<Object> result = Validations.fromCatching(() -> {
                 throw new ValidationException(List.of(e1, e2));
             });
 
@@ -2321,7 +2321,7 @@ public class ValidationTest {
             RuntimeException boom = new RuntimeException("boom");
 
             // Act
-            assertThatThrownBy(() -> Validation.fromCatching(() -> {
+            assertThatThrownBy(() -> Validations.fromCatching(() -> {
                 throw boom;
             })).isSameAs(boom);
         }
@@ -2336,7 +2336,7 @@ public class ValidationTest {
             ErrorMessage error = ErrorMessage.of("error");
 
             // Act
-            Validation<String> result = Validation.fromCatchingAll(() -> "expected", error);
+            Validation<String> result = Validations.fromCatchingAll(() -> "expected", error);
 
             // Assert
             assertThatValidation(result)
@@ -2352,7 +2352,7 @@ public class ValidationTest {
             ErrorMessage error = ErrorMessage.of("error");
 
             // Act
-            Validation<Object> result = Validation.fromCatchingAll(() -> {
+            Validation<Object> result = Validations.fromCatchingAll(() -> {
                 throw new ValidationException(List.of(e1, e2));
             }, error);
 
@@ -2368,7 +2368,7 @@ public class ValidationTest {
             ErrorMessage error = ErrorMessage.of("error");
 
             // Act
-            Validation<Object> result = Validation.fromCatchingAll(() -> {
+            Validation<Object> result = Validations.fromCatchingAll(() -> {
                 throw new RuntimeException("boom");
             }, error);
 
@@ -2381,7 +2381,7 @@ public class ValidationTest {
         @Test
         void fromCatchingAll_whenSupplierThrowsRuntimeException_returnsInvalidWithProvidedErrorMessageString() {
             // Arrange && Act
-            Validation<Object> result = Validation.fromCatchingAll(() -> {
+            Validation<Object> result = Validations.fromCatchingAll(() -> {
                 throw new RuntimeException("boom");
             }, "error");
 
@@ -2397,7 +2397,7 @@ public class ValidationTest {
             Function<Exception, ErrorMessage> mapper = e -> ErrorMessage.of("error");
 
             // Act
-            Validation<String> result = Validation.fromCatchingAll(() -> "expected", mapper);
+            Validation<String> result = Validations.fromCatchingAll(() -> "expected", mapper);
 
             // Assert
             assertThatValidation(result)
@@ -2412,7 +2412,7 @@ public class ValidationTest {
             Function<Exception, ErrorMessage> mapper = e -> ErrorMessage.of("mapper");
 
             // Act
-            Validation<Object> result = Validation.fromCatchingAll(() -> {
+            Validation<Object> result = Validations.fromCatchingAll(() -> {
                 throw new ValidationException(List.of(e1));
             }, mapper);
 
@@ -2429,7 +2429,7 @@ public class ValidationTest {
             Function<Exception, ErrorMessage> mapper = e -> ErrorMessage.of(e.getMessage().toUpperCase());
 
             // Act
-            Validation<Object> result = Validation.fromCatchingAll(() -> {
+            Validation<Object> result = Validations.fromCatchingAll(() -> {
                 throw boom;
             }, mapper);
 
@@ -2454,7 +2454,7 @@ public class ValidationTest {
         @Test
         void from_whenTrySucceeds_returnsValidValidation() {
             Try<String> tryVal = success("hello");
-            Validation<String> v = Validation.from(tryVal, ErrorMessage.of("oops"));
+            Validation<String> v = Validations.from(tryVal, ErrorMessage.of("oops"));
 
             assertThatValidation(v)
                     .isValid()
@@ -2466,7 +2466,7 @@ public class ValidationTest {
             Try<String> tryVal = failure(new IllegalStateException());
             ErrorMessage e1 = ErrorMessage.of("first.fault");
 
-            Validation<Object> v = Validation.from(tryVal, e1);
+            Validation<Object> v = Validations.from(tryVal, e1);
 
             assertThatValidation(v)
                     .isInvalid()
@@ -2477,7 +2477,7 @@ public class ValidationTest {
         void from_whenTryFails_andNoMessages_presentedErrorListIsEmpty() {
             Try<String> tryVal = failure(new IllegalStateException("foo"));
 
-            Validation<Object> v = Validation.from(tryVal);
+            Validation<Object> v = Validations.from(tryVal);
 
             assertThatValidation(v)
                     .isInvalid()
@@ -2488,7 +2488,7 @@ public class ValidationTest {
         void from_whenTryFails_takesErrorMessagesFromValidationException() {
             Try<String> tryVal = failure(new ValidationException(List.of(ErrorMessage.of("foo"), ErrorMessage.of("bar"))));
 
-            Validation<Object> v = Validation.from(tryVal);
+            Validation<Object> v = Validations.from(tryVal);
 
             assertThatValidation(v)
                     .isInvalid()
@@ -2505,7 +2505,7 @@ public class ValidationTest {
             Option<String> option = Option.of("hello");
 
             // Act
-            Validation<String> result = Validation.from(option);
+            Validation<String> result = Validations.from(option);
 
             // Assert
             assertThatValidation(result)
@@ -2519,7 +2519,7 @@ public class ValidationTest {
             Option<String> option = Option.none();
 
             // Act
-            Validation<String> result = Validation.from(option);
+            Validation<String> result = Validations.from(option);
 
             // Assert
             assertThatValidation(result)
@@ -2534,7 +2534,7 @@ public class ValidationTest {
             ErrorMessage error = ErrorMessage.of("custom.error");
 
             // Act
-            Validation<String> result = Validation.from(option, error);
+            Validation<String> result = Validations.from(option, error);
 
             // Assert
             assertThatValidation(result)
@@ -2549,7 +2549,7 @@ public class ValidationTest {
             ErrorMessage error = ErrorMessage.of("custom.error");
 
             // Act
-            Validation<String> result = Validation.from(option, error);
+            Validation<String> result = Validations.from(option, error);
 
             // Assert
             assertThatValidation(result)
@@ -2563,7 +2563,7 @@ public class ValidationTest {
             Option<String> option = Option.none();
 
             // Act
-            Validation<String> result = Validation.from(option, "string.error");
+            Validation<String> result = Validations.from(option, "string.error");
 
             // Assert
             assertThatValidation(result)
@@ -2581,7 +2581,7 @@ public class ValidationTest {
             Either<String, Integer> either = Either.right(42);
 
             // Act
-            Validation<Integer> result = Validation.from(either, ErrorMessage::of);
+            Validation<Integer> result = Validations.from(either, ErrorMessage::of);
 
             // Assert
             assertThatValidation(result)
@@ -2595,7 +2595,7 @@ public class ValidationTest {
             Either<String, Integer> either = Either.left("fail");
 
             // Act
-            Validation<Integer> result = Validation.from(either, ErrorMessage::of);
+            Validation<Integer> result = Validations.from(either, ErrorMessage::of);
 
             // Assert
             assertThatValidation(result)
@@ -2613,7 +2613,7 @@ public class ValidationTest {
             Optional<String> optional = Optional.of("hello");
 
             // Act
-            Validation<String> result = Validation.from(optional);
+            Validation<String> result = Validations.from(optional);
 
             // Assert
             assertThatValidation(result)
@@ -2627,7 +2627,7 @@ public class ValidationTest {
             Optional<String> optional = Optional.empty();
 
             // Act
-            Validation<String> result = Validation.from(optional);
+            Validation<String> result = Validations.from(optional);
 
             // Assert
             assertThatValidation(result)
@@ -2642,7 +2642,7 @@ public class ValidationTest {
             ErrorMessage error = ErrorMessage.of("custom.error");
 
             // Act
-            Validation<String> result = Validation.from(optional, error);
+            Validation<String> result = Validations.from(optional, error);
 
             // Assert
             assertThatValidation(result)
@@ -2657,7 +2657,7 @@ public class ValidationTest {
             ErrorMessage error = ErrorMessage.of("custom.error");
 
             // Act
-            Validation<String> result = Validation.from(optional, error);
+            Validation<String> result = Validations.from(optional, error);
 
             // Assert
             assertThatValidation(result)
@@ -2671,7 +2671,7 @@ public class ValidationTest {
             Optional<String> optional = Optional.empty();
 
             // Act
-            Validation<String> result = Validation.from(optional, "string.error");
+            Validation<String> result = Validations.from(optional, "string.error");
 
             // Assert
             assertThatValidation(result)
@@ -2692,7 +2692,7 @@ public class ValidationTest {
             );
 
             // Act
-            Validation<java.util.List<String>> result = Validation.transpose(validations);
+            Validation<java.util.List<String>> result = Validations.transpose(validations);
 
             // Assert
             assertThatValidation(result)
@@ -2710,7 +2710,7 @@ public class ValidationTest {
             );
 
             // Act
-            Validation<java.util.List<String>> result = Validation.transpose(validations);
+            Validation<java.util.List<String>> result = Validations.transpose(validations);
 
             // Assert
             assertThatValidation(result)
@@ -2728,7 +2728,7 @@ public class ValidationTest {
             );
 
             // Act
-            Validation<java.util.List<String>> result = Validation.transpose(validations, "collection");
+            Validation<java.util.List<String>> result = Validations.transpose(validations, "collection");
 
             // Assert
             assertThatValidation(result)

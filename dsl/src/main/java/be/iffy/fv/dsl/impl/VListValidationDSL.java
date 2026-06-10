@@ -3,6 +3,7 @@ package be.iffy.fv.dsl.impl;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
+import be.iffy.fv.Validations;
 import io.vavr.collection.List;
 
 import java.util.Objects;
@@ -33,7 +34,7 @@ public final class VListValidationDSL<L, E> {
     }
 
     public Validation<List<E>> validate() {
-        return Validation
+        return Validations
                 .combine(listValidation.at(name), elementValidation.at(name)).map((list, elements) -> elements)
                 // make errors unique because something like a null list would appear in both validations
                 .mapErrors(List::distinct);

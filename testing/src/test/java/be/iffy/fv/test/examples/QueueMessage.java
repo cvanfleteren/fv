@@ -3,6 +3,7 @@ package be.iffy.fv.test.examples;
 import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
+import be.iffy.fv.Validations;
 import org.jspecify.annotations.NullMarked;
 
 import java.math.BigDecimal;
@@ -54,7 +55,7 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
     }
 
     Validation<Command.Transaction> validateTransaction(QueueMessage.Transaction transaction) {
-        return Validation.fromCatching(() -> {
+        return Validations.fromCatching(() -> {
             MonetaryAmount amount = assertThat(transaction.amount, "amount").is(objects.canBe(MonetaryAmount::new, "must.be.monetaryAmount"));
             return new Command.Transaction(amount);
         });
@@ -64,7 +65,7 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
         return validateThat(address.country, "country")
                 .is(optionals.matches(strings.asEnum(Country.class)))
                 .flatMap(country ->
-                        Validation.fromCatching(() -> new Command.Address(address.street, address.houseNumber, address.city))
+                        Validations.fromCatching(() -> new Command.Address(address.street, address.houseNumber, address.city))
                 );
     }
 
@@ -96,7 +97,7 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
                 );
             } else {
                 // no amendment indicator, ignore the other amendment fields
-                return Validation.fromCatching(() -> new Command.MandateInfo(mandateInfo.mandateId(), mandateInfo.dateOfSignature(), Optional.empty()));
+                return Validations.fromCatching(() -> new Command.MandateInfo(mandateInfo.mandateId(), mandateInfo.dateOfSignature(), Optional.empty()));
             }
         });
     }

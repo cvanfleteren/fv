@@ -60,7 +60,7 @@ class ExceptionHandlingTest {
         void combine_map_whenMapperThrowsValidationException_propagatesException() {
             Validation<String> v1 = Validation.valid("a");
             Validation<String> v2 = Validation.valid("b");
-            assertThatThrownBy(() -> Validation.combine(v1, v2).map((a, b) -> {
+            assertThatThrownBy(() -> Validations.combine(v1, v2).map((a, b) -> {
                 throw new ValidationException(List.of(ErrorMessage.of("inner.error")));
             })).isInstanceOf(ValidationException.class);
         }
@@ -69,7 +69,7 @@ class ExceptionHandlingTest {
         void combine_flatMap_whenMapperThrows_propagatesException() {
             Validation<String> v1 = Validation.valid("a");
             Validation<String> v2 = Validation.valid("b");
-            assertThatThrownBy(() -> Validation.combine(v1, v2).flatMap((a, b) -> {
+            assertThatThrownBy(() -> Validations.combine(v1, v2).flatMap((a, b) -> {
                 throw new RuntimeException("boom");
             })).isInstanceOf(RuntimeException.class).hasMessage("boom");
         }
@@ -78,7 +78,7 @@ class ExceptionHandlingTest {
         void combine_flatMap_whenMapperThrowsValidationException_propagatesException() {
             Validation<String> v1 = Validation.valid("a");
             Validation<String> v2 = Validation.valid("b");
-            assertThatThrownBy(() -> Validation.combine(v1, v2).flatMap((a, b) -> {
+            assertThatThrownBy(() -> Validations.combine(v1, v2).flatMap((a, b) -> {
                 throw new ValidationException(List.of(ErrorMessage.of("inner.error")));
             })).isInstanceOf(ValidationException.class);
         }

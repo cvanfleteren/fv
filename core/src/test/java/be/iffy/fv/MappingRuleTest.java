@@ -824,7 +824,7 @@ class MappingRuleTest {
     class AsMappingRule {
 
         static Validation<Integer> validator(String input) {
-            return  Validation.from(Try.of(() -> Integer.parseInt(input)));
+            return  Validations.from(Try.of(() -> Integer.parseInt(input)));
         }
 
         @Test

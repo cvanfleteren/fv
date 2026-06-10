@@ -1,6 +1,6 @@
 package be.iffy.fv.test.examples;
 
-import be.iffy.fv.Validation;
+import be.iffy.fv.Validations;
 import io.vavr.control.Try;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +12,7 @@ class KboNumberTest {
     void constructor_whenNull_invalid() {
 
         assertThatValidation(
-                Validation.from(Try.of(() -> new KboNumber(null)))
+                Validations.from(Try.of(() -> new KboNumber(null)))
         )
                 .isInvalid()
                 .hasErrorMessages("value.must.not.be.null");

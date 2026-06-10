@@ -125,7 +125,7 @@ public interface Rule<T> extends MappingRule<T, T> {
         Objects.requireNonNull(other, "other rule cannot be null");
         // map back to original input so we're protected against other returning an incompatible value
         return input ->
-                Validation.combine(test(input), other.apply(input)).map((v, o) -> v).map(ignore -> input);
+                Validations.combine(test(input), other.apply(input)).map((v, o) -> v).map(ignore -> input);
     }
 
     /**
