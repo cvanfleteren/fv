@@ -275,7 +275,7 @@ public class ListRules {
      */
     public <T, R> MappingRule<List<T>, List<R>> map(Function<T, ? extends Validation<R>> mappingRule) {
         return input ->
-                MappingRule.of(mappingRule).liftToList().test(input);
+                MappingRule.fromValidation(mappingRule).liftToList().test(input);
     }
 
     /**

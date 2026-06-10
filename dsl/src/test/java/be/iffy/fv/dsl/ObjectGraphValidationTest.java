@@ -70,7 +70,7 @@ class ObjectGraphValidationTest {
 
         static Validation<Address> validateAddress(AddressDTO addressDTO) {
 
-            return notNull(addressDTO, "address").flatMap(dto -> Validation.mapN(
+            return notNull(addressDTO).flatMap(dto -> Validation.mapN(
                     validateThat(dto.street, "street").is(strings.minLength(1)),
                     validateThat(dto.city, "city").is(strings.minLength(1)),
                     validateThat(dto.zipCode, "zipCode").is(strings.minLength(4)),
@@ -81,7 +81,7 @@ class ObjectGraphValidationTest {
         static Validation<User> fromDto(UserDTO dto) {
 
             MappingRule<String, Role> canBeRole = strings.asEnum(Role.class);
-            MappingRule<String, Email> canBeEmail = strings.minLength(2).and(strings.contains("@")).then(MappingRule.of(Email::new, "must.be.email"));
+            MappingRule<String, Email> canBeEmail = strings.minLength(2).and(strings.contains("@")).then(MappingRule.catching(Email::new, "must.be.email"));
 
             return Validation.mapN(
                     validateThat(dto.username, "username").is(objects.canBe(Username::new, "must.be.username")),
@@ -162,7 +162,7 @@ class ObjectGraphValidationTest {
         // Assert
         assertThatValidation(result)
                 .isInvalid()
-                .hasErrorMessage("address.address.must.not.be.null");
+                .hasErrorMessage("address.must.not.be.null");
     }
 
 }

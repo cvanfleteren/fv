@@ -107,7 +107,7 @@ public class ValidationTest {
             String value = "Success";
 
             // Act
-            Validation<String> result = Validation.of(value);
+            Validation<String> result = Validation.fromNullable(value);
 
             // Assert
             assertThatValidation(result)
@@ -118,7 +118,7 @@ public class ValidationTest {
         @Test
         void of_whenGivenNull_returnsInvalidValidationWithNotNullError() {
             // Act
-            Validation<String> result = Validation.of(null);
+            Validation<String> result = Validation.fromNullable(null);
 
             // Assert
             assertThatValidation(result)

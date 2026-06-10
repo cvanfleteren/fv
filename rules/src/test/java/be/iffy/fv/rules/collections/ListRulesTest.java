@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -421,7 +420,7 @@ class ListRulesTest {
 
         @Test
         void map_withValidInput_returnsMappedValues() {
-            MappingRule<String, Integer> toInt = MappingRule.of(Integer::parseInt, "must.be.integer");
+            MappingRule<String, Integer> toInt = MappingRule.catching(Integer::parseInt, "must.be.integer");
             List<Integer> expected = List.of(1, 2, 3);
             
             assertThatValidation(lists.map(toInt).test(List.of("1", "2", "3")).at("value"))
@@ -431,7 +430,7 @@ class ListRulesTest {
 
         @Test
         void map_withInvalidInput_returnsErrorsAtCorrectIndices() {
-            MappingRule<String, Integer> toInt = MappingRule.of(Integer::parseInt, "must.be.integer");
+            MappingRule<String, Integer> toInt = MappingRule.catching(Integer::parseInt, "must.be.integer");
 
             assertThatValidation(lists.map(toInt).test(List.of("1", "abc", "3")).at("value"))
                     .isInvalid()

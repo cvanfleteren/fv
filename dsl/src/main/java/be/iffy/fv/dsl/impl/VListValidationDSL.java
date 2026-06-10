@@ -40,7 +40,7 @@ public final class VListValidationDSL<L, E> {
     }
 
     public <R> VListValidationDSL<R, R> eachIs(Function<E, Validation<R>> rule) {
-        Validation<List<R>> newElements = elementValidation.refine(list -> MappingRule.of(rule).liftToVavrList().test(list));
+        Validation<List<R>> newElements = elementValidation.refine(list -> MappingRule.fromValidation(rule).liftToVavrList().test(list));
         Validation<List<R>> newList = listValidation.flatMap(ignore -> newElements);
         return new VListValidationDSL<>(
                 newList,
@@ -56,7 +56,7 @@ public final class VListValidationDSL<L, E> {
      * @param rule the rule for the list.
      */
     public VListValidationDSL<L, E> is(Function<List<L>, Validation<List<L>>> rule) {
-        Validation<List<L>> ruleValidation = Validation.narrowSuper(listValidation.refine(MappingRule.of(rule)));
+        Validation<List<L>> ruleValidation = Validation.narrowSuper(listValidation.refine(MappingRule.fromValidation(rule)));
         return new VListValidationDSL<>(ruleValidation, elementValidation, name);
     }
 }

@@ -19,7 +19,7 @@ class ValidatorTest {
 
     @Test
     void validatorBuilder4_shouldWorkWithFourRules() {
-        MappingRule<String, String> notEmpty = MappingRule.of(s -> {
+        MappingRule<String, String> notEmpty = MappingRule.catching(s -> {
             if (s == null || s.isEmpty()) throw new IllegalArgumentException();
             return s;
         }, "must.not.be.empty");
@@ -43,7 +43,7 @@ class ValidatorTest {
 
     @Test
     void validatorBuilder3_shouldHaveConstraintMethods() {
-        MappingRule<String, String> notEmpty = MappingRule.of(s -> s, "must.not.be.empty");
+        MappingRule<String, String> notEmpty = MappingRule.catching(s -> s, "must.not.be.empty");
 
         MappingRule<User, String> validator = validatorFor(User.class)
                 .where(User::firstName, notEmpty)

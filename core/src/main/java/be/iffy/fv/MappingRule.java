@@ -43,12 +43,11 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
 
     /**
      * Creates a new MappingRule that applies the given mapper function to the input.
-     * If the mapper throws a {@link ValidationException}, the returned validation will be invalid with the same errors
-     * as the thrown exception.
-     * If the mapper throws any other exceptions, the rule will fail with the specified error message.
+     * If the throwingMapper throws an exception, the rule will fail with the specified error message.
+     * If the throwingMapper throws {@link ValidationException}, the rule will fail with its errors.
      */
-    static <T, R> MappingRule<T, R> of(Function<? super T, ? extends R> mapper, String errorKey) {
-        return of(mapper, ErrorMessage.of(errorKey));
+    static <T, R> MappingRule<T, R> catching(Function<? super T, ? extends R> throwingMapper, String errorKey) {
+        return catching(throwingMapper, ErrorMessage.of(errorKey));
     }
 
     /**
@@ -56,7 +55,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * If the throwingMapper throws an exception, the rule will fail with the specified error message.
      * If the throwingMapper throws {@link ValidationException}, the rule will fail with its errors.
      */
-    static <T, R> MappingRule<T, R> of(Function<? super T, ? extends R> throwingMapper, ErrorMessage errorMessage) {
+    static <T, R> MappingRule<T, R> catching(Function<? super T, ? extends R> throwingMapper, ErrorMessage errorMessage) {
         Objects.requireNonNull(throwingMapper, "mapper cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return input -> {
@@ -71,7 +70,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * Creates an explicit {@link MappingRule} from a function that has the same signature.
      * Use this to easily treat existing functions as MappingRules.
      */
-    static <T, R> MappingRule<T, R> of(Function<? super T, ? extends Validation<? extends R>> validationFunction) {
+    static <T, R> MappingRule<T, R> fromValidation(Function<? super T, ? extends Validation<? extends R>> validationFunction) {
         Objects.requireNonNull(validationFunction, "validationFunction cannot be null");
         return input -> {
             if(input == null) {
@@ -91,8 +90,8 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * <p>
      * If the Try fails with {@link ValidationException}, its errors are preserved, otherwise the provided error message is used.
      */
-    static <T, R> MappingRule<T, R> ofTry(Function<? super T, ? extends Try<? extends R>> tryProvider, String errorKey) {
-        return ofTry(tryProvider, ErrorMessage.of(errorKey));
+    static <T, R> MappingRule<T, R> fromTry(Function<? super T, ? extends Try<? extends R>> tryProvider, String errorKey) {
+        return fromTry(tryProvider, ErrorMessage.of(errorKey));
     }
 
     /**
@@ -103,7 +102,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * <p>
      * If the Try fails with {@link ValidationException}, its errors are preserved, otherwise the provided error message is used.
      */
-    static <T, R> MappingRule<T, R> ofTry(Function<? super T, ? extends Try<? extends R>> tryProvider, ErrorMessage errorMessage) {
+    static <T, R> MappingRule<T, R> fromTry(Function<? super T, ? extends Try<? extends R>> tryProvider, ErrorMessage errorMessage) {
         Objects.requireNonNull(tryProvider, "tryProvider cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return input -> {

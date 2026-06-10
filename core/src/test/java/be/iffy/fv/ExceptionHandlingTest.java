@@ -88,8 +88,8 @@ class ExceptionHandlingTest {
     class MappingRuleExceptionHandling {
 
         @Test
-        void of_whenThrowingMapperThrowsValidationException_capturesErrors() {
-            MappingRule<String, Integer> rule = MappingRule.of(s -> {
+        void catchingException_capturesErrors() {
+            MappingRule<String, Integer> rule = MappingRule.catching(s -> {
                 throw new ValidationException(List.of(ErrorMessage.of("rule.error")));
             }, "fallback.error");
 
@@ -98,10 +98,10 @@ class ExceptionHandlingTest {
         }
 
         @Test
-        void ofTry_whenMapperThrowsValidationException_propagatesException() {
+        void fromTry_whenMapperThrowsValidationException_propagatesException() {
             // MappingRule.ofTry(mapper, error) itself calls mapper.apply(input) directly
             
-            MappingRule<String, Integer> rule = MappingRule.ofTry(s -> {
+            MappingRule<String, Integer> rule = MappingRule.fromTry(s -> {
                 throw new ValidationException(List.of(ErrorMessage.of("rule.error")));
             }, "fallback.error");
 

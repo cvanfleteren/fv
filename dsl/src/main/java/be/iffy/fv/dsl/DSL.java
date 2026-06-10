@@ -311,6 +311,13 @@ public final class DSL {
     /**
      * Quick way to assert a value is not null.
      */
+    public static <T> Validation<T> notNull(T value) {
+        return validateThat(value).is(Rule.notNull());
+    }
+
+    /**
+     * Quick way to assert a value is not null.
+     */
     public static <T> Validation<T> notNull(T value, String name) {
         return validateThat(value, name).is(Rule.notNull());
     }

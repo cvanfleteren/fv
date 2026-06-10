@@ -11,7 +11,7 @@ class ValidatorArityTest {
 
     record Input(String f1, String f2, String f3, String f4, String f5, String f6, String f7, String f8) {}
 
-    MappingRule<String, String> ok = MappingRule.of(s -> s, "ok");
+    MappingRule<String, String> ok = MappingRule.catching(s -> s, "ok");
 
     @Nested
     class Validator1 {

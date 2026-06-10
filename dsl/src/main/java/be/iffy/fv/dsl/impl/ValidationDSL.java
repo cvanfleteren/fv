@@ -62,7 +62,11 @@ public final class ValidationDSL<T> {
      */
     public Validation<T> is(Rule<? super T> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return validation.refine(Rule.narrow(rule)).at(name);
+        if (name.isEmpty()) {
+            return validation.refine(Rule.narrow(rule));
+        } else {
+            return validation.refine(Rule.narrow(rule)).at(name);
+        }
     }
 
     /**
@@ -70,13 +74,23 @@ public final class ValidationDSL<T> {
      */
     public <R> Validation<R> is(Function<? super T, ? extends Validation<? extends R>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return Validation.narrow(
-                validation.flatMap(value ->
-                        Validation.narrow(
-                                Objects.requireNonNull(rule.apply(value),"rule cannot return null Validation")
-                        )
-                ).at(name)
-        );
+        if (name.isEmpty()) {
+            return Validation.narrow(
+                    validation.flatMap(value ->
+                            Validation.narrow(
+                                    Objects.requireNonNull(rule.apply(value), "rule cannot return null Validation")
+                            )
+                    )
+            );
+        } else {
+            return Validation.narrow(
+                    validation.flatMap(value ->
+                            Validation.narrow(
+                                    Objects.requireNonNull(rule.apply(value), "rule cannot return null Validation")
+                            )
+                    ).at(name)
+            );
+        }
     }
 
     /**

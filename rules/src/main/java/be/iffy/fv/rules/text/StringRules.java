@@ -172,7 +172,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      */
     public MappingRule<String, Boolean> asBoolean() {
-        return MappingRule.of(input -> TRUES.contains(input.toUpperCase()), "must.be.boolean");
+        return MappingRule.catching(input -> TRUES.contains(input.toUpperCase()), "must.be.boolean");
     }
 
     /**
@@ -393,7 +393,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      */
     public <E extends Enum<E>> MappingRule<String, E> asEnum(Class<E> enumClass) {
-        return MappingRule.of(s -> {
+        return MappingRule.fromValidation(s -> {
                     for (E constant : enumClass.getEnumConstants()) {
                         if (constant.name().equalsIgnoreCase(s)) {
                             return Validation.valid(constant);

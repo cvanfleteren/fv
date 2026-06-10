@@ -586,7 +586,7 @@ public sealed interface Validation<T> extends Iterable<T> {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
 
         if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3)) {
-            return Validation.narrow(flatMapper.apply(t1, t2, t3));
+            return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2, t3), "flatMapper result cannot be null"));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors()).flatMap(Function.identity()));
         }
@@ -628,7 +628,7 @@ public sealed interface Validation<T> extends Iterable<T> {
         if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
                 var t3
         ) && v4 instanceof Valid(var t4)) {
-            return Validation.narrow(flatMapper.apply(t1, t2, t3, t4));
+            return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2, t3, t4), "flatMapper result cannot be null"));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors()).flatMap(Function.identity()));
         }
@@ -671,7 +671,7 @@ public sealed interface Validation<T> extends Iterable<T> {
         if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
                 var t3
         ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5)) {
-            return Validation.narrow(flatMapper.apply(t1, t2, t3, t4, t5));
+            return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2, t3, t4, t5), "flatMapper result cannot be null"));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors()).flatMap(Function.identity()));
         }
@@ -717,7 +717,7 @@ public sealed interface Validation<T> extends Iterable<T> {
         if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
                 var t3
         ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6)) {
-            return Validation.narrow(flatMapper.apply(t1, t2, t3, t4, t5, t6));
+            return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2, t3, t4, t5, t6), "flatMapper result cannot be null"));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors()).flatMap(Function.identity()));
         }
@@ -769,7 +769,7 @@ public sealed interface Validation<T> extends Iterable<T> {
         ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(
                 var t6
         ) && v7 instanceof Valid(var t7)) {
-            return Validation.narrow(flatMapper.apply(t1, t2, t3, t4, t5, t6, t7));
+            return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2, t3, t4, t5, t6, t7), "flatMapper result cannot be null"));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors()).flatMap(Function.identity()));
         }
@@ -823,7 +823,7 @@ public sealed interface Validation<T> extends Iterable<T> {
         ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(
                 var t6
         ) && v7 instanceof Valid(var t7) && v8 instanceof Valid(var t8)) {
-            return Validation.narrow(flatMapper.apply(t1, t2, t3, t4, t5, t6, t7, t8));
+            return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2, t3, t4, t5, t6, t7, t8), "flatMapper result cannot be null"));
         } else {
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors(), v8.errors()).flatMap(Function.identity()));
         }
@@ -838,7 +838,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Creates a validation containing the provided value.
      * Any non-null values are considered Valid.
      */
-    static <T> Validation<T> of(T value) {
+    static <T> Validation<T> fromNullable(T value) {
         if(value == null) {
             return Invalid.notNull();
         } else {
@@ -991,7 +991,7 @@ public sealed interface Validation<T> extends Iterable<T> {
                 e -> e instanceof ValidationException ve
                         ? Validation.invalid(ve.errors())
                         : Validation.invalid(ErrorMessage.of("failed.from.try", "message", e.getMessage())),
-                Validation::of
+                Validation::fromNullable
         );
     }
 
@@ -1005,7 +1005,7 @@ public sealed interface Validation<T> extends Iterable<T> {
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return option.fold(
                 () -> Validation.invalid(errorMessage),
-                Validation::of
+                Validation::fromNullable
         );
     }
 

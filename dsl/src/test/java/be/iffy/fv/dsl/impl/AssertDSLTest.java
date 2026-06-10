@@ -45,7 +45,7 @@ class AssertDSLTest {
 
         @Test
         void is_whenMappingRuleMatches_returnsMappedValue() {
-            MappingRule<String, Integer> lengthRule = MappingRule.of((String s) -> Validation.valid(s.length()));
+            MappingRule<String, Integer> lengthRule = MappingRule.fromValidation((String s) -> Validation.valid(s.length()));
             Integer result = assertThat("abc", "field").is(lengthRule);
             assertThat(result).isEqualTo(3);
         }
