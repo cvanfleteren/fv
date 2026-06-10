@@ -28,7 +28,7 @@ public class DSLClientTest {
         Validation<String> nameV = validateThat(dto.name, "name").is(minLength);
         Validation<Integer> ageV = validateThat(dto.age, "age").is(minAge);
 
-        Validation<Person> personV = Validation.mapN(nameV, ageV, Person::new);
+        Validation<Person> personV = Validation.combine(nameV, ageV).map(Person::new);
 
         assertThatValidation(personV)
                 .isValid()
@@ -78,7 +78,7 @@ public class DSLClientTest {
         Validation<Person> personAV = Validation.fromCatching(() -> new Person(dtoA.name, dtoA.age)).at("a");
         Validation<Person> personBV = Validation.fromCatching(() -> new Person(dtoB.name, dtoB.age)).at("b");
 
-        Validation<Couple> coupleV = Validation.mapN(personAV, personBV, Couple::new);
+        Validation<Couple> coupleV = Validation.combine(personAV, personBV).map(Couple::new);
 
         assertThatValidation(coupleV)
                 .isInvalid()

@@ -57,28 +57,28 @@ class ExceptionHandlingTest {
         }
 
         @Test
-        void mapN_whenMapperThrowsValidationException_propagatesException() {
+        void combine_map_whenMapperThrowsValidationException_propagatesException() {
             Validation<String> v1 = Validation.valid("a");
             Validation<String> v2 = Validation.valid("b");
-            assertThatThrownBy(() -> Validation.mapN(v1, v2, (a, b) -> {
+            assertThatThrownBy(() -> Validation.combine(v1, v2).map((a, b) -> {
                 throw new ValidationException(List.of(ErrorMessage.of("inner.error")));
             })).isInstanceOf(ValidationException.class);
         }
 
         @Test
-        void flatMapN_whenMapperThrows_propagatesException() {
+        void combine_flatMap_whenMapperThrows_propagatesException() {
             Validation<String> v1 = Validation.valid("a");
             Validation<String> v2 = Validation.valid("b");
-            assertThatThrownBy(() -> Validation.flatMapN(v1, v2, (a, b) -> {
+            assertThatThrownBy(() -> Validation.combine(v1, v2).flatMap((a, b) -> {
                 throw new RuntimeException("boom");
             })).isInstanceOf(RuntimeException.class).hasMessage("boom");
         }
 
         @Test
-        void flatMapN_whenMapperThrowsValidationException_propagatesException() {
+        void combine_flatMap_whenMapperThrowsValidationException_propagatesException() {
             Validation<String> v1 = Validation.valid("a");
             Validation<String> v2 = Validation.valid("b");
-            assertThatThrownBy(() -> Validation.flatMapN(v1, v2, (a, b) -> {
+            assertThatThrownBy(() -> Validation.combine(v1, v2).flatMap((a, b) -> {
                 throw new ValidationException(List.of(ErrorMessage.of("inner.error")));
             })).isInstanceOf(ValidationException.class);
         }

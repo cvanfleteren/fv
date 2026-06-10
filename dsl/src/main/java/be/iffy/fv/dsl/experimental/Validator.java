@@ -117,7 +117,7 @@ public class Validator {
             return input -> predicate.test(input).flatMapCatching(ignore -> {
                 Validation<R1> r1 = rule1.test(input);
                 Validation<R2> r2 = rule2.test(input);
-                return Validation.mapN(r1, r2, mapper);
+                return Validation.combine(r1, r2).map(mapper);
             });
         }
     }
@@ -140,7 +140,7 @@ public class Validator {
                 Validation<R1> r1 = rule1.test(input);
                 Validation<R2> r2 = rule2.test(input);
                 Validation<R3> r3 = rule3.test(input);
-                return Validation.mapN(r1, r2, r3, mapper);
+                return Validation.combine(r1, r2, r3).map(mapper);
             });
         }
 
@@ -174,7 +174,7 @@ public class Validator {
                 Validation<R2> r2 = rule2.test(input);
                 Validation<R3> r3 = rule3.test(input);
                 Validation<R4> r4 = rule4.test(input);
-                return Validation.mapN(r1, r2, r3, r4, mapper);
+                return Validation.combine(r1, r2, r3, r4).map(mapper);
             });
         }
 
@@ -211,7 +211,7 @@ public class Validator {
                 Validation<R3> r3 = rule3.test(input);
                 Validation<R4> r4 = rule4.test(input);
                 Validation<R5> r5 = rule5.test(input);
-                return Validation.mapN(r1, r2, r3, r4, r5, mapper);
+                return Validation.combine(r1, r2, r3, r4, r5).map(mapper);
             });
         }
 
@@ -251,7 +251,7 @@ public class Validator {
                 Validation<R4> r4 = rule4.test(input);
                 Validation<R5> r5 = rule5.test(input);
                 Validation<R6> r6 = rule6.test(input);
-                return Validation.mapN(r1, r2, r3, r4, r5, r6, mapper);
+                return Validation.combine(r1, r2, r3, r4, r5, r6).map(mapper);
             });
         }
 
@@ -294,7 +294,7 @@ public class Validator {
                 Validation<R5> r5 = rule5.test(input);
                 Validation<R6> r6 = rule6.test(input);
                 Validation<R7> r7 = rule7.test(input);
-                return Validation.mapN(r1, r2, r3, r4, r5, r6, r7, mapper);
+                return Validation.combine(r1, r2, r3, r4, r5, r6, r7).map(mapper);
             });
         }
 
@@ -340,7 +340,7 @@ public class Validator {
                 Validation<R6> r6 = rule6.test(input);
                 Validation<R7> r7 = rule7.test(input);
                 Validation<R8> r8 = rule8.test(input);
-                return Validation.mapN(r1, r2, r3, r4, r5, r6, r7, r8, mapper);
+                return Validation.combine(r1, r2, r3, r4, r5, r6, r7, r8).map(mapper);
             });
         }
     }

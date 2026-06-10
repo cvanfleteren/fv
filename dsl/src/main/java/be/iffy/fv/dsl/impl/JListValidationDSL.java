@@ -34,7 +34,7 @@ public final class JListValidationDSL<L, E> {
 
     public Validation<List<E>> validate() {
         return Validation
-                .mapN(listValidation.at(name), elementValidation.at(name), (list, elements) -> elements)
+                .combine(listValidation.at(name), elementValidation.at(name)).map((list, elements) -> elements)
                 // make errors unique because something like a null list would appear in both validations
                 .mapErrors(io.vavr.collection.List::distinct);
     }

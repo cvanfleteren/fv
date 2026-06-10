@@ -157,7 +157,7 @@ public class ClientViewTest {
             return t -> {
                 Validation<R1> v1 = rule1.test(t);
                 Validation<R2> v2 = rule2.test(t);
-                return Validation.mapN(v1, v2, mapper);
+                return Validation.combine(v1, v2).map(mapper);
             };
         }
     }
@@ -180,8 +180,8 @@ public class ClientViewTest {
                 Validation<? extends R1> v1 = rule1.test(t);
                 Validation<? extends R2> v2 = rule2.test(t);
                 Validation<? extends R3> v3 = rule3.test(t);
-                // Validation.mapN should handle the wildcards
-                return Validation.mapN(v1, v2, v3, mapper);
+                // Validation.combine should handle the wildcards
+                return Validation.combine(v1, v2, v3).map(mapper);
             };
         }
     }

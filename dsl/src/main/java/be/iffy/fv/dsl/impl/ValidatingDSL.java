@@ -6,7 +6,7 @@ import be.iffy.fv.Validation;
 import java.util.Objects;
 
 /**
- * A small DSL that's basically just a wrapper around Validation.mapN / Validation.flatmapN
+ * A small DSL that's basically just a wrapper around {@link Validation#combine}.
  */
 public final class ValidatingDSL {
 
@@ -25,7 +25,7 @@ public final class ValidatingDSL {
          * @return a {@code Validation<T>} containing the transformed result, or an {@link Validation.Invalid} if either validation fails
          */
         public <T> Validation<T> map(Function2<T1, T2, T> mapper) {
-            return Validation.mapN(vs._1, vs._2, mapper);
+            return Validation.combine(vs._1, vs._2).map(mapper);
         }
 
         /**
@@ -36,7 +36,7 @@ public final class ValidatingDSL {
          * @return a {@code Validation<T>} containing the transformed result, or an {@link Validation.Invalid} if any of the input validations fail
          */
         public <T> Validation<T> flatMap(Function2<T1, T2, Validation<? extends T>> mapper) {
-            return Validation.flatMapN(vs._1, vs._2, mapper);
+            return Validation.combine(vs._1, vs._2).flatMap(mapper);
         }
     }
 
@@ -55,7 +55,7 @@ public final class ValidatingDSL {
          * @return a {@code Validation<T>} containing the transformed result, or an {@link Validation.Invalid} if either validation fails
          */
         public <T> Validation<T> map(Function3<T1, T2, T3, T> mapper) {
-            return Validation.mapN(vs._1, vs._2, vs._3, mapper);
+            return Validation.combine(vs._1, vs._2, vs._3).map(mapper);
         }
 
         /**
@@ -66,7 +66,7 @@ public final class ValidatingDSL {
          * @return a {@code Validation<T>} containing the transformed result, or an {@link Validation.Invalid} if any of the input validations fail
          */
         public <T> Validation<T> flatMap(Function3<T1, T2, T3, Validation<? extends T>> mapper) {
-            return Validation.flatMapN(vs._1, vs._2, vs._3, mapper);
+            return Validation.combine(vs._1, vs._2, vs._3).flatMap(mapper);
         }
     }
 
@@ -90,7 +90,7 @@ public final class ValidatingDSL {
          * @return a {@code Validation<T>} containing the transformed result, or an {@link Validation.Invalid} if either validation fails
          */
         public <T> Validation<T> map(Function4<T1, T2, T3, T4, T> mapper) {
-            return Validation.mapN(vs._1, vs._2, vs._3, vs._4, mapper);
+            return Validation.combine(vs._1, vs._2, vs._3, vs._4).map(mapper);
         }
 
         /**
@@ -101,7 +101,7 @@ public final class ValidatingDSL {
          * @return a {@code Validation<T>} containing the transformed result, or an {@link Validation.Invalid} if any of the input validations fail
          */
         public <T> Validation<T> flatMap(Function4<T1, T2, T3, T4, Validation<? extends T>> mapper) {
-            return Validation.flatMapN(vs._1, vs._2, vs._3, vs._4, mapper);
+            return Validation.combine(vs._1, vs._2, vs._3, vs._4).flatMap(mapper);
         }
     }
 
@@ -126,7 +126,7 @@ public final class ValidatingDSL {
          * @return a {@code Validation<T>} containing the transformed result, or an {@link Validation.Invalid} if either validation fails
          */
         public <T> Validation<T> map(Function5<T1, T2, T3, T4, T5, T> mapper) {
-            return Validation.mapN(vs._1, vs._2, vs._3, vs._4, vs._5, mapper);
+            return Validation.combine(vs._1, vs._2, vs._3, vs._4, vs._5).map(mapper);
         }
 
         /**
@@ -137,7 +137,7 @@ public final class ValidatingDSL {
          * @return a {@code Validation<T>} containing the transformed result, or an {@link Validation.Invalid} if any of the input validations fail
          */
         public <T> Validation<T> flatMap(Function5<T1, T2, T3, T4, T5, Validation<? extends T>> mapper) {
-            return Validation.flatMapN(vs._1, vs._2, vs._3, vs._4, vs._5, mapper);
+            return Validation.combine(vs._1, vs._2, vs._3, vs._4, vs._5).flatMap(mapper);
         }
     }
 
@@ -163,7 +163,7 @@ public final class ValidatingDSL {
          * @return a {@code Validation<T>} containing the transformed result, or an {@link Validation.Invalid} if either validation fails
          */
         public <T> Validation<T> map(Function6<T1, T2, T3, T4, T5, T6, T> mapper) {
-            return Validation.mapN(vs._1, vs._2, vs._3, vs._4, vs._5, vs._6, mapper);
+            return Validation.combine(vs._1, vs._2, vs._3, vs._4, vs._5, vs._6).map(mapper);
         }
 
         /**
@@ -174,7 +174,7 @@ public final class ValidatingDSL {
          * @return a {@code Validation<T>} containing the transformed result, or an {@link Validation.Invalid} if any of the input validations fail
          */
         public <T> Validation<T> flatMap(Function6<T1, T2, T3, T4, T5, T6, Validation<? extends T>> mapper) {
-            return Validation.flatMapN(vs._1, vs._2, vs._3, vs._4, vs._5, vs._6, mapper);
+            return Validation.combine(vs._1, vs._2, vs._3, vs._4, vs._5, vs._6).flatMap(mapper);
         }
     }
 
@@ -201,7 +201,7 @@ public final class ValidatingDSL {
          * @return a {@code Validation<T>} containing the transformed result, or an {@link Validation.Invalid} if either validation fails
          */
         public <T> Validation<T> map(Function7<T1, T2, T3, T4, T5, T6, T7, T> mapper) {
-            return Validation.mapN(vs._1, vs._2, vs._3, vs._4, vs._5, vs._6, vs._7, mapper);
+            return Validation.combine(vs._1, vs._2, vs._3, vs._4, vs._5, vs._6, vs._7).map(mapper);
         }
 
         /**
@@ -212,7 +212,7 @@ public final class ValidatingDSL {
          * @return a {@code Validation<T>} containing the transformed result, or an {@link Validation.Invalid} if any of the input validations fail
          */
         public <T> Validation<T> flatMap(Function7<T1, T2, T3, T4, T5, T6, T7, Validation<? extends T>> mapper) {
-            return Validation.flatMapN(vs._1, vs._2, vs._3, vs._4, vs._5, vs._6, vs._7, mapper);
+            return Validation.combine(vs._1, vs._2, vs._3, vs._4, vs._5, vs._6, vs._7).flatMap(mapper);
         }
     }
 
@@ -240,7 +240,7 @@ public final class ValidatingDSL {
          * @return a {@code Validation<T>} containing the transformed result, or an {@link Validation.Invalid} if either validation fails
          */
         public <T> Validation<T> map(Function8<T1, T2, T3, T4, T5, T6, T7, T8, T> mapper) {
-            return Validation.mapN(vs._1, vs._2, vs._3, vs._4, vs._5, vs._6, vs._7, vs._8, mapper);
+            return Validation.combine(vs._1, vs._2, vs._3, vs._4, vs._5, vs._6, vs._7, vs._8).map(mapper);
         }
 
         /**
@@ -251,7 +251,7 @@ public final class ValidatingDSL {
          * @return a {@code Validation<T>} containing the transformed result, or an {@link Validation.Invalid} if any of the input validations fail
          */
         public <T> Validation<T> flatMap(Function8<T1, T2, T3, T4, T5, T6, T7, T8, Validation<? extends T>> mapper) {
-            return Validation.flatMapN(vs._1, vs._2, vs._3, vs._4, vs._5, vs._6, vs._7, vs._8, mapper);
+            return Validation.combine(vs._1, vs._2, vs._3, vs._4, vs._5, vs._6, vs._7, vs._8).flatMap(mapper);
         }
     }
 

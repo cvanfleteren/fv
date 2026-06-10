@@ -201,7 +201,7 @@ public final class DSL {
     public static <T1, T2> Tuple2<T1, T2> assertAllValid(Validation<T1> v1, Validation<T2> v2) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
-        return Validation.mapN(v1, v2, Tuple::of).getOrElseThrow();
+        return Validation.combine(v1, v2).map(Tuple::of).getOrElseThrow();
     }
 
     /**
@@ -215,7 +215,7 @@ public final class DSL {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
-        return Validation.mapN(v1, v2, v3, Tuple::of).getOrElseThrow();
+        return Validation.combine(v1, v2, v3).map(Tuple::of).getOrElseThrow();
     }
 
     /**
@@ -230,7 +230,7 @@ public final class DSL {
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
         Objects.requireNonNull(v4, "v4 validation cannot be null");
-        return Validation.mapN(v1, v2, v3, v4, Tuple::of).getOrElseThrow();
+        return Validation.combine(v1, v2, v3, v4).map(Tuple::of).getOrElseThrow();
     }
 
     /**
@@ -246,7 +246,7 @@ public final class DSL {
         Objects.requireNonNull(v3, "v3 validation cannot be null");
         Objects.requireNonNull(v4, "v4 validation cannot be null");
         Objects.requireNonNull(v5, "v5 validation cannot be null");
-        return Validation.mapN(v1, v2, v3, v4, v5, Tuple::of).getOrElseThrow();
+        return Validation.combine(v1, v2, v3, v4, v5).map(Tuple::of).getOrElseThrow();
     }
 
     /**
@@ -264,7 +264,7 @@ public final class DSL {
         Objects.requireNonNull(v4, "v4 validation cannot be null");
         Objects.requireNonNull(v5, "v5 validation cannot be null");
         Objects.requireNonNull(v6, "v6 validation cannot be null");
-        return Validation.mapN(v1, v2, v3, v4, v5, v6, Tuple::of).getOrElseThrow();
+        return Validation.combine(v1, v2, v3, v4, v5, v6).map(Tuple::of).getOrElseThrow();
     }
 
     /**
@@ -283,7 +283,7 @@ public final class DSL {
         Objects.requireNonNull(v5, "v5 validation cannot be null");
         Objects.requireNonNull(v6, "v6 validation cannot be null");
         Objects.requireNonNull(v7, "v7 validation cannot be null");
-        return Validation.mapN(v1, v2, v3, v4, v5, v6, v7, Tuple::of).getOrElseThrow();
+        return Validation.combine(v1, v2, v3, v4, v5, v6, v7).map(Tuple::of).getOrElseThrow();
     }
 
     /**
@@ -303,7 +303,7 @@ public final class DSL {
         Objects.requireNonNull(v6, "v6 validation cannot be null");
         Objects.requireNonNull(v7, "v7 validation cannot be null");
         Objects.requireNonNull(v8, "v8 validation cannot be null");
-        return Validation.mapN(v1, v2, v3, v4, v5, v6, v7, v8, Tuple::of).getOrElseThrow();
+        return Validation.combine(v1, v2, v3, v4, v5, v6, v7, v8).map(Tuple::of).getOrElseThrow();
     }
     //endregion
 

@@ -70,12 +70,11 @@ class ObjectGraphValidationTest {
 
         static Validation<Address> validateAddress(AddressDTO addressDTO) {
 
-            return notNull(addressDTO).flatMap(dto -> Validation.mapN(
+            return notNull(addressDTO).flatMap(dto -> Validation.combine(
                     validateThat(dto.street, "street").is(strings.minLength(1)),
                     validateThat(dto.city, "city").is(strings.minLength(1)),
-                    validateThat(dto.zipCode, "zipCode").is(strings.minLength(4)),
-                    Address::new
-            ));
+                    validateThat(dto.zipCode, "zipCode").is(strings.minLength(4))
+            ).map(Address::new));
         }
 
         static Validation<User> fromDto(UserDTO dto) {
@@ -83,13 +82,12 @@ class ObjectGraphValidationTest {
             MappingRule<String, Role> canBeRole = strings.asEnum(Role.class);
             MappingRule<String, Email> canBeEmail = strings.minLength(2).and(strings.contains("@")).then(MappingRule.catching(Email::new, "must.be.email"));
 
-            return Validation.mapN(
+            return Validation.combine(
                     validateThat(dto.username, "username").is(objects.canBe(Username::new, "must.be.username")),
                     validateThat(dto.email, "email").is(canBeEmail),
                     validateAddress(dto.address).at("address"),
-                    validateThatList(dto.roles, "roles").is(collections.notEmpty()).eachIs(canBeRole).validate(),
-                    User::new
-            );
+                    validateThatList(dto.roles, "roles").is(collections.notEmpty()).eachIs(canBeRole).validate()
+            ).map(User::new);
         }
     }
 

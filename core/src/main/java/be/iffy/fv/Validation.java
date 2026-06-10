@@ -520,311 +520,298 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
     //endregion
 
-    //region mapN / flatMapN
+    //region combine
 
     /**
-     * Maps two {@link Validation}s using the provided mapper function.
-     * If all validations are valid, the result is a valid {@link Validation} containing the mapped value.
-     * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
+     * Combines two validations into a builder that can map all valid values or accumulate all errors.
      */
-    static <R, T1, T2> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Function2<? super T1, ? super T2, ? extends R> mapper) {
-        Objects.requireNonNull(v1, "v1 validation cannot be null");
-        Objects.requireNonNull(v2, "v2 validation cannot be null");
-        Objects.requireNonNull(mapper, "mapper cannot be null");
+    static <T1, T2> CombineBuilder2<T1, T2> combine(Validation<? extends T1> v1, Validation<? extends T2> v2) {
+        return new CombineBuilder2<>(v1, v2);
+    }
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2)) {
-            return valid(mapper.apply(t1, t2));
-        } else {
+    /**
+     * Combines three validations into a builder that can map all valid values or accumulate all errors.
+     */
+    static <T1, T2, T3> CombineBuilder3<T1, T2, T3> combine(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3) {
+        return new CombineBuilder3<>(v1, v2, v3);
+    }
+
+    /**
+     * Combines four validations into a builder that can map all valid values or accumulate all errors.
+     */
+    static <T1, T2, T3, T4> CombineBuilder4<T1, T2, T3, T4> combine(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4) {
+        return new CombineBuilder4<>(v1, v2, v3, v4);
+    }
+
+    /**
+     * Combines five validations into a builder that can map all valid values or accumulate all errors.
+     */
+    static <T1, T2, T3, T4, T5> CombineBuilder5<T1, T2, T3, T4, T5> combine(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5) {
+        return new CombineBuilder5<>(v1, v2, v3, v4, v5);
+    }
+
+    /**
+     * Combines six validations into a builder that can map all valid values or accumulate all errors.
+     */
+    static <T1, T2, T3, T4, T5, T6> CombineBuilder6<T1, T2, T3, T4, T5, T6> combine(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6) {
+        return new CombineBuilder6<>(v1, v2, v3, v4, v5, v6);
+    }
+
+    /**
+     * Combines seven validations into a builder that can map all valid values or accumulate all errors.
+     */
+    static <T1, T2, T3, T4, T5, T6, T7> CombineBuilder7<T1, T2, T3, T4, T5, T6, T7> combine(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7) {
+        return new CombineBuilder7<>(v1, v2, v3, v4, v5, v6, v7);
+    }
+
+    /**
+     * Combines eight validations into a builder that can map all valid values or accumulate all errors.
+     */
+    static <T1, T2, T3, T4, T5, T6, T7, T8> CombineBuilder8<T1, T2, T3, T4, T5, T6, T7, T8> combine(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Validation<? extends T8> v8) {
+        return new CombineBuilder8<>(v1, v2, v3, v4, v5, v6, v7, v8);
+    }
+
+    /**
+     * Builder for combining two validations applicatively.
+     */
+    record CombineBuilder2<T1, T2>(Validation<? extends T1> v1, Validation<? extends T2> v2) {
+        public CombineBuilder2 {
+            Objects.requireNonNull(v1, "v1 validation cannot be null");
+            Objects.requireNonNull(v2, "v2 validation cannot be null");
+        }
+
+        /**
+         * Applies the mapper only when all validations are valid; otherwise accumulates all errors in input order.
+         */
+        public <R> Validation<R> map(Function2<? super T1, ? super T2, ? extends R> mapper) {
+            Objects.requireNonNull(mapper, "mapper cannot be null");
+            if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2)) {
+                return valid(mapper.apply(t1, t2));
+            }
+            return invalid(List.of(v1.errors(), v2.errors()).flatMap(Function.identity()));
+        }
+
+        /**
+         * Applies the flatMapper only when all validations are valid; otherwise accumulates all errors in input order.
+         */
+        public <R> Validation<R> flatMap(Function2<? super T1, ? super T2, Validation<? extends R>> flatMapper) {
+            Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
+            if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2)) {
+                return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2), "flatMapper result cannot be null"));
+            }
             return invalid(List.of(v1.errors(), v2.errors()).flatMap(Function.identity()));
         }
     }
 
     /**
-     * Maps two {@link Validation}s to a new validation using the provided flatMapper function.
-     * If all validations are valid, the result is the result of the flatMapper.
-     * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
+     * Builder for combining three validations applicatively.
      */
-    static <R, T1, T2> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Function2<? super T1, ? super T2, Validation<? extends R>> flatMapper) {
-        Objects.requireNonNull(v1, "v1 validation cannot be null");
-        Objects.requireNonNull(v2, "v2 validation cannot be null");
-        Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
-
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2)) {
-            return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2), "flatMapper result cannot be null"));
-        } else {
-            return invalid(List.of(v1.errors(), v2.errors()).flatMap(Function.identity()));
+    record CombineBuilder3<T1, T2, T3>(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3) {
+        public CombineBuilder3 {
+            Objects.requireNonNull(v1, "v1 validation cannot be null");
+            Objects.requireNonNull(v2, "v2 validation cannot be null");
+            Objects.requireNonNull(v3, "v3 validation cannot be null");
         }
-    }
 
-    /**
-     * Maps three {@link Validation}s using the provided mapper function.
-     * If all validations are valid, the result is a valid {@link Validation} containing the mapped value.
-     * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     */
-    static <R, T1, T2, T3> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Function3<? super T1, ? super T2, ? super T3, ? extends R> mapper) {
-        Objects.requireNonNull(v1, "v1 validation cannot be null");
-        Objects.requireNonNull(v2, "v2 validation cannot be null");
-        Objects.requireNonNull(v3, "v3 validation cannot be null");
-        Objects.requireNonNull(mapper, "mapper cannot be null");
+        /**
+         * Applies the mapper only when all validations are valid; otherwise accumulates all errors in input order.
+         */
+        public <R> Validation<R> map(Function3<? super T1, ? super T2, ? super T3, ? extends R> mapper) {
+            Objects.requireNonNull(mapper, "mapper cannot be null");
+            if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3)) {
+                return valid(mapper.apply(t1, t2, t3));
+            }
+            return invalid(List.of(v1.errors(), v2.errors(), v3.errors()).flatMap(Function.identity()));
+        }
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3)) {
-            return valid(mapper.apply(t1, t2, t3));
-        } else {
+        /**
+         * Applies the flatMapper only when all validations are valid; otherwise accumulates all errors in input order.
+         */
+        public <R> Validation<R> flatMap(Function3<? super T1, ? super T2, ? super T3, Validation<? extends R>> flatMapper) {
+            Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
+            if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3)) {
+                return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2, t3), "flatMapper result cannot be null"));
+            }
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors()).flatMap(Function.identity()));
         }
     }
 
     /**
-     * Maps three {@link Validation}s to a new validation using the provided flatMapper function.
-     * If all validations are valid, the result is the result of the flatMapper.
-     * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
+     * Builder for combining four validations applicatively.
      */
-    static <R, T1, T2, T3> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Function3<? super T1, ? super T2, ? super T3, Validation<? extends R>> flatMapper) {
-        Objects.requireNonNull(v1, "v1 validation cannot be null");
-        Objects.requireNonNull(v2, "v2 validation cannot be null");
-        Objects.requireNonNull(v3, "v3 validation cannot be null");
-        Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
-
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3)) {
-            return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2, t3), "flatMapper result cannot be null"));
-        } else {
-            return invalid(List.of(v1.errors(), v2.errors(), v3.errors()).flatMap(Function.identity()));
+    record CombineBuilder4<T1, T2, T3, T4>(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4) {
+        public CombineBuilder4 {
+            Objects.requireNonNull(v1, "v1 validation cannot be null");
+            Objects.requireNonNull(v2, "v2 validation cannot be null");
+            Objects.requireNonNull(v3, "v3 validation cannot be null");
+            Objects.requireNonNull(v4, "v4 validation cannot be null");
         }
-    }
 
-    /**
-     * Maps four {@link Validation}s using the provided mapper function.
-     * If all validations are valid, the result is a valid {@link Validation} containing the mapped value.
-     * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     */
-    static <R, T1, T2, T3, T4> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Function4<? super T1, ? super T2, ? super T3, ? super T4, ? extends R> mapper) {
-        Objects.requireNonNull(v1, "v1 validation cannot be null");
-        Objects.requireNonNull(v2, "v2 validation cannot be null");
-        Objects.requireNonNull(v3, "v3 validation cannot be null");
-        Objects.requireNonNull(v4, "v4 validation cannot be null");
-        Objects.requireNonNull(mapper, "mapper cannot be null");
+        /**
+         * Applies the mapper only when all validations are valid; otherwise accumulates all errors in input order.
+         */
+        public <R> Validation<R> map(Function4<? super T1, ? super T2, ? super T3, ? super T4, ? extends R> mapper) {
+            Objects.requireNonNull(mapper, "mapper cannot be null");
+            if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4)) {
+                return valid(mapper.apply(t1, t2, t3, t4));
+            }
+            return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors()).flatMap(Function.identity()));
+        }
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4)) {
-            return valid(mapper.apply(t1, t2, t3, t4));
-        } else {
+        /**
+         * Applies the flatMapper only when all validations are valid; otherwise accumulates all errors in input order.
+         */
+        public <R> Validation<R> flatMap(Function4<? super T1, ? super T2, ? super T3, ? super T4, Validation<? extends R>> flatMapper) {
+            Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
+            if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4)) {
+                return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2, t3, t4), "flatMapper result cannot be null"));
+            }
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors()).flatMap(Function.identity()));
         }
     }
 
     /**
-     * Maps four {@link Validation}s to a new validation using the provided flatMapper function.
-     * If all validations are valid, the result is the result of the flatMapper.
-     * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
+     * Builder for combining five validations applicatively.
      */
-    static <R, T1, T2, T3, T4> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Function4<? super T1, ? super T2, ? super T3, ? super T4, Validation<? extends R>> flatMapper) {
-        Objects.requireNonNull(v1, "v1 validation cannot be null");
-        Objects.requireNonNull(v2, "v2 validation cannot be null");
-        Objects.requireNonNull(v3, "v3 validation cannot be null");
-        Objects.requireNonNull(v4, "v4 validation cannot be null");
-        Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
-
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4)) {
-            return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2, t3, t4), "flatMapper result cannot be null"));
-        } else {
-            return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors()).flatMap(Function.identity()));
+    record CombineBuilder5<T1, T2, T3, T4, T5>(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5) {
+        public CombineBuilder5 {
+            Objects.requireNonNull(v1, "v1 validation cannot be null");
+            Objects.requireNonNull(v2, "v2 validation cannot be null");
+            Objects.requireNonNull(v3, "v3 validation cannot be null");
+            Objects.requireNonNull(v4, "v4 validation cannot be null");
+            Objects.requireNonNull(v5, "v5 validation cannot be null");
         }
-    }
 
-    /**
-     * Maps five {@link Validation}s using the provided mapper function.
-     * If all validations are valid, the result is a valid {@link Validation} containing the mapped value.
-     * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     */
-    static <R, T1, T2, T3, T4, T5> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? extends R> mapper) {
-        Objects.requireNonNull(v1, "v1 validation cannot be null");
-        Objects.requireNonNull(v2, "v2 validation cannot be null");
-        Objects.requireNonNull(v3, "v3 validation cannot be null");
-        Objects.requireNonNull(v4, "v4 validation cannot be null");
-        Objects.requireNonNull(v5, "v5 validation cannot be null");
-        Objects.requireNonNull(mapper, "mapper cannot be null");
+        /**
+         * Applies the mapper only when all validations are valid; otherwise accumulates all errors in input order.
+         */
+        public <R> Validation<R> map(Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? extends R> mapper) {
+            Objects.requireNonNull(mapper, "mapper cannot be null");
+            if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5)) {
+                return valid(mapper.apply(t1, t2, t3, t4, t5));
+            }
+            return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors()).flatMap(Function.identity()));
+        }
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3)
-                && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5)) {
-            return valid(mapper.apply(t1, t2, t3, t4, t5));
-        } else {
+        /**
+         * Applies the flatMapper only when all validations are valid; otherwise accumulates all errors in input order.
+         */
+        public <R> Validation<R> flatMap(Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, Validation<? extends R>> flatMapper) {
+            Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
+            if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5)) {
+                return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2, t3, t4, t5), "flatMapper result cannot be null"));
+            }
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors()).flatMap(Function.identity()));
         }
     }
 
     /**
-     * Maps five {@link Validation}s to a new validation using the provided flatMapper function.
-     * If all validations are valid, the result is the result of the flatMapper.
-     * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
+     * Builder for combining six validations applicatively.
      */
-    static <R, T1, T2, T3, T4, T5> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Function5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, Validation<? extends R>> flatMapper) {
-        Objects.requireNonNull(v1, "v1 validation cannot be null");
-        Objects.requireNonNull(v2, "v2 validation cannot be null");
-        Objects.requireNonNull(v3, "v3 validation cannot be null");
-        Objects.requireNonNull(v4, "v4 validation cannot be null");
-        Objects.requireNonNull(v5, "v5 validation cannot be null");
-        Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
-
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5)) {
-            return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2, t3, t4, t5), "flatMapper result cannot be null"));
-        } else {
-            return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors()).flatMap(Function.identity()));
+    record CombineBuilder6<T1, T2, T3, T4, T5, T6>(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6) {
+        public CombineBuilder6 {
+            Objects.requireNonNull(v1, "v1 validation cannot be null");
+            Objects.requireNonNull(v2, "v2 validation cannot be null");
+            Objects.requireNonNull(v3, "v3 validation cannot be null");
+            Objects.requireNonNull(v4, "v4 validation cannot be null");
+            Objects.requireNonNull(v5, "v5 validation cannot be null");
+            Objects.requireNonNull(v6, "v6 validation cannot be null");
         }
-    }
 
-    /**
-     * Maps six {@link Validation}s using the provided mapper function.
-     * If all validations are valid, the result is a valid {@link Validation} containing the mapped value.
-     * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     */
-    static <R, T1, T2, T3, T4, T5, T6> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Function6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? extends R> mapper) {
-        Objects.requireNonNull(v1, "v1 validation cannot be null");
-        Objects.requireNonNull(v2, "v2 validation cannot be null");
-        Objects.requireNonNull(v3, "v3 validation cannot be null");
-        Objects.requireNonNull(v4, "v4 validation cannot be null");
-        Objects.requireNonNull(v5, "v5 validation cannot be null");
-        Objects.requireNonNull(v6, "v6 validation cannot be null");
-        Objects.requireNonNull(mapper, "mapper cannot be null");
+        /**
+         * Applies the mapper only when all validations are valid; otherwise accumulates all errors in input order.
+         */
+        public <R> Validation<R> map(Function6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? extends R> mapper) {
+            Objects.requireNonNull(mapper, "mapper cannot be null");
+            if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6)) {
+                return valid(mapper.apply(t1, t2, t3, t4, t5, t6));
+            }
+            return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors()).flatMap(Function.identity()));
+        }
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6)) {
-            return valid(mapper.apply(t1, t2, t3, t4, t5, t6));
-        } else {
+        /**
+         * Applies the flatMapper only when all validations are valid; otherwise accumulates all errors in input order.
+         */
+        public <R> Validation<R> flatMap(Function6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, Validation<? extends R>> flatMapper) {
+            Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
+            if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6)) {
+                return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2, t3, t4, t5, t6), "flatMapper result cannot be null"));
+            }
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors()).flatMap(Function.identity()));
         }
     }
 
     /**
-     * Maps six {@link Validation}s to a new validation using the provided flatMapper function.
-     * If all validations are valid, the result is the result of the flatMapper.
-     * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
+     * Builder for combining seven validations applicatively.
      */
-    static <R, T1, T2, T3, T4, T5, T6> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Function6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, Validation<? extends R>> flatMapper) {
-        Objects.requireNonNull(v1, "v1 validation cannot be null");
-        Objects.requireNonNull(v2, "v2 validation cannot be null");
-        Objects.requireNonNull(v3, "v3 validation cannot be null");
-        Objects.requireNonNull(v4, "v4 validation cannot be null");
-        Objects.requireNonNull(v5, "v5 validation cannot be null");
-        Objects.requireNonNull(v6, "v6 validation cannot be null");
-        Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
-
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6)) {
-            return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2, t3, t4, t5, t6), "flatMapper result cannot be null"));
-        } else {
-            return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors()).flatMap(Function.identity()));
+    record CombineBuilder7<T1, T2, T3, T4, T5, T6, T7>(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7) {
+        public CombineBuilder7 {
+            Objects.requireNonNull(v1, "v1 validation cannot be null");
+            Objects.requireNonNull(v2, "v2 validation cannot be null");
+            Objects.requireNonNull(v3, "v3 validation cannot be null");
+            Objects.requireNonNull(v4, "v4 validation cannot be null");
+            Objects.requireNonNull(v5, "v5 validation cannot be null");
+            Objects.requireNonNull(v6, "v6 validation cannot be null");
+            Objects.requireNonNull(v7, "v7 validation cannot be null");
         }
-    }
 
-    /**
-     * Maps seven {@link Validation}s using the provided mapper function.
-     * If all validations are valid, the result is a valid {@link Validation} containing the mapped value.
-     * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     */
-    static <R, T1, T2, T3, T4, T5, T6, T7> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Function7<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? extends R> mapper) {
-        Objects.requireNonNull(v1, "v1 validation cannot be null");
-        Objects.requireNonNull(v2, "v2 validation cannot be null");
-        Objects.requireNonNull(v3, "v3 validation cannot be null");
-        Objects.requireNonNull(v4, "v4 validation cannot be null");
-        Objects.requireNonNull(v5, "v5 validation cannot be null");
-        Objects.requireNonNull(v6, "v6 validation cannot be null");
-        Objects.requireNonNull(v7, "v7 validation cannot be null");
-        Objects.requireNonNull(mapper, "mapper cannot be null");
+        /**
+         * Applies the mapper only when all validations are valid; otherwise accumulates all errors in input order.
+         */
+        public <R> Validation<R> map(Function7<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? extends R> mapper) {
+            Objects.requireNonNull(mapper, "mapper cannot be null");
+            if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6) && v7 instanceof Valid(var t7)) {
+                return valid(mapper.apply(t1, t2, t3, t4, t5, t6, t7));
+            }
+            return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors()).flatMap(Function.identity()));
+        }
 
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(
-                var t6
-        ) && v7 instanceof Valid(var t7)) {
-            return valid(mapper.apply(t1, t2, t3, t4, t5, t6, t7));
-        } else {
+        /**
+         * Applies the flatMapper only when all validations are valid; otherwise accumulates all errors in input order.
+         */
+        public <R> Validation<R> flatMap(Function7<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, Validation<? extends R>> flatMapper) {
+            Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
+            if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6) && v7 instanceof Valid(var t7)) {
+                return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2, t3, t4, t5, t6, t7), "flatMapper result cannot be null"));
+            }
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors()).flatMap(Function.identity()));
         }
     }
 
     /**
-     * Maps seven {@link Validation}s to a new validation using the provided flatMapper function.
-     * If all validations are valid, the result is the result of the flatMapper.
-     * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
+     * Builder for combining eight validations applicatively.
      */
-    static <R, T1, T2, T3, T4, T5, T6, T7> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Function7<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, Validation<? extends R>> flatMapper) {
-        Objects.requireNonNull(v1, "v1 validation cannot be null");
-        Objects.requireNonNull(v2, "v2 validation cannot be null");
-        Objects.requireNonNull(v3, "v3 validation cannot be null");
-        Objects.requireNonNull(v4, "v4 validation cannot be null");
-        Objects.requireNonNull(v5, "v5 validation cannot be null");
-        Objects.requireNonNull(v6, "v6 validation cannot be null");
-        Objects.requireNonNull(v7, "v7 validation cannot be null");
-        Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
-
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(
-                var t6
-        ) && v7 instanceof Valid(var t7)) {
-            return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2, t3, t4, t5, t6, t7), "flatMapper result cannot be null"));
-        } else {
-            return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors()).flatMap(Function.identity()));
+    record CombineBuilder8<T1, T2, T3, T4, T5, T6, T7, T8>(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Validation<? extends T8> v8) {
+        public CombineBuilder8 {
+            Objects.requireNonNull(v1, "v1 validation cannot be null");
+            Objects.requireNonNull(v2, "v2 validation cannot be null");
+            Objects.requireNonNull(v3, "v3 validation cannot be null");
+            Objects.requireNonNull(v4, "v4 validation cannot be null");
+            Objects.requireNonNull(v5, "v5 validation cannot be null");
+            Objects.requireNonNull(v6, "v6 validation cannot be null");
+            Objects.requireNonNull(v7, "v7 validation cannot be null");
+            Objects.requireNonNull(v8, "v8 validation cannot be null");
         }
-    }
 
-    /**
-     * Maps eight {@link Validation}s using the provided mapper function.
-     * If all validations are valid, the result is a valid {@link Validation} containing the mapped value.
-     * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     */
-    static <R, T1, T2, T3, T4, T5, T6, T7, T8> Validation<R> mapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Validation<? extends T8> v8, Function8<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? super T8, ? extends R> mapper) {
-        Objects.requireNonNull(v1, "v1 validation cannot be null");
-        Objects.requireNonNull(v2, "v2 validation cannot be null");
-        Objects.requireNonNull(v3, "v3 validation cannot be null");
-        Objects.requireNonNull(v4, "v4 validation cannot be null");
-        Objects.requireNonNull(v5, "v5 validation cannot be null");
-        Objects.requireNonNull(v6, "v6 validation cannot be null");
-        Objects.requireNonNull(v7, "v7 validation cannot be null");
-        Objects.requireNonNull(v8, "v8 validation cannot be null");
-        Objects.requireNonNull(mapper, "mapper cannot be null");
-
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(
-                var t6
-        ) && v7 instanceof Valid(var t7) && v8 instanceof Valid(var t8)) {
-            return valid(mapper.apply(t1, t2, t3, t4, t5, t6, t7, t8));
-        } else {
+        /**
+         * Applies the mapper only when all validations are valid; otherwise accumulates all errors in input order.
+         */
+        public <R> Validation<R> map(Function8<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? super T8, ? extends R> mapper) {
+            Objects.requireNonNull(mapper, "mapper cannot be null");
+            if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6) && v7 instanceof Valid(var t7) && v8 instanceof Valid(var t8)) {
+                return valid(mapper.apply(t1, t2, t3, t4, t5, t6, t7, t8));
+            }
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors(), v8.errors()).flatMap(Function.identity()));
         }
-    }
 
-    /**
-     * Maps eight {@link Validation}s to a new validation using the provided flatMapper function.
-     * If all validations are valid, the result is the result of the flatMapper.
-     * If any validation is invalid, the result is an invalid {@link Validation} containing all error messages.
-     */
-    static <R, T1, T2, T3, T4, T5, T6, T7, T8> Validation<R> flatMapN(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Validation<? extends T8> v8, Function8<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? super T8, Validation<? extends R>> flatMapper) {
-        Objects.requireNonNull(v1, "v1 validation cannot be null");
-        Objects.requireNonNull(v2, "v2 validation cannot be null");
-        Objects.requireNonNull(v3, "v3 validation cannot be null");
-        Objects.requireNonNull(v4, "v4 validation cannot be null");
-        Objects.requireNonNull(v5, "v5 validation cannot be null");
-        Objects.requireNonNull(v6, "v6 validation cannot be null");
-        Objects.requireNonNull(v7, "v7 validation cannot be null");
-        Objects.requireNonNull(v8, "v8 validation cannot be null");
-        Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
-
-        if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(
-                var t3
-        ) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(
-                var t6
-        ) && v7 instanceof Valid(var t7) && v8 instanceof Valid(var t8)) {
-            return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2, t3, t4, t5, t6, t7, t8), "flatMapper result cannot be null"));
-        } else {
+        /**
+         * Applies the flatMapper only when all validations are valid; otherwise accumulates all errors in input order.
+         */
+        public <R> Validation<R> flatMap(Function8<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? super T8, Validation<? extends R>> flatMapper) {
+            Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
+            if (v1 instanceof Valid(var t1) && v2 instanceof Valid(var t2) && v3 instanceof Valid(var t3) && v4 instanceof Valid(var t4) && v5 instanceof Valid(var t5) && v6 instanceof Valid(var t6) && v7 instanceof Valid(var t7) && v8 instanceof Valid(var t8)) {
+                return Validation.narrow(Objects.requireNonNull(flatMapper.apply(t1, t2, t3, t4, t5, t6, t7, t8), "flatMapper result cannot be null"));
+            }
             return invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors(), v8.errors()).flatMap(Function.identity()));
         }
     }
@@ -832,7 +819,6 @@ public sealed interface Validation<T> extends Iterable<T> {
     //endregion
 
     //region factory methods for known values
-
 
     /**
      * Creates a validation containing the provided value.
