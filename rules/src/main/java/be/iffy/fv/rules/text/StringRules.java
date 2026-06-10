@@ -42,11 +42,13 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Fails if the string is not a valid integer.
      * <p>
      * Error key: {@code must.be.integer}
-     *
+     * <p>
      * Parameters:
      * <ul>
      *     <li>{@code value}: the input string ({@link String})</li>
      * </ul>
+     *
+     * @return a {@link MappingRule} that transforms a String into an {@link Integer}.
      */
     public MappingRule<String, Integer> asInteger() {
         return MappingRule.<String>notNull().then(input -> {
@@ -62,7 +64,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Fails if the string is not a valid long.
      * <p>
      * Error key: {@code must.be.long}
-     *
+     * <p>
      * Parameters:
      * <ul>
      *     <li>{@code value}: the input string ({@link String})</li>
@@ -82,7 +84,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Fails if the string is not a valid double.
      * <p>
      * Error key: {@code must.be.double}
-     *
+     * <p>
      * Parameters:
      * <ul>
      *     <li>{@code value}: the input string ({@link String})</li>
@@ -102,7 +104,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Fails if the string is not a valid float.
      * <p>
      * Error key: {@code must.be.float}
-     *
+     * <p>
      * Parameters:
      * <ul>
      *     <li>{@code value}: the input string ({@link String})</li>
@@ -122,7 +124,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Fails if the string is not a valid BigInteger.
      * <p>
      * Error key: {@code must.be.biginteger}
-     *
+     * <p>
      * Parameters:
      * <ul>
      *     <li>{@code value}: the input string ({@link String})</li>
@@ -142,7 +144,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Fails if the string is not a valid BigDecimal.
      * <p>
      * Error key: {@code must.be.bigdecimal}
-     *
+     * <p>
      * Parameters:
      * <ul>
      *     <li>{@code value}: the input string ({@link String})</li>
@@ -163,6 +165,11 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     /**
      * Converts a String into a boolean. Doesn't have any fail conditions.
      * Will consider "true","1","YES","Y" to be true values, anything else is considered false.
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
      */
     public MappingRule<String, Boolean> asBoolean() {
         return MappingRule.of(input -> TRUES.contains(input.toUpperCase()), "must.be.boolean");
@@ -172,8 +179,11 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Fails if the string is not a valid UUID.
      * <p>
      * Error key: {@code must.be.uuid}
-     *
-     * @return a {@link MappingRule} that transforms a String into a UUID.
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
      */
     public MappingRule<String, UUID> asUUID() {
         return MappingRule.<String>notNull().then(input -> {
@@ -189,13 +199,11 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Fails if the strings is not a valid URL.
      * <p>
      * Error key: {@code must.be.url}
-     *
+     * <p>
      * Parameters:
      * <ul>
      *     <li>{@code value}: the input string ({@link String})</li>
      * </ul>
-     *
-     * @return a {@link MappingRule} that transforms a String into a URL.
      */
     public MappingRule<String, URL> asURL() {
         return MappingRule.<String>notNull().then(input -> {
@@ -219,7 +227,6 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      *
      * @param format the expected date time format.
-     * @return a {@link MappingRule} that transforms a String into a {@link LocalDateTime}.
      * @see DateTimeFormatter#ofPattern(String)
      */
     public MappingRule<String, LocalDateTime> asLocalDateTime(String format) {
@@ -236,16 +243,14 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
 
     /**
      * Fails if the string is not a valid LocalDateTime in ISO format (e.g. 2011-12-03T10:15:30)
-     *
      * <p>
      * Error key: {@code must.be.localdatetime}
-     *
+     * <p>
      * Parameters:
      * <ul>
      *     <li>{@code value}: the input string ({@link String})</li>
      * </ul>
      *
-     * @return a {@link MappingRule} that transforms a String into a {@link LocalDateTime}.
      * @see java.time.format.DateTimeFormatter#ISO_LOCAL_DATE_TIME
      * @see LocalDateTime#parse(CharSequence)
      */
@@ -271,7 +276,6 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      *
      * @param format the expected date format.
-     * @return a {@link MappingRule} that transforms a String into a {@link LocalDate}.
      * @see DateTimeFormatter#ofPattern(String)
      */
     public MappingRule<String, LocalDate> asLocalDate(String format) {
@@ -288,16 +292,14 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
 
     /**
      * Fails if the string is not a valid LocalDate in ISO format (e.g. 2011-12-03)
-     *
      * <p>
      * Error key: {@code must.be.localdate}
-     *
+     * <p>
      * Parameters:
      * <ul>
      *     <li>{@code value}: the input string ({@link String})</li>
      * </ul>
      *
-     * @return a {@link MappingRule} that transforms a String into a {@link LocalDate}.
      * @see java.time.format.DateTimeFormatter#ISO_LOCAL_DATE
      * @see LocalDateTime#parse(CharSequence)
      */
@@ -323,7 +325,6 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      *
      * @param format the expected instant format.
-     * @return a {@link MappingRule} that transforms a String into an {@link Instant}.
      * @see DateTimeFormatter#ofPattern(String)
      */
     public MappingRule<String, Instant> asInstant(String format) {
@@ -340,16 +341,14 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
 
     /**
      * Fails if the string is not a valid Instant in ISO format (e.g. 2011-12-03T10:15:30Z)
-     *
      * <p>
      * Error key: {@code must.be.instant}
-     *
+     * <p>
      * Parameters:
      * <ul>
      *     <li>{@code value}: the input string ({@link String})</li>
      * </ul>
      *
-     * @return a {@link MappingRule} that transforms a String into an {@link java.time.Instant}.
      * @see java.time.format.DateTimeFormatter#ISO_INSTANT
      * @see LocalDateTime#parse(CharSequence)
      */
@@ -372,8 +371,6 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <ul>
      *     <li>{@code value}: the input string ({@link String})</li>
      * </ul>
-     *
-     * @return a {@link MappingRule} that transforms a String into a {@link URI}.
      */
     public MappingRule<String, URI> asURI() {
         return MappingRule.<String>notNull().then(input -> {
