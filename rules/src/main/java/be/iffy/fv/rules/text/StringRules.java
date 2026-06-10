@@ -41,10 +41,19 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.integer}
      *
-     * @return a {@link MappingRule} that transforms a String into an Integer.
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
      */
     public MappingRule<String, Integer> asInteger() {
-        return MappingRule.of(Integer::parseInt, "must.be.integer");
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(Integer.parseInt(input));
+            } catch (NumberFormatException e) {
+                return Validation.invalid(ErrorMessage.of("must.be.integer", "value", input));
+            }
+        });
     }
 
     /**
@@ -52,10 +61,19 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.long}
      *
-     * @return a {@link MappingRule} that transforms a String into a Long.
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
      */
     public MappingRule<String, Long> asLong() {
-        return MappingRule.of(Long::parseLong, "must.be.long");
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(Long.parseLong(input));
+            } catch (NumberFormatException e) {
+                return Validation.invalid(ErrorMessage.of("must.be.long", "value", input));
+            }
+        });
     }
 
     /**
@@ -63,10 +81,19 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.double}
      *
-     * @return a {@link MappingRule} that transforms a String into a Double.
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
      */
     public MappingRule<String, Double> asDouble() {
-        return MappingRule.of(Double::parseDouble, "must.be.double");
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(Double.parseDouble(input));
+            } catch (NumberFormatException e) {
+                return Validation.invalid(ErrorMessage.of("must.be.double", "value", input));
+            }
+        });
     }
 
     /**
@@ -74,10 +101,19 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.float}
      *
-     * @return a {@link MappingRule} that transforms a String into a Float.
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
      */
     public MappingRule<String, Float> asFloat() {
-        return MappingRule.of(Float::parseFloat, "must.be.float");
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(Float.parseFloat(input));
+            } catch (NumberFormatException e) {
+                return Validation.invalid(ErrorMessage.of("must.be.float", "value", input));
+            }
+        });
     }
 
     /**
@@ -85,10 +121,19 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.biginteger}
      *
-     * @return a {@link MappingRule} that transforms a String into a BigInteger.
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
      */
     public MappingRule<String, BigInteger> asBigInteger() {
-        return MappingRule.of(BigInteger::new, "must.be.biginteger");
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(new BigInteger(input));
+            } catch (NumberFormatException e) {
+                return Validation.invalid(ErrorMessage.of("must.be.biginteger", "value", input));
+            }
+        });
     }
 
     /**
@@ -96,13 +141,22 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.bigdecimal}
      *
-     * @return a {@link MappingRule} that transforms a String into a BigDecimal.
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
      */
     public MappingRule<String, BigDecimal> asBigDecimal() {
-        return MappingRule.of(BigDecimal::new, "must.be.bigdecimal");
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(new BigDecimal(input));
+            } catch (NumberFormatException e) {
+                return Validation.invalid(ErrorMessage.of("must.be.bigdecimal", "value", input));
+            }
+        });
     }
 
-    static final Set<String> TRUES = HashSet.of("TRUE","1","YES","Y");
+    static final Set<String> TRUES = HashSet.of("TRUE", "1", "YES", "Y");
 
     /**
      * Converts a String into a boolean. Doesn't have any fail conditions.
@@ -120,7 +174,13 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that transforms a String into a UUID.
      */
     public MappingRule<String, UUID> asUUID() {
-        return MappingRule.of(UUID::fromString, "must.be.uuid");
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(UUID.fromString(input));
+            } catch (IllegalArgumentException e) {
+                return Validation.invalid(ErrorMessage.of("must.be.uuid", "value", input));
+            }
+        });
     }
 
     /**
@@ -877,5 +937,5 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     }
 
     //endregion
-    
+
 }

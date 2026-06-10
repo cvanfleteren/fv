@@ -146,6 +146,10 @@ public record ErrorMessage(String errorKey, List<Path> paths, Map<String, @Nulla
         return new ErrorMessage(this.errorKey, this.paths, parameters);
     }
 
+    public ErrorMessage addParameters(String key, Object value) {
+        return new ErrorMessage(this.errorKey, this.paths, parameters.put(key, value));
+    }
+
     /**
      * Represents a single segment in an error path, optionally including an index.
      * The index would usually be used for array or list indices, or map keys.

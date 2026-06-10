@@ -3,6 +3,7 @@ package be.iffy.fv.rules.text;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
+import io.vavr.collection.Map;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -672,12 +673,12 @@ class StringRulesTest {
 
         @Test
         void asInteger_whenInvalidIntegerString_returnsInvalid() {
-            invalidTest("abc", strings.asInteger(), "must.be.integer");
+            invalidTest("abc", strings.asInteger(), "must.be.integer", HashMap.of("value","abc"));
         }
 
         @Test
         void asInteger_whenEmptyString_returnsInvalid() {
-            invalidTest("", strings.asInteger(), "must.be.integer");
+            invalidTest("", strings.asInteger(), "must.be.integer", HashMap.of("value",""));
         }
 
         @Test
@@ -696,12 +697,12 @@ class StringRulesTest {
 
         @Test
         void asLong_whenInvalidLongString_returnsInvalid() {
-            invalidTest("not-a-long", strings.asLong(), "must.be.long");
+            invalidTest("not-a-long", strings.asLong(), "must.be.long", HashMap.of("value","not-a-long"));
         }
 
         @Test
         void asLong_whenValueTooLargeForLong_returnsInvalid() {
-            invalidTest("9223372036854775808", strings.asLong(), "must.be.long");
+            invalidTest("9223372036854775808", strings.asLong(), "must.be.long", HashMap.of("value","9223372036854775808"));
         }
 
         @Test
@@ -720,12 +721,12 @@ class StringRulesTest {
 
         @Test
         void asDouble_whenInvalidDoubleString_returnsInvalid() {
-            invalidTest("abc", strings.asDouble(), "must.be.double");
+            invalidTest("abc", strings.asDouble(), "must.be.double", HashMap.of("value","abc"));
         }
 
         @Test
         void asDouble_whenEmptyString_returnsInvalid() {
-            invalidTest("", strings.asDouble(), "must.be.double");
+            invalidTest("", strings.asDouble(), "must.be.double", HashMap.of("value", ""));
         }
 
         @Test
@@ -744,12 +745,12 @@ class StringRulesTest {
 
         @Test
         void asFloat_whenInvalidFloatString_returnsInvalid() {
-            invalidTest("abc", strings.asFloat(), "must.be.float");
+            invalidTest("abc", strings.asFloat(), "must.be.float", HashMap.of("value", "abc"));
         }
 
         @Test
         void asFloat_whenEmptyString_returnsInvalid() {
-            invalidTest("", strings.asFloat(), "must.be.float");
+            invalidTest("", strings.asFloat(), "must.be.float", HashMap.of("value",""));
         }
 
         @Test
@@ -768,12 +769,12 @@ class StringRulesTest {
 
         @Test
         void asBigInteger_whenInvalidBigIntegerString_returnsInvalid() {
-            invalidTest("abc", strings.asBigInteger(), "must.be.biginteger");
+            invalidTest("abc", strings.asBigInteger(), "must.be.biginteger", HashMap.of("value","abc"));
         }
 
         @Test
         void asBigInteger_whenEmptyString_returnsInvalid() {
-            invalidTest("", strings.asBigInteger(), "must.be.biginteger");
+            invalidTest("", strings.asBigInteger(), "must.be.biginteger", HashMap.of("value",""));
         }
 
         @Test
@@ -792,12 +793,12 @@ class StringRulesTest {
 
         @Test
         void asBigDecimal_whenInvalidBigDecimalString_returnsInvalid() {
-            invalidTest("not-a-decimal", strings.asBigDecimal(), "must.be.bigdecimal");
+            invalidTest("not-a-decimal", strings.asBigDecimal(), "must.be.bigdecimal", HashMap.of("value","not-a-decimal"));
         }
 
         @Test
         void asBigDecimal_whenEmptyString_returnsInvalid() {
-            invalidTest("", strings.asBigDecimal(), "must.be.bigdecimal");
+            invalidTest("", strings.asBigDecimal(), "must.be.bigdecimal", HashMap.of("value",""));
         }
 
         @Test
@@ -817,12 +818,12 @@ class StringRulesTest {
 
         @Test
         void asUUID_whenInvalidUUIDString_returnsInvalid() {
-            invalidTest("not-a-uuid", strings.asUUID(), "must.be.uuid");
+            invalidTest("not-a-uuid", strings.asUUID(), "must.be.uuid", HashMap.of("value","not-a-uuid"));
         }
 
         @Test
         void asUUID_whenEmptyString_returnsInvalid() {
-            invalidTest("", strings.asUUID(), "must.be.uuid");
+            invalidTest("", strings.asUUID(), "must.be.uuid", HashMap.of("value",""));
         }
 
         @Test
