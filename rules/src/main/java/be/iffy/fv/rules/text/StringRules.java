@@ -19,6 +19,7 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Objects;
@@ -207,6 +208,33 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     }
 
     /**
+     * Fails if the string is not a valid LocalDateTime in the specified format.
+     * <p>
+     * Error key: {@code must.be.localdatetime}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     *     <li>{@code format}: the expected format ({@link String})</li>
+     * </ul>
+     *
+     * @param format the expected date time format.
+     * @return a {@link MappingRule} that transforms a String into a {@link LocalDateTime}.
+     * @see DateTimeFormatter#ofPattern(String)
+     */
+    public MappingRule<String, LocalDateTime> asLocalDateTime(String format) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(LocalDateTime.parse(input, formatter));
+            } catch (DateTimeParseException e) {
+                return Validation.invalid(ErrorMessage.of("must.be.localdatetime",
+                        HashMap.of("value", input, "format", format)));
+            }
+        });
+    }
+
+    /**
      * Fails if the string is not a valid LocalDateTime in ISO format (e.g. 2011-12-03T10:15:30)
      *
      * <p>
@@ -232,6 +260,33 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     }
 
     /**
+     * Fails if the string is not a valid LocalDate in the specified format.
+     * <p>
+     * Error key: {@code must.be.localdate}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     *     <li>{@code format}: the expected format ({@link String})</li>
+     * </ul>
+     *
+     * @param format the expected date format.
+     * @return a {@link MappingRule} that transforms a String into a {@link LocalDate}.
+     * @see DateTimeFormatter#ofPattern(String)
+     */
+    public MappingRule<String, LocalDate> asLocalDate(String format) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(LocalDate.parse(input, formatter));
+            } catch (DateTimeParseException e) {
+                return Validation.invalid(ErrorMessage.of("must.be.localdate",
+                        HashMap.of("value", input, "format", format)));
+            }
+        });
+    }
+
+    /**
      * Fails if the string is not a valid LocalDate in ISO format (e.g. 2011-12-03)
      *
      * <p>
@@ -252,6 +307,33 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
                 return Validation.valid(LocalDate.parse(input));
             } catch (DateTimeParseException e) {
                 return Validation.invalid(ErrorMessage.of("must.be.localdate", "value", input));
+            }
+        });
+    }
+
+    /**
+     * Fails if the string is not a valid Instant in the specified format.
+     * <p>
+     * Error key: {@code must.be.instant}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     *     <li>{@code format}: the expected format ({@link String})</li>
+     * </ul>
+     *
+     * @param format the expected instant format.
+     * @return a {@link MappingRule} that transforms a String into an {@link Instant}.
+     * @see DateTimeFormatter#ofPattern(String)
+     */
+    public MappingRule<String, Instant> asInstant(String format) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format).withZone(java.time.ZoneOffset.UTC);
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(Instant.from(formatter.parse(input)));
+            } catch (java.time.DateTimeException e) {
+                return Validation.invalid(ErrorMessage.of("must.be.instant",
+                        HashMap.of("value", input, "format", format)));
             }
         });
     }

@@ -861,6 +861,19 @@ class StringRulesTest {
     class AsLocalDateTime {
 
         @Test
+        void asLocalDateTime_withFormat_whenValidLocalDateTimeString_returnsValidLocalDateTime() {
+            String ldtStr = "27/10/2023 10:15:30";
+            String format = "dd/MM/yyyy HH:mm:ss";
+            validTest(ldtStr, LocalDateTime.parse(ldtStr, java.time.format.DateTimeFormatter.ofPattern(format)), strings.asLocalDateTime(format));
+        }
+
+        @Test
+        void asLocalDateTime_withFormat_whenInvalidLocalDateTimeString_returnsInvalid() {
+            String format = "dd/MM/yyyy HH:mm:ss";
+            invalidTest("not-a-date", strings.asLocalDateTime(format), "must.be.localdatetime", HashMap.of("value", "not-a-date", "format", format));
+        }
+
+        @Test
         void asLocalDateTime_whenValidLocalDateTimeString_returnsValidLocalDateTime() {
             String ldtStr = "2023-10-27T10:15:30";
             validTest(ldtStr, LocalDateTime.parse(ldtStr), strings.asLocalDateTime());
@@ -886,6 +899,19 @@ class StringRulesTest {
     class AsLocalDate {
 
         @Test
+        void asLocalDate_withFormat_whenValidLocalDateString_returnsValidLocalDate() {
+            String ldStr = "27/10/2023";
+            String format = "dd/MM/yyyy";
+            validTest(ldStr, LocalDate.parse(ldStr, java.time.format.DateTimeFormatter.ofPattern(format)), strings.asLocalDate(format));
+        }
+
+        @Test
+        void asLocalDate_withFormat_whenInvalidLocalDateString_returnsInvalid() {
+            String format = "dd/MM/yyyy";
+            invalidTest("not-a-date", strings.asLocalDate(format), "must.be.localdate", HashMap.of("value", "not-a-date", "format", format));
+        }
+
+        @Test
         void asLocalDate_whenValidLocalDateString_returnsValidLocalDate() {
             String ldStr = "2023-10-27";
             validTest(ldStr, LocalDate.parse(ldStr), strings.asLocalDate());
@@ -909,6 +935,19 @@ class StringRulesTest {
 
     @Nested
     class AsInstant {
+
+        @Test
+        void asInstant_withFormat_whenValidInstantString_returnsValidInstant() {
+            String instantStr = "27/10/2023 10:15:30";
+            String format = "dd/MM/yyyy HH:mm:ss";
+            validTest(instantStr, Instant.from(java.time.format.DateTimeFormatter.ofPattern(format).withZone(java.time.ZoneOffset.UTC).parse(instantStr)), strings.asInstant(format));
+        }
+
+        @Test
+        void asInstant_withFormat_whenInvalidInstantString_returnsInvalid() {
+            String format = "dd/MM/yyyy HH:mm:ss";
+            invalidTest("not-an-instant", strings.asInstant(format), "must.be.instant", HashMap.of("value", "not-an-instant", "format", format));
+        }
 
         @Test
         void asInstant_whenValidInstantString_returnsValidInstant() {
