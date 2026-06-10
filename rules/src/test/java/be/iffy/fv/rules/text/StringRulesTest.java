@@ -843,12 +843,12 @@ class StringRulesTest {
 
         @Test
         void asURL_whenInvalidURLString_returnsInvalid() {
-            invalidTest("not-a-url", strings.asURL(), "must.be.url");
+            invalidTest("not-a-url", strings.asURL(), "must.be.url", HashMap.of("value", "not-a-url"));
         }
 
         @Test
         void asURL_whenEmptyString_returnsInvalid() {
-            invalidTest("", strings.asURL(), "must.be.url");
+            invalidTest("", strings.asURL(), "must.be.url", HashMap.of("value", ""));
         }
 
         @Test
@@ -868,12 +868,12 @@ class StringRulesTest {
 
         @Test
         void asLocalDateTime_whenInvalidLocalDateTimeString_returnsInvalid() {
-            invalidTest("not-a-date-time", strings.asLocalDateTime(), "must.be.localdatetime");
+            invalidTest("not-a-date-time", strings.asLocalDateTime(), "must.be.localdatetime", HashMap.of("value", "not-a-date-time"));
         }
 
         @Test
         void asLocalDateTime_whenEmptyString_returnsInvalid() {
-            invalidTest("", strings.asLocalDateTime(), "must.be.localdatetime");
+            invalidTest("", strings.asLocalDateTime(), "must.be.localdatetime", HashMap.of("value", ""));
         }
 
         @Test
@@ -893,12 +893,12 @@ class StringRulesTest {
 
         @Test
         void asLocalDate_whenInvalidLocalDateString_returnsInvalid() {
-            invalidTest("not-a-date", strings.asLocalDate(), "must.be.localdate");
+            invalidTest("not-a-date", strings.asLocalDate(), "must.be.localdate", HashMap.of("value", "not-a-date"));
         }
 
         @Test
         void asLocalDate_whenEmptyString_returnsInvalid() {
-            invalidTest("", strings.asLocalDate(), "must.be.localdate");
+            invalidTest("", strings.asLocalDate(), "must.be.localdate", HashMap.of("value", ""));
         }
 
         @Test
@@ -918,12 +918,12 @@ class StringRulesTest {
 
         @Test
         void asInstant_whenInvalidInstantString_returnsInvalid() {
-            invalidTest("not-an-instant", strings.asInstant(), "must.be.instant");
+            invalidTest("not-an-instant", strings.asInstant(), "must.be.instant", HashMap.of("value", "not-an-instant"));
         }
 
         @Test
         void asInstant_whenEmptyString_returnsInvalid() {
-            invalidTest("", strings.asInstant(), "must.be.instant");
+            invalidTest("", strings.asInstant(), "must.be.instant", HashMap.of("value", ""));
         }
 
         @Test
@@ -949,7 +949,7 @@ class StringRulesTest {
 
         @Test
         void asURI_whenInvalidURIString_returnsInvalid() {
-            invalidTest("not a valid uri with spaces", strings.asURI(), "must.be.uri");
+            invalidTest("not a valid uri with spaces", strings.asURI(), "must.be.uri", HashMap.of("value", "not a valid uri with spaces"));
         }
 
         @Test

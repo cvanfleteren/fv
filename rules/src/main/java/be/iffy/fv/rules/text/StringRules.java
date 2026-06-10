@@ -19,6 +19,7 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
@@ -188,10 +189,21 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.url}
      *
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
+     *
      * @return a {@link MappingRule} that transforms a String into a URL.
      */
     public MappingRule<String, URL> asURL() {
-        return MappingRule.ofTry(s -> Try.of(() -> URI.create(s).toURL()), "must.be.url");
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(URI.create(input).toURL());
+            } catch (Exception e) {
+                return Validation.invalid(ErrorMessage.of("must.be.url", "value", input));
+            }
+        });
     }
 
     /**
@@ -200,12 +212,23 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.localdatetime}
      *
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
+     *
      * @return a {@link MappingRule} that transforms a String into a {@link LocalDateTime}.
      * @see java.time.format.DateTimeFormatter#ISO_LOCAL_DATE_TIME
      * @see LocalDateTime#parse(CharSequence)
      */
     public MappingRule<String, LocalDateTime> asLocalDateTime() {
-        return MappingRule.of(LocalDateTime::parse, "must.be.localdatetime");
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(LocalDateTime.parse(input));
+            } catch (DateTimeParseException e) {
+                return Validation.invalid(ErrorMessage.of("must.be.localdatetime", "value", input));
+            }
+        });
     }
 
     /**
@@ -214,12 +237,23 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.localdate}
      *
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
+     *
      * @return a {@link MappingRule} that transforms a String into a {@link LocalDate}.
      * @see java.time.format.DateTimeFormatter#ISO_LOCAL_DATE
      * @see LocalDateTime#parse(CharSequence)
      */
     public MappingRule<String, LocalDate> asLocalDate() {
-        return MappingRule.of(LocalDate::parse, "must.be.localdate");
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(LocalDate.parse(input));
+            } catch (DateTimeParseException e) {
+                return Validation.invalid(ErrorMessage.of("must.be.localdate", "value", input));
+            }
+        });
     }
 
     /**
@@ -228,12 +262,23 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.instant}
      *
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
+     *
      * @return a {@link MappingRule} that transforms a String into an {@link java.time.Instant}.
      * @see java.time.format.DateTimeFormatter#ISO_INSTANT
      * @see LocalDateTime#parse(CharSequence)
      */
     public MappingRule<String, Instant> asInstant() {
-        return MappingRule.of(Instant::parse, "must.be.instant");
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(Instant.parse(input));
+            } catch (DateTimeParseException e) {
+                return Validation.invalid(ErrorMessage.of("must.be.instant", "value", input));
+            }
+        });
     }
 
     /**
@@ -241,10 +286,21 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * <p>
      * Error key: {@code must.be.uri}
      *
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
+     *
      * @return a {@link MappingRule} that transforms a String into a {@link URI}.
      */
     public MappingRule<String, URI> asURI() {
-        return MappingRule.of(URI::create, "must.be.uri");
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(URI.create(input));
+            } catch (IllegalArgumentException e) {
+                return Validation.invalid(ErrorMessage.of("must.be.uri", "value", input));
+            }
+        });
     }
 
     /**
