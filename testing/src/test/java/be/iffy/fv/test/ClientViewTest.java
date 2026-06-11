@@ -1,10 +1,10 @@
 package be.iffy.fv.test;
 
 import be.iffy.fv.MappingRule;
+import be.iffy.fv.PropertySelector;
 import be.iffy.fv.Validation;
 import be.iffy.fv.Validations;
 import be.iffy.fv.dsl.DSL;
-import be.iffy.fv.PropertySelector;
 import io.vavr.Function2;
 import io.vavr.Function3;
 import io.vavr.control.Option;

@@ -541,7 +541,7 @@ class RuleTest {
             Rule<String> rule = Rule.of(s -> true, "msg");
 
             // Act & Assert
-            assertThatCode(() -> rule.or(null))
+            assertThatCode(() -> rule.orElse(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("other rule cannot be null");
         }

@@ -133,6 +133,8 @@ public interface Rule<T> extends MappingRule<T, T> {
      * The combined rule is successful if either this or the other rule is successful.
      * If both rules fail, their errors are combined.
      * Both rules are evaluated at most once, and the other rule is only evaluated when this rule fails.
+     * <p>
+     * Behaves the same as {@link MappingRule#orElse(Function)}, but unfortunately needs another name becasue of javas typesystem.
      */
     @SuppressWarnings("unchecked")
     default <S extends T> Rule<S> or(Function<? super S, ? extends Validation<?>> other) {

@@ -753,6 +753,24 @@ class MappingRuleTest {
         record StringHolder(String value) {
         }
 
+        record NumberHolder(String value) {
+        }
+
+        @Test
+        void with_whenRulePasses_variance() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "not.a.number");
+            MappingRule<NumberHolder, Number> withRule = MappingRule.with(NumberHolder::value, rule);
+
+            // Act
+            Validation<Number> result = withRule.test(new NumberHolder("1234"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo(1234);
+        }
+
         @Test
         void with_whenRulePasses_returnsMappedValidResult() {
             // Arrange

@@ -233,7 +233,9 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      */
     default MappingRule<T, R> withErrorKey(String errorKey) {
         Objects.requireNonNull(errorKey, "errorKey cannot be null");
-        return input -> this.test(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
+        return input ->
+                this.test(input)
+                        .mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
     }
 
     /**
@@ -411,7 +413,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * @param rule     the rule to be applied to the extracted value
      * @return a new {@link MappingRule} that tests the applied selector and rule combination
      */
-    static <T, V, R> MappingRule<T, R> with(Function<T, V> selector, Function<? super V, ? extends Validation<? extends R>> rule) {
+    static <T, V, R> MappingRule<T, R> with(Function<? super T, ? extends V> selector, Function<? super V, ? extends Validation<? extends R>> rule) {
         Objects.requireNonNull(selector, "selector cannot be null");
         Objects.requireNonNull(rule, "rule cannot be null");
         return input -> Validation.narrow(
