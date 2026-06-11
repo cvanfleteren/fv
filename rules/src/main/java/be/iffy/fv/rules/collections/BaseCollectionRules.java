@@ -1,7 +1,6 @@
 package be.iffy.fv.rules.collections;
 
 import be.iffy.fv.ErrorMessage;
-import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 import io.vavr.Function1;
@@ -368,7 +367,7 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
     public Rule<C> validateValuesWith(Rule<? super T> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
         return Rule.notNull().and(collection -> {
-            Rule<T> castedRule = Rule.narrow(rule);
+            Rule<T> castedRule = rule.narrow();
 
             io.vavr.collection.List<Validation<T>> validations = io.vavr.collection.List.ofAll(collection)
                     .map(castedRule::test)

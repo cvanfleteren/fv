@@ -74,7 +74,7 @@ class RuleTest {
             Rule<? super BigDecimal> superRule = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
 
             // Act
-            Rule<BigDecimal> narrowedRule = Rule.narrow(superRule);
+            Rule<BigDecimal> narrowedRule = superRule.narrow();
 
             // Assert
             assertThat(narrowedRule).isSameAs(superRule);
@@ -756,7 +756,7 @@ class RuleTest {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> combined = rule1.recoverWithRule(rule2);
+            Rule<String> combined = rule1.orElse(rule2);
 
             // Act
             Validation<String> result = combined.test("apple");
@@ -772,7 +772,7 @@ class RuleTest {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 5, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> combined = rule1.recoverWithRule(rule2);
+            Rule<String> combined = rule1.orElse(rule2);
 
             // Act
             Validation<String> result = combined.test("hi");
@@ -788,7 +788,7 @@ class RuleTest {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 5, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> combined = rule1.recoverWithRule(rule2);
+            Rule<String> combined = rule1.orElse(rule2);
 
             // Act
             Validation<String> result = combined.test("abc");
@@ -820,7 +820,7 @@ class RuleTest {
             Rule<BigDecimal> isMinusFortyTwo = Rule.of(b -> b.compareTo(new BigDecimal("-42")) == 0, "must.be.minus.forty.two");
 
             // Act
-            Rule<BigDecimal> combined = isMinusFortyTwo.recoverWithRule(isPositive);
+            Rule<BigDecimal> combined = isMinusFortyTwo.orElse(isPositive.narrow());
 
             // Assert
             // 1. First rule matches

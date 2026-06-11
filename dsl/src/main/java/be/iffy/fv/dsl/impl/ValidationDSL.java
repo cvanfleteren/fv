@@ -63,9 +63,9 @@ public final class ValidationDSL<T> {
     public Validation<T> is(Rule<? super T> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
         if (name.isEmpty()) {
-            return validation.refine(Rule.narrow(rule));
+            return validation.refine(rule.narrow());
         } else {
-            return validation.refine(Rule.narrow(rule)).at(name);
+            return validation.refine(rule.narrow()).at(name);
         }
     }
 

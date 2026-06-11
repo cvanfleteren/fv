@@ -45,7 +45,7 @@ public class VavrSetRules {
         @Override
         public Rule<Set<T>> validateValuesWith(Rule<? super T> rule) {
             return Rule.notNull().and(set -> {
-                Rule<T> castedRule = Rule.narrow(rule);
+                Rule<T> castedRule = rule.narrow();
 
                 List<ErrorMessage> allErrors = set
                         .toList()

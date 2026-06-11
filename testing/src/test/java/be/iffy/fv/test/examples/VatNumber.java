@@ -20,7 +20,6 @@ public record VatNumber(String value, CountryCode countrycode) {
      */
     public static Validation<VatNumber> of(String vat) {
         MappingRule<String, CountryCode> countryRule = strings.take(2).then(strings.asEnum(CountryCode.class));
-
         MappingRule<String, String> numberRule = strings.drop(2).then(strings.minLength(2));
 
         MappingRule<String, VatNumber> valid = after(stringOps.keepAlphanumeric()).is(

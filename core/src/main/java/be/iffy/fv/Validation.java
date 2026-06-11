@@ -347,7 +347,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If this validation is already invalid, returns it unchanged.
      */
     default Validation<T> filter(Predicate<? super T> predicate, ErrorMessage errorMessage) {
-        Rule<T> rule = Rule.narrow(Rule.of(predicate, errorMessage));
+        Rule<T> rule = Rule.of(predicate, errorMessage);
         return refine(rule);
     }
 

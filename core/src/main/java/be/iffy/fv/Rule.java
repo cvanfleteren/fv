@@ -156,6 +156,27 @@ public interface Rule<T> extends MappingRule<T, T> {
     }
 
     /**
+     * Returns a new {@link Rule} that first applies this rule, and if the input is invalid, falls back to the {@code other} rule.
+     * Like {@link MappingRule#recoverWith}, but the fallback is a {@link Rule}.
+     * The difference with {@link #or(Function)} is that only the errors of the {@code other} Rule will be returned if both fail.
+     * The fallback rule is evaluated only when this rule fails.
+     *
+     * @param other the other rule to use as a fallback if this rule fails
+     */
+    default Rule<T> orElse(Rule<T> other) {
+        Objects.requireNonNull(other, "other rule cannot be null");
+        return input -> {
+            Validation<T> first = this.test(input);
+            if (first.isValid()) {
+                return first;
+            }
+
+            return Validation.narrowSuper(other.test(input));
+        };
+    }
+
+
+    /**
      * Composes this rule with another using XOR logic.
      * Successful only if exactly one of the rules is successful.
      */
@@ -231,26 +252,6 @@ public interface Rule<T> extends MappingRule<T, T> {
                 return this.test(input);
             }
             return Validation.valid(input);
-        };
-    }
-
-    /**
-     * Returns a new {@link Rule} that first applies this rule, and if the input is invalid, falls back to the {@code other} rule.
-     * Like {@link MappingRule#recoverWith}, but the fallback is a {@link Rule}.
-     * The difference with {@link #or(Function)} is that only the errors of the {@code other} Rule will be returned if both fail.
-     * The fallback rule is evaluated only when this rule fails.
-     *
-     * @param other the other rule to use as a fallback if this rule fails
-     */
-    default <S extends T> Rule<S> recoverWithRule(Rule<? super S> other) {
-        Objects.requireNonNull(other, "other rule cannot be null");
-        return input -> {
-            Validation<T> first = this.test(input);
-            if (first.isValid()) {
-                return (Validation<S>) first;
-            }
-
-            return Validation.narrowSuper(other.test(input));
         };
     }
 
@@ -434,7 +435,7 @@ public interface Rule<T> extends MappingRule<T, T> {
     static <T> Rule<T> both(Rule<? super T> first, Rule<? super T> second) {
         Objects.requireNonNull(first, "first rule cannot be null");
         Objects.requireNonNull(second, "second rule cannot be null");
-        return Rule.narrow(first).andAlso(second);
+        return first.andAlso(second);
     }
 
     /**
@@ -450,7 +451,7 @@ public interface Rule<T> extends MappingRule<T, T> {
         List<Rule<? super T>> ruleList = List.of(rules);
 
         return value -> {
-            List<Validation<T>> validations = ruleList.map(rule -> Rule.<T>narrow(rule).test(value));
+            List<Validation<T>> validations = ruleList.map(rule -> rule.<T>narrow().test(value));
             List<ErrorMessage> errors = validations
                     .filter(v -> !v.isValid())
                     .flatMap(Validation::errors);
@@ -476,7 +477,7 @@ public interface Rule<T> extends MappingRule<T, T> {
 
         List<Rule<? super T>> ruleList = List.of(rules);
         return value -> {
-            List<Validation<T>> validations = ruleList.map(rule -> Rule.<T>narrow(rule).test(value));
+            List<Validation<T>> validations = ruleList.map(rule -> rule.<T>narrow().test(value));
             Option<Validation<T>> firstValid = validations.find(Validation::isValid);
 
             if (firstValid.isDefined()) {
@@ -485,15 +486,6 @@ public interface Rule<T> extends MappingRule<T, T> {
                 return Validation.invalid(validations.flatMap(Validation::errors));
             }
         };
-    }
-
-    /**
-     * Narrows a {@code Rule<? super T>} to a {@code Rule<T>}.
-     */
-    @SuppressWarnings("unchecked")
-    static <T> Rule<T> narrow(Rule<? super T> rule) {
-        Objects.requireNonNull(rule, "rule cannot be null");
-        return (Rule<T>) rule;
     }
 
     /**
@@ -552,4 +544,22 @@ public interface Rule<T> extends MappingRule<T, T> {
         return condition ? Rule.of(rule) : Rule.of(fallback);
     }
 
+    /**
+     * Narrows the current rule to a more specific subtype.
+     * This is possible because a Rule that can validate a type can also validate all possible subtypes.
+     * <p>
+     * So you can for example use this to treat a {@code Rule<Number>} as a {@code Rule<Integer>}.
+     * Example:
+     * {@snippet :
+     *   Rule<Number> isPositive = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
+     *   Rule<Integer> isMinusFortyTwo = Rule.of(b -> b == -42, "must.be.minus.forty.two");
+     *   Rule<Integer> combined = isMinusFortyTwo.orElse(isPositive.narrow());
+     * }
+     *
+     * @param <S> the subtype of T to narrow the rule to
+     * @return a new Rule instance narrowed to the specified subtype S
+     */
+    default <S extends T> Rule<S> narrow() {
+        return (Rule<S>) this;
+    }
 }
