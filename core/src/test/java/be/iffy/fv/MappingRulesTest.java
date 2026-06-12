@@ -46,6 +46,22 @@ class MappingRulesTest {
                     .isInvalid()
                     .hasErrorMessage("error.two");
         }
+
+        @Test
+        void into_isAliasForMap() {
+            MappingRule<String, Integer> rule1 = s -> Validation.valid(s.length());
+            MappingRule<String, String> rule2 = s -> Validation.valid(s.toUpperCase());
+
+            MappingRule<String, String> combinedMap = MappingRules.combine(rule1, rule2).map((l, u) -> l + ":" + u);
+            MappingRule<String, String> combinedInto = MappingRules.combine(rule1, rule2).into((l, u) -> l + ":" + u);
+
+            assertThatValidation(combinedMap.test("hello"))
+                    .isValid()
+                    .isEqualTo("5:HELLO");
+            assertThatValidation(combinedInto.test("hello"))
+                    .isValid()
+                    .isEqualTo("5:HELLO");
+        }
     }
 
     @Nested
