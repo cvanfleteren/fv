@@ -875,4 +875,45 @@ class MappingRuleTest {
                     .hasErrorKeys("invalid.input");
         }
     }
+
+    @Nested
+    class Combine {
+
+        @Test
+        void combine_whenBothRulesAreValid_returnsCombinedResult() {
+            MappingRule<String, Integer> rule1 = s -> Validation.valid(s.length());
+            MappingRule<String, String> rule2 = s -> Validation.valid(s.toUpperCase());
+
+            MappingRule<String, String> combined = MappingRule.combine(rule1, rule2).map((length, upper) -> length + ":" + upper);
+
+            assertThatValidation(combined.test("hello"))
+                    .isValid()
+                    .isEqualTo("5:HELLO");
+        }
+
+        @Test
+        void combine_whenBothRulesAreInvalid_returnsCombinedErrors() {
+            MappingRule<String, Integer> rule1 = s -> Validation.invalid("error.one");
+            MappingRule<String, String> rule2 = s -> Validation.invalid("error.two");
+
+            MappingRule<String, String> combined = MappingRule.combine(rule1, rule2).map((length, upper) -> length + ":" + upper);
+
+            assertThatValidation(combined.test("hello"))
+                    .isInvalid()
+                    .hasErrorMessage("error.one")
+                    .hasErrorMessage("error.two");
+        }
+
+        @Test
+        void combine_whenOneRuleIsInvalid_returnsInvalidWithCombinedErrors() {
+            MappingRule<String, Integer> rule1 = s -> Validation.valid(s.length());
+            MappingRule<String, String> rule2 = s -> Validation.invalid("error.two");
+
+            MappingRule<String, String> combined = MappingRule.combine(rule1, rule2).map((length, upper) -> length + ":" + upper);
+
+            assertThatValidation(combined.test("hello"))
+                    .isInvalid()
+                    .hasErrorMessage("error.two");
+        }
+    }
 }
