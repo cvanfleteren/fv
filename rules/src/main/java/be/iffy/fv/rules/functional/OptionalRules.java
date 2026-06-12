@@ -1,9 +1,6 @@
 package be.iffy.fv.rules.functional;
 
-import be.iffy.fv.MappingRule;
-import be.iffy.fv.Rule;
-import be.iffy.fv.Validation;
-import be.iffy.fv.Validations;
+import be.iffy.fv.*;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -22,7 +19,7 @@ public class OptionalRules {
      * Error key: {@code must.not.be.empty}
      */
     public <T> MappingRule<Optional<T>, T> required() {
-        return MappingRule.<Optional<T>>notNull().then(input ->
+        return MappingRules.<Optional<T>>notNull().then(input ->
                 input.map(Validation::valid).orElse(Validation.invalid("must.not.be.empty"))
         );
     }

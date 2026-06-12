@@ -418,7 +418,7 @@ public interface Rule<T> extends MappingRule<T, T> {
     /**
      * Lift a Rule to work on a type V instead of T. You need to supply a Function that can get a V from the T.
      *
-     * @see Rule#with(Function, Function)
+     * @see MappingRules#with(Function, Function)
      */
     default <V> Rule<V> given(Function<V, T> selector) {
         return Rule.with(selector, this);

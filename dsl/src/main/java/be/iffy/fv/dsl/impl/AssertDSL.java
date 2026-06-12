@@ -36,7 +36,7 @@ public final class AssertDSL<T> {
      */
     public <R> R is(Function<? super T, ? extends Validation<R>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return validation.refine(MappingRule.fromValidation(rule)).at(name).getOrElseThrow();
+        return validation.refine(MappingRules.fromValidation(rule)).at(name).getOrElseThrow();
     }
 
     public T isNotNull() {

@@ -1,6 +1,7 @@
 package be.iffy.fv.dsl.experimental;
 
 import be.iffy.fv.MappingRule;
+import be.iffy.fv.MappingRules;
 import be.iffy.fv.Rule;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +20,7 @@ class ValidatorTest {
 
     @Test
     void validatorBuilder4_shouldWorkWithFourRules() {
-        MappingRule<String, String> notEmpty = MappingRule.catching(s -> {
+        MappingRule<String, String> notEmpty = MappingRules.catching(s -> {
             if (s == null || s.isEmpty()) throw new IllegalArgumentException();
             return s;
         }, "must.not.be.empty");
@@ -43,7 +44,7 @@ class ValidatorTest {
 
     @Test
     void validatorBuilder3_shouldHaveConstraintMethods() {
-        MappingRule<String, String> notEmpty = MappingRule.catching(s -> s, "must.not.be.empty");
+        MappingRule<String, String> notEmpty = MappingRules.catching(s -> s, "must.not.be.empty");
 
         MappingRule<User, String> validator = validatorFor(User.class)
                 .where(User::firstName, notEmpty)

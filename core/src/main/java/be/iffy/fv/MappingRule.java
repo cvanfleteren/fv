@@ -8,11 +8,9 @@ import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Seq;
 import io.vavr.control.Option;
-import io.vavr.control.Try;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -40,112 +38,6 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
     @Override
     default Validation<R> apply(T value) {
         return test(value);
-    }
-
-    /**
-     * Creates a new MappingRule that applies the given mapper function to the input.
-     * If the throwingMapper throws an exception, the rule will fail with the specified error message.
-     * If the throwingMapper throws {@link ValidationException}, the rule will fail with its errors.
-     */
-    static <T, R> MappingRule<T, R> catching(Function<? super T, ? extends R> throwingMapper, String errorKey) {
-        return catching(throwingMapper, ErrorMessage.of(errorKey));
-    }
-
-    /**
-     * Creates a new MappingRule that applies the given mapper function to the input.
-     * If the throwingMapper throws an exception, the rule will fail with the specified error message.
-     * If the throwingMapper throws {@link ValidationException}, the rule will fail with its errors.
-     */
-    static <T, R> MappingRule<T, R> catching(Function<? super T, ? extends R> throwingMapper, ErrorMessage errorMessage) {
-        Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
-        return catching(throwingMapper, (input, exception) -> errorMessage);
-    }
-
-    /**
-     * Creates a new MappingRule that applies the given mapper function to the input.
-     * If the throwingMapper throws an exception, the rule will fail with an {@link ErrorMessage} created by the provided maker.
-     * If the throwingMapper throws {@link ValidationException}, the rule will fail with its errors.
-     */
-    static <T, R> MappingRule<T, R> catching(Function<? super T, ? extends R> throwingMapper, BiFunction<? super T, Exception, ErrorMessage> errorMessageMaker) {
-        Objects.requireNonNull(throwingMapper, "mapper cannot be null");
-        Objects.requireNonNull(errorMessageMaker, "errorMessageMaker cannot be null");
-        return input -> {
-            if (input == null) {
-                return Invalid.notNull();
-            }
-            try {
-                return Validation.valid(throwingMapper.apply(input));
-            } catch (ValidationException ve) {
-                return invalid(ve.errors());
-            } catch (Exception e) {
-                return invalid(
-                        Objects.requireNonNull(
-                                errorMessageMaker.apply(input, e),
-                                "errorMessageMaker result cannot be null"
-                        )
-                );
-            }
-        };
-    }
-
-    /**
-     * Creates an explicit {@link MappingRule} from a function that has the same signature.
-     * Use this to easily treat existing functions as MappingRules.
-     */
-    static <T, R> MappingRule<T, R> fromValidation(Function<? super T, ? extends Validation<? extends R>> validationFunction) {
-        Objects.requireNonNull(validationFunction, "validationFunction cannot be null");
-        return input -> {
-            if(input == null) {
-                return Invalid.notNull();
-            }
-            return Validation.narrow(
-                    Objects.requireNonNull(
-                            validationFunction.apply(input),
-                            "validationFunction cannot return null Validation"
-                    )
-            );
-        };
-    }
-
-    /**
-     * Creates a MappingRule from a function that returns a Try.
-     * <p>
-     * The tryProvider itself is invoked directly. If the tryProvider throws before returning a Try,
-     * that exception is propagated. Only failures represented as Try.Failure are converted into Invalid.
-     * <p>
-     * If the Try fails with {@link ValidationException}, its errors are preserved, otherwise the provided error message is used.
-     */
-    static <T, R> MappingRule<T, R> fromTry(Function<? super T, ? extends Try<? extends R>> tryProvider, String errorKey) {
-        return fromTry(tryProvider, ErrorMessage.of(errorKey));
-    }
-
-    /**
-     * Creates a MappingRule from a function that returns a Try.
-     * <p>
-     * The tryProvider itself is invoked directly. If the tryProvider throws before returning a Try,
-     * that exception is propagated. Only failures represented as Try.Failure are converted into Invalid.
-     * <p>
-     * If the Try fails with {@link ValidationException}, its errors are preserved, otherwise the provided error message is used.
-     */
-    static <T, R> MappingRule<T, R> fromTry(Function<? super T, ? extends Try<? extends R>> tryProvider, ErrorMessage errorMessage) {
-        Objects.requireNonNull(tryProvider, "tryProvider cannot be null");
-        Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
-        return input -> {
-            if (input == null) {
-                return Invalid.notNull();
-            }
-            Try<? extends R> _try = Objects.requireNonNull(tryProvider.apply(input), "tryProvider cannot return null Try");
-            return _try.fold(
-                    t -> {
-                        if (t instanceof ValidationException ve) {
-                            return invalid(ve.errors());
-                        } else {
-                            return invalid(errorMessage);
-                        }
-                    },
-                    Validation::valid
-            );
-        };
     }
 
     /**
@@ -392,36 +284,6 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
     default <K> MappingRule<java.util.Map<K, T>, java.util.Map<K, R>> liftToMap(Function<K, Object> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
         return value -> liftToVavrMap(keyExtractor).test(HashMap.ofAll(value)).map(Map::toJavaMap);
-    }
-
-    /**
-     * Returns a MappingRule that validates the input is not null.
-     * <p>
-     * Error key: "must.not.be.null"
-     *
-     * @return a MappingRule that returns valid input only if it's not null
-     */
-    static <T> MappingRule<T, T> notNull() {
-        return input ->
-                input == null ? Invalid.notNull() : Validation.valid(input);
-    }
-
-    /**
-     * Applies the specified {@link MappingRule} to the result of applying the selector function to the input. Aka <code>contramap</code>.
-     *
-     * @param selector a function that extracts a value of type V from an input of type T
-     * @param rule     the rule to be applied to the extracted value
-     * @return a new {@link MappingRule} that tests the applied selector and rule combination
-     */
-    static <T, V, R> MappingRule<T, R> with(Function<? super T, ? extends V> selector, Function<? super V, ? extends Validation<? extends R>> rule) {
-        Objects.requireNonNull(selector, "selector cannot be null");
-        Objects.requireNonNull(rule, "rule cannot be null");
-        return input -> Validation.narrow(
-                Objects.requireNonNull(
-                        rule.apply(selector.apply(input)),
-                        "rule cannot return null Validation"
-                )
-        );
     }
 
 }

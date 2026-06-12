@@ -1,14 +1,15 @@
 package be.iffy.fv.dsl;
 
+import be.iffy.fv.MappingRule;
+import be.iffy.fv.MappingRules;
+import be.iffy.fv.Validation;
 import be.iffy.fv.Validations;
 import be.iffy.fv.rules.collections.VavrListRules;
 import io.vavr.collection.List;
-import be.iffy.fv.MappingRule;
-import be.iffy.fv.Validation;
 import org.junit.jupiter.api.Test;
 
-import static be.iffy.fv.dsl.DSL.*;
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
+import static be.iffy.fv.dsl.DSL.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ObjectGraphValidationTest {
@@ -81,7 +82,7 @@ class ObjectGraphValidationTest {
         static Validation<User> fromDto(UserDTO dto) {
 
             MappingRule<String, Role> canBeRole = strings.asEnum(Role.class);
-            MappingRule<String, Email> canBeEmail = strings.minLength(2).and(strings.contains("@")).then(MappingRule.catching(Email::new, "must.be.email"));
+            MappingRule<String, Email> canBeEmail = strings.minLength(2).and(strings.contains("@")).then(MappingRules.catching(Email::new, "must.be.email"));
 
             return Validations.combine(
                     validateThat(dto.username, "username").is(objects.canBe(Username::new, "must.be.username")),

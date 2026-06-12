@@ -95,54 +95,7 @@ public class Validations {
                 .map(List::asJava);
     }
 
-    /**
-     * Combines two validations into a builder that can map all valid values or accumulate all errors.
-     */
-    public static <T1, T2> CombineBuilder2<T1, T2> combine(Validation<? extends T1> v1, Validation<? extends T2> v2) {
-        return new CombineBuilder2<>(v1, v2);
-    }
 
-    /**
-     * Combines three validations into a builder that can map all valid values or accumulate all errors.
-     */
-    public static <T1, T2, T3> CombineBuilder3<T1, T2, T3> combine(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3) {
-        return new CombineBuilder3<>(v1, v2, v3);
-    }
-
-    /**
-     * Combines four validations into a builder that can map all valid values or accumulate all errors.
-     */
-    public static <T1, T2, T3, T4> CombineBuilder4<T1, T2, T3, T4> combine(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4) {
-        return new CombineBuilder4<>(v1, v2, v3, v4);
-    }
-
-    /**
-     * Combines five validations into a builder that can map all valid values or accumulate all errors.
-     */
-    public static <T1, T2, T3, T4, T5> CombineBuilder5<T1, T2, T3, T4, T5> combine(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5) {
-        return new CombineBuilder5<>(v1, v2, v3, v4, v5);
-    }
-
-    /**
-     * Combines six validations into a builder that can map all valid values or accumulate all errors.
-     */
-    public static <T1, T2, T3, T4, T5, T6> CombineBuilder6<T1, T2, T3, T4, T5, T6> combine(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6) {
-        return new CombineBuilder6<>(v1, v2, v3, v4, v5, v6);
-    }
-
-    /**
-     * Combines seven validations into a builder that can map all valid values or accumulate all errors.
-     */
-    public static <T1, T2, T3, T4, T5, T6, T7> CombineBuilder7<T1, T2, T3, T4, T5, T6, T7> combine(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7) {
-        return new CombineBuilder7<>(v1, v2, v3, v4, v5, v6, v7);
-    }
-
-    /**
-     * Combines eight validations into a builder that can map all valid values or accumulate all errors.
-     */
-    public static <T1, T2, T3, T4, T5, T6, T7, T8> CombineBuilder8<T1, T2, T3, T4, T5, T6, T7, T8> combine(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Validation<? extends T8> v8) {
-        return new CombineBuilder8<>(v1, v2, v3, v4, v5, v6, v7, v8);
-    }
 
     /**
      * Creates a {@link Validation} from a {@link Supplier}.
@@ -341,6 +294,55 @@ public class Validations {
         Objects.requireNonNull(optional, "optional cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return from(Option.ofOptional(optional), errorMessage);
+    }
+
+    /**
+     * Combines two validations into a builder that can map all valid values or accumulate all errors.
+     */
+    public static <T1, T2> CombineBuilder2<T1, T2> combine(Validation<? extends T1> v1, Validation<? extends T2> v2) {
+        return new CombineBuilder2<>(v1, v2);
+    }
+
+    /**
+     * Combines three validations into a builder that can map all valid values or accumulate all errors.
+     */
+    public static <T1, T2, T3> CombineBuilder3<T1, T2, T3> combine(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3) {
+        return new CombineBuilder3<>(v1, v2, v3);
+    }
+
+    /**
+     * Combines four validations into a builder that can map all valid values or accumulate all errors.
+     */
+    public static <T1, T2, T3, T4> CombineBuilder4<T1, T2, T3, T4> combine(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4) {
+        return new CombineBuilder4<>(v1, v2, v3, v4);
+    }
+
+    /**
+     * Combines five validations into a builder that can map all valid values or accumulate all errors.
+     */
+    public static <T1, T2, T3, T4, T5> CombineBuilder5<T1, T2, T3, T4, T5> combine(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5) {
+        return new CombineBuilder5<>(v1, v2, v3, v4, v5);
+    }
+
+    /**
+     * Combines six validations into a builder that can map all valid values or accumulate all errors.
+     */
+    public static <T1, T2, T3, T4, T5, T6> CombineBuilder6<T1, T2, T3, T4, T5, T6> combine(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6) {
+        return new CombineBuilder6<>(v1, v2, v3, v4, v5, v6);
+    }
+
+    /**
+     * Combines seven validations into a builder that can map all valid values or accumulate all errors.
+     */
+    public static <T1, T2, T3, T4, T5, T6, T7> CombineBuilder7<T1, T2, T3, T4, T5, T6, T7> combine(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7) {
+        return new CombineBuilder7<>(v1, v2, v3, v4, v5, v6, v7);
+    }
+
+    /**
+     * Combines eight validations into a builder that can map all valid values or accumulate all errors.
+     */
+    public static <T1, T2, T3, T4, T5, T6, T7, T8> CombineBuilder8<T1, T2, T3, T4, T5, T6, T7, T8> combine(Validation<? extends T1> v1, Validation<? extends T2> v2, Validation<? extends T3> v3, Validation<? extends T4> v4, Validation<? extends T5> v5, Validation<? extends T6> v6, Validation<? extends T7> v7, Validation<? extends T8> v8) {
+        return new CombineBuilder8<>(v1, v2, v3, v4, v5, v6, v7, v8);
     }
 
     /**
@@ -587,4 +589,6 @@ public class Validations {
             return Validation.invalid(List.of(v1.errors(), v2.errors(), v3.errors(), v4.errors(), v5.errors(), v6.errors(), v7.errors(), v8.errors()).flatMap(Function.identity()));
         }
     }
+
+
 }

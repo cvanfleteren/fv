@@ -1,10 +1,7 @@
 package be.iffy.fv.rules;
 
+import be.iffy.fv.*;
 import io.vavr.control.Try;
-import be.iffy.fv.ErrorMessage;
-import be.iffy.fv.MappingRule;
-import be.iffy.fv.Rule;
-import be.iffy.fv.Validation;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -42,7 +39,7 @@ public class ObjectRules implements IObjectRules<Object> {
      * Error key: {@code must.not.be.null}
      */
     public MappingRule<Object, String> asString() {
-        return MappingRule.<Object>notNull().map(String::valueOf);
+        return MappingRules.<Object>notNull().map(String::valueOf);
     }
 
 
@@ -76,7 +73,7 @@ public class ObjectRules implements IObjectRules<Object> {
      */
     public <T,R> MappingRule<T, R> canBe(Function<T,R> constructor, ErrorMessage errorMessage) {
         Objects.requireNonNull(constructor, "constructor cannot be null");
-        return MappingRule.fromTry(input -> Try.of(() -> constructor.apply(input)), errorMessage);
+        return MappingRules.fromTry(input -> Try.of(() -> constructor.apply(input)), errorMessage);
     }
 
     /**
