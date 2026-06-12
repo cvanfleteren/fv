@@ -390,19 +390,36 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     //endregion
 
     // region parts of string
+
+    /**
+     * Takes a substrring of the string.
+     * Fails if the indices are not valid for the input string.
+     * <p>
+     * Error key: {@code must.be.valid.substring}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code beginIndex}: the beginning index, inclusive ({@link Integer})</li>
+     *     <li>{@code endIndex}: the ending index, exclusive ({@link Integer})</li>
+     * </ul>
+     *
+     * @param beginIndex the beginning index, inclusive.
+     * @param endIndex the ending index, exclusive.
+     */
     public MappingRule<String, String> substring(int beginIndex, int endIndex) {
         return MappingRule.<String>notNull().then(input -> {
-            try {
-                return Validation.valid(input.substring(beginIndex, endIndex));
-            } catch (Exception e) {
+            if (beginIndex < 0 || endIndex > input.length() || beginIndex > endIndex) {
                 return Validation.invalid(
                         ErrorMessage.of("must.be.valid.substring", HashMap.of("beginIndex", beginIndex, "endIndex", endIndex))
                 );
             }
+            return Validation.valid(input.substring(beginIndex, endIndex));
         });
     }
 
     /**
+     * Takes the first N charachters of the string.
+     * So "12345" take(2) is "12".
      * Fails if the string length is less than the requested length.
      * <p>
      * Error key: {@code must.be.valid.substring}
@@ -413,21 +430,21 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      *
      * @param length the number of characters to take from the start.
-     * @return a {@link MappingRule} that takes the first {@code length} characters.
      */
     public MappingRule<String, String> take(int length) {
         return MappingRule.<String>notNull().then(input -> {
-            try {
-                return Validation.valid(input.substring(0, length));
-            } catch (Exception e) {
+            if (length < 0 || length > input.length()) {
                 return Validation.invalid(
                         ErrorMessage.of("must.be.valid.substring", HashMap.of("beginIndex", 0, "endIndex", length))
                 );
             }
+            return Validation.valid(input.substring(0, length));
         });
     }
 
     /**
+     * Drops the first N characters from the string.
+     * So "12345" drop(2) is "345".
      * Fails if the string length is less than the requested length.
      * <p>
      * Error key: {@code must.be.valid.substring}
@@ -442,17 +459,18 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public MappingRule<String, String> drop(int length) {
         return MappingRule.<String>notNull().then(input -> {
-            try {
-                return Validation.valid(input.substring(length));
-            } catch (Exception e) {
+            if (length < 0 || length > input.length()) {
                 return Validation.invalid(
                         ErrorMessage.of("must.be.valid.substring", HashMap.of("beginIndex", length))
                 );
             }
+            return Validation.valid(input.substring(length));
         });
     }
 
     /**
+     * Takes the last N charachters of the string.
+     * So "12345" takeRight(2) is "45".
      * Fails if the string length is less than the requested length.
      * <p>
      * Error key: {@code must.be.valid.substring}
@@ -467,17 +485,18 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public MappingRule<String, String> takeRight(int length) {
         return MappingRule.<String>notNull().then(input -> {
-            try {
-                return Validation.valid(input.substring(input.length() - length));
-            } catch (Exception e) {
+            if (length < 0 || length > input.length()) {
                 return Validation.invalid(
                         ErrorMessage.of("must.be.valid.substring", HashMap.of("length", length))
                 );
             }
+            return Validation.valid(input.substring(input.length() - length));
         });
     }
 
     /**
+     * Drops the last N charachters of the string.
+     * So "12345" dropRight(2) is "123".
      * Fails if the string length is less than the requested length.
      * <p>
      * Error key: {@code must.be.valid.substring}
@@ -492,13 +511,12 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public MappingRule<String, String> dropRight(int length) {
         return MappingRule.<String>notNull().then(input -> {
-            try {
-                return Validation.valid(input.substring(0, input.length() - length));
-            } catch (Exception e) {
+            if (length < 0 || length > input.length()) {
                 return Validation.invalid(
                         ErrorMessage.of("must.be.valid.substring", HashMap.of("length", length))
                 );
             }
+            return Validation.valid(input.substring(0, input.length() - length));
         });
     }
 
