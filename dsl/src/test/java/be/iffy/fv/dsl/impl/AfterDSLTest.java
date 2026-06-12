@@ -3,7 +3,6 @@ package be.iffy.fv.dsl.impl;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
-import be.iffy.fv.rules.text.StringOps;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +16,7 @@ class AfterDSLTest {
 
         @Test
         void is_whenTransformedInputIsValid_returnsValid() {
-            Rule<String> rule = after(StringOps.trim()).is(strings.maxLength(3));
+            Rule<String> rule = after(stringOps.trim()).is(strings.maxLength(3));
             
             Validation<String> result = rule.test(" abc ");
 
@@ -26,7 +25,7 @@ class AfterDSLTest {
 
         @Test
         void is_whenTransformedInputIsInvalid_returnsInvalid() {
-            Rule<String> rule = after(StringOps.trim()).is(strings.maxLength(3));
+            Rule<String> rule = after(stringOps.trim()).is(strings.maxLength(3));
             
             Validation<String> result = rule.test(" abcd ");
 
@@ -35,7 +34,7 @@ class AfterDSLTest {
 
         @Test
         void is_whenInputIsNull_handlesNullSafely() {
-            Rule<String> rule = after(StringOps.trim()).is(strings.maxLength(3));
+            Rule<String> rule = after(stringOps.trim()).is(strings.maxLength(3));
             
             Validation<String> result = rule.test(null);
 
@@ -46,7 +45,7 @@ class AfterDSLTest {
     @Nested
     class IsMappingRule {
 
-        MappingRule<String, Integer> mappingRule = after(StringOps::trim).is(strings.asInteger());
+        MappingRule<String, Integer> mappingRule = after(stringOps::trim).is(strings.asInteger());
 
         @Test
         void is_whenTransformedInputIsValid_returnsValidMappedValue() {

@@ -1,16 +1,16 @@
 package be.iffy.fv.rules.text;
 
+import be.iffy.fv.ErrorMessage;
+import be.iffy.fv.MappingRule;
+import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
+import be.iffy.fv.rules.ComparableRules;
+import be.iffy.fv.rules.IObjectRules;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import io.vavr.control.Try;
-import be.iffy.fv.ErrorMessage;
-import be.iffy.fv.MappingRule;
-import be.iffy.fv.Rule;
-import be.iffy.fv.rules.ComparableRules;
-import be.iffy.fv.rules.IObjectRules;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -330,7 +330,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * Fails if the string is not a valid URI.
      * <p>
      * Error key: {@code must.be.uri}
-     *
+     * <p>
      * Parameters:
      * <ul>
      *     <li>{@code value}: the input string ({@link String})</li>
@@ -386,6 +386,122 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
                         v -> Validation.valid(input)
                 );
     }
+
+    //endregion
+
+    // region parts of string
+    public MappingRule<String, String> substring(int beginIndex, int endIndex) {
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(input.substring(beginIndex, endIndex));
+            } catch (Exception e) {
+                return Validation.invalid(
+                        ErrorMessage.of("must.be.valid.substring", HashMap.of("beginIndex", beginIndex, "endIndex", endIndex))
+                );
+            }
+        });
+    }
+
+    /**
+     * Fails if the string length is less than the requested length.
+     * <p>
+     * Error key: {@code must.be.valid.substring}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code length}: the number of characters to take ({@link Integer})</li>
+     * </ul>
+     *
+     * @param length the number of characters to take from the start.
+     * @return a {@link MappingRule} that takes the first {@code length} characters.
+     */
+    public MappingRule<String, String> take(int length) {
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(input.substring(0, length));
+            } catch (Exception e) {
+                return Validation.invalid(
+                        ErrorMessage.of("must.be.valid.substring", HashMap.of("beginIndex", 0, "endIndex", length))
+                );
+            }
+        });
+    }
+
+    /**
+     * Fails if the string length is less than the requested length.
+     * <p>
+     * Error key: {@code must.be.valid.substring}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code length}: the number of characters to drop ({@link Integer})</li>
+     * </ul>
+     *
+     * @param length the number of characters to drop from the start.
+     * @return a {@link MappingRule} that drops the first {@code length} characters.
+     */
+    public MappingRule<String, String> drop(int length) {
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(input.substring(length));
+            } catch (Exception e) {
+                return Validation.invalid(
+                        ErrorMessage.of("must.be.valid.substring", HashMap.of("beginIndex", length))
+                );
+            }
+        });
+    }
+
+    /**
+     * Fails if the string length is less than the requested length.
+     * <p>
+     * Error key: {@code must.be.valid.substring}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code length}: the number of characters to take ({@link Integer})</li>
+     * </ul>
+     *
+     * @param length the number of characters to take from the right.
+     * @return a {@link MappingRule} that takes the last {@code length} characters.
+     */
+    public MappingRule<String, String> takeRight(int length) {
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(input.substring(input.length() - length));
+            } catch (Exception e) {
+                return Validation.invalid(
+                        ErrorMessage.of("must.be.valid.substring", HashMap.of("length", length))
+                );
+            }
+        });
+    }
+
+    /**
+     * Fails if the string length is less than the requested length.
+     * <p>
+     * Error key: {@code must.be.valid.substring}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code length}: the number of characters to drop ({@link Integer})</li>
+     * </ul>
+     *
+     * @param length the number of characters to drop from the right.
+     * @return a {@link MappingRule} that drops the last {@code length} characters.
+     */
+    public MappingRule<String, String> dropRight(int length) {
+        return MappingRule.<String>notNull().then(input -> {
+            try {
+                return Validation.valid(input.substring(0, input.length() - length));
+            } catch (Exception e) {
+                return Validation.invalid(
+                        ErrorMessage.of("must.be.valid.substring", HashMap.of("length", length))
+                );
+            }
+        });
+    }
+
 
     //endregion
 

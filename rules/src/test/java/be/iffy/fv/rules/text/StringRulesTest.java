@@ -3,7 +3,6 @@ package be.iffy.fv.rules.text;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
-import io.vavr.collection.Map;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +17,6 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
-import static be.iffy.fv.rules.ObjectRules.objects;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
 import static be.iffy.fv.rules.text.StringRules.strings;
@@ -97,6 +95,66 @@ class StringRulesTest {
             invalidTest("\n", strings.noWhitespace(), "must.not.contain.whitespace");
             invalidTest("a\tb", strings.noWhitespace(), "must.not.contain.whitespace");
             invalidTest(null, strings.noWhitespace(), "must.not.be.null");
+        }
+    }
+
+    @Nested
+    class Take {
+
+        @Test
+        void valid() {
+            validTest("abcdef", "abc", strings.take(3));
+            validTest("abc", "abc", strings.take(3));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("abc", strings.take(10), "must.be.valid.substring", HashMap.of("beginIndex", 0, "endIndex", 10));
+        }
+    }
+
+    @Nested
+    class Drop {
+
+        @Test
+        void valid() {
+            validTest("abcdef", "def", strings.drop(3));
+            validTest("abc", "", strings.drop(3));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("abc", strings.drop(10), "must.be.valid.substring", HashMap.of("beginIndex", 10));
+        }
+    }
+
+    @Nested
+    class TakeRight {
+
+        @Test
+        void valid() {
+            validTest("abcdef", "def", strings.takeRight(3));
+            validTest("def", "def", strings.takeRight(3));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("abc", strings.takeRight(10), "must.be.valid.substring", HashMap.of("length", 10));
+        }
+    }
+
+    @Nested
+    class DropRight {
+
+        @Test
+        void valid() {
+            validTest("abcdef", "abc", strings.dropRight(3));
+            validTest("abc", "", strings.dropRight(3));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("abc", strings.dropRight(10), "must.be.valid.substring", HashMap.of("length", 10));
         }
     }
 

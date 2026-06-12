@@ -12,10 +12,15 @@ import java.util.regex.Pattern;
 public class StringOps {
 
     /**
+     * Singleton instance of {@link StringRules}.
+     */
+    public static final StringOps stringOps = new StringOps();
+
+    /**
      * Trims leading and trailing whitespace from the input string.
      * Example: {@code "  hello  " ->  "hello"}.
      */
-    public static Transformation<String> trim() {
+    public Transformation<String> trim() {
         return nullSafe(String::trim);
     }
 
@@ -24,7 +29,7 @@ public class StringOps {
      * <p>
      * Example: {@code "hello\nworld" -> "hello world"}.
      */
-    public static Transformation<String> removeNewlines() {
+    public Transformation<String> removeNewlines() {
         return nullSafe(s -> s.replaceAll("\\R", " ").trim());
     }
 
@@ -34,7 +39,7 @@ public class StringOps {
      * <p>
      * Example: {@code "a \n\t b" -> "a b"}.
      */
-    public static Transformation<String> collapseWhitespace() {
+    public Transformation<String> collapseWhitespace() {
         // Collapse any consecutive whitespace (including newlines and tabs) to a single space
         return nullSafe(s -> s.replaceAll("\\s+", " "));
     }
@@ -45,7 +50,7 @@ public class StringOps {
      * <p>
      * Example: {@code "  a \n\t b  " -> "a b"}.
      */
-    public static Transformation<String> normalizeSpace() {
+    public Transformation<String> normalizeSpace() {
         return nullSafe(s -> s.replaceAll("\\s+", " ").trim());
     }
 
@@ -54,7 +59,7 @@ public class StringOps {
      * <p>
      * Example: {@code " a b c " -> "abc"}.
      */
-    public static Transformation<String> removeWhitespace() {
+    public Transformation<String> removeWhitespace() {
         return nullSafe(s -> s.replaceAll("\\s+", ""));
     }
 
@@ -63,7 +68,7 @@ public class StringOps {
      * <p>
      * Example: {@code "abc123def456" -> "123456"}.
      */
-    public static Transformation<String> digits() {
+    public Transformation<String> digits() {
         return nullSafe(s -> s.replaceAll("\\D+", ""));
     }
 
@@ -74,7 +79,7 @@ public class StringOps {
      *
      * @return a {@link MappingRule} that removes digits from the input.
      */
-    public static Transformation<String> nonDigits() {
+    public Transformation<String> nonDigits() {
         return nullSafe(s -> s.replaceAll("\\d+", ""));
     }
 
@@ -83,7 +88,7 @@ public class StringOps {
      * <p>
      * Example: {@code "abc@#123" -> "abc123"}.
      */
-    public static Transformation<String> alphanumeric() {
+    public Transformation<String> alphanumeric() {
         return nullSafe(s -> s.replaceAll("[^A-Za-z0-9]+", ""));
     }
 
@@ -94,7 +99,7 @@ public class StringOps {
      * <p>
      * Example: {@code "H3llo, 世界!" -> "Hllo世界"}.
      */
-    public static Transformation<String> lettersOnly() {
+    public Transformation<String> lettersOnly() {
         return nullSafe(s -> s.replaceAll("[^\\p{L}]+", ""));
     }
 
@@ -106,7 +111,7 @@ public class StringOps {
      * <p>
      * Note: This preserves existing spacing but does not trim. Use {@link #trim()} or {@link #collapseWhitespace()} if needed.
      */
-    public static Transformation<String> lettersAndSpacesOnly() {
+    public Transformation<String> lettersAndSpacesOnly() {
         // Preserve only \p{L} (letters) and literal space. Remove everything else, including other whitespace kinds.
         return nullSafe(s -> s.replaceAll("[^\\p{L} ]+", ""));
     }
@@ -116,7 +121,7 @@ public class StringOps {
      * <p>
      * Example: {@code "HeLLo" -> "hello"}.
      */
-    public static Transformation<String> lowercase() {
+    public Transformation<String> lowercase() {
         return nullSafe(s -> s.toLowerCase(Locale.ROOT));
     }
 
@@ -125,7 +130,7 @@ public class StringOps {
      * <p>
      * Example: {@code "HeLLo" -> "hello"} (actual output may depend on the locale).
      */
-    public static Transformation<String> lowercase(Locale locale) {
+    public Transformation<String> lowercase(Locale locale) {
         return nullSafe(s -> s.toLowerCase(locale));
     }
 
@@ -134,7 +139,7 @@ public class StringOps {
      * <p>
      * Example: {@code "HeLLo" -> "HELLO"}.
      */
-    public static Transformation<String> uppercase() {
+    public Transformation<String> uppercase() {
         return nullSafe(s -> s.toUpperCase(Locale.ROOT));
     }
 
@@ -143,7 +148,7 @@ public class StringOps {
      * <p>
      * Example: {@code "HeLLo" -> "HELLO"} (actual output may depend on the locale).
      */
-    public static Transformation<String> uppercase(Locale locale) {
+    public Transformation<String> uppercase(Locale locale) {
         return nullSafe(s -> s.toUpperCase(locale));
     }
 
@@ -157,7 +162,7 @@ public class StringOps {
      *
      * @param chars characters to remove; if {@code null}, nothing is removed.
      */
-    public static Transformation<String> removeCharacters(String chars) {
+    public Transformation<String> removeCharacters(String chars) {
         final String toRemove = Objects.requireNonNullElse(chars, "");
         // Build a character class from the provided characters
         final String characterClass = toRemove
@@ -198,7 +203,7 @@ public class StringOps {
      * @param regex        the regular expression to which the input is to be matched.
      * @param replacement  the string to be substituted for each match.
      */
-    public static Transformation<String> replaceAll(String regex, String replacement) {
+    public Transformation<String> replaceAll(String regex, String replacement) {
         final String rx = Objects.requireNonNullElse(regex, "");
         final String repl = Objects.requireNonNullElse(replacement, "");
         final Pattern pattern = Pattern.compile(rx);
@@ -227,7 +232,7 @@ public class StringOps {
      * @param allowed the characters to keep; if {@code null} or empty, nothing is kept (result becomes empty string)
      * @return a {@link MappingRule} that filters the input to the provided character set.
      */
-    public static Transformation<String> keepChars(String allowed) {
+    public Transformation<String> keepChars(String allowed) {
         final String toKeep = Objects.requireNonNullElse(allowed, "");
 
         if (toKeep.isEmpty()) {
@@ -267,7 +272,7 @@ public class StringOps {
      * <p>
      * Example: {@code "Café naïve" -> "Cafe naive"}.
      */
-    public static Transformation<String> stripDiacritics() {
+    public Transformation<String> stripDiacritics() {
         return nullSafe(s -> {
             String nfd = Normalizer.normalize(s, Normalizer.Form.NFD);
             String stripped = nfd.replaceAll("\\p{M}+", "");
@@ -285,7 +290,7 @@ public class StringOps {
      * <p>
      * Note: This will also remove line breaks since they are control characters.
      */
-    public static Transformation<String> stripControlChars() {
+    public Transformation<String> stripControlChars() {
         // \p{Cc}: control chars. Additionally strip zero-width/formatting characters.
         return nullSafe(s -> s.replaceAll("[\\p{Cc}\\u200B-\\u200D\\u2060\\uFEFF]+", ""));
     }
@@ -300,7 +305,7 @@ public class StringOps {
      * @param maxLen maximum length of the resulting string, must be {@code >= 0}
      * @throws IllegalArgumentException when {@code maxLen} is negative
      */
-    public static Transformation<String> truncate(int maxLen) {
+    public Transformation<String> truncate(int maxLen) {
         if (maxLen < 0) {
             throw new IllegalArgumentException("maxLen must be >= 0");
         }
@@ -325,7 +330,7 @@ public class StringOps {
      * @param maxLen maximum total length including the ellipsis, must be {@code >= 0}
      * @throws IllegalArgumentException when {@code maxLen} is negative
      */
-    public static Transformation<String> truncateWithEllipsis(int maxLen) {
+    public Transformation<String> truncateWithEllipsis(int maxLen) {
         if (maxLen < 0) {
             throw new IllegalArgumentException("maxLen must be >= 0");
         }
@@ -371,7 +376,7 @@ public class StringOps {
         });
     }
 
-    private static int safeCutIndex(String s, int maxUnits) {
+    private int safeCutIndex(String s, int maxUnits) {
         if (maxUnits <= 0) return 0;
         int len = s.length();
         int cut = Math.min(maxUnits, len);
@@ -386,7 +391,7 @@ public class StringOps {
         return cut;
     }
 
-    private static <T> Transformation<T> nullSafe(Function<T,T> op) {
+    private <T> Transformation<T> nullSafe(Function<T,T> op) {
         return input -> {
             if (input != null) {
                 return op.apply(input);

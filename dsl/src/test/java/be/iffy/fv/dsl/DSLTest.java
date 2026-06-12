@@ -1,7 +1,6 @@
 package be.iffy.fv.dsl;
 
 import be.iffy.fv.*;
-import be.iffy.fv.rules.text.StringOps;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
@@ -180,7 +179,7 @@ public class DSLTest {
 
             @Test
             void isNotNull_whenValueIsNotNull_returnsValid() {
-                Validation<String> v = validateThat((String) null, "field").map(StringOps.trim()).is(strings.minLength(4));
+                Validation<String> v = validateThat((String) null, "field").map(stringOps.trim()).is(strings.minLength(4));
                 assertThatValidation(v).isInvalid().hasErrorMessage("field.must.not.be.null");
             }
         }
@@ -206,7 +205,7 @@ public class DSLTest {
             Map<Integer, String> input = HashMap.of(1, " hello ", 2, "world");
 
 
-            MappingRule<String, String> mr = after(StringOps.trim()).is(strings.maxLength(5));
+            MappingRule<String, String> mr = after(stringOps.trim()).is(strings.maxLength(5));
 
             Validation<String> foo = mr.test("12345 ");
 
@@ -351,7 +350,7 @@ public class DSLTest {
 
             // Act
             var result = validateThat(value)
-                    .map(StringOps.digits())
+                    .map(stringOps.digits())
                     .map(strings.asInteger())
                     .is(Rule.of(i -> i > 100, "must.be.greater.than.100"));
 

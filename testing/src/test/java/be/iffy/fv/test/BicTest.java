@@ -1,10 +1,10 @@
 package be.iffy.fv.test;
 
-import be.iffy.fv.rules.text.StringOps;
 import be.iffy.fv.test.examples.Bic;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import static be.iffy.fv.dsl.DSL.stringOps;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BicTest {
@@ -15,7 +15,7 @@ public class BicTest {
 
         assertThat( new Bic(validBic))
                 .extracting(Bic::value)
-                .isEqualTo(StringOps.removeWhitespace().apply(validBic));
+                .isEqualTo(stringOps.removeWhitespace().apply(validBic));
     }
 
 }

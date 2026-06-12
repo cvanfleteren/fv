@@ -1,13 +1,14 @@
 package be.iffy.fv.dsl.impl;
 
 import be.iffy.fv.*;
-import be.iffy.fv.rules.text.StringOps;
+import be.iffy.fv.dsl.DSL;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Function;
 
 import static be.iffy.fv.dsl.DSL.assertThat;
+import static be.iffy.fv.dsl.DSL.stringOps;
 import static be.iffy.fv.dsl.DSL.strings;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -19,7 +20,7 @@ class AssertDSLTest {
 
         @Test
         void nullInput_noNullOk_throws() {
-            assertThatThrownBy(()  -> assertThat((String)null, "field").map(StringOps.trim()).is(strings.minLength(4)))
+            assertThatThrownBy(()  -> DSL.assertThat((String)null, "field").map(stringOps.trim()).is(strings.minLength(4)))
                     .isInstanceOf(ValidationException.class).hasMessage("field.must.not.be.null");
         }
     }

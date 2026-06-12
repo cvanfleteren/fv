@@ -8,6 +8,7 @@ import be.iffy.fv.rules.collections.*;
 import be.iffy.fv.rules.functional.OptionRules;
 import be.iffy.fv.rules.functional.OptionalRules;
 import be.iffy.fv.rules.numbers.*;
+import be.iffy.fv.rules.text.StringOps;
 import be.iffy.fv.rules.text.StringRules;
 import be.iffy.fv.rules.time.*;
 import io.vavr.*;
@@ -28,6 +29,8 @@ public final class DSL {
     public static final BooleanRules booleans = BooleanRules.booleans;
 
     public static final StringRules strings = StringRules.strings;
+
+    public static final StringOps stringOps = StringOps.stringOps;
 
     public static final BigDecimalRules bigDecimals = BigDecimalRules.bigDecimals;
 

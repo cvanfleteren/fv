@@ -3,7 +3,6 @@ package be.iffy.fv.test.examples;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 import be.iffy.fv.Validations;
-import be.iffy.fv.rules.text.StringOps;
 
 import java.util.regex.Pattern;
 
@@ -27,7 +26,7 @@ public record Bic(String value) {
             .and(followsBicPattern);
 
     public Bic {
-        value = assertThat(value, Bic::value).map(StringOps.removeWhitespace()).is(validBic);
+        value = assertThat(value, Bic::value).map(stringOps.removeWhitespace()).is(validBic);
     }
 
     public static Validation<Bic> from(String value) {
