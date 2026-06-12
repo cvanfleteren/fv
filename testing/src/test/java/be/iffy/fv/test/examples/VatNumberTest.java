@@ -18,9 +18,10 @@ class VatNumberTest {
         void of_whenValidVat_returnsValidVatNumber() {
             Validation<VatNumber> validation = VatNumber.of("BE12345678");
 
-            assertThatValidation(validation).isValid();
-            assertThat(validation.getOrElseThrow().countrycode()).isEqualTo(CountryCode.BE);
-            assertThat(validation.getOrElseThrow().value()).isEqualTo("12345678");
+            assertThatValidation(validation).isValid().satisfies(vatNumber -> {
+                assertThat(vatNumber.countrycode()).isEqualTo(CountryCode.BE);
+                assertThat(vatNumber.value()).isEqualTo("12345678");
+            });
         }
 
         @Test
@@ -29,7 +30,7 @@ class VatNumberTest {
 
             assertThatValidation(validation)
                     .isInvalid()
-                    .hasErrorMessages("must.be.valid.enum.value");
+                    .hasFormattedMessage("must.be.valid.enum.value:{value:ZZ}");
         }
 
         @Test
@@ -39,7 +40,16 @@ class VatNumberTest {
 
             assertThatValidation(validation)
                     .isInvalid()
-                    .hasErrorMessages("must.have.min.length");
+                    .hasFormattedMessage("must.have.min.length:{min:4}");
+        }
+
+        @Test
+        void of_whenTooShortAfterSkipWithWhitespace_isInvalid() {
+            Validation<VatNumber> validation = VatNumber.of("BE    1");
+
+            assertThatValidation(validation)
+                    .isInvalid()
+                    .hasFormattedMessage("must.have.min.length:{min:4}");
         }
 
         @Test

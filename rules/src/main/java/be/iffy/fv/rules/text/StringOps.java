@@ -29,7 +29,7 @@ public class StringOps {
      * <p>
      * Example: {@code "hello\nworld" -> "hello world"}.
      */
-    public Transformation<String> removeNewlines() {
+    public Transformation<String> stripNewlines() {
         return nullSafe(s -> s.replaceAll("\\R", " ").trim());
     }
 
@@ -59,7 +59,7 @@ public class StringOps {
      * <p>
      * Example: {@code " a b c " -> "abc"}.
      */
-    public Transformation<String> removeWhitespace() {
+    public Transformation<String> stripWhitespace() {
         return nullSafe(s -> s.replaceAll("\\s+", ""));
     }
 
@@ -68,7 +68,7 @@ public class StringOps {
      * <p>
      * Example: {@code "abc123def456" -> "123456"}.
      */
-    public Transformation<String> digits() {
+    public Transformation<String> keepDigits() {
         return nullSafe(s -> s.replaceAll("\\D+", ""));
     }
 
@@ -79,7 +79,7 @@ public class StringOps {
      *
      * @return a {@link MappingRule} that removes digits from the input.
      */
-    public Transformation<String> nonDigits() {
+    public Transformation<String> stripDigits() {
         return nullSafe(s -> s.replaceAll("\\d+", ""));
     }
 
@@ -88,7 +88,7 @@ public class StringOps {
      * <p>
      * Example: {@code "abc@#123" -> "abc123"}.
      */
-    public Transformation<String> alphanumeric() {
+    public Transformation<String> keepAlphanumeric() {
         return nullSafe(s -> s.replaceAll("[^A-Za-z0-9]+", ""));
     }
 
@@ -99,7 +99,7 @@ public class StringOps {
      * <p>
      * Example: {@code "H3llo, 世界!" -> "Hllo世界"}.
      */
-    public Transformation<String> lettersOnly() {
+    public Transformation<String> keepLettersOnly() {
         return nullSafe(s -> s.replaceAll("[^\\p{L}]+", ""));
     }
 
@@ -111,7 +111,7 @@ public class StringOps {
      * <p>
      * Note: This preserves existing spacing but does not trim. Use {@link #trim()} or {@link #collapseWhitespace()} if needed.
      */
-    public Transformation<String> lettersAndSpacesOnly() {
+    public Transformation<String> keepLettersAndSpacesOnly() {
         // Preserve only \p{L} (letters) and literal space. Remove everything else, including other whitespace kinds.
         return nullSafe(s -> s.replaceAll("[^\\p{L} ]+", ""));
     }
@@ -121,7 +121,7 @@ public class StringOps {
      * <p>
      * Example: {@code "HeLLo" -> "hello"}.
      */
-    public Transformation<String> lowercase() {
+    public Transformation<String> toLowercase() {
         return nullSafe(s -> s.toLowerCase(Locale.ROOT));
     }
 
@@ -139,7 +139,7 @@ public class StringOps {
      * <p>
      * Example: {@code "HeLLo" -> "HELLO"}.
      */
-    public Transformation<String> uppercase() {
+    public Transformation<String> toUppercase() {
         return nullSafe(s -> s.toUpperCase(Locale.ROOT));
     }
 
@@ -148,7 +148,7 @@ public class StringOps {
      * <p>
      * Example: {@code "HeLLo" -> "HELLO"} (actual output may depend on the locale).
      */
-    public Transformation<String> uppercase(Locale locale) {
+    public Transformation<String> toUppercase(Locale locale) {
         return nullSafe(s -> s.toUpperCase(locale));
     }
 

@@ -171,16 +171,16 @@ class StringOpsTest {
     }
 
     @Nested
-    class RemoveNewlines {
+    class StripNewlines {
 
         @Test
         void removeNewlines_replacesNewlinesWithSpace_andTrims() {
-            transform("hello\nworld", "hello world", stringOps.removeNewlines());
+            transform("hello\nworld", "hello world", stringOps.stripNewlines());
         }
 
         @Test
         void removeNewlines_nullInputReturnsNull() {
-            whenNull(stringOps.removeNewlines());
+            whenNull(stringOps.stripNewlines());
         }
     }
 
@@ -218,152 +218,152 @@ class StringOpsTest {
     }
 
     @Nested
-    class RemoveWhitespace {
+    class StripWhitespace {
 
         @Test
         void removeWhitespace_removesAllWhitespace() {
-            transform(" a b c ", "abc", stringOps.removeWhitespace());
+            transform(" a b c ", "abc", stringOps.stripWhitespace());
         }
 
         @Test
         void removeWhitespace_nullInputReturnsNull() {
-            whenNull(stringOps.removeWhitespace());
+            whenNull(stringOps.stripWhitespace());
         }
     }
 
     @Nested
-    class Digits {
+    class KeepDigits {
 
         @Test
         void digits_keepsOnlyDigits() {
-            transform("abc123def456", "123456", stringOps.digits());
+            transform("abc123def456", "123456", stringOps.keepDigits());
         }
 
         @Test
         void digits_keepsOnlyDigits_endsUpEmpty() {
-            transform("abcdef", "", stringOps.digits());
+            transform("abcdef", "", stringOps.keepDigits());
         }
 
         @Test
         void digits_nullInputReturnsNull() {
-            whenNull(stringOps.digits());
+            whenNull(stringOps.keepDigits());
         }
     }
 
     @Nested
-    class NonDigits {
+    class StripDigits {
 
         @Test
-        void nonDigits_keepsOnlyNonDigits() {
-            transform("abc123def456", "abcdef", stringOps.nonDigits());
+        void stripDigits_keepsOnlyNonDigits() {
+            transform("abc123def456", "abcdef", stringOps.stripDigits());
         }
 
         @Test
-        void nonDigits_keepsOnlyNonDigits_endsUpEmpty() {
-            transform("abcdef\uD83D\uDE19", "abcdef\uD83D\uDE19", stringOps.nonDigits());
+        void stripDigits_keepsOnlyNonDigits_endsUpEmpty() {
+            transform("abcdef\uD83D\uDE19", "abcdef\uD83D\uDE19", stringOps.stripDigits());
         }
 
         @Test
-        void nonDigits_nullInputReturnsNull() {
-            whenNull(stringOps.nonDigits());
+        void stripDigits_nullInputReturnsNull() {
+            whenNull(stringOps.stripDigits());
         }
     }
 
     @Nested
-    class Alphanumeric {
+    class KeepAlphanumeric {
 
         @Test
         void alphanumeric_keepsLettersAndDigitsOnly() {
-            transform("abc@#123", "abc123", stringOps.alphanumeric());
+            transform("abc@#123ë", "abc123", stringOps.keepAlphanumeric());
         }
 
         @Test
         void alphanumeric_nullInputReturnsNull() {
-            whenNull(stringOps.alphanumeric());
+            whenNull(stringOps.keepAlphanumeric());
         }
     }
 
     @Nested
-    class LettersOnly {
+    class KeepLettersOnly {
 
         @Test
         void lettersOnly_keepsOnlyUnicodeLetters() {
-            transform("H3llo, 世界!", "Hllo世界", stringOps.lettersOnly());
+            transform("H3llo, 世界!", "Hllo世界", stringOps.keepLettersOnly());
         }
 
         @Test
         void lettersOnly_handlesAccentsAndCombiningMarks() {
             // "e\u0301" is e + combining acute; combining mark should be removed
-            transform("Cafe\u0301 and naïve", "Cafeandnaïve", stringOps.lettersOnly());
+            transform("Cafe\u0301 and naïve", "Cafeandnaïve", stringOps.keepLettersOnly());
             // Precomposed accents (like é, ï) are letters and should be preserved; spaces are removed
-            transform("Café naïve", "Cafénaïve", stringOps.lettersOnly());
+            transform("Café naïve", "Cafénaïve", stringOps.keepLettersOnly());
         }
 
         @Test
         void lettersOnly_returnsEmptyWhenNoLetters() {
-            transform("1234 !?", "", stringOps.lettersOnly());
+            transform("1234 !?", "", stringOps.keepLettersOnly());
         }
 
         @Test
         void lettersOnly_nullInputReturnsNull() {
-            whenNull(stringOps.lettersOnly());
+            whenNull(stringOps.keepLettersOnly());
         }
     }
 
     @Nested
-    class LettersAndSpacesOnly {
+    class KeepLettersAndSpacesOnly {
 
         @Test
         void lettersAndSpacesOnly_keepsLettersAndSpacesOnly() {
-            transform("Hello, 世界! 123", "Hello 世界 ", stringOps.lettersAndSpacesOnly());
+            transform("Hello, 世界! 123", "Hello 世界 ", stringOps.keepLettersAndSpacesOnly());
         }
 
         @Test
         void lettersAndSpacesOnly_preservesRegularSpacesButRemovesOtherWhitespace() {
-            transform("A\tB\nC D", "ABC D", stringOps.lettersAndSpacesOnly());
+            transform("A\tB\nC D", "ABC D", stringOps.keepLettersAndSpacesOnly());
         }
 
         @Test
         void lettersAndSpacesOnly_allowsMultipleSpacesAndDoesNotTrim() {
-            transform("Hi,  there!", "Hi  there", stringOps.lettersAndSpacesOnly());
+            transform("Hi,  there!", "Hi  there", stringOps.keepLettersAndSpacesOnly());
         }
 
         @Test
         void lettersAndSpacesOnly_emptyWhenNoLettersOrSpaces() {
-            transform("\t\n123,!", "", stringOps.lettersAndSpacesOnly());
+            transform("\t\n123,!", "", stringOps.keepLettersAndSpacesOnly());
         }
 
         @Test
         void lettersAndSpacesOnly_nullInputReturnsNull() {
-            whenNull(stringOps.lettersAndSpacesOnly());
+            whenNull(stringOps.keepLettersAndSpacesOnly());
         }
     }
 
     @Nested
-    class Lowercase {
+    class ToLowercase {
 
         @Test
         void lowercase_convertsToLowercase() {
-            transform("HeLLo", "hello", stringOps.lowercase());
+            transform("HeLLo", "hello", stringOps.toLowercase());
         }
 
         @Test
         void lowercase_nullInputReturnsNull() {
-            whenNull(stringOps.lowercase());
+            whenNull(stringOps.toLowercase());
         }
     }
 
     @Nested
-    class Uppercase {
+    class ToUppercase {
 
         @Test
         void uppercase_convertsToUppercase() {
-            transform("HeLLo", "HELLO", stringOps.uppercase());
+            transform("HeLLo", "HELLO", stringOps.toUppercase());
         }
 
         @Test
         void uppercase_nullInputReturnsNull() {
-            whenNull(stringOps.uppercase());
+            whenNull(stringOps.toUppercase());
         }
     }
 

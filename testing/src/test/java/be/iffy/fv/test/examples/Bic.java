@@ -26,7 +26,7 @@ public record Bic(String value) {
             .and(followsBicPattern);
 
     public Bic {
-        value = assertThat(value, Bic::value).map(stringOps.removeWhitespace()).is(validBic);
+        value = assertThat(value, Bic::value).map(stringOps.stripWhitespace()).is(validBic);
     }
 
     public static Validation<Bic> from(String value) {

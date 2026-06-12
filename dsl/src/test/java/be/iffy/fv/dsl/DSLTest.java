@@ -350,7 +350,7 @@ public class DSLTest {
 
             // Act
             var result = validateThat(value)
-                    .map(stringOps.digits())
+                    .map(stringOps.keepDigits())
                     .map(strings.asInteger())
                     .is(Rule.of(i -> i > 100, "must.be.greater.than.100"));
 

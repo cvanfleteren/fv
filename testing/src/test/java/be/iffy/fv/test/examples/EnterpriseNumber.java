@@ -8,7 +8,7 @@ import static be.iffy.fv.dsl.DSL.*;
 
 public record EnterpriseNumber(String value) {
 
-    static final Rule<String> valid = after(stringOps.alphanumeric()).is(strings.notBlank());
+    static final Rule<String> valid = after(stringOps.keepAlphanumeric()).is(strings.notBlank());
 
     public EnterpriseNumber {
         value = assertThat(value,"value").is(valid);

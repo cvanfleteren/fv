@@ -15,7 +15,7 @@ public class BicTest {
 
         assertThat( new Bic(validBic))
                 .extracting(Bic::value)
-                .isEqualTo(stringOps.removeWhitespace().apply(validBic));
+                .isEqualTo(stringOps.stripWhitespace().apply(validBic));
     }
 
 }
