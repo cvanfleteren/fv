@@ -31,7 +31,7 @@ class ObjectGraphValidationTest {
 
     record Username(String value) {
         Username {
-            assertAllValid(
+            assertValid(
                     validateThat(value, "value").is(strings.minLength(3))
             );
         }

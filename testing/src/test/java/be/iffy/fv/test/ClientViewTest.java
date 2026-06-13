@@ -40,7 +40,7 @@ public class ClientViewTest {
     void scenario_0() {
         record MonetaryAmount(BigDecimal value) {
             public MonetaryAmount {
-                assertAllValid(
+                assertValid(
                     DSL.notNull(value, "value")
                 );
             }
@@ -142,7 +142,7 @@ public class ClientViewTest {
         };
 
         Validation<Mandate> result = mapper.apply(testDTO);
-        assertAllValid(result);
+        assertValid(result);
     }
 
     static class PropertiesBuilder2<T, R1, R2> {

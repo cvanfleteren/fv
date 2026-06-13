@@ -13,7 +13,7 @@ public record Command(Debtor debtor, KboNumber kboNumber, List<Transaction> tran
     public record Debtor(EnterpriseNumber enterpriseNumber, Bic bic, String name, Address address,
                          MandateInfo mandateInfo) {
         public Debtor {
-            assertAllValid(
+            assertValid(
                     notNull(enterpriseNumber, Debtor::enterpriseNumber),
                     notNull(bic, Debtor::bic),
                     notNull(name, Debtor::name),
@@ -24,7 +24,7 @@ public record Command(Debtor debtor, KboNumber kboNumber, List<Transaction> tran
 
     public record Address(String street, String houseNumber, String city) {
         public Address {
-            var result = assertAllValid(
+            var result = assertValid(
                     validateThat(street, QueueMessage.Address::street).map(stringOps.trim()).is(strings.notBlank()),
                     validateThat(houseNumber, QueueMessage.Address::houseNumber).map(stringOps.trim()).is(strings.notBlank()),
                     validateThat(city, QueueMessage.Address::city).map(stringOps.trim()).is(strings.notBlank().and(strings.minLength(2)))

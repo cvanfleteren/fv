@@ -1,9 +1,9 @@
 package be.iffy.fv.test;
 
+import be.iffy.fv.Validation;
 import be.iffy.fv.Validations;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
-import be.iffy.fv.Validation;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -21,7 +21,7 @@ public class ValidationDSLTest {
                      Option<Instant> finishedAt) {
 
         public SomeClass {
-            assertAllValid(
+            assertValid(
                     notNull(status, SomeClass::status),
                     notNull(errors, SomeClass::errors),
                     notNull(startedAt, SomeClass::startedAt),
@@ -29,13 +29,13 @@ public class ValidationDSLTest {
             );
 
             switch (status) {
-                case READY -> assertAllValid(
+                case READY -> assertValid(
                         validateThat(startedAt, SomeClass::startedAt).is(options.empty()),
                         validateThat(finishedAt, SomeClass::finishedAt).is(options.empty()),
                         validateThat(errors, SomeClass::errors).is(vavrLists.empty())
                 );
 
-                case SUCCESS -> assertAllValid(
+                case SUCCESS -> assertValid(
                         validating(
                                 validateThat(startedAt, SomeClass::startedAt).is(options.required()),
                                 validateThat(finishedAt, SomeClass::finishedAt).is(options.required())
@@ -43,7 +43,7 @@ public class ValidationDSLTest {
                         validateThat(errors, SomeClass::errors).is(vavrLists.empty())
                 );
 
-                case FAILURE -> assertAllValid(
+                case FAILURE -> assertValid(
                         validating(
                                 validateThat(startedAt, SomeClass::startedAt).is(options.required()),
                                 validateThat(finishedAt, SomeClass::finishedAt).is(options.required())

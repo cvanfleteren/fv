@@ -87,7 +87,7 @@ public final class DSL {
      * }
      * </pre>
      */
-    public static <T> AfterDSL<T> after(be.iffy.fv.Transformation<T> transformation) {
+    public static <T> AfterDSL<T> after(Transformation<T> transformation) {
         return new AfterDSL<>(transformation);
     }
 
@@ -102,7 +102,7 @@ public final class DSL {
      * }
      * </pre>
      */
-    public static <T> AfterDSL<T> after(Supplier<be.iffy.fv.Transformation<T>> transformation) {
+    public static <T> AfterDSL<T> after(Supplier<Transformation<T>> transformation) {
         Objects.requireNonNull(transformation, "transformation cannot be null");
         return new AfterDSL<>(
                 Objects.requireNonNull(transformation.get(), "transformation result cannot be null")
@@ -180,7 +180,7 @@ public final class DSL {
      *
      * @throws ValidationException if any validation is invalid.
      */
-    public static void assertAllValid(Validation<?>... validations) {
+    public static void assertValid(Validation<?>... validations) {
         Objects.requireNonNull(validations, "validations cannot be null");
         Iterator<ErrorMessage> it = Iterator.of(validations)
                 .map(v -> Objects.requireNonNull(v, "validation cannot be null"))
@@ -190,7 +190,7 @@ public final class DSL {
         }
     }
 
-    //region assertAllValid with Tuples
+    //region assertValid with Tuples
 
     /**
      * Asserts that two validations are valid and returns their values as a {@link Tuple2}.
@@ -198,7 +198,7 @@ public final class DSL {
      *
      * @throws ValidationException if any validation is invalid.
      */
-    public static <T1, T2> Tuple2<T1, T2> assertAllValid(Validation<T1> v1, Validation<T2> v2) {
+    public static <T1, T2> Tuple2<T1, T2> assertValid(Validation<T1> v1, Validation<T2> v2) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         return Validations.combine(v1, v2).map(Tuple::of).getOrElseThrow();
@@ -209,7 +209,7 @@ public final class DSL {
      *
      * @throws ValidationException if any validation is invalid.
      */
-    public static <T1, T2, T3> Tuple3<T1, T2, T3> assertAllValid(
+    public static <T1, T2, T3> Tuple3<T1, T2, T3> assertValid(
             Validation<T1> v1, Validation<T2> v2, Validation<T3> v3
     ) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
@@ -223,7 +223,7 @@ public final class DSL {
      *
      * @throws ValidationException if any validation is invalid.
      */
-    public static <T1, T2, T3, T4> Tuple4<T1, T2, T3, T4> assertAllValid(
+    public static <T1, T2, T3, T4> Tuple4<T1, T2, T3, T4> assertValid(
             Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4
     ) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
@@ -238,7 +238,7 @@ public final class DSL {
      *
      * @throws ValidationException if any validation is invalid.
      */
-    public static <T1, T2, T3, T4, T5> Tuple5<T1, T2, T3, T4, T5> assertAllValid(
+    public static <T1, T2, T3, T4, T5> Tuple5<T1, T2, T3, T4, T5> assertValid(
             Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5
     ) {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
@@ -254,7 +254,7 @@ public final class DSL {
      *
      * @throws ValidationException if any validation is invalid.
      */
-    public static <T1, T2, T3, T4, T5, T6> Tuple6<T1, T2, T3, T4, T5, T6> assertAllValid(
+    public static <T1, T2, T3, T4, T5, T6> Tuple6<T1, T2, T3, T4, T5, T6> assertValid(
             Validation<T1> v1, Validation<T2> v2, Validation<T3> v3,
             Validation<T4> v4, Validation<T5> v5, Validation<T6> v6
     ) {
@@ -272,7 +272,7 @@ public final class DSL {
      *
      * @throws ValidationException if any validation is invalid.
      */
-    public static <T1, T2, T3, T4, T5, T6, T7> Tuple7<T1, T2, T3, T4, T5, T6, T7> assertAllValid(
+    public static <T1, T2, T3, T4, T5, T6, T7> Tuple7<T1, T2, T3, T4, T5, T6, T7> assertValid(
             Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4,
             Validation<T5> v5, Validation<T6> v6, Validation<T7> v7
     ) {
@@ -291,7 +291,7 @@ public final class DSL {
      *
      * @throws ValidationException if any validation is invalid.
      */
-    public static <T1, T2, T3, T4, T5, T6, T7, T8> Tuple8<T1, T2, T3, T4, T5, T6, T7, T8> assertAllValid(
+    public static <T1, T2, T3, T4, T5, T6, T7, T8> Tuple8<T1, T2, T3, T4, T5, T6, T7, T8> assertValid(
             Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4,
             Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Validation<T8> v8
     ) {

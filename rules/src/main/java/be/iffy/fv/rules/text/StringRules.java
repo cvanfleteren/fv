@@ -3,6 +3,7 @@ package be.iffy.fv.rules.text;
 import be.iffy.fv.*;
 import be.iffy.fv.rules.ComparableRules;
 import be.iffy.fv.rules.IObjectRules;
+import io.vavr.Function2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
@@ -22,6 +23,8 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
+
+import static be.iffy.fv.MappingRules.combine;
 
 /**
  * Validation rules for {@link String} values.
@@ -388,8 +391,21 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
 
     // region parts of string
 
+
+    public <R> MappingRule<String, R> splitAt(int index, Function2<String, String, R> mapper) {
+        return MappingRules.<String>notNull().then(input -> {
+            MappingRule<String, String> first = take(index - 1);
+            MappingRule<String, String> second = drop(index - 1);
+
+            return combine(first, second)
+                    .into(mapper)
+                    .test(input);
+        });
+    }
+
+
     /**
-     * Takes a substrring of the string.
+     * Takes a substring of the string.
      * Fails if the indices are not valid for the input string.
      * <p>
      * Error key: {@code must.be.valid.substring}
@@ -401,7 +417,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      *
      * @param beginIndex the beginning index, inclusive.
-     * @param endIndex the ending index, exclusive.
+     * @param endIndex   the ending index, exclusive.
      */
     public MappingRule<String, String> substring(int beginIndex, int endIndex) {
         return MappingRules.<String>notNull().then(input -> {

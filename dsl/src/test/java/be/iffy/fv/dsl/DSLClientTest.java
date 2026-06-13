@@ -5,9 +5,8 @@ import be.iffy.fv.Validation;
 import be.iffy.fv.Validations;
 import org.junit.jupiter.api.Test;
 
-import static be.iffy.fv.dsl.DSL.assertAllValid;
-import static be.iffy.fv.dsl.DSL.validateThat;
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
+import static be.iffy.fv.dsl.DSL.validateThat;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DSLClientTest {
@@ -41,7 +40,7 @@ public class DSLClientTest {
 
         record Person(String name, int age) {
             Person {
-                var values = assertAllValid(
+                var values = DSL.assertValid(
                         validateThat(name, "name").map(String::trim).is(minLength),
                         validateThat(age, "age").is(minAge)
                 );
@@ -63,7 +62,7 @@ public class DSLClientTest {
 
         record Person(String name, int age) {
             Person {
-                assertAllValid(
+                DSL.assertValid(
                     validateThat(name, "name").is(minLength),
                     validateThat(age, "age").is(minAge)
                 );
