@@ -1,17 +1,16 @@
 package be.iffy.fv.rules;
 
+import be.iffy.fv.ErrorMessage;
+import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.ValidationException;
-import io.vavr.collection.List;
-import be.iffy.fv.ErrorMessage;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
-import be.iffy.fv.MappingRule;
+import io.vavr.collection.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static be.iffy.fv.rules.ObjectRules.objects;
@@ -256,41 +255,41 @@ class ObjectRulesTest {
     }
 
     @Nested
-    class CanBe {
+    class Construct {
 
-        MappingRule<String, BigDecimal> rule = objects.canBe(BigDecimal::new, ErrorMessage.of("invalid.number"));
+        MappingRule<String, BigDecimal> rule = objects.construct(BigDecimal::new, ErrorMessage.of("invalid.number"));
 
         @Test
-        void canBe_withErrorMessage_whenValid_returnsValid() {
+        void construct_withErrorMessage_whenValid_returnsValid() {
             assertThatValidation(rule.test("123.45"))
                     .isValid()
                     .isEqualTo(new BigDecimal("123.45"));
         }
 
         @Test
-        void canBe_withErrorMessage_whenInvalid_returnsInvalid() {
+        void construct_withErrorMessage_whenInvalid_returnsInvalid() {
             assertThatValidation(rule.test("not-a-number"))
                     .isInvalid()
                     .hasErrorMessage("invalid.number");
         }
 
         @Test
-        void canBe_withErrorKey_whenValid_returnsValid() {
+        void construct_withErrorKey_whenValid_returnsValid() {
             assertThatValidation(rule.test("123.45"))
                     .isValid()
                     .isEqualTo(new BigDecimal("123.45"));
         }
 
         @Test
-        void canBe_withErrorKey_whenInvalid_returnsInvalid() {
+        void construct_withErrorKey_whenInvalid_returnsInvalid() {
             assertThatValidation(rule.test("not-a-number"))
                     .isInvalid()
                     .hasErrorMessage("invalid.number");
         }
 
         @Test
-        void canBe_withoutErrorMessage_whenValidationExceptionThrown_usesThoseErrors() {
-            MappingRule<String, String> throwingRule = objects.canBe(input -> {
+        void construct_withoutErrorMessage_whenValidationExceptionThrown_usesThoseErrors() {
+            MappingRule<String, String> throwingRule = objects.construct(input -> {
                 throw new ValidationException(List.of(ErrorMessage.of("custom.error")));
             });
 
@@ -300,8 +299,8 @@ class ObjectRulesTest {
         }
 
         @Test
-        void canBe_withoutErrorMessage_whenOtherExceptionThrown_usesDefaultError() {
-            MappingRule<String, String> throwingRule = objects.canBe(input -> {
+        void construct_withoutErrorMessage_whenOtherExceptionThrown_usesDefaultError() {
+            MappingRule<String, String> throwingRule = objects.construct(input -> {
                 throw new RuntimeException("boom");
             });
 
@@ -311,8 +310,8 @@ class ObjectRulesTest {
         }
 
         @Test
-        void canBe_withoutErrorMessage_whenValid_returnsValid() {
-            MappingRule<String, String> successRule = objects.canBe(input -> "prefixed-" + input);
+        void construct_withoutErrorMessage_whenValid_returnsValid() {
+            MappingRule<String, String> successRule = objects.construct(input -> "prefixed-" + input);
 
             assertThatValidation(successRule.test("value"))
                     .isValid()

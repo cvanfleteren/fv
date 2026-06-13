@@ -749,7 +749,7 @@ class RuleTest {
     }
 
     @Nested
-    class RecoverWith {
+    class OrElse {
 
         @Test
         void recoverWith_whenFirstRulePasses_returnsFirstResultAndDoesNotCallSecond() {
@@ -808,7 +808,7 @@ class RuleTest {
             Rule<String> rule = Rule.of(s -> true, "msg");
 
             // Act & Assert
-            assertThatCode(() -> rule.recoverWith(null))
+            assertThatCode(() -> rule.orElse(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("other rule cannot be null");
         }

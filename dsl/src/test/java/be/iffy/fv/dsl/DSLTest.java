@@ -1,6 +1,9 @@
 package be.iffy.fv.dsl;
 
-import be.iffy.fv.*;
+import be.iffy.fv.ErrorMessage;
+import be.iffy.fv.Rule;
+import be.iffy.fv.Validation;
+import be.iffy.fv.ValidationException;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
@@ -205,15 +208,15 @@ public class DSLTest {
             Map<Integer, String> input = HashMap.of(1, " hello ", 2, "world");
 
 
-            MappingRule<String, String> mr = after(stringOps.trim()).is(strings.maxLength(5));
+            Rule<String> mr = after(stringOps.trim()).is(strings.maxLength(5));
 
             Validation<String> foo = mr.test("12345 ");
 
-            MappingRule<Map<Integer, String>, Map<Integer, String>> mappingRule = mr.liftToVavrMap();
+            Rule<Map<Integer, String>> mapRule = mr.liftToVavrMap();
 
-            Validation<Map<Integer, String>> foo2 = mappingRule.test(HashMap.of(1, "12345 "));
+            Validation<Map<Integer, String>> foo2 = mapRule.test(HashMap.of(1, "12345 "));
 
-            Validation<Map<Integer, String>> result = validateThat(input, "value").is(mappingRule);
+            Validation<Map<Integer, String>> result = validateThat(input, "value").is(mapRule);
 
             // Assert
             assertThatValidation(result)

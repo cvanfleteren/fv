@@ -85,7 +85,7 @@ class ObjectGraphValidationTest {
             MappingRule<String, Email> canBeEmail = strings.minLength(2).and(strings.contains("@")).then(MappingRules.catching(Email::new, "must.be.email"));
 
             return Validations.combine(
-                    validateThat(dto.username, "username").is(objects.canBe(Username::new, "must.be.username")),
+                    validateThat(dto.username, "username").is(objects.construct(Username::new, "must.be.username")),
                     validateThat(dto.email, "email").is(canBeEmail),
                     validateAddress(dto.address).at("address"),
                     validateThatList(dto.roles, "roles").is(collections.notEmpty()).eachIs(canBeRole).validate()

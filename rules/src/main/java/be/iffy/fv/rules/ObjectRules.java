@@ -71,7 +71,7 @@ public class ObjectRules implements IObjectRules<Object> {
      * Will catch all possible exceptions thrown by the function.
      * If the function throws ValidationException, its errors will be used instead of the passed error.
      */
-    public <T,R> MappingRule<T, R> canBe(Function<T,R> constructor, ErrorMessage errorMessage) {
+    public <T,R> MappingRule<T, R> construct(Function<T,R> constructor, ErrorMessage errorMessage) {
         Objects.requireNonNull(constructor, "constructor cannot be null");
         return MappingRules.fromTry(input -> Try.of(() -> constructor.apply(input)), errorMessage);
     }
@@ -81,8 +81,8 @@ public class ObjectRules implements IObjectRules<Object> {
      * Will catch all possible exceptions thrown by the function.
      * If the function throws ValidationException, its errors will be used instead of the passed error.
      */
-    public <T,R> MappingRule<T, R> canBe(Function<T,R> constructor, String errorKey) {
-        return canBe(constructor, ErrorMessage.of(errorKey));
+    public <T,R> MappingRule<T, R> construct(Function<T,R> constructor, String errorKey) {
+        return construct(constructor, ErrorMessage.of(errorKey));
     }
 
     /**
@@ -91,8 +91,8 @@ public class ObjectRules implements IObjectRules<Object> {
      * If the function throws ValidationException, its errors will be used.
      * Error key: {@code could.not.construct}
      */
-    public <T,R> MappingRule<T, R> canBe(Function<T,R> constructor) {
-        return canBe(constructor, ErrorMessage.of("could.not.construct"));
+    public <T,R> MappingRule<T, R> construct(Function<T,R> constructor) {
+        return construct(constructor, ErrorMessage.of("could.not.construct"));
     }
 
 }

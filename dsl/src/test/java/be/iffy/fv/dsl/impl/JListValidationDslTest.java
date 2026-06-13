@@ -38,7 +38,7 @@ public class JListValidationDslTest {
         // Act
         Validation<List<Role>> result = validateThatList(roles, "roles")
                 .is(lists.minSize(2))
-                .eachIs(strings.minLength(2).map(Role::new))
+                .eachIs(strings.minLength(2).then(objects.construct(Role::new)))
                 .validate();
 
         // Assert

@@ -32,7 +32,7 @@ import java.util.function.Supplier;
  *
  */
 @FunctionalInterface
-public interface Rule<T> extends MappingRule<T, T> {
+public interface Rule<T> extends ValidationOperator<T, T> {
 
     /**
      * Tests the given value against the rule. If the value passes the test,
@@ -42,6 +42,10 @@ public interface Rule<T> extends MappingRule<T, T> {
      * @return a {@link Validation} object indicating the result of the test.
      */
     Validation<T> test(T value);
+
+    default Validation<T> apply(T value) {
+        return test(value);
+    }
 
     /**
      * Creates a {@link Rule} from the given predicate and error message key.
@@ -194,6 +198,12 @@ public interface Rule<T> extends MappingRule<T, T> {
         };
     }
 
+    default <R> MappingRule<T, R> then(Function<? super T, ? extends Validation<? extends R>> ruleLikeFunction) {
+        return input ->
+                test(input)
+                        .refine(MappingRules.fromValidation(ruleLikeFunction));
+    }
+
     /**
      * Negates this rule. The caller must provide the error message key to use when the negated rule fails.
      *
@@ -267,9 +277,8 @@ public interface Rule<T> extends MappingRule<T, T> {
     /**
      * Lifts this {@link Rule} so it applies to a {@link List} of T instead of a single T.
      */
-    @Override
     default Rule<List<T>> liftToVavrList() {
-        return values -> MappingRule.super.liftToVavrList().test(values);
+        return Rule.of(ValidationOperator.super.liftToVavrList());
     }
 
     /**
@@ -277,7 +286,14 @@ public interface Rule<T> extends MappingRule<T, T> {
      */
     @Override
     default Rule<java.util.List<T>> liftToList() {
-        return values -> MappingRule.super.liftToList().test(values);
+        return values -> {
+            if (values == null) {
+                return Invalid.notNull();
+            }
+            java.util.List<Validation<T>> validations = values.stream().map(this::test).toList();
+            // Validation.sequence already adds the [index] path segment, so we don't do it here.
+            return Validations.transpose(validations);
+        };
     }
 
     /**
@@ -290,7 +306,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      */
     @Override
     default Rule<Option<T>> liftToOption() {
-        return value -> MappingRule.super.liftToOption().test(value);
+        return Rule.of(ValidationOperator.super.liftToOption());
     }
 
     /**
@@ -303,7 +319,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      */
     @Override
     default Rule<Optional<T>> liftToOptional() {
-        return value -> MappingRule.super.liftToOptional().test(value);
+        return Rule.of(ValidationOperator.super.liftToOptional());
     }
 
     /**
@@ -321,7 +337,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      */
     @Override
     default <K> Rule<Map<K, T>> liftToVavrMap() {
-        return liftToVavrMap(Objects::toString);
+        return Rule.of(ValidationOperator.super.liftToVavrMap());
     }
 
     /**
@@ -375,7 +391,7 @@ public interface Rule<T> extends MappingRule<T, T> {
      */
     @Override
     default <K> Rule<java.util.Map<K, T>> liftToMap() {
-        return liftToMap(Objects::toString);
+        return Rule.of(ValidationOperator.super.liftToMap());
     }
 
     /**

@@ -1,18 +1,13 @@
 package be.iffy.fv;
 
 import be.iffy.fv.Validation.Invalid;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
-import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
-import io.vavr.collection.Seq;
 import io.vavr.control.Option;
 
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import static be.iffy.fv.Validation.invalid;
 
@@ -23,7 +18,7 @@ import static be.iffy.fv.Validation.invalid;
  *
  */
 @FunctionalInterface
-public interface MappingRule<T, R> extends Function<T, Validation<R>> {
+public interface MappingRule<T, R> extends  ValidationOperator<T, R> {
 
     /**
      * Evaluates the input against this rule, transforming it from type T to type R.
@@ -131,25 +126,11 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
     }
 
     /**
-     * Turns this rule (back) into a {@link Predicate}.
-     */
-    default <S extends T> Predicate<S> toPredicate() {
-        return value -> test(value).isValid();
-    }
-
-    /**
      * Lifts a {@link MappingRule} so it applies to a {@link List} of T instead of a single T.
      * If the List is empty, the List is considered valid.
      */
     default MappingRule<List<T>, List<R>> liftToVavrList() {
-        return values -> {
-            if (values == null) {
-                return Invalid.notNull();
-            }
-            List<Validation<R>> validations = values.map(this::test);
-            // Validation.sequence already adds the [index] path segment, so we don't do it here.
-            return Validations.transpose(validations);
-        };
+        return MappingRules.fromValidation(ValidationOperator.super.liftToVavrList());
     }
 
     /**
@@ -157,14 +138,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * If the List is empty, the List is considered valid.
      */
     default MappingRule<java.util.List<T>, java.util.List<R>> liftToList() {
-        return values -> {
-            if (values == null) {
-                return Invalid.notNull();
-            }
-            java.util.List<Validation<R>> validations = values.stream().map(this::test).toList();
-            // Validation.sequence already adds the [index] path segment, so we don't do it here.
-            return Validations.transpose(validations);
-        };
+        return MappingRules.fromValidation(ValidationOperator.super.liftToList());
     }
 
     /**
@@ -172,13 +146,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * Empty Options (None) are considered to be valid.
      */
     default MappingRule<Option<T>, Option<R>> liftToOption() {
-        return opt -> {
-            if (opt == null) {
-                return Invalid.notNull();
-            }
-            return opt.map(v -> this.test(v).map(Option::of))
-                    .getOrElse(() -> Validation.valid(Option.none()));
-        };
+        return MappingRules.fromValidation(ValidationOperator.super.liftToOption());
     }
 
     /**
@@ -186,14 +154,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * Empty Optionals are considered to be valid.
      */
     default MappingRule<Optional<T>, Optional<R>> liftToOptional() {
-        return opt -> {
-            if (opt == null) {
-                return Invalid.notNull();
-            }
-            return opt
-                    .map(v -> this.test(v).map(Optional::of))
-                    .orElse(Validation.valid(Optional.empty()));
-        };
+        return MappingRules.fromValidation(ValidationOperator.super.liftToOptional());
     }
 
     /**
@@ -209,7 +170,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * - If all validations pass, the map is considered valid.
      */
     default <K> MappingRule<Map<K, T>, Map<K, R>> liftToVavrMap() {
-        return liftToVavrMap(Objects::toString);
+        return MappingRules.fromValidation(ValidationOperator.super.liftToVavrMap());
     }
 
     /**
@@ -226,30 +187,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * @param keyExtractor the function to extract a path segment from the key.
      */
     default <K> MappingRule<Map<K, T>, Map<K, R>> liftToVavrMap(Function<K, Object> keyExtractor) {
-        Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
-        return map -> {
-            if(map == null) {
-                return Invalid.notNull();
-            }
-            Seq<Tuple2<K, Validation<R>>> validations = map.map(tuple ->
-                    Tuple.of(tuple._1, this.test(tuple._2).mapErrors(errors ->
-                            errors.map(e -> e.atIndex(keyExtractor.apply(tuple._1)))
-                    ))
-            );
-
-            var validAndInvalid = validations.partition(t -> t._2.isValid());
-            if (validAndInvalid._2.nonEmpty()) {
-                return invalid(validAndInvalid._2.flatMap(t -> t._2.errors()).toList());
-            } else {
-                return Validation.valid(
-                        validAndInvalid._1.toMap(
-                                Tuple2::_1,
-                                t ->
-                                        t._2.getOrElseThrow()
-                        )
-                );
-            }
-        };
+        return MappingRules.fromValidation(ValidationOperator.super.liftToVavrMap(keyExtractor));
     }
 
     /**
@@ -265,7 +203,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * - If all validations pass, the map is considered valid.
      */
     default <K> MappingRule<java.util.Map<K, T>, java.util.Map<K, R>> liftToMap() {
-        return liftToMap(Objects::toString);
+        return MappingRules.fromValidation(ValidationOperator.super.liftToMap());
     }
 
     /**
@@ -282,8 +220,7 @@ public interface MappingRule<T, R> extends Function<T, Validation<R>> {
      * @param keyExtractor the function to extract a path segment from the key.
      */
     default <K> MappingRule<java.util.Map<K, T>, java.util.Map<K, R>> liftToMap(Function<K, Object> keyExtractor) {
-        Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
-        return value -> liftToVavrMap(keyExtractor).test(HashMap.ofAll(value)).map(Map::toJavaMap);
+       return MappingRules.fromValidation(ValidationOperator.super.liftToMap(keyExtractor));
     }
 
 }

@@ -1,11 +1,12 @@
 package be.iffy.fv.dsl.impl;
 
-import io.vavr.collection.List;
 import be.iffy.fv.Validation;
+import io.vavr.collection.List;
 import org.junit.jupiter.api.Test;
 
-import static be.iffy.fv.dsl.DSL.*;
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
+import static be.iffy.fv.dsl.DSL.objects;
+import static be.iffy.fv.dsl.DSL.validateThatList;
 import static be.iffy.fv.rules.collections.VavrListRules.vavrLists;
 import static be.iffy.fv.rules.text.StringRules.strings;
 
@@ -43,7 +44,8 @@ public class VavrListValidationDslTest {
         // Act
         Validation<List<Role>> result = validateThatList(roles, ListHolder::roles)
                 .is(vavrLists.minSize(2))
-                .eachIs(strings.minLength(2).map(Role::new))
+                .eachIs(strings.minLength(2))//TODO check if combining vs other eachIs leads to same result
+                .eachIs(objects.construct(Role::new))
                 .validate();
 
         // Assert
