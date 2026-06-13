@@ -415,7 +415,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     }
 
     /**
-     * Takes the first N charachters of the string.
+     * Takes the first N characters of the string.
      * So "12345" take(2) is "12".
      * Fails if the string length is less than the requested length.
      * <p>

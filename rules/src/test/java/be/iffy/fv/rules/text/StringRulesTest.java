@@ -99,6 +99,24 @@ class StringRulesTest {
     }
 
     @Nested
+    class Substring {
+
+        @Test
+        void valid() {
+            validTest("abcdef", "cd", strings.substring(2, 4));
+            validTest("abc", "abc", strings.substring(0, 3));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("abc", strings.substring(-1, 2), "must.be.valid.substring", HashMap.of("beginIndex", -1, "endIndex", 2));
+            invalidTest("abc", strings.substring(0, 4), "must.be.valid.substring", HashMap.of("beginIndex", 0, "endIndex", 4));
+            invalidTest("abc", strings.substring(2, 1), "must.be.valid.substring", HashMap.of("beginIndex", 2, "endIndex", 1));
+            invalidTest(null, strings.substring(0, 1), "must.not.be.null");
+        }
+    }
+
+    @Nested
     class Take {
 
         @Test
