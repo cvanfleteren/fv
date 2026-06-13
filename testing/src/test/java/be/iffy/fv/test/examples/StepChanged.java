@@ -13,6 +13,7 @@ record StepChanged(String source,
     public StepChanged {
         assertValid(
                 notNull(source, StepChanged::source),
+                validateThat(errors,"errors").is(lists.<String>empty().onlyIf(status == ProcessingStatus.SUCCESS)),
                 validateThat(errors,"errors").is(Rule.when(status == ProcessingStatus.SUCCESS, lists.empty())),
                 validateThat(errors,"errors").is(Rule.when(status == ProcessingStatus.FAILED, lists.notEmpty())),
                 validateThat(errors,"errors").is(Rule.choose(status == ProcessingStatus.FAILED, lists.notEmpty(), lists.empty()))

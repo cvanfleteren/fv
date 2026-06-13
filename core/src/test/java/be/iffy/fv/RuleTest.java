@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import javax.tools.JavaFileObject;
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
@@ -63,7 +64,6 @@ class RuleTest {
                     .failsToCompile()
                     .withErrorContaining("incompatible upper bounds");
         }
-
     }
 
     @Nested
@@ -91,7 +91,6 @@ class RuleTest {
             // Option 2: Use narrow
             Validation<Number> v2 = Validation.narrow(isPositive.test(BigDecimal.valueOf(500)));
         }
-
     }
 
     @Nested
@@ -180,7 +179,6 @@ class RuleTest {
             assertThatValidation(rule.test(null)).isInvalid()
                     .hasErrorKeys("must.not.be.null");
         }
-
     }
 
     @Nested
@@ -188,9 +186,9 @@ class RuleTest {
         @Test
         void both_static_whenBothRulesFail_returnsInvalidWithBothErrors() {
             // Arrange
-            Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<CharSequence> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> combined = Rule.both(rule1, rule2);
+            Rule<String> combined = Rule.both(rule1.narrow(), rule2);
 
             // Act
             Validation<String> result = combined.test("a");
@@ -228,7 +226,8 @@ class RuleTest {
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
             Rule<String> rule3 = Rule.of(s -> s.contains("!"), "must.contain.exclamation");
-            Rule<String> combined = Rule.all(rule1, rule2, rule3);
+            Rule<Object> rule4 = Rule.of(o -> false, "must.always.fail");
+            Rule<String> combined = Rule.all(rule1, rule2, rule3, rule4.narrow());
 
             // Act
             Validation<String> result = combined.test("a");
@@ -324,6 +323,23 @@ class RuleTest {
             assertThatValidation(result)
                     .isInvalid()
                     .hasErrorMessages("too.short", "must.start.with.h");
+        }
+
+        @Test
+        void any_whenFirstRulePasses_doesNotEvaluateSecondRule() {
+            // Arrange
+            AtomicBoolean secondRuleCalled = new AtomicBoolean(false);
+            Rule<String> firstRule = Rule.of(s -> true, "error.one");
+            Rule<String> secondRule = Rule.of(s -> {
+                secondRuleCalled.set(true);
+                return false;
+            }, "error.two");
+
+            // Act
+            Rule.any(firstRule, secondRule).test("test");
+
+            // Assert
+            assertThat(secondRuleCalled.get()).isFalse();
         }
     }
 
@@ -541,7 +557,7 @@ class RuleTest {
             Rule<String> rule = Rule.of(s -> true, "msg");
 
             // Act & Assert
-            assertThatCode(() -> rule.orElse(null))
+            assertThatCode(() -> rule.fallback(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("other rule cannot be null");
         }
@@ -756,7 +772,7 @@ class RuleTest {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> combined = rule1.orElse(rule2);
+            Rule<String> combined = rule1.fallback(rule2);
 
             // Act
             Validation<String> result = combined.test("apple");
@@ -772,7 +788,7 @@ class RuleTest {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 5, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> combined = rule1.orElse(rule2);
+            Rule<String> combined = rule1.fallback(rule2);
 
             // Act
             Validation<String> result = combined.test("hi");
@@ -788,7 +804,7 @@ class RuleTest {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 5, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> combined = rule1.orElse(rule2);
+            Rule<String> combined = rule1.fallback(rule2);
 
             // Act
             Validation<String> result = combined.test("abc");
@@ -808,7 +824,7 @@ class RuleTest {
             Rule<String> rule = Rule.of(s -> true, "msg");
 
             // Act & Assert
-            assertThatCode(() -> rule.orElse(null))
+            assertThatCode(() -> rule.fallback(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("other rule cannot be null");
         }
@@ -820,7 +836,7 @@ class RuleTest {
             Rule<BigDecimal> isMinusFortyTwo = Rule.of(b -> b.compareTo(new BigDecimal("-42")) == 0, "must.be.minus.forty.two");
 
             // Act
-            Rule<BigDecimal> combined = isMinusFortyTwo.orElse(isPositive.narrow());
+            Rule<BigDecimal> combined = isMinusFortyTwo.fallback(isPositive.narrow());
 
             // Assert
             // 1. First rule matches

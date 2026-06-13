@@ -1,7 +1,6 @@
 package be.iffy.fv.dsl;
 
 import be.iffy.fv.MappingRule;
-import be.iffy.fv.MappingRules;
 import be.iffy.fv.Validation;
 import be.iffy.fv.Validations;
 import be.iffy.fv.rules.collections.VavrListRules;
@@ -82,7 +81,7 @@ class ObjectGraphValidationTest {
         static Validation<User> fromDto(UserDTO dto) {
 
             MappingRule<String, Role> canBeRole = strings.asEnum(Role.class);
-            MappingRule<String, Email> canBeEmail = strings.minLength(2).and(strings.contains("@")).then(MappingRules.catching(Email::new, "must.be.email"));
+            MappingRule<String, Email> canBeEmail = strings.minLength(2).and(strings.contains("@")).then(MappingRule.catching(Email::new, "must.be.email"));
 
             return Validations.combine(
                     validateThat(dto.username, "username").is(objects.construct(Username::new, "must.be.username")),

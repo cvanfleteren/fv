@@ -1,7 +1,6 @@
 package be.iffy.fv.dsl.experimental;
 
 import be.iffy.fv.MappingRule;
-import be.iffy.fv.MappingRules;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +11,7 @@ class ValidatorArityTest {
 
     record Input(String f1, String f2, String f3, String f4, String f5, String f6, String f7, String f8) {}
 
-    MappingRule<String, String> ok = MappingRules.catching(s -> s, "ok");
+    MappingRule<String, String> ok = MappingRule.catching(s -> s, "ok");
 
     @Nested
     class Validator1 {

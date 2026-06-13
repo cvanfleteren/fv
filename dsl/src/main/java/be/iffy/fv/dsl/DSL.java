@@ -16,11 +16,15 @@ import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
  * Entry point for the functional validation API.
  * This class provides static factory methods to create and execute validations.
+ *
+ * Implementation note: this class mostly acts as entry point to smaller, specialised DSL classes
+ * or to delegate to other classes as a way to reduce imports for the library user.
  */
 public final class DSL {
 
@@ -107,6 +111,55 @@ public final class DSL {
         return new AfterDSL<>(
                 Objects.requireNonNull(transformation.get(), "transformation result cannot be null")
         );
+    }
+
+    /**
+     * Combines two rule-like functions into a builder that can map all valid values or accumulate all errors.
+     */
+    public static <T, R1, R2> RuleCombiners.CombineBuilder2<T, R1, R2> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2) {
+        return RuleCombiners.combine(r1, r2);
+    }
+
+    /**
+     * Combines three rule-like functions into a builder that can map all valid values or accumulate all errors.
+     */
+    public static <T, R1, R2, R3> RuleCombiners.CombineBuilder3<T, R1, R2, R3> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2, Function<? super T, Validation<R3>> r3) {
+        return RuleCombiners.combine(r1, r2, r3);
+    }
+
+    /**
+     * Combines four rule-like functions into a builder that can map all valid values or accumulate all errors.
+     */
+    public static <T, R1, R2, R3, R4> RuleCombiners.CombineBuilder4<T, R1, R2, R3, R4> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2, Function<? super T, Validation<R3>> r3, Function<? super T, Validation<R4>> r4) {
+        return RuleCombiners.combine(r1, r2, r3, r4);
+    }
+
+    /**
+     * Combines five rule-like functions into a builder that can map all valid values or accumulate all errors.
+     */
+    public static <T, R1, R2, R3, R4, R5> RuleCombiners.CombineBuilder5<T, R1, R2, R3, R4, R5> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2, Function<? super T, Validation<R3>> r3, Function<? super T, Validation<R4>> r4, Function<? super T, Validation<R5>> r5) {
+        return RuleCombiners.combine(r1, r2, r3, r4, r5);
+    }
+
+    /**
+     * Combines six rule-like functions into a builder that can map all valid values or accumulate all errors.
+     */
+    public static <T, R1, R2, R3, R4, R5, R6> RuleCombiners.CombineBuilder6<T, R1, R2, R3, R4, R5, R6> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2, Function<? super T, Validation<R3>> r3, Function<? super T, Validation<R4>> r4, Function<? super T, Validation<R5>> r5, Function<? super T, Validation<R6>> r6) {
+        return RuleCombiners.combine(r1, r2, r3, r4, r5, r6);
+    }
+
+    /**
+     * Combines seven rule-like functions into a builder that can map all valid values or accumulate all errors.
+     */
+    public static <T, R1, R2, R3, R4, R5, R6, R7> RuleCombiners.CombineBuilder7<T, R1, R2, R3, R4, R5, R6, R7> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2, Function<? super T, Validation<R3>> r3, Function<? super T, Validation<R4>> r4, Function<? super T, Validation<R5>> r5, Function<? super T, Validation<R6>> r6, Function<? super T, Validation<R7>> r7) {
+        return RuleCombiners.combine(r1, r2, r3, r4, r5, r6, r7);
+    }
+
+    /**
+     * Combines eight rule-like functions into a builder that can map all valid values or accumulate all errors.
+     */
+    public static <T, R1, R2, R3, R4, R5, R6, R7, R8> RuleCombiners.CombineBuilder8<T, R1, R2, R3, R4, R5, R6, R7, R8> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2, Function<? super T, Validation<R3>> r3, Function<? super T, Validation<R4>> r4, Function<? super T, Validation<R5>> r5, Function<? super T, Validation<R6>> r6, Function<? super T, Validation<R7>> r7, Function<? super T, Validation<R8>> r8) {
+        return RuleCombiners.combine(r1, r2, r3, r4, r5, r6, r7, r8);
     }
 
     /**

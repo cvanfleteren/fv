@@ -3,7 +3,7 @@ package be.iffy.fv.test.examples;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Validation;
 
-import static be.iffy.fv.MappingRules.combine;
+import static be.iffy.fv.RuleCombiners.combine;
 import static be.iffy.fv.dsl.DSL.*;
 
 public record VatNumber(String value, CountryCode countrycode) {

@@ -15,6 +15,11 @@ import java.util.function.Predicate;
 
 import static be.iffy.fv.Validation.invalid;
 
+/**
+ * Internal interface mostly meant for sharing implementations between Rule and MappingRule.
+ * Clients of the library should never directly see this interface.
+ * All methods defined here should be overridden in the subclasses with a more appropriate return type.
+ */
 @FunctionalInterface
 interface ValidationOperator<T, R> extends Function<T, Validation<R>> {
 
@@ -25,11 +30,14 @@ interface ValidationOperator<T, R> extends Function<T, Validation<R>> {
         return test(value);
     }
 
-    /**
-     * Turns this rule (back) into a {@link Predicate}.
-     */
     default <S extends T> Predicate<S> toPredicate() {
         return value -> test(value).isValid();
+    }
+
+    default Function<T, Validation<R>> withErrorKey(String errorKey) {
+        Objects.requireNonNull(errorKey, "errorKey cannot be null");
+        return input ->
+                this.test(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
     }
 
     default Function<List<T>, Validation<List<R>>> liftToVavrList() {
@@ -54,10 +62,6 @@ interface ValidationOperator<T, R> extends Function<T, Validation<R>> {
         };
     }
 
-    /**
-     * Lifts the current mapping rule to operate on the content of {@link Option} containers.
-     * Empty Options (None) are considered to be valid.
-     */
     default Function<Option<T>, Validation<Option<R>>> liftToOption() {
         return opt -> {
             if (opt == null) {
@@ -83,35 +87,10 @@ interface ValidationOperator<T, R> extends Function<T, Validation<R>> {
         };
     }
 
-    /**
-     * Lifts this {@link MappingRule} so it applies to a {@link Map} of K to T.
-     * <p>
-     * Be careful, the key {@code key.toString()} will be used as part of the path segment.
-     * Make sure to have a key that has a meaningful string representation for this.
-     * If you can't guarantee this, use the version of {@link #liftToVavrMap(Function)} that takes a keyExtractor function instead.
-     * <p>
-     * Semantics:
-     * - Each value in the map is validated, and the resulting validations are collected.
-     * - If any validation fails, the entire map is considered invalid.
-     * - If all validations pass, the map is considered valid.
-     */
     default <K> Function<Map<K, T>, Validation<Map<K, R>>> liftToVavrMap() {
         return liftToVavrMap(Objects::toString);
     }
 
-    /**
-     * Lifts this {@link MappingRule} so it applies to a {@link Map} of K to T.
-     * <p>
-     * Behaves the same as {@link #liftToVavrMap()}, but uses the keyExtractor function to generate the path segment.
-     * <p>
-     * Semantics:
-     * - If the Map is empty, the map is considered valid.
-     * - Each value in the map is validated, and the resulting validations are collected.
-     * - If any validation fails, the entire map is considered invalid.
-     * - If all validations pass, the map is considered valid.
-     *
-     * @param keyExtractor the function to extract a path segment from the key.
-     */
     default <K> Function<Map<K, T>, Validation<Map<K, R>>> liftToVavrMap(Function<K, Object> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
         return map -> {
@@ -139,35 +118,10 @@ interface ValidationOperator<T, R> extends Function<T, Validation<R>> {
         };
     }
 
-    /**
-     * Lifts this {@link MappingRule} so it applies to a {@link java.util.Map} of K to T.
-     * <p>
-     * Be careful, the key {@code key.toString()} will be used as part of the path segment.
-     * Make sure to have a key that has a meaningful string representation for this.
-     * If you can't guarantee this, use the version of {@link #liftToMap(Function)} that takes a keyExtractor function instead.
-     * <p>
-     * Semantics:
-     * - Each value in the map is validated, and the resulting validations are collected.
-     * - If any validation fails, the entire map is considered invalid.
-     * - If all validations pass, the map is considered valid.
-     */
     default <K> Function<java.util.Map<K, T>, Validation<java.util.Map<K, R>>> liftToMap() {
         return liftToMap(Objects::toString);
     }
 
-    /**
-     * Lifts this {@link MappingRule} so it applies to a {@link java.util.Map} of K to T.
-     * <p>
-     * Behaves the same as {@link #liftToMap()}, but uses the keyExtractor function to generate the path segment.
-     * <p>
-     * Semantics:
-     * - If the Map is empty, the map is considered valid.
-     * - Each value in the map is validated, and the resulting validations are collected.
-     * - If any validation fails, the entire map is considered invalid.
-     * - If all validations pass, the map is considered valid.
-     *
-     * @param keyExtractor the function to extract a path segment from the key.
-     */
     default <K> Function<java.util.Map<K, T>, Validation<java.util.Map<K, R>>> liftToMap(Function<K, Object> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
         //TODO make native version

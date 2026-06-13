@@ -3,10 +3,7 @@ package be.iffy.fv;
 import be.iffy.fv.Validation.Invalid;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import io.vavr.collection.HashMap;
-import io.vavr.collection.List;
-import io.vavr.collection.Map;
-import io.vavr.collection.Seq;
+import io.vavr.collection.*;
 import io.vavr.control.Option;
 
 import java.util.Objects;
@@ -46,6 +43,8 @@ public interface Rule<T> extends ValidationOperator<T, T> {
     default Validation<T> apply(T value) {
         return test(value);
     }
+
+    //region Factory methods
 
     /**
      * Creates a {@link Rule} from the given predicate and error message key.
@@ -98,14 +97,34 @@ public interface Rule<T> extends ValidationOperator<T, T> {
     }
 
     /**
+     * Returns a {@link Rule} that validates the input is not null.
+     * <p>
+     * Error key: {@code must.not.be.null}
+     */
+    static <T> Rule<T> notNull() {
+        return input ->
+                input == null ? Invalid.notNull() : Validation.valid(input);
+    }
+
+    /**
+     * Creates a new {@link Rule} that always returns a valid result for any non-null input.
+     * <p>
+     * Error key: {@code must.not.be.null} if input was null.
+     */
+    static <T> Rule<T> ok() {
+        return Rule.notNull();
+    }
+
+    //endregion
+
+    //region combinators
+
+    /**
      * Composes this rule with another rule using "short-circuiting and" logic.
      * The combined rule is successful only if both this and the other rule are successful.
      * If this rule fails, the evaluation stops and the other rule is not evaluated.
      * <p>
-     * If you want to evaluate both rules and accumulate their errors, use {@link #andAlso(Function)}.
-     *
-     * @see #andAlso(Function)
-     * @see #then(Function)
+     * Short-circuiting, not accumulating.
      */
     default <S extends T> Rule<S> and(Function<? super S, ? extends Validation<?>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
@@ -121,35 +140,131 @@ public interface Rule<T> extends ValidationOperator<T, T> {
      * The combined rule is successful only if both this and the other rule are successful.
      * If both rules fail, their errors are combined.
      * <p>
-     * If you want to stop evaluation after the first failure, use {@link #and(Function)}.
-     *
-     * @see #and(Function)
+     * Non-short-circuiting, accumulating.
      */
     default <S extends T> Rule<S> andAlso(Function<? super S, ? extends Validation<?>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         // map back to original input so we're protected against other returning an incompatible value
         return input ->
-                Validations.combine(test(input), other.apply(input)).map((v, o) -> v).map(ignore -> input);
+                Validations.combine(
+                                test(input),
+                                other.apply(input)
+                )
+                .map((v, o) -> input);
+    }
+
+    /**
+     * Composes multiple rules using "non-short-circuiting and" logic.
+     * The combined rule is successful only if all rules are successful.
+     * Errors of all failing rules are combined.
+     * If no rules are passed, the value is considered to be valid.
+     * <p>
+     * Non-short-circuiting, accumulating.
+     */
+    @SafeVarargs
+    static <T> Rule<T> all(Function<? super T, ? extends Validation<T>>... rules) {
+        Objects.requireNonNull(rules, "rules cannot be null");
+
+        return value -> {
+            List<Validation<T>> validations = List.of(rules).map(rule -> rule.apply(value));
+            List<ErrorMessage> errors = validations
+                    .filter(v -> !v.isValid())
+                    .flatMap(Validation::errors);
+
+            return errors.isEmpty()
+                    ? Validation.valid(value)
+                    : Validation.invalid(errors);
+        };
+    }
+
+    /**
+     * Composes multiple rules using "at least one of" logic.
+     * The combined rule is successful if at least one of the rules is successful.
+     * From the moment a single successful Rule is found, the other rules will not be evaluated anymore.
+     * If all rules fail, all errors from all rules are combined.
+     * If no rules are passed, an {@link IllegalArgumentException} is thrown.
+     * <p>
+     * Short-circuiting, accumulating.
+     */
+    @SafeVarargs
+    static <T> Rule<T> any(Function<? super T, ? extends Validation<T>>... rules) {
+        Objects.requireNonNull(rules, "rules cannot be null");
+        if (rules.length == 0) {
+            throw new IllegalArgumentException("rules cannot be empty");
+        }
+
+        return value -> {
+            // stream because we want to be lazy and only validate the next rule if the current one fails
+            Stream<Validation<T>> validations =  Stream.of(rules).map(rule -> rule.apply(value));
+            Option<Validation<T>> firstValid = validations.find(Validation::isValid);
+
+            if (firstValid.isDefined()) {
+                return firstValid.get();
+            } else {
+                return Validation.invalid(validations.flatMap(Validation::errors).toList());
+            }
+        };
+    }
+
+    /**
+     * Composes two rules using "non-short-circuiting and" logic.
+     * The combined rule is successful only if both rules are successful.
+     * If both rules fail, the errors are combined.
+     * <p>
+     * Non-short-circuiting, accumulating
+     *
+     * @see #andAlso(Function)
+     */
+    static <T> Rule<T> both(Function<T, Validation<T>> first, Function<T, Validation<T>> second) {
+        Objects.requireNonNull(first, "first rule cannot be null");
+        Objects.requireNonNull(second, "second rule cannot be null");
+        return Rule.of(first).andAlso(second);
+    }
+
+    /**
+     * Returns a new {@link Rule} that first applies this rule, and if the input is invalid, falls back to the {@code other} rule.
+     * The difference with {@link #or(Function)} is that only the errors of the {@code other} Rule will be returned if both fail.
+     * The fallback rule is evaluated only when this rule fails.
+     * <p></p>
+     * Short-circuiting, not accumulating.
+     */
+    default Rule<T> fallback(Function<? super T, ? extends Validation<T>> other) {
+        Objects.requireNonNull(other, "other rule cannot be null");
+        return input -> {
+            if(input == null) {
+                return Invalid.notNull();
+            }
+
+            Validation<T> first = this.test(input);
+            if (first.isValid()) {
+                return first;
+            }
+
+            // make sure we stick to the Rule contract and return the original input
+            return Validation.narrowSuper(other.apply(input).map(ignored -> input));
+        };
     }
 
     /**
      * Composes this rule with another rule using "or" logic.
      * The combined rule is successful if either this or the other rule is successful.
      * If both rules fail, their errors are combined.
-     * Both rules are evaluated at most once, and the other rule is only evaluated when this rule fails.
+     * The other rule is only evaluated if this rule fails.
      * <p>
-     * Behaves the same as {@link MappingRule#orElse(Function)}, but unfortunately needs another name becasue of javas typesystem.
+     * Short-circuiting, accumulating
      */
-    @SuppressWarnings("unchecked")
     default <S extends T> Rule<S> or(Function<? super S, ? extends Validation<?>> other) {
-
         Objects.requireNonNull(other, "other rule cannot be null");
         return input -> {
-            Validation<S> first = (Validation<S>) test(input);
+            if(input == null) {
+                return Invalid.notNull();
+            }
+
+            Validation<S> first = this.<S>narrow().test(input);
             if (first.isValid()) {
                 return first;
             }
-
+            //make sure we stick to the Rule contract and return the original input
             Validation<S> second = other.apply(input).map(ignore -> input);
             if (second.isValid()) {
                 return second;
@@ -160,29 +275,22 @@ public interface Rule<T> extends ValidationOperator<T, T> {
     }
 
     /**
-     * Returns a new {@link Rule} that first applies this rule, and if the input is invalid, falls back to the {@code other} rule.
-     * Like {@link MappingRule#recoverWith}, but the fallback is a {@link Rule}.
-     * The difference with {@link #or(Function)} is that only the errors of the {@code other} Rule will be returned if both fail.
-     * The fallback rule is evaluated only when this rule fails.
-     *
-     * @param other the other rule to use as a fallback if this rule fails
+     * Pass the result of this Rule to the pass validation function.
+     * <p>
+     * Short-circuiting, not accumulating.
      */
-    default Rule<T> orElse(Rule<T> other) {
-        Objects.requireNonNull(other, "other rule cannot be null");
-        return input -> {
-            Validation<T> first = this.test(input);
-            if (first.isValid()) {
-                return first;
-            }
-
-            return Validation.narrowSuper(other.test(input));
-        };
+    default <R> MappingRule<T, R> then(Function<? super T, ? extends Validation<? extends R>> ruleLikeFunction) {
+        return input ->
+                test(input)
+                        .refine(MappingRule.of(ruleLikeFunction));
     }
-
 
     /**
      * Composes this rule with another using XOR logic.
      * Successful only if exactly one of the rules is successful.
+     * Both rules will always be evaluated.
+     * <p>
+     * Non-short-circuiting, non-accumulating
      */
     @SuppressWarnings("unchecked")
     default <S extends T> Rule<S> xor(Function<? super S, ? extends Validation<?>> other, String errorKey) {
@@ -198,82 +306,11 @@ public interface Rule<T> extends ValidationOperator<T, T> {
         };
     }
 
-    default <R> MappingRule<T, R> then(Function<? super T, ? extends Validation<? extends R>> ruleLikeFunction) {
-        return input ->
-                test(input)
-                        .refine(MappingRules.fromValidation(ruleLikeFunction));
-    }
+    //TODO add exactlyOne(String errorKey, Function<? super T, ? extends Validation<T>>... rules)
 
-    /**
-     * Negates this rule. The caller must provide the error message key to use when the negated rule fails.
-     *
-     * @param negatedErrorKey the error message key to use if negation fails.
-     */
-    default Rule<T> negate(String negatedErrorKey) {
-        Objects.requireNonNull(negatedErrorKey, "negatedErrorKey cannot be null");
-        return negate(ErrorMessage.of(negatedErrorKey));
-    }
+    //endregion
 
-    /**
-     * Negates this rule. The caller must provide the {@link ErrorMessage} to use when the negated rule fails.
-     *
-     * @param negatedError the error message to use if negation fails.
-     */
-    default Rule<T> negate(ErrorMessage negatedError) {
-        Objects.requireNonNull(negatedError, "negatedError cannot be null");
-        return input -> {
-            Validation<T> original = this.test(input);
-            return original.isValid()
-                    ? Validation.invalid(negatedError)
-                    : Validation.valid(input);
-        };
-    }
-
-    /**
-     * Applies a conditional rule.
-     *
-     * @return a rule that tests the condition. If the condition is true, the original rule is applied.
-     * If the condition is false, the value is considered valid by default.
-     */
-    default Rule<T> onlyIf(Predicate<? super T> condition) {
-        Objects.requireNonNull(condition, "condition cannot be null");
-        return input -> {
-            if (input == null) {
-                return Invalid.notNull();
-            }
-            if (condition.test(input)) {
-                return this.test(input);
-            }
-            return Validation.valid(input);
-        };
-    }
-
-    /**
-     * Applies a conditional rule.
-     *
-     * @return a rule that tests the condition. If the condition is true, the original rule is applied.
-     * If the condition is false, the value is considered valid by default.
-     */
-    default Rule<T> onlyIf(Supplier<Boolean> condition) {
-        Objects.requireNonNull(condition, "condition cannot be null");
-        return input -> {
-            boolean shouldRun = Objects.requireNonNull(condition.get(), "condition result cannot be null");
-            if (shouldRun) {
-                return this.test(input);
-            }
-            return Validation.valid(input);
-        };
-    }
-
-    /**
-     * Returns a new {@link Rule} that, when invalid, uses the passed errorKey as single ErrorMessage.
-     */
-    default Rule<T> withErrorKey(String errorKey) {
-        Objects.requireNonNull(errorKey, "errorKey cannot be null");
-        return input ->
-                this.test(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
-    }
-
+    //region Lifts
     /**
      * Lifts this {@link Rule} so it applies to a {@link List} of T instead of a single T.
      */
@@ -431,97 +468,104 @@ public interface Rule<T> extends ValidationOperator<T, T> {
                 }
         );
     }
+    //endregion
+
+
+
+
+    /**
+     * Negates this rule. The caller must provide the error message key to use when the negated rule fails.
+     *
+     * @param negatedErrorKey the error message key to use if negation fails.
+     */
+    default Rule<T> negate(String negatedErrorKey) {
+        Objects.requireNonNull(negatedErrorKey, "negatedErrorKey cannot be null");
+        return negate(ErrorMessage.of(negatedErrorKey));
+    }
+
+    /**
+     * Negates this rule. The caller must provide the {@link ErrorMessage} to use when the negated rule fails.
+     *
+     * @param negatedError the error message to use if negation fails.
+     */
+    default Rule<T> negate(ErrorMessage negatedError) {
+        Objects.requireNonNull(negatedError, "negatedError cannot be null");
+        return input -> {
+            Validation<T> original = this.test(input);
+            return original.isValid()
+                    ? Validation.invalid(negatedError)
+                    : Validation.valid(input);
+        };
+    }
+
+    /**
+     * Applies a conditional rule.
+     *
+     * @return a rule that tests the condition. If the condition is true, the original rule is applied.
+     * If the condition is false, the value is considered valid by default.
+     */
+    default Rule<T> onlyIf(Predicate<? super T> condition) {
+        Objects.requireNonNull(condition, "condition cannot be null");
+        return input -> {
+            if (input == null) {
+                return Invalid.notNull();
+            }
+            if (condition.test(input)) {
+                return this.test(input);
+            }
+            return Validation.valid(input);
+        };
+    }
+
+    /**
+     * Applies a conditional rule.
+     *
+     * @return a rule that tests the condition. If the condition is true, the original rule is applied.
+     * If the condition is false, the value is considered valid by default.
+     */
+    default Rule<T> onlyIf(Supplier<Boolean> condition) {
+        Objects.requireNonNull(condition, "condition cannot be null");
+        return input -> {
+            boolean shouldRun = Objects.requireNonNull(condition.get(), "condition result cannot be null");
+            if (shouldRun) {
+                return this.test(input);
+            }
+            return Validation.valid(input);
+        };
+    }
+
+    /**
+     * Applies a conditional rule.
+     *
+     * @return a rule that tests the condition. If the condition is true, the original rule is applied.
+     * If the condition is false, the value is considered valid by default.
+     */
+    default Rule<T> onlyIf(boolean condition) {
+        Objects.requireNonNull(condition, "condition cannot be null");
+        return input -> {
+            if (condition) {
+                return this.test(input);
+            }
+            return Validation.valid(input);
+        };
+    }
+
+    /**
+     * Returns a new {@link Rule} that, when invalid, uses the passed errorKey as single ErrorMessage.
+     */
+    default Rule<T> withErrorKey(String errorKey) {
+        return Rule.of(ValidationOperator.super.withErrorKey(errorKey));
+    }
+
+
 
     /**
      * Lift a Rule to work on a type V instead of T. You need to supply a Function that can get a V from the T.
      *
-     * @see MappingRules#with(Function, Function)
+     * @see MappingRule#with(Function, Function)
      */
     default <V> Rule<V> given(Function<V, T> selector) {
         return Rule.with(selector, this);
-    }
-
-    /**
-     * Composes two rules using "non-short-circuiting and" logic.
-     * The combined rule is successful only if both rules are successful.
-     * If both rules fail, the errors are combined.
-     *
-     * @see #andAlso(Function)
-     */
-    static <T> Rule<T> both(Rule<? super T> first, Rule<? super T> second) {
-        Objects.requireNonNull(first, "first rule cannot be null");
-        Objects.requireNonNull(second, "second rule cannot be null");
-        return first.andAlso(second);
-    }
-
-    /**
-     * Composes multiple rules using "non-short-circuiting and" logic.
-     * The combined rule is successful only if all rules are successful.
-     * If multiple rules fail, all errors are combined.
-     * If no rules are passed, the value is considered to be valid.
-     */
-    @SafeVarargs
-    static <T> Rule<T> all(Rule<? super T>... rules) {
-        Objects.requireNonNull(rules, "rules cannot be null");
-
-        List<Rule<? super T>> ruleList = List.of(rules);
-
-        return value -> {
-            List<Validation<T>> validations = ruleList.map(rule -> rule.<T>narrow().test(value));
-            List<ErrorMessage> errors = validations
-                    .filter(v -> !v.isValid())
-                    .flatMap(Validation::errors);
-
-            return errors.isEmpty()
-                    ? Validation.valid(value)
-                    : Validation.invalid(errors);
-        };
-    }
-
-    /**
-     * Composes multiple rules using "at least one of" logic.
-     * The combined rule is successful if at least one of the rules is successful.
-     * If all rules fail, all errors from all rules are combined.
-     * If no rules are passed, an {@link IllegalArgumentException} is thrown.
-     */
-    @SafeVarargs
-    static <T> Rule<T> any(Rule<? super T>... rules) {
-        Objects.requireNonNull(rules, "rules cannot be null");
-        if (rules.length == 0) {
-            throw new IllegalArgumentException("rules cannot be empty");
-        }
-
-        List<Rule<? super T>> ruleList = List.of(rules);
-        return value -> {
-            List<Validation<T>> validations = ruleList.map(rule -> rule.<T>narrow().test(value));
-            Option<Validation<T>> firstValid = validations.find(Validation::isValid);
-
-            if (firstValid.isDefined()) {
-                return firstValid.get();
-            } else {
-                return Validation.invalid(validations.flatMap(Validation::errors));
-            }
-        };
-    }
-
-    /**
-     * Returns a {@link Rule} that validates the input is not null.
-     * <p>
-     * Error key: {@code must.not.be.null}
-     *
-     */
-    static <T> Rule<T> notNull() {
-        return input ->
-                input == null ? Validation.invalid("must.not.be.null") : Validation.valid(input);
-    }
-
-    /**
-     * Creates a new {@link Rule} that always returns a valid result for any non-null input.
-     * <p>
-     * Error key: {@code must.not.be.null} if input was null.
-     */
-    static <T> Rule<T> ok() {
-        return Rule.notNull();
     }
 
     /**
@@ -569,12 +613,13 @@ public interface Rule<T> extends ValidationOperator<T, T> {
      * {@snippet :
      *   Rule<Number> isPositive = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
      *   Rule<Integer> isMinusFortyTwo = Rule.of(b -> b == -42, "must.be.minus.forty.two");
-     *   Rule<Integer> combined = isMinusFortyTwo.orElse(isPositive.narrow());
-     * }
+     *   Rule<Integer> combined = isMinusFortyTwo.fallback(isPositive.narrow());
+     *}
      *
      * @param <S> the subtype of T to narrow the rule to
      * @return a new Rule instance narrowed to the specified subtype S
      */
+    @SuppressWarnings("unchecked")
     default <S extends T> Rule<S> narrow() {
         return (Rule<S>) this;
     }

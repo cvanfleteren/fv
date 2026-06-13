@@ -1,6 +1,9 @@
 package be.iffy.fv.dsl.impl;
 
-import be.iffy.fv.*;
+import be.iffy.fv.MappingRule;
+import be.iffy.fv.Rule;
+import be.iffy.fv.Transformation;
+import be.iffy.fv.Validation;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -36,7 +39,7 @@ public final class AssertDSL<T> {
      */
     public <R> R is(Function<? super T, ? extends Validation<R>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return validation.refine(MappingRules.fromValidation(rule)).at(name).getOrElseThrow();
+        return validation.refine(MappingRule.of(rule)).at(name).getOrElseThrow();
     }
 
     public T isNotNull() {

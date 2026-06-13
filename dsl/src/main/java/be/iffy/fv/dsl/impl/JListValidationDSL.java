@@ -1,6 +1,6 @@
 package be.iffy.fv.dsl.impl;
 
-import be.iffy.fv.MappingRules;
+import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 import be.iffy.fv.Validations;
@@ -41,7 +41,7 @@ public final class JListValidationDSL<L, E> {
     }
 
     public <R> JListValidationDSL<R, R> eachIs(Function<E, Validation<R>> rule) {
-        Validation<List<R>> newElements = elementValidation.refine(list -> MappingRules.fromValidation(rule).liftToList().test(list));
+        Validation<List<R>> newElements = elementValidation.refine(list -> MappingRule.of(rule).liftToList().test(list));
         Validation<List<R>> newList = listValidation.flatMap(ignore -> newElements);
         return new JListValidationDSL<>(
                 newList,

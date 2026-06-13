@@ -1,6 +1,9 @@
 package be.iffy.fv.rules.text;
 
-import be.iffy.fv.*;
+import be.iffy.fv.ErrorMessage;
+import be.iffy.fv.MappingRule;
+import be.iffy.fv.Rule;
+import be.iffy.fv.Validation;
 import be.iffy.fv.rules.ComparableRules;
 import be.iffy.fv.rules.IObjectRules;
 import io.vavr.Function2;
@@ -24,7 +27,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import static be.iffy.fv.MappingRules.combine;
+import static be.iffy.fv.RuleCombiners.combine;
 
 /**
  * Validation rules for {@link String} values.
@@ -51,7 +54,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that transforms a String into an {@link Integer}.
      */
     public MappingRule<String, Integer> asInteger() {
-        return MappingRules.catching(Integer::parseInt, (input, e) -> ErrorMessage.of("must.be.integer", "value", input));
+        return MappingRule.catching(Integer::parseInt, (input, e) -> ErrorMessage.of("must.be.integer", "value", input));
     }
 
     /**
@@ -65,7 +68,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      */
     public MappingRule<String, Long> asLong() {
-        return MappingRules.catching(Long::parseLong, (input, e) -> ErrorMessage.of("must.be.long", "value", input));
+        return MappingRule.catching(Long::parseLong, (input, e) -> ErrorMessage.of("must.be.long", "value", input));
     }
 
     /**
@@ -79,7 +82,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      */
     public MappingRule<String, Double> asDouble() {
-        return MappingRules.catching(Double::parseDouble, (input, e) -> ErrorMessage.of("must.be.double", "value", input));
+        return MappingRule.catching(Double::parseDouble, (input, e) -> ErrorMessage.of("must.be.double", "value", input));
     }
 
     /**
@@ -93,7 +96,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      */
     public MappingRule<String, Float> asFloat() {
-        return MappingRules.catching(Float::parseFloat, (input, e) -> ErrorMessage.of("must.be.float", "value", input));
+        return MappingRule.catching(Float::parseFloat, (input, e) -> ErrorMessage.of("must.be.float", "value", input));
     }
 
     /**
@@ -107,7 +110,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      */
     public MappingRule<String, BigInteger> asBigInteger() {
-        return MappingRules.catching(BigInteger::new, (input, e) -> ErrorMessage.of("must.be.biginteger", "value", input));
+        return MappingRule.catching(BigInteger::new, (input, e) -> ErrorMessage.of("must.be.biginteger", "value", input));
     }
 
     /**
@@ -121,7 +124,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      */
     public MappingRule<String, BigDecimal> asBigDecimal() {
-        return MappingRules.catching(BigDecimal::new, (input, e) -> ErrorMessage.of("must.be.bigdecimal", "value", input));
+        return MappingRule.catching(BigDecimal::new, (input, e) -> ErrorMessage.of("must.be.bigdecimal", "value", input));
     }
 
     static final Set<String> TRUES = HashSet.of("TRUE", "1", "YES", "Y");
@@ -136,7 +139,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      */
     public MappingRule<String, Boolean> asBoolean() {
-        return MappingRules.catching(input -> TRUES.contains(input.toUpperCase()), "must.be.boolean");
+        return MappingRule.catching(input -> TRUES.contains(input.toUpperCase()), "must.be.boolean");
     }
 
     /**
@@ -150,7 +153,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      */
     public MappingRule<String, UUID> asUUID() {
-        return MappingRules.<String>notNull().then(input -> {
+        return MappingRule.<String>notNull().then(input -> {
             try {
                 return Validation.valid(UUID.fromString(input));
             } catch (IllegalArgumentException e) {
@@ -170,7 +173,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      */
     public MappingRule<String, URL> asURL() {
-        return MappingRules.<String>notNull().then(input -> {
+        return MappingRule.<String>notNull().then(input -> {
             try {
                 return Validation.valid(URI.create(input).toURL());
             } catch (Exception e) {
@@ -195,7 +198,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public MappingRule<String, LocalDateTime> asLocalDateTime(String format) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
-        return MappingRules.<String>notNull().then(input -> {
+        return MappingRule.<String>notNull().then(input -> {
             try {
                 return Validation.valid(LocalDateTime.parse(input, formatter));
             } catch (DateTimeParseException e) {
@@ -219,7 +222,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @see LocalDateTime#parse(CharSequence)
      */
     public MappingRule<String, LocalDateTime> asLocalDateTime() {
-        return MappingRules.<String>notNull().then(input -> {
+        return MappingRule.<String>notNull().then(input -> {
             try {
                 return Validation.valid(LocalDateTime.parse(input));
             } catch (DateTimeParseException e) {
@@ -244,7 +247,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public MappingRule<String, LocalDate> asLocalDate(String format) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
-        return MappingRules.<String>notNull().then(input -> {
+        return MappingRule.<String>notNull().then(input -> {
             try {
                 return Validation.valid(LocalDate.parse(input, formatter));
             } catch (DateTimeParseException e) {
@@ -268,7 +271,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @see LocalDateTime#parse(CharSequence)
      */
     public MappingRule<String, LocalDate> asLocalDate() {
-        return MappingRules.<String>notNull().then(input -> {
+        return MappingRule.<String>notNull().then(input -> {
             try {
                 return Validation.valid(LocalDate.parse(input));
             } catch (DateTimeParseException e) {
@@ -293,7 +296,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public MappingRule<String, Instant> asInstant(String format) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format).withZone(java.time.ZoneOffset.UTC);
-        return MappingRules.<String>notNull().then(input -> {
+        return MappingRule.<String>notNull().then(input -> {
             try {
                 return Validation.valid(Instant.from(formatter.parse(input)));
             } catch (java.time.DateTimeException e) {
@@ -317,7 +320,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @see LocalDateTime#parse(CharSequence)
      */
     public MappingRule<String, Instant> asInstant() {
-        return MappingRules.<String>notNull().then(input -> {
+        return MappingRule.<String>notNull().then(input -> {
             try {
                 return Validation.valid(Instant.parse(input));
             } catch (DateTimeParseException e) {
@@ -337,7 +340,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      */
     public MappingRule<String, URI> asURI() {
-        return MappingRules.<String>notNull().then(input -> {
+        return MappingRule.<String>notNull().then(input -> {
             try {
                 return Validation.valid(URI.create(input));
             } catch (IllegalArgumentException e) {
@@ -357,7 +360,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      */
     public <E extends Enum<E>> MappingRule<String, E> asEnum(Class<E> enumClass) {
-        return MappingRules.fromValidation(s -> {
+        return MappingRule.of(s -> {
                     for (E constant : enumClass.getEnumConstants()) {
                         if (constant.name().equalsIgnoreCase(s)) {
                             return Validation.valid(constant);
@@ -393,7 +396,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
 
 
     public <R> MappingRule<String, R> splitAt(int index, Function2<String, String, R> mapper) {
-        return MappingRules.<String>notNull().then(input -> {
+        return MappingRule.<String>notNull().then(input -> {
             MappingRule<String, String> first = take(index - 1);
             MappingRule<String, String> second = drop(index - 1);
 
@@ -420,7 +423,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @param endIndex   the ending index, exclusive.
      */
     public MappingRule<String, String> substring(int beginIndex, int endIndex) {
-        return MappingRules.<String>notNull().then(input -> {
+        return MappingRule.<String>notNull().then(input -> {
             if (beginIndex < 0 || endIndex > input.length() || beginIndex > endIndex) {
                 return Validation.invalid(
                         ErrorMessage.of("must.be.valid.substring", HashMap.of("beginIndex", beginIndex, "endIndex", endIndex))
@@ -445,7 +448,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @param length the number of characters to take from the start.
      */
     public MappingRule<String, String> take(int length) {
-        return MappingRules.<String>notNull().then(input -> {
+        return MappingRule.<String>notNull().then(input -> {
             if (length < 0 || length > input.length()) {
                 return Validation.invalid(
                         ErrorMessage.of("must.be.valid.substring", HashMap.of("beginIndex", 0, "endIndex", length))
@@ -471,7 +474,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that drops the first {@code length} characters.
      */
     public MappingRule<String, String> drop(int length) {
-        return MappingRules.<String>notNull().then(input -> {
+        return MappingRule.<String>notNull().then(input -> {
             if (length < 0 || length > input.length()) {
                 return Validation.invalid(
                         ErrorMessage.of("must.be.valid.substring", HashMap.of("beginIndex", length))
@@ -497,7 +500,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that takes the last {@code length} characters.
      */
     public MappingRule<String, String> takeRight(int length) {
-        return MappingRules.<String>notNull().then(input -> {
+        return MappingRule.<String>notNull().then(input -> {
             if (length < 0 || length > input.length()) {
                 return Validation.invalid(
                         ErrorMessage.of("must.be.valid.substring", HashMap.of("length", length))
@@ -523,7 +526,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @return a {@link MappingRule} that drops the last {@code length} characters.
      */
     public MappingRule<String, String> dropRight(int length) {
-        return MappingRules.<String>notNull().then(input -> {
+        return MappingRule.<String>notNull().then(input -> {
             if (length < 0 || length > input.length()) {
                 return Validation.invalid(
                         ErrorMessage.of("must.be.valid.substring", HashMap.of("length", length))
