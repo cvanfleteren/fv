@@ -1,6 +1,5 @@
 package be.iffy.fv.test.examples;
 
-import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Validation;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -88,7 +87,7 @@ public class QueueMessageMapperTest {
                             "debtor.mandateInfo.amendmentIndicator.must.not.be.null",
                             "kboNumber.value.must.have.length",
                             "kboNumber.value.must.start.with",
-                            "transactions[0].amount.must.be.positive"
+                            "transactions[0].amount.value.must.be.positive"
                     );
         }
 
@@ -139,7 +138,7 @@ public class QueueMessageMapperTest {
             assertInvalid(validation)
                     .formattedMessages()
                     .containsExactlyInAnyOrder(
-                            "transactions[0].amount.must.be.positive"
+                            "transactions[0].amount.value.must.be.positive"
                     );
         }
 

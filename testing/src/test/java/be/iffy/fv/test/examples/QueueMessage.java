@@ -1,9 +1,9 @@
 package be.iffy.fv.test.examples;
 
 import be.iffy.fv.ErrorMessage;
+import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
-import be.iffy.fv.Validations;
 import org.jspecify.annotations.NullMarked;
 
 import java.math.BigDecimal;
@@ -56,17 +56,27 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
     }
 
     Validation<Command.Transaction> validateTransaction(QueueMessage.Transaction transaction) {
-        return Validations.fromCatching(() -> {
+        return Validation.from().catching(() -> {
             MonetaryAmount amount = assertThat(transaction.amount, "amount").is(objects.construct(MonetaryAmount::new, "must.be.monetaryAmount"));
             return new Command.Transaction(amount);
         });
     }
 
     Validation<Command.Address> validateAddress(QueueMessage.Address address) {
+
+        MappingRule<QueueMessage.Address, Command.Address> mr = combine(
+                MappingRule.on(Address::country, optionals.matches(strings.asEnum(Country.class))),
+                Rule.on(Address::city, strings.notBlank()),
+                Rule.on(Address::street, strings.notBlank()),
+                Rule.on(Address::houseNumber, strings.notBlank())
+        ).into((country, city, street, houseNumber) -> new Command.Address(address.street, address.houseNumber, address.city));
+
+        //return mr.apply(address);
+
         return validateThat(address.country, "country")
                 .is(optionals.matches(strings.asEnum(Country.class)))
                 .flatMap(country ->
-                        Validations.fromCatching(() -> new Command.Address(address.street, address.houseNumber, address.city))
+                        Validation.from().catching(() -> new Command.Address(address.street, address.houseNumber, address.city))
                 );
     }
 
@@ -98,7 +108,7 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
                 );
             } else {
                 // no amendment indicator, ignore the other amendment fields
-                return Validations.fromCatching(() -> new Command.MandateInfo(mandateInfo.mandateId(), mandateInfo.dateOfSignature(), Optional.empty()));
+                return Validation.from().catching(() -> new Command.MandateInfo(mandateInfo.mandateId(), mandateInfo.dateOfSignature(), Optional.empty()));
             }
         });
     }

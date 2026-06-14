@@ -72,16 +72,39 @@ public final class ValidationDSL<T> {
     /**
      * Validates that the value satisfies the given rule.
      */
-    public <R> Validation<R> is(Function<? super T, ? extends Validation<? extends R>> rule) {
+    public <R> Validation<R> is(MappingRule<? super T, ? extends R> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
         if (name.isEmpty()) {
+            return
+                    validation.flatMap(value ->
+                            Validation.narrow(
+                                    Objects.requireNonNull(rule.apply(value), "rule cannot return null Validation")
+                            )
+                    );
+
+        } else {
             return Validation.narrow(
                     validation.flatMap(value ->
                             Validation.narrow(
                                     Objects.requireNonNull(rule.apply(value), "rule cannot return null Validation")
                             )
-                    )
+                    ).at(name)
             );
+        }
+    }
+
+    /**
+     * Validates that the value satisfies the given rule.
+     */
+    public <R> Validation<R> is(Function<? super T, ? extends Validation<? extends R>> rule) {
+        Objects.requireNonNull(rule, "rule cannot be null");
+        if (name.isEmpty()) {
+            return
+                    validation.flatMap(value ->
+                            Validation.narrow(
+                                    Objects.requireNonNull(rule.apply(value), "rule cannot return null Validation")
+                            )
+                    );
         } else {
             return Validation.narrow(
                     validation.flatMap(value ->

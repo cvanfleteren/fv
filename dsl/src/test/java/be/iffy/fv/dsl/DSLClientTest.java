@@ -2,6 +2,7 @@ package be.iffy.fv.dsl;
 
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
+import be.iffy.fv.ValidationFactory;
 import be.iffy.fv.Validations;
 import org.junit.jupiter.api.Test;
 
@@ -75,8 +76,8 @@ public class DSLClientTest {
         PersonDto dtoA = new PersonDto("X", 18);
         PersonDto dtoB = new PersonDto("John", 16);
 
-        Validation<Person> personAV = Validations.fromCatching(() -> new Person(dtoA.name, dtoA.age)).at("a");
-        Validation<Person> personBV = Validations.fromCatching(() -> new Person(dtoB.name, dtoB.age)).at("b");
+        Validation<Person> personAV = Validation.from().catching(() -> new Person(dtoA.name, dtoA.age)).at("a");
+        Validation<Person> personBV = Validation.from().catching(() -> new Person(dtoB.name, dtoB.age)).at("b");
 
         Validation<Couple> coupleV = Validations.combine(personAV, personBV).map(Couple::new);
 

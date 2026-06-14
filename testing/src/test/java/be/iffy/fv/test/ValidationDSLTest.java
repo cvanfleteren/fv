@@ -1,7 +1,7 @@
 package be.iffy.fv.test;
 
 import be.iffy.fv.Validation;
-import be.iffy.fv.Validations;
+import be.iffy.fv.ValidationFactory;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import org.junit.jupiter.api.Test;
@@ -58,12 +58,12 @@ public class ValidationDSLTest {
 
     @Test
     void scenario() {
-        assertThatValidation(Validations.fromCatching(() ->
+        assertThatValidation(Validation.from().catching(() ->
                         new SomeClass(SomeStatus.FAILURE, List.of("some failure"), Option.of(Instant.now()), Option.of(Instant.now().plusSeconds(1)))
                 )
         ).isValid();
 
-        assertThatValidation(Validations.fromCatching(() ->
+        assertThatValidation(Validation.from().catching(() ->
                         new SomeClass(SomeStatus.SUCCESS, List.of("some failure"), Option.of(Instant.now()), Option.of(Instant.now().plusSeconds(1)))
                 )
         ).isInvalid().hasErrorMessages("errors.must.be.empty");

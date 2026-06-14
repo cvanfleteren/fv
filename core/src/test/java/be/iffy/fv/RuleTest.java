@@ -1340,7 +1340,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isInvalid()
-                    .hasErrorMessage("too.short");
+                    .hasErrorMessage("value.too.short");
         }
 
         @Test
@@ -1370,7 +1370,7 @@ class RuleTest {
             // Assert
             assertThatValidation(result)
                     .isInvalid()
-                    .hasErrorMessage("too.short");
+                    .hasErrorMessage("value.too.short");
         }
     }
 

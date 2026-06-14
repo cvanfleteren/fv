@@ -152,8 +152,8 @@ public interface Rule<T> extends Function<T, Validation<T>> {
                 Validations.combine(
                                 apply(input),
                                 other.apply(input)
-                )
-                .map((v, o) -> input);
+                        )
+                        .map((v, o) -> input);
     }
 
     /**
@@ -198,7 +198,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
 
         return value -> {
             // stream because we want to be lazy and only validate the next rule if the current one fails
-            Stream<Validation<T>> validations =  Stream.of(rules).map(rule -> rule.apply(value));
+            Stream<Validation<T>> validations = Stream.of(rules).map(rule -> rule.apply(value));
             Option<Validation<T>> firstValid = validations.find(Validation::isValid);
 
             if (firstValid.isDefined()) {
@@ -234,7 +234,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
     default Rule<T> fallback(Function<? super T, ? extends Validation<T>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input -> {
-            if(input == null) {
+            if (input == null) {
                 return Invalid.notNull();
             }
 
@@ -259,7 +259,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
     default <S extends T> Rule<S> or(Function<? super S, ? extends Validation<?>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input -> {
-            if(input == null) {
+            if (input == null) {
                 return Invalid.notNull();
             }
 
@@ -311,7 +311,6 @@ public interface Rule<T> extends Function<T, Validation<T>> {
     //TODO add exactlyOne(String errorKey, Function<? super T, ? extends Validation<T>>... rules)
 
     //endregion
-
 
 
     //region modifiers
@@ -413,7 +412,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
     /**
      * Lift a Rule to work on a type V instead of T. You need to supply a Function that can get a T from a V.
      */
-    default <V> Rule<V> on(Function<V, T> selector) {
+    default <V> Rule<V> on(PropertySelector<V, T> selector) {
         return Rule.on(selector, this);
     }
 
@@ -423,14 +422,16 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      *
      * @param selector a function that extracts a value of type V from an input of type T
      */
-    static <T, V> Rule<T> on(Function<? super T, ? extends V> selector, Function<? super V, ? extends Validation<? extends V>> rule) {
+    static <T, V> Rule<T> on(PropertySelector<? super T, ? extends V> selector, Function<? super V, ? extends Validation<? extends V>> rule) {
         Objects.requireNonNull(selector, "selector cannot be null");
         Objects.requireNonNull(rule, "rule cannot be null");
         return input ->
                 Objects.requireNonNull(
-                        rule.apply(selector.apply(input)),
-                        "rule cannot return a null Validation"
-                ).map(ignore -> input);
+                                rule.apply(selector.apply(input)),
+                                "rule cannot return a null Validation"
+                        )
+                        .map(ignore -> input)
+                        .at(selector.getPropertyName());
     }
 
     /**

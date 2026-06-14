@@ -2,7 +2,7 @@ package be.iffy.fv.test.examples;
 
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
-import be.iffy.fv.Validations;
+import be.iffy.fv.ValidationFactory;
 
 import java.util.regex.Pattern;
 
@@ -30,6 +30,6 @@ public record Bic(String value) {
     }
 
     public static Validation<Bic> from(String value) {
-        return Validations.fromCatching(() -> new Bic(value));
+        return Validation.from().catching(() -> new Bic(value));
     }
 }

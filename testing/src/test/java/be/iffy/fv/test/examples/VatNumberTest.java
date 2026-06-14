@@ -1,7 +1,6 @@
 package be.iffy.fv.test.examples;
 
 import be.iffy.fv.Validation;
-import be.iffy.fv.Validations;
 import io.vavr.control.Try;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -75,7 +74,7 @@ class VatNumberTest {
         @Test
         void constructor_whenValueBlank_isInvalid() {
             assertThatValidation(
-                    Validations.from(Try.of(() -> new VatNumber("", CountryCode.BE)))
+                    Validation.from()._try(Try.of(() -> new VatNumber("", CountryCode.BE)))
             )
                     .isInvalid()
                     .hasErrorMessages("value.must.not.be.blank");
@@ -84,7 +83,7 @@ class VatNumberTest {
         @Test
         void constructor_whenValueNotAlphaNumeric_isInvalid() {
             assertThatValidation(
-                    Validations.from(Try.of(() -> new VatNumber("123-456", CountryCode.BE)))
+                    Validation.from()._try(Try.of(() -> new VatNumber("123-456", CountryCode.BE)))
             )
                     .isInvalid()
                     .hasErrorMessages("value.must.be.alphanumeric");
@@ -93,7 +92,7 @@ class VatNumberTest {
         @Test
         void constructor_whenCountryCodeNull_isInvalid() {
             assertThatValidation(
-                    Validations.from(Try.of(() -> new VatNumber("12345678", null)))
+                    Validation.from()._try(Try.of(() -> new VatNumber("12345678", null)))
             )
                     .isInvalid()
                     .hasErrorMessages("countrycode.must.not.be.null");

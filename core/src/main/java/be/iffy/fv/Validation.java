@@ -416,6 +416,10 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     //region factory methods for known values
 
+    static ValidationFactory from() {
+        return ValidationFactory.instance;
+    }
+
     /**
      * Creates a validation containing the provided value.
      * Any non-null values are considered Valid.

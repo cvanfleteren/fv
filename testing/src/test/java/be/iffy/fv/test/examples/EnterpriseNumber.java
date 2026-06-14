@@ -2,7 +2,7 @@ package be.iffy.fv.test.examples;
 
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
-import be.iffy.fv.Validations;
+import be.iffy.fv.ValidationFactory;
 
 import static be.iffy.fv.dsl.DSL.*;
 
@@ -15,6 +15,6 @@ public record EnterpriseNumber(String value) {
     }
 
     public static Validation<EnterpriseNumber> from(String value) {
-        return Validations.fromCatching(() -> new EnterpriseNumber(value));
+        return Validation.from().catching(() -> new EnterpriseNumber(value));
     }
 }

@@ -2290,7 +2290,7 @@ public class ValidationTest {
         @Test
         void from_whenSupplierReturnsValue_returnsValidWithThatValue() {
             // Act
-            Validation<String> result = Validations.fromCatching(() -> "expected");
+            Validation<String> result = Validation.from().catching(() -> "expected");
 
             // Assert
             assertThatValidation(result)
@@ -2305,7 +2305,7 @@ public class ValidationTest {
             ErrorMessage e2 = ErrorMessage.of("age.too.young");
 
             // Act
-            Validation<Object> result = Validations.fromCatching(() -> {
+            Validation<Object> result = Validation.from().catching(() -> {
                 throw new ValidationException(List.of(e1, e2));
             });
 
@@ -2321,7 +2321,7 @@ public class ValidationTest {
             RuntimeException boom = new RuntimeException("boom");
 
             // Act
-            assertThatThrownBy(() -> Validations.fromCatching(() -> {
+            assertThatThrownBy(() -> Validation.from().catching(() -> {
                 throw boom;
             })).isSameAs(boom);
         }
@@ -2336,7 +2336,7 @@ public class ValidationTest {
             ErrorMessage error = ErrorMessage.of("error");
 
             // Act
-            Validation<String> result = Validations.fromCatchingAll(() -> "expected", error);
+            Validation<String> result = Validation.from().catchingAll(() -> "expected", error);
 
             // Assert
             assertThatValidation(result)
@@ -2352,7 +2352,7 @@ public class ValidationTest {
             ErrorMessage error = ErrorMessage.of("error");
 
             // Act
-            Validation<Object> result = Validations.fromCatchingAll(() -> {
+            Validation<Object> result = Validation.from().catchingAll(() -> {
                 throw new ValidationException(List.of(e1, e2));
             }, error);
 
@@ -2368,7 +2368,7 @@ public class ValidationTest {
             ErrorMessage error = ErrorMessage.of("error");
 
             // Act
-            Validation<Object> result = Validations.fromCatchingAll(() -> {
+            Validation<Object> result = Validation.from().catchingAll(() -> {
                 throw new RuntimeException("boom");
             }, error);
 
@@ -2381,7 +2381,7 @@ public class ValidationTest {
         @Test
         void fromCatchingAll_whenSupplierThrowsRuntimeException_returnsInvalidWithProvidedErrorMessageString() {
             // Arrange && Act
-            Validation<Object> result = Validations.fromCatchingAll(() -> {
+            Validation<Object> result = Validation.from().catchingAll(() -> {
                 throw new RuntimeException("boom");
             }, "error");
 
@@ -2397,7 +2397,7 @@ public class ValidationTest {
             Function<Exception, ErrorMessage> mapper = e -> ErrorMessage.of("error");
 
             // Act
-            Validation<String> result = Validations.fromCatchingAll(() -> "expected", mapper);
+            Validation<String> result = Validation.from().catchingAll(() -> "expected", mapper);
 
             // Assert
             assertThatValidation(result)
@@ -2412,7 +2412,7 @@ public class ValidationTest {
             Function<Exception, ErrorMessage> mapper = e -> ErrorMessage.of("mapper");
 
             // Act
-            Validation<Object> result = Validations.fromCatchingAll(() -> {
+            Validation<Object> result = Validation.from().catchingAll(() -> {
                 throw new ValidationException(List.of(e1));
             }, mapper);
 
@@ -2429,7 +2429,7 @@ public class ValidationTest {
             Function<Exception, ErrorMessage> mapper = e -> ErrorMessage.of(e.getMessage().toUpperCase());
 
             // Act
-            Validation<Object> result = Validations.fromCatchingAll(() -> {
+            Validation<Object> result = Validation.from().catchingAll(() -> {
                 throw boom;
             }, mapper);
 
@@ -2454,7 +2454,7 @@ public class ValidationTest {
         @Test
         void from_whenTrySucceeds_returnsValidValidation() {
             Try<String> tryVal = success("hello");
-            Validation<String> v = Validations.from(tryVal, ErrorMessage.of("oops"));
+            Validation<String> v = Validation.from()._try(tryVal, ErrorMessage.of("oops"));
 
             assertThatValidation(v)
                     .isValid()
@@ -2466,7 +2466,7 @@ public class ValidationTest {
             Try<String> tryVal = failure(new IllegalStateException());
             ErrorMessage e1 = ErrorMessage.of("first.fault");
 
-            Validation<Object> v = Validations.from(tryVal, e1);
+            Validation<Object> v = Validation.from()._try(tryVal, e1);
 
             assertThatValidation(v)
                     .isInvalid()
@@ -2477,7 +2477,7 @@ public class ValidationTest {
         void from_whenTryFails_andNoMessages_presentedErrorListIsEmpty() {
             Try<String> tryVal = failure(new IllegalStateException("foo"));
 
-            Validation<Object> v = Validations.from(tryVal);
+            Validation<Object> v = Validation.from()._try(tryVal);
 
             assertThatValidation(v)
                     .isInvalid()
@@ -2488,7 +2488,7 @@ public class ValidationTest {
         void from_whenTryFails_takesErrorMessagesFromValidationException() {
             Try<String> tryVal = failure(new ValidationException(List.of(ErrorMessage.of("foo"), ErrorMessage.of("bar"))));
 
-            Validation<Object> v = Validations.from(tryVal);
+            Validation<Object> v = Validation.from()._try(tryVal);
 
             assertThatValidation(v)
                     .isInvalid()
@@ -2505,7 +2505,7 @@ public class ValidationTest {
             Option<String> option = Option.of("hello");
 
             // Act
-            Validation<String> result = Validations.from(option);
+            Validation<String> result = Validation.from().option(option);
 
             // Assert
             assertThatValidation(result)
@@ -2519,7 +2519,7 @@ public class ValidationTest {
             Option<String> option = Option.none();
 
             // Act
-            Validation<String> result = Validations.from(option);
+            Validation<String> result = Validation.from().option(option);
 
             // Assert
             assertThatValidation(result)
@@ -2534,7 +2534,7 @@ public class ValidationTest {
             ErrorMessage error = ErrorMessage.of("custom.error");
 
             // Act
-            Validation<String> result = Validations.from(option, error);
+            Validation<String> result = Validation.from().option(option, error);
 
             // Assert
             assertThatValidation(result)
@@ -2549,7 +2549,7 @@ public class ValidationTest {
             ErrorMessage error = ErrorMessage.of("custom.error");
 
             // Act
-            Validation<String> result = Validations.from(option, error);
+            Validation<String> result = Validation.from().option(option, error);
 
             // Assert
             assertThatValidation(result)
@@ -2563,7 +2563,7 @@ public class ValidationTest {
             Option<String> option = Option.none();
 
             // Act
-            Validation<String> result = Validations.from(option, "string.error");
+            Validation<String> result = Validation.from().option(option, "string.error");
 
             // Assert
             assertThatValidation(result)
@@ -2581,7 +2581,7 @@ public class ValidationTest {
             Either<String, Integer> either = Either.right(42);
 
             // Act
-            Validation<Integer> result = Validations.from(either, ErrorMessage::of);
+            Validation<Integer> result = Validation.from().either(either, ErrorMessage::of);
 
             // Assert
             assertThatValidation(result)
@@ -2595,7 +2595,7 @@ public class ValidationTest {
             Either<String, Integer> either = Either.left("fail");
 
             // Act
-            Validation<Integer> result = Validations.from(either, ErrorMessage::of);
+            Validation<Integer> result = Validation.from().either(either, ErrorMessage::of);
 
             // Assert
             assertThatValidation(result)
@@ -2613,7 +2613,7 @@ public class ValidationTest {
             Optional<String> optional = Optional.of("hello");
 
             // Act
-            Validation<String> result = Validations.from(optional);
+            Validation<String> result = Validation.from().optional(optional);
 
             // Assert
             assertThatValidation(result)
@@ -2627,7 +2627,7 @@ public class ValidationTest {
             Optional<String> optional = Optional.empty();
 
             // Act
-            Validation<String> result = Validations.from(optional);
+            Validation<String> result = Validation.from().optional(optional);
 
             // Assert
             assertThatValidation(result)
@@ -2642,7 +2642,7 @@ public class ValidationTest {
             ErrorMessage error = ErrorMessage.of("custom.error");
 
             // Act
-            Validation<String> result = Validations.from(optional, error);
+            Validation<String> result = Validation.from().optional(optional, error);
 
             // Assert
             assertThatValidation(result)
@@ -2657,7 +2657,7 @@ public class ValidationTest {
             ErrorMessage error = ErrorMessage.of("custom.error");
 
             // Act
-            Validation<String> result = Validations.from(optional, error);
+            Validation<String> result = Validation.from().optional(optional, error);
 
             // Assert
             assertThatValidation(result)
@@ -2671,7 +2671,7 @@ public class ValidationTest {
             Optional<String> optional = Optional.empty();
 
             // Act
-            Validation<String> result = Validations.from(optional, "string.error");
+            Validation<String> result = Validation.from().optional(optional, "string.error");
 
             // Assert
             assertThatValidation(result)
