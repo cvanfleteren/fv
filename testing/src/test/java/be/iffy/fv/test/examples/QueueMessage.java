@@ -37,7 +37,8 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
         BE, NL, LU
     }
 
-    public static final Rule<MonetaryAmount> atLeast1000 = Rule.with(MonetaryAmount::value, bigDecimals.atLeast(new BigDecimal(1000)));
+    public static final Rule<MonetaryAmount> atLeast1000 = Rule.using(MonetaryAmount::value, bigDecimals.atLeast(new BigDecimal(1000)));
+    public static final Rule<MonetaryAmount> atLeast1000_2 = bigDecimals.atLeast(new BigDecimal(1000)).using(MonetaryAmount::value);
 
     public Validation<Command> validate() {
         return validating(
@@ -47,7 +48,7 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
                         .is(lists.notEmpty())
                         .eachIs(this::validateTransaction)
                         .is(lists.anyMatch(
-                                        Rule.with(Command.Transaction::amount, atLeast1000).toPredicate(),
+                                        Rule.using(Command.Transaction::amount, atLeast1000).toPredicate(),
                                         ErrorMessage.of("one.must.be.at.least", "min", 1000)
                                 )
                         ).validate()

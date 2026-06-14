@@ -760,7 +760,7 @@ class MappingRuleTest {
         void with_whenRulePasses_variance() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "not.a.number");
-            MappingRule<NumberHolder, Number> withRule = MappingRule.with(NumberHolder::value, rule);
+            MappingRule<NumberHolder, Number> withRule = MappingRule.using(NumberHolder::value, rule);
 
             // Act
             Validation<Number> result = withRule.test(new NumberHolder("1234"));
@@ -775,7 +775,9 @@ class MappingRuleTest {
         void with_whenRulePasses_returnsMappedValidResult() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "not.a.number");
-            MappingRule<StringHolder, Number> withRule = MappingRule.with(StringHolder::value, rule);
+            MappingRule<StringHolder, Number> withRule = MappingRule.using(StringHolder::value, rule);
+
+            MappingRule<StringHolder, Integer> wv = rule.using(StringHolder::value);
 
             // Act
             Validation<Number> result = withRule.test(new StringHolder("1234"));
@@ -790,7 +792,7 @@ class MappingRuleTest {
         void with_whenRuleFails_returnsInvalidWithRuleErrors() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "not.a.number");
-            MappingRule<StringHolder, Integer> withRule = MappingRule.with(StringHolder::value, rule);
+            MappingRule<StringHolder, Integer> withRule = MappingRule.using(StringHolder::value, rule);
 
             // Act
             Validation<Integer> result = withRule.test(new StringHolder("abc"));

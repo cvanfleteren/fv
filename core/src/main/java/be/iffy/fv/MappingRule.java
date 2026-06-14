@@ -221,6 +221,10 @@ public interface MappingRule<T, R> extends  ValidationOperator<T, R> {
         };
     }
 
+    default <R2> RuleCombiners.CombineBuilder2<T, R, R2> combine(Function<? super T, Validation<R2>> other) {
+        return RuleCombiners.combine(this, other);
+    }
+
     //endregion
 
     //region Lifts
@@ -325,6 +329,16 @@ public interface MappingRule<T, R> extends  ValidationOperator<T, R> {
 
     //endregion
 
+    //region modifiers
+
+    /**
+     * Applies the specified {@link MappingRule} to the result of applying the selector function to the input. Aka <code>contramap</code>.
+     *
+     * @param selector a function that extracts a value of type V from an input of type T
+     */
+    default <V> MappingRule<V, R> using(Function<? super V, ? extends T> selector) {
+       return MappingRule.using(selector, this);
+    }
 
     /**
      * Applies the specified {@link MappingRule} to the result of applying the selector function to the input. Aka <code>contramap</code>.
@@ -333,7 +347,7 @@ public interface MappingRule<T, R> extends  ValidationOperator<T, R> {
      * @param rule     the rule to be applied to the extracted value
      * @return a new {@link MappingRule} that tests the applied selector and rule combination
      */
-    static <T, V, R> MappingRule<T, R> with(Function<? super T, ? extends V> selector, Function<? super V, ? extends Validation<? extends R>> rule) {
+    static <T, V, R> MappingRule<T, R> using(Function<? super T, ? extends V> selector, Function<? super V, ? extends Validation<? extends R>> rule) {
         Objects.requireNonNull(selector, "selector cannot be null");
         Objects.requireNonNull(rule, "rule cannot be null");
         return input -> Validation.narrow(
@@ -370,4 +384,5 @@ public interface MappingRule<T, R> extends  ValidationOperator<T, R> {
         return this.map(ignored -> value);
     }
 
+    //endregion
 }

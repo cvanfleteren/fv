@@ -1317,7 +1317,7 @@ class RuleTest {
         void with_whenRulePasses_returnsValidResult() {
             // Arrange
             Rule<CharSequence> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<StringHolder> withRule = Rule.with(StringHolder::value, rule);
+            Rule<StringHolder> withRule = Rule.using(StringHolder::value, rule);
 
             // Act
             Validation<StringHolder> result = withRule.test(new StringHolder("1234"));
@@ -1332,7 +1332,7 @@ class RuleTest {
         void with_whenRuleFails_returnsInvalidWithRuleErrors() {
             // Arrange
             Rule<CharSequence> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<StringHolder> withRule = Rule.with(StringHolder::value, rule);
+            Rule<StringHolder> withRule = Rule.using(StringHolder::value, rule);
 
             // Act
             Validation<StringHolder> result = withRule.test(new StringHolder("12"));
@@ -1354,7 +1354,7 @@ class RuleTest {
         void given_whenRulePasses_returnsValidResult() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<StringHolder> givenRule = rule.given(StringHolder::value);
+            Rule<StringHolder> givenRule = rule.using(StringHolder::value);
 
             // Act
             Validation<StringHolder> result = givenRule.test(new StringHolder("1234"));
@@ -1369,7 +1369,7 @@ class RuleTest {
         void given_whenRuleFails_returnsInvalidWithRuleErrors() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<StringHolder> givenRule = rule.given(StringHolder::value);
+            Rule<StringHolder> givenRule = rule.using(StringHolder::value);
 
             // Act
             Validation<StringHolder> result = givenRule.test(new StringHolder("12"));

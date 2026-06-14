@@ -225,7 +225,7 @@ public interface Rule<T> extends ValidationOperator<T, T> {
      * Returns a new {@link Rule} that first applies this rule, and if the input is invalid, falls back to the {@code other} rule.
      * The difference with {@link #or(Function)} is that only the errors of the {@code other} Rule will be returned if both fail.
      * The fallback rule is evaluated only when this rule fails.
-     * <p></p>
+     * <p>
      * Short-circuiting, not accumulating.
      */
     default Rule<T> fallback(Function<? super T, ? extends Validation<T>> other) {
@@ -337,9 +337,9 @@ public interface Rule<T> extends ValidationOperator<T, T> {
      * Lifts this {@link Rule} so it applies to an {@link Option} of T.
      * <p>
      * Semantics:
-     * - None =&gt; {@code valid(None)} (nothing to validate)
-     * - Some(x) =&gt; validate x, and return {@code valid(Some(x))} or {@code invalid(errors)}
-     *
+     *   - if the Option is None, it is considered to be Valid
+     *   - if the Option is Some, the content is validated either a {@code Valid<Option<T>>}
+     *   or an Invalid with the errors is returned
      */
     @Override
     default Rule<Option<T>> liftToOption() {
@@ -347,12 +347,12 @@ public interface Rule<T> extends ValidationOperator<T, T> {
     }
 
     /**
-     * Lifts this {@link Rule} so it applies to an {@link java.util.Optional} of T.
+     * Lifts this {@link Rule} so it applies to an {@link Optional} of T.
      * <p>
      * Semantics:
-     * - empty =&gt; {@code valid(Optional.empty)} (nothing to validate)
-     * - not empty =&gt; validate x, and return {@code valid(Optional.of(x))} or {@code invalid(errors)}
-     *
+     *   - if the Option is empty, it is considered to be Valid
+     *   - if the Option is defined, the content is validated either a {@code Valid<Optional<T>>}
+     *   or an Invalid with the errors is returned
      */
     @Override
     default Rule<Optional<T>> liftToOptional() {
@@ -369,7 +369,7 @@ public interface Rule<T> extends ValidationOperator<T, T> {
      * Semantics:
      * - If the Map is empty, the map is considered valid.
      * - Each value in the map is validated, and the resulting validations are collected.
-     * - If any validation fails, the entire map is considered invalid.
+     * - If any validation fails, the entire map is considered invalid with all errors accumulated.
      * - If all validations pass, the map is considered valid.
      */
     @Override
@@ -381,12 +381,6 @@ public interface Rule<T> extends ValidationOperator<T, T> {
      * Lifts this {@link Rule} so it applies to a {@link Map} of K to T.
      * <p>
      * Behaves the same as {@link #liftToVavrMap()}, but uses the keyExtractor function to generate the path segment.
-     * <p>
-     * Semantics:
-     * - If any validation fails, the entire map is considered invalid.
-     * - If all validations pass, the map is considered valid.
-     *
-     * @param keyExtractor the function to extract a path segment from the key.
      */
     @Override
     default <K> Rule<Map<K, T>> liftToVavrMap(Function<K, Object> keyExtractor) {
@@ -435,12 +429,6 @@ public interface Rule<T> extends ValidationOperator<T, T> {
      * Lifts this {@link Rule} so it applies to a {@link java.util.Map} of K to T.
      * <p>
      * Behaves the same as {@link #liftToMap()}, but uses the keyExtractor function to generate the path segment.
-     * <p>
-     * Semantics:
-     * - If any validation fails, the entire map is considered invalid.
-     * - If all validations pass, the map is considered valid.
-     *
-     * @param keyExtractor the function to extract a path segment from the key.
      */
     @Override
     default <K> Rule<java.util.Map<K, T>> liftToMap(Function<K, Object> keyExtractor) {
@@ -471,7 +459,7 @@ public interface Rule<T> extends ValidationOperator<T, T> {
     //endregion
 
 
-
+    //region modifiers
 
     /**
      * Negates this rule. The caller must provide the error message key to use when the negated rule fails.
@@ -557,15 +545,13 @@ public interface Rule<T> extends ValidationOperator<T, T> {
         return Rule.of(ValidationOperator.super.withErrorKey(errorKey));
     }
 
-
-
     /**
      * Lift a Rule to work on a type V instead of T. You need to supply a Function that can get a V from the T.
      *
-     * @see MappingRule#with(Function, Function)
+     * @see MappingRule#using(Function, Function)
      */
-    default <V> Rule<V> given(Function<V, T> selector) {
-        return Rule.with(selector, this);
+    default <V> Rule<V> using(Function<V, T> selector) {
+        return Rule.using(selector, this);
     }
 
     /**
@@ -574,7 +560,7 @@ public interface Rule<T> extends ValidationOperator<T, T> {
      *
      * @param selector a function that extracts a value of type V from an input of type T
      */
-    static <T, V> Rule<T> with(Function<? super T, ? extends V> selector, Function<? super V, ? extends Validation<? extends V>> rule) {
+    static <T, V> Rule<T> using(Function<? super T, ? extends V> selector, Function<? super V, ? extends Validation<? extends V>> rule) {
         Objects.requireNonNull(selector, "selector cannot be null");
         Objects.requireNonNull(rule, "rule cannot be null");
         return input ->
@@ -596,13 +582,16 @@ public interface Rule<T> extends ValidationOperator<T, T> {
      * Selects and returns one of the provided rules based on the given condition. As opposed to {@link #when(boolean, Function)}, there's always
      * a Rule being applied.
      *
-     * @param condition a boolean determining which rule to select; if true, the first rule is chosen, otherwise the fallback rule
+     * @param condition a boolean determining which rule to select; if true, the first rule is chosen, otherwise the second rule
      */
-    static <T> Rule<T> choose(boolean condition, Function<? super T, ? extends Validation<T>> rule, Function<? super T, ? extends Validation<T>> fallback) {
-        Objects.requireNonNull(rule, "rule cannot be null");
-        Objects.requireNonNull(fallback, "fallback cannot be null");
-        return condition ? Rule.of(rule) : Rule.of(fallback);
+    static <T> Rule<T> choose(boolean condition, Function<? super T, ? extends Validation<T>> first, Function<? super T, ? extends Validation<T>> second) {
+        Objects.requireNonNull(first, "first cannot be null");
+        Objects.requireNonNull(second, "second cannot be null");
+        return condition ? Rule.of(first) : Rule.of(second);
     }
+
+    //endregion
+
 
     /**
      * Narrows the current rule to a more specific subtype.

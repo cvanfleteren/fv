@@ -3,7 +3,6 @@ package be.iffy.fv.test.examples;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Validation;
 
-import static be.iffy.fv.RuleCombiners.combine;
 import static be.iffy.fv.dsl.DSL.*;
 
 public record VatNumber(String value, CountryCode countrycode) {
@@ -24,6 +23,7 @@ public record VatNumber(String value, CountryCode countrycode) {
 
         MappingRule<String, VatNumber> valid = after(stringOps.keepAlphanumeric()).is(
                 strings.minLength(4).then(
+                        //numberRule.combine(countryRule).into(VatNumber::new) or
                         combine(numberRule, countryRule).into(VatNumber::new)
                 )
         );
