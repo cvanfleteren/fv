@@ -130,6 +130,7 @@ public interface Rule<T> extends ValidationOperator<T, T> {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input ->
                 test(input).flatMap(v ->
+                        // map back to original input so we're protected against other returning an incompatible value
                         other.apply(input).map(ignored -> input)
 
                 );
@@ -546,12 +547,10 @@ public interface Rule<T> extends ValidationOperator<T, T> {
     }
 
     /**
-     * Lift a Rule to work on a type V instead of T. You need to supply a Function that can get a V from the T.
-     *
-     * @see MappingRule#using(Function, Function)
+     * Lift a Rule to work on a type V instead of T. You need to supply a Function that can get a T from a V.
      */
-    default <V> Rule<V> using(Function<V, T> selector) {
-        return Rule.using(selector, this);
+    default <V> Rule<V> on(Function<V, T> selector) {
+        return Rule.on(selector, this);
     }
 
     /**
@@ -560,7 +559,7 @@ public interface Rule<T> extends ValidationOperator<T, T> {
      *
      * @param selector a function that extracts a value of type V from an input of type T
      */
-    static <T, V> Rule<T> using(Function<? super T, ? extends V> selector, Function<? super V, ? extends Validation<? extends V>> rule) {
+    static <T, V> Rule<T> on(Function<? super T, ? extends V> selector, Function<? super V, ? extends Validation<? extends V>> rule) {
         Objects.requireNonNull(selector, "selector cannot be null");
         Objects.requireNonNull(rule, "rule cannot be null");
         return input ->

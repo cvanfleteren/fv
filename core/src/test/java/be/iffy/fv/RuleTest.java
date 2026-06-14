@@ -1308,16 +1308,16 @@ class RuleTest {
     }
 
     @Nested
-    class With {
+    class On {
 
         record StringHolder(String value) {
         }
 
         @Test
-        void with_whenRulePasses_returnsValidResult() {
+        void on_whenRulePasses_returnsValidResult() {
             // Arrange
             Rule<CharSequence> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<StringHolder> withRule = Rule.using(StringHolder::value, rule);
+            Rule<StringHolder> withRule = Rule.on(StringHolder::value, rule);
 
             // Act
             Validation<StringHolder> result = withRule.test(new StringHolder("1234"));
@@ -1329,10 +1329,10 @@ class RuleTest {
         }
 
         @Test
-        void with_whenRuleFails_returnsInvalidWithRuleErrors() {
+        void on_whenRuleFails_returnsInvalidWithRuleErrors() {
             // Arrange
             Rule<CharSequence> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<StringHolder> withRule = Rule.using(StringHolder::value, rule);
+            Rule<StringHolder> withRule = Rule.on(StringHolder::value, rule);
 
             // Act
             Validation<StringHolder> result = withRule.test(new StringHolder("12"));
@@ -1342,19 +1342,12 @@ class RuleTest {
                     .isInvalid()
                     .hasErrorMessage("too.short");
         }
-    }
-
-    @Nested
-    class Given {
-
-        record StringHolder(String value) {
-        }
 
         @Test
-        void given_whenRulePasses_returnsValidResult() {
+        void on_instanceMethod_whenRulePasses_returnsValidResult() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<StringHolder> givenRule = rule.using(StringHolder::value);
+            Rule<StringHolder> givenRule = rule.on(StringHolder::value);
 
             // Act
             Validation<StringHolder> result = givenRule.test(new StringHolder("1234"));
@@ -1366,10 +1359,10 @@ class RuleTest {
         }
 
         @Test
-        void given_whenRuleFails_returnsInvalidWithRuleErrors() {
+        void on_instanceMethod_whenRuleFails_returnsInvalidWithRuleErrors() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<StringHolder> givenRule = rule.using(StringHolder::value);
+            Rule<StringHolder> givenRule = rule.on(StringHolder::value);
 
             // Act
             Validation<StringHolder> result = givenRule.test(new StringHolder("12"));

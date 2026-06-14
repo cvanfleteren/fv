@@ -748,7 +748,7 @@ class MappingRuleTest {
     }
 
     @Nested
-    class With {
+    class On {
 
         record StringHolder(String value) {
         }
@@ -757,10 +757,10 @@ class MappingRuleTest {
         }
 
         @Test
-        void with_whenRulePasses_variance() {
+        void on_whenRulePasses_variance() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "not.a.number");
-            MappingRule<NumberHolder, Number> withRule = MappingRule.using(NumberHolder::value, rule);
+            MappingRule<NumberHolder, Number> withRule = MappingRule.on(NumberHolder::value, rule);
 
             // Act
             Validation<Number> result = withRule.test(new NumberHolder("1234"));
@@ -772,12 +772,12 @@ class MappingRuleTest {
         }
 
         @Test
-        void with_whenRulePasses_returnsMappedValidResult() {
+        void on_whenRulePasses_returnsMappedValidResult() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "not.a.number");
-            MappingRule<StringHolder, Number> withRule = MappingRule.using(StringHolder::value, rule);
+            MappingRule<StringHolder, Number> withRule = MappingRule.on(StringHolder::value, rule);
 
-            MappingRule<StringHolder, Integer> wv = rule.using(StringHolder::value);
+            MappingRule<StringHolder, Integer> wv = rule.on(StringHolder::value);
 
             // Act
             Validation<Number> result = withRule.test(new StringHolder("1234"));
@@ -789,10 +789,10 @@ class MappingRuleTest {
         }
 
         @Test
-        void with_whenRuleFails_returnsInvalidWithRuleErrors() {
+        void on_whenRuleFails_returnsInvalidWithRuleErrors() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "not.a.number");
-            MappingRule<StringHolder, Integer> withRule = MappingRule.using(StringHolder::value, rule);
+            MappingRule<StringHolder, Integer> withRule = MappingRule.on(StringHolder::value, rule);
 
             // Act
             Validation<Integer> result = withRule.test(new StringHolder("abc"));
@@ -803,6 +803,7 @@ class MappingRuleTest {
                     .hasErrorMessage("not.a.number");
         }
     }
+
     @Nested
     class WithErrorKey {
 

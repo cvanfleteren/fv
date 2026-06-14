@@ -37,7 +37,7 @@ public record Command(Debtor debtor, KboNumber kboNumber, List<Transaction> tran
 
     public record Transaction(MonetaryAmount amount) {
 
-        public static final Rule<MonetaryAmount> positive = Rule.using(MonetaryAmount::value, bigDecimals.positive());
+        public static final Rule<MonetaryAmount> positive = Rule.on(MonetaryAmount::value, bigDecimals.positive());
 
         public Transaction {
             amount = assertThat(amount, "amount").is(positive);
