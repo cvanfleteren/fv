@@ -75,7 +75,12 @@ public class ObjectRules implements IObjectRules<Object> {
      */
     public <T,R> MappingRule<T, R> construct(Function<T,R> constructor, ErrorMessage errorMessage) {
         Objects.requireNonNull(constructor, "constructor cannot be null");
-        return MappingRule.fromTry(input -> Try.of(() -> constructor.apply(input)), errorMessage);
+        return MappingRule.fromTry(input ->
+                Try.of(() ->
+                        constructor.apply(input)
+                ),
+                errorMessage
+        );
     }
 
     /**
