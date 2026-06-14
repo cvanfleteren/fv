@@ -1,5 +1,7 @@
 package be.iffy.fv.rules.text;
 
+import be.iffy.fv.ErrorMessage;
+import be.iffy.fv.ValidationException;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
@@ -14,6 +16,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
@@ -1092,6 +1095,62 @@ class StringRulesTest {
             assertThatValidation(strings.asEnum(TestEnum.class).apply("C"))
                     .isInvalid()
                     .hasErrorMessage("must.be.valid.enum.value", HashMap.of("value", "C"));
+        }
+    }
+
+    @Nested
+    class AsEnumWithProvider {
+
+        enum TestEnum {
+            A, B;
+
+            public static TestEnum of(String value){
+                if(value.equals("AA")){
+                    return TestEnum.A;
+                } else if(value.equals("BB")){
+                    return TestEnum.B;
+                } else {
+                    throw new IllegalArgumentException("invalid test enum");
+                }
+            }
+        }
+
+        @Test
+        void asEnum_withProvider_whenValid_returnsEnum() {
+            Function<String, TestEnum> provider = TestEnum::of;
+
+            assertThatValidation(strings.asEnum(TestEnum.class, provider).apply("BB"))
+                    .isValid()
+                    .isEqualTo(TestEnum.B);
+        }
+
+        @Test
+        void asEnum_withProvider_whenProviderReturnsNull_yieldsGenericInvalid() {
+            var provider = (java.util.function.Function<String, TestEnum>) s -> null; // illegal per contract
+
+            assertThatValidation(strings.asEnum(TestEnum.class, provider).apply("A"))
+                    .isInvalid()
+                    .hasErrorMessage("must.be.valid.enum.value", HashMap.of("value", "A"));
+        }
+
+        @Test
+        void asEnum_withProvider_whenProviderThrowsValidationException_propagatesErrors() {
+            var provider = (java.util.function.Function<String, TestEnum>) s -> {
+                throw new ValidationException(List.of(ErrorMessage.of("invalid.input", "field", "code")));
+            };
+
+            assertThatValidation(strings.asEnum(TestEnum.class, provider).apply("X"))
+                    .isInvalid()
+                    .hasErrorMessages("invalid.input");
+        }
+
+        @Test
+        void asEnum_withProvider_whenProviderThrowsOtherException_yieldsGenericInvalid() {
+            Function<String,TestEnum> provider = TestEnum::of;
+
+            assertThatValidation(strings.asEnum(TestEnum.class, provider).apply("X"))
+                    .isInvalid()
+                    .hasErrorMessages("must.be.valid.enum.value");
         }
     }
 

@@ -15,7 +15,7 @@ public record VatNumber(String value, CountryCode countrycode) {
     }
 
     /**
-     * Parses a String in the form of BE123A456 to a VatNumber of countryCode BE and value 123A456
+     * Parses a String in the form of BE123A456 into a VatNumber of countryCode BE and value 123A456
      */
     public static Validation<VatNumber> of(String vat) {
         MappingRule<String, CountryCode> countryRule = strings.take(2).then(strings.asEnum(CountryCode.class));

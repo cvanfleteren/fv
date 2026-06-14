@@ -1,9 +1,6 @@
 package be.iffy.fv.rules.text;
 
-import be.iffy.fv.ErrorMessage;
-import be.iffy.fv.MappingRule;
-import be.iffy.fv.Rule;
-import be.iffy.fv.Validation;
+import be.iffy.fv.*;
 import be.iffy.fv.rules.ComparableRules;
 import be.iffy.fv.rules.IObjectRules;
 import io.vavr.Function2;
@@ -25,6 +22,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import static be.iffy.fv.RuleCombiners.combine;
@@ -360,6 +358,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      */
     public <E extends Enum<E>> MappingRule<String, E> asEnum(Class<E> enumClass) {
+        Objects.requireNonNull(enumClass,"enumClass must not be null");
         return MappingRule.of(s -> {
                     for (E constant : enumClass.getEnumConstants()) {
                         if (constant.name().equalsIgnoreCase(s)) {
@@ -367,6 +366,38 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
                         }
                     }
                     return Validation.invalid(ErrorMessage.of("must.be.valid.enum.value", "value", s));
+                }
+        );
+    }
+
+    /**
+     * Fails if the input string is not a valid enum value for the given enum class while mapping to the enum. Is NOT case-sensitive.
+     * <p>
+     * Error key: {@code must.be.valid.enum.value}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
+     *
+     * @param enumProvider A Function used to look up the actual enum corresponding with the String value.
+     */
+    public <E extends Enum<E>> MappingRule<String, E> asEnum(Class<E> enumClass, Function<String, E> enumProvider) {
+        Objects.requireNonNull(enumClass,"enumClass must not be null");
+        Objects.requireNonNull(enumProvider,"enumProvider must not be null");
+        return MappingRule.of(s -> {
+                    try {
+                        return Validation.valid(
+                                Objects.requireNonNull(
+                                        enumProvider.apply(s),
+                                        "enumProvider can not return null"
+                                )
+                        );
+                    } catch (ValidationException e) {
+                        return Validation.invalid(e.errors());
+                    } catch (RuntimeException e) {
+                        return Validation.invalid(ErrorMessage.of("must.be.valid.enum.value", "value", s));
+                    }
                 }
         );
     }
