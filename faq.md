@@ -1,9 +1,12 @@
 # Frequently Asked Questions (FAQ)
 
-Welcome to the FAQ for the Iffy Functional Validation (FV) library. If you have a question not answered here, please feel free to open an issue or reach out to the maintainers.
+Welcome to the FAQ for the Iffy Functional Validation (FV) library. If you have a question not answered here, please
+feel free to open an issue or reach out to the maintainers.
 
 ### Table of Contents
-- [What is the difference between a `Rule` and a `MappingRule`?](#what-is-the-difference-between-a-rule-and-a-mappingrule)
+
+- [What is the difference between a `Rule` and a
+  `MappingRule`?](#what-is-the-difference-between-a-rule-and-a-mappingrule)
 - [Whats with the Function<? super T, ? extends Validation<R>> signatures?](#whats-with-the-function-super-t--extends-validationr-signatures)
 - [I have an Invalid validation, how can I know what was wrong?](#i-have-an-invalid-validation-how-can-i-know-what-was-wrong)
 - [How do I combine multiple rules?](#how-do-i-combine-multiple-rules)
@@ -30,7 +33,8 @@ Welcome to the FAQ for the Iffy Functional Validation (FV) library. If you have 
 - [How can I apply a rule only if a certain condition is met?](#how-can-i-apply-a-rule-only-if-a-certain-condition-is-met)
 - [What's the difference between methods like map and mapCatching? What does catchingAll mean?](#whats-the-difference-between-methods-like-map-and-mapcatching-what-does-catchingall-mean)
 - [If a validation fails, can I provide a fallback value or another rule to try?](#if-a-validation-fails-can-i-provide-a-fallback-value-or-another-rule-to-try)
-- [What is the difference between `and()`, `andAlso()`, and `Rule.all()`?](#what-is-the-difference-between-and-andalso-and-ruleall)
+- [What is the difference between `and()`, `andAlso()`, and
+  `Rule.all()`?](#what-is-the-difference-between-and-andalso-and-ruleall)
 - [I want to perform a side effect (like logging) only if a validation is successful.](#i-want-to-perform-a-side-effect-like-logging-only-if-a-validation-is-successful)
 - [How do I perform cross-field validation where one field's validation depends on another?](#how-do-i-perform-cross-field-validation-where-one-field-s-validation-depends-on-another)
 - [How does this library work with standard Java collections vs Vavr collections?](#how-does-this-library-work-with-standard-java-collections-vs-vavr-collections)
@@ -39,73 +43,84 @@ Welcome to the FAQ for the Iffy Functional Validation (FV) library. If you have 
 
 ### What is the difference between a `Rule` and a `MappingRule`?
 
-In short: A **`Rule<T>`** validates a value without changing it, while a **`MappingRule<T, R>`** validates a value and transforms it into another type or value.
+In short: A **`Rule<T>`** validates a value without changing it, while a **`MappingRule<T, R>`** validates a value and
+transforms it into another type or value.
 
-*   **`Rule<T>`**:
-    *   Think of it as a `Predicate<T>` that returns a `Validation<T>` instead of a boolean.
-    *   If the validation succeeds, it returns the **exact same instance** that was passed in.
-    *   It is used when you want to check if a value meets certain criteria (e.g., "is not null", "is positive", "matches a regex").
-    *   `Rule<T>` actually extends `MappingRule<T, T>`, which means every `Rule` is also a `MappingRule`.
+* **`Rule<T>`**:
+    * Think of it as a `Predicate<T>` that returns a `Validation<T>` instead of a boolean.
+    * If the validation succeeds, it returns the **exact same instance** that was passed in.
+    * It is used when you want to check if a value meets certain criteria (e.g., "is not null", "is positive", "matches
+      a regex").
 
-*   **`MappingRule<T, R>`**:
-    *   Think of it as a `Function<T, R>` that returns a `Validation<R>`.
-    *   It is used when validation and transformation are coupled. For example, parsing a `String` into an `Integer` or a `LocalDate`.
-    *   If the parsing or any subsequent validation fails, it returns an `Invalid` result with error messages.
-    *   If it succeeds, it returns a `Valid` result containing the transformed value.
+* **`MappingRule<T, R>`**:
+    * Think of it as a `Function<T, R>` that returns a `Validation<R>`.
+    * It is used when validation and transformation are coupled. For example, parsing a `String` into an `Integer` or a
+      `LocalDate`.
+    * If the parsing or any subsequent validation fails, it returns an `Invalid` result with error messages.
+    * If it succeeds, it returns a `Valid` result containing the transformed value.
 
 **When to use which?**
-Use a `Rule` for simple checks on a value. Use a `MappingRule` when you need to change the type of the value or when you want to "materialize" a validated object from a raw input.  
-  
-You'll notice that lots of methods take functions with a signature like `Function<? super T, ? extends Validation<R>>`.  
+Use a `Rule` for simple checks on a value. Use a `MappingRule` when you need to change the type of the value or when you
+want to "materialize" a validated object from a raw input.
+
+You'll notice that lots of methods take functions with a signature like `Function<? super T, ? extends Validation<R>>`.
+This is the generalized signature for both `Rule` and `MappingRule`, but for Rule T and R are the same type.
 
 ---  
 
 ### Whats with the Function<? super T, ? extends Validation<R>> signatures?
 
-
 That signature is the more generic signature of a `Rule<T>` or `MappingRule<T, R>`.  
-By using this generic function signature in the DSL and other composition methods, the library becomes much more flexible:
+By using this generic function signature in the DSL and other composition methods, the library becomes much more
+flexible:
 
-*   **Interoperability**: You can pass not only `Rule` or `MappingRule` instances but also any method reference or lambda that matches the signature (e.g., `this::myCustomValidation`).
-*   **Reduced Ceremony**: You don't always have to wrap your logic in a `Rule.of(...)` if you already have a function that returns a `Validation`.
+* **Interoperability**: You can pass not only `Rule` or `MappingRule` instances but also any method reference or lambda
+  that matches the signature (e.g., `this::myCustomValidation`).
+* **Reduced Ceremony**: You don't always have to wrap your logic in a `Rule.of(...)` if you already have a function that
+  returns a `Validation`.
 
-Both `Rule<T>` and `MappingRule<T, R>` actually extend this functional interface, which is why they can be used wherever this signature is expected.
+Both `Rule<T>` and `MappingRule<T, R>` actually extend this functional interface, which is why they can be used wherever
+this signature is expected.
 
 ---
 
 ### I have an Invalid validation, how can I know what was wrong?
 
-When a validation fails, it returns an **`Invalid`** object. You can access the errors using the `errors()` method, which returns a `List<ErrorMessage>`.
+When a validation fails, it returns an **`Invalid`** object. You can access the errors using the `errors()` method,
+which returns a `List<ErrorMessage>`.
 
 Each **`ErrorMessage`** contains:
-*   **`errorKey`**: A unique string identifying the type of error (e.g., `"must.have.length.between"`).
-*   **`paths`**: The path to the field that failed validation.
-*   **`parameters`**: A `Map<String, Object>` containing dynamic values that can be used to format a human-readable message.
+
+* **`errorKey`**: A unique string identifying the type of error (e.g., `"must.have.length.between"`).
+* **`paths`**: The path to the field that failed validation.
+* **`parameters`**: A `Map<String, Object>` containing dynamic values that can be used to format a human-readable
+  message.
 
 #### The `formatted()` method
 
-For quick debugging or logging, you can use the **`formatted()`** method. It returns a string that combines the path, the error key, and all parameters in a standardized format: `path.to.field.error.key:{param1:value1,param2:value2}`.
+For quick debugging or logging, you can use the **`formatted()`** method. It returns a string that combines the path,
+the error key, and all parameters in a standardized format: `path.to.field.error.key:{param1:value1,param2:value2}`.
 
 #### Example: Inspecting parameters and using `formatted()`
 
 ```java
 import be.iffy.fv.Validation;
 import be.iffy.fv.ErrorMessage;
+
 import static be.iffy.fv.rules.text.StringRules.strings;
 
-Validation<String> result = strings.lengthBetween(3, 10).test("hi");
+Validation<String> result = strings.lengthBetween(3, 10).apply("hi");
 
-if (result.isInvalid()) {
-    ErrorMessage error = result.getErrors().head();
+if(result.isInvalid()){
+    ErrorMessage error = result.errors().head();
     
     // Accessing individual components
-    System.out.println("Error Key: " + error.getErrorKey()); // must.have.length.between
-    System.out.println("Min length: " + error.getParameters().get("min").get()); // 3
-    System.out.println("Max length: " + error.getParameters().get("max").get()); // 10
-
+    System.out.println("Error Key: "+error.errorKey()); // must.have.length.between
+    System.out.println("Min length: "+error.parameters().get("min").get()); // 3
+    System.out.println("Max length: "+error.parameters().get("max").get()); // 10
+    
     // Using formatted() for a quick overview
-    System.out.println("Formatted: " + error.formatted());
-    // Output: must.have.length.between:{min:3,max:10}
+    System.out.println("Formatted: "+error.formatted()); // Output: must.have.length.between:{min:3,max:10}
 }
 ```
 
@@ -128,52 +143,75 @@ It's the same for the error key, it is also documented in the javadoc.
 
 You can combine rules using several composition methods:
 
-*   **`and(Rule)`**: Short-circuiting "and". If the first rule fails, the second one is not even executed.
-*   **`andAlso(Rule)`**: Non-short-circuiting "and". Both rules are executed, and if both fail, their errors are combined.
-*   **`or(Rule)`**: If the first rule succeeds, the result is valid. If it fails, it tries the second rule. If both fail, errors are combined.
-*   **`xor(Rule, String)`**: Exactly one of the rules must pass or the result is invalid with the passed errorKey.
-*   **`Rule.any(Rule...)`**: a more general or, accepting multiple rules. As long as a single rule passes, the result is valid. If all fail, errors are combined. 
-*   **`Rule.all(Rule...)`**: Combines multiple rules. All must pass, and it collects all errors from failing rules.
+Here are Markdown tables you can paste into faq.md.
+
+Rule combinators
+
+| Method                 | Behavior                                                                        | Short-circuiting | Error handling                                |
+|------------------------|:--------------------------------------------------------------------------------|------------------|-----------------------------------------------|
+| and(other)             | AND; runs other only if this is valid                                           | Yes              | Not accumulating                              |
+| andAlso(other)         | AND; always runs both                                                           | No               | Accumulating (combine errors)                 |
+| all(rules...)          | AND over many; all must pass                                                    | No               | Accumulating (combine all errors)             |
+| any(rules...)          | OR over many; succeeds on first rule that passes                                | Yes              | Accumulating if all fail                      |
+| both(first, second)    | AND of two; like Rule.of(first).andAlso(second)                                 | No               | Accumulating                                  |
+| fallback(other)        | Fallback; uses other only if this fails; if both fail, keep only other’s errors | Yes              | Not accumulating (only fallback’s errors)     |
+| or(other)              | OR; uses other only if this fails; if both fail, combine errors                 | Yes              | Accumulating                                  |
+| then(ruleLikeFunction) | On success, refine into a MappingRule via ruleLikeFunction                      | Yes              | Not accumulating                              |
+| xor(other, errorKey)   | Exactly one must pass; evaluates both                                           | No               | Non-accumulating (single errorKey on failure) |
+
+MappingRule combinators
+
+| Method             | Behavior                                                                              | Short-circuiting | Error handling                            |
+|--------------------|---------------------------------------------------------------------------------------|------------------|-------------------------------------------|
+| fallback(fallback) | Fallback; uses fallback only if this fails; if both fail, keep only fallback’s errors | Yes              | Not accumulating (only fallback’s errors) |
+| then(rule)         | AND in sequence; applies rule to successful mapped result                             | Yes              | Not accumulating                          |
+| or(other)          | OR; uses other only if this fails; if both fail, combine errors                       | Yes              | Accumulating                              |
+| combine(other)     | Start builder to combine multiple MappingRules                                        | No               | Accumulating across combined results      |
 
 ---
 
 ### How can I negate an existing rule?
 
-If you have a rule and want to check for the exact opposite, you can use **`negate()`**. You must provide a new error key or `ErrorMessage` for the negated case.
+If you have a rule and want to check for the exact opposite, you can use **`negate()`**. You must provide a new error
+key or `ErrorMessage` for the negated case.
 
 ```java
 Rule<String> startsWithH = strings.startsWith("H");
 Rule<String> mustNotStartWithH = startsWithH.negate("must.not.start.with.h");
 
-mustNotStartWithH.test("Hello"); // Invalid (must.not.start.with.h)
-mustNotStartWithH.test("World"); // Valid
+mustNotStartWithH.apply("Hello"); // Invalid (must.not.start.with.h)
+mustNotStartWithH.apply("World"); // Valid
 ```
 
 ---
 
 ### Are rules null-safe by default?
 
-Most factory methods like `Rule.of(Predicate, ...)` include a null check. If the input is `null`, they will return a `Validation.invalid("must.not.be.null")` without calling your predicate.
+Most factory methods like `Rule.of(Predicate, ...)` include a null check. If the input is `null`, they will return a
+`Validation.invalid("must.not.be.null")` without calling your predicate.
 
-However, if you implement the `Rule` interface directly or use certain combinators, you should be aware of nullability. It is generally recommended to start your validation chain with `Rule.notNull()` if you expect a non-null value.
+However, if you implement the `Rule` interface directly or use certain combinators, you should be aware of nullability.
+It is generally recommended to start your validation chain with `Rule.notNull()` if you expect a non-null value.
 
 ---
 
 ### Can I use my own error messages?
 
-Yes! While many built-in rules use standard keys like `must.not.be.null`, you can always override the error message or key using `.withErrorKey("my.custom.key")` or by providing an `ErrorMessage` object during rule creation.  
+Yes! While many built-in rules use standard keys like `must.not.be.null`, you can always override the error message or
+key using `.withErrorKey("my.custom.key")` or by providing an `ErrorMessage` object during rule creation.  
 You can also use change the errors on a Validation with `Validation.mapErrors`.
 
 ---
 
 ### How can I easily make my own rule, e.g., for checking that a string is a palindrome?
 
-The easiest way to create a custom rule is by using the `Rule.of(Predicate, ErrorKey)` factory method. This method automatically handles null-safety (returning `must.not.be.null` if the input is null) so you can focus on your logic.
+The easiest way to create a custom rule is by using the `Rule.of(Predicate, String)` factory method. This method
+automatically handles null-safety (returning `must.not.be.null` if the input is null) so you can focus on your logic.
 
 ```java
 Rule<String> palindromeRule = Rule.of(
-    s -> new StringBuilder(s).reverse().toString().equalsIgnoreCase(s),
-    "must.be.palindrome"
+        s -> new StringBuilder(s).reverse().toString().equalsIgnoreCase(s),
+        "must.be.palindrome"
 );
 ```
 
@@ -183,9 +221,10 @@ For more complex rules, you can also implement the `Rule<T>` functional interfac
 
 ### How can I check that my optional value meets a Rule when it is not empty (but empty is also allowed)?
 
-You can use the `liftToOptional()` method (for `java.util.Optional`) or `liftToOption()` (for Vavr `Option`). 
+You can use the `lift().toOptional()` method (for `java.util.Optional`) or `lift().toOption()` (for Vavr `Option`).
 
-These methods "lift" a rule that works on a single value to work on an optional container. If the container is empty, the rule is considered **valid**. If it contains a value, the original rule is applied to that value.
+These methods "lift" a rule that works on a single value to work on an optional container. If the container is empty,
+the rule is considered **valid**. If it contains a value, the original rule is applied to that value.
 
 ```java
 Rule<String> minLengthRule = strings.minLength(5);
@@ -194,63 +233,69 @@ Rule<Optional<String>> optionalRule = minLengthRule.liftToOptional();
 // or alternatively with the OptionalRules:
 Rule<Optional<String>> fromOptionals = optionals.contains(strings.minLength(5));
 
-optionalRule.test(Optional.empty()); // Valid
-optionalRule.test(Optional.of("abc")); // Invalid (must be at least 5)
-optionalRule.test(Optional.of("abcdef")); // Valid
+optionalRule.apply(Optional.empty()); // Valid
+optionalRule.apply(Optional.of("abc")); // Invalid (must be at least 5)
+optionalRule.apply(Optional.of("abcdef")); // Valid
 ```
 
 ---
 
 ### How can I check that my optional value meets a Rule when it is not empty (but this time empty is NOT allowed)?
 
-If you want to ensure that an `Optional` is **not empty** AND its value satisfies a certain rule, you can use the `OptionalRules.required(MappingRule)` or `OptionRules.required(MappingRule)` methods.  
+If you want to ensure that an `Optional` is **not empty** AND its value satisfies a certain rule, you can use the
+`OptionalRules.required(MappingRule)` or `OptionRules.required(MappingRule)` methods.  
 We need a MappingRule because we'll be changing the type of Validation from Optional<T> to T.
 
-Unlike `liftToOptional()`, which returns valid for empty optionals, these methods will return an `Invalid` result with the error key `must.not.be.empty` if the optional is empty. If the optional contains a value, it applies the rule to that value and—importantly—**extracts** the value from the container.
+Unlike `lift().toOptional()`, which returns valid for empty optionals, these methods will return an `Invalid` result with
+the error key `must.not.be.empty` if the optional is empty. If the optional contains a value, it applies the rule to
+that value and—importantly—**extracts** the value from the container.
 
 ```java
 Rule<String> minLengthRule = strings.minLength(5);
 MappingRule<Optional<String>, String> mandatoryAndMinLength = optionals.required(minLengthRule);
 
-mandatoryRule.test(Optional.empty()); // Invalid (must.not.be.empty)
-mandatoryRule.test(Optional.of("abc")); // Invalid (must be at least 5)
-Validation<String> result = mandatoryRule.test(Optional.of("abcdef")); // Valid("abcdef")
+mandatoryRule.apply(Optional.empty()); // Invalid (must.not.be.empty)
+mandatoryRule.apply(Optional.of("abc")); // Invalid (must be at least 5)
+mandatoryRule.apply(Optional.of("abcdef")); // Valid("abcdef")
 ```
 
-If you don't want to extract the value and prefer to keep working with a `Rule<Optional<T>>`, you can use `optionals.contains(Rule<T> rule)`
+If you don't want to extract the value and prefer to keep working with a `Rule<Optional<T>>`, you can use
+`optionals.contains(Rule<T> rule)`
 
 ```java
 Rule<Optional<String>> mandatoryRule = optionals.contains(strings.length(5));
 
-mandatoryRule.test(Optional.empty()); // Invalid (must.not.be.empty)
-mandatoryRule.test(Optional.of("abc")); // Invalid (must be length 5)
-mandatoryRule.test(Optional.of("abcde")); // Valid(Optional.of("abcde"))
+mandatoryRule.apply(Optional.empty()); // Invalid (must.not.be.empty)
+mandatoryRule.apply(Optional.of("abc")); // Invalid (must be length 5)
+mandatoryRule.apply(Optional.of("abcde")); // Valid(Optional.of("abcde"))
 ```
 
 ---
 
 ### I have a List of things, and I want to check that each entry meets a Rule
 
-
 The easiest way is with the `validateThatList` dsl, you'd use something like:
 
 ```java
  Validation<List<Integer>> v = validateThatList(values, "values")
-                        .is(lists.notEmpty())
-                        .eachIs(ints.positive())
-                        .validate();
+        .is(lists.notEmpty())
+        .eachIs(ints.positive())
+        .validate();
 ```
 
 This guarantees you have a non-empty list of positive integers.
 
-Working directly on a Rule, you can use the `liftToList()` method (for `java.util.List`) or `liftToVavrList()` (for Vavr `List`).
-When you lift a `Rule<T>`, you get a `Rule<List<T>>` that applies the original rule to each element. If any element fails, the whole list is considered invalid, and the errors will include the index of the failing element (e.g., `[0].must.not.be.empty`).
+Working directly on a Rule, you can use the `lift().toList()` method (for `java.util.List`) or `lift().toVavrList()` (for Vavr
+`List`).
+When you lift a `Rule<T>`, you get a `Rule<List<T>>` that applies the original rule to each element. If any element
+fails, the whole list is considered invalid, and the errors will include the index of the failing element (e.g.,
+`[0].must.not.be.empty`).
 
 ```java
 Rule<String> notEmpty = strings.notEmpty();
-Rule<List<String>> allNotEmpty = notEmpty.liftToList();
+Rule<List<String>> allNotEmpty = notEmpty.lift().toList();
 
-allNotEmpty.test(List.of("abc", "")); // Invalid ([1].must.not.be.empty)
+allNotEmpty.apply(List.of("abc", "")); // Invalid ([1].must.not.be.empty)
 ```
 
 If you are using the `ListRules` or `VavrListRules` classes, you can also use `allMatchRule(Rule)`:
@@ -259,71 +304,80 @@ If you are using the `ListRules` or `VavrListRules` classes, you can also use `a
 Rule<List<String>> allNotEmpty = collections.allMatchRule(strings.notEmpty());
 ```
 
-All these approaches are equivalent, as they are convenience wrappers around `liftToList()`.
+All these approaches are equivalent, as they are convenience wrappers around `lift().toList()`.
 
 ---
 
 ### Can I also validate Maps?
 
-Yes! Similar to lists, you can lift a `Rule<T>` or `MappingRule<T, R>` to work on maps using `liftToMap()` (for `java.util.Map`) or `liftToVavrMap()` (for Vavr `Map`).
+Yes! Similar to lists, you can lift a `Rule<T>` or `MappingRule<T, R>` to work on maps using `lift().toMap()` (for
+`java.util.Map`) or `lift().toVavrMap()` (for Vavr `Map`).
 
-When you lift a rule to a map, it applies the rule to every **value** in the map. The map **key** is used to create a path segment for any error messages, so you can easily identify which entry failed.
+When you lift a rule to a map, it applies the rule to every **value** in the map. The map **key** is used to create a
+path segment for any error messages, so you can easily identify which entry failed.
 
 ```java
 Rule<String> notEmpty = strings.notEmpty();
-Rule<Map<String, String>> mapRule = notEmpty.liftToMap();
+Rule<Map<String, String>> mapRule = notEmpty.lift().toMap();
 
 Map<String, String> input = Map.of("key1", "value1", "key2", "");
-mapRule.test(input); // Invalid (key2.must.not.be.empty)
+mapRule.apply(input); // Invalid (key2.must.not.be.empty)
 ```
 
 #### Customizing the Path Segment
-By default, `liftToMap()` uses `key.toString()` for the path. If your keys are complex objects or you want a different naming convention, you can provide a `keyExtractor` function:
+
+By default, `lift().toMap()` uses `key.toString()` for the path. If your keys are complex objects or you want a different
+naming convention, you can provide a `keyExtractor` function:
 
 ```java
 Rule<User> userRule = ...;
 // Use the user's ID as the path segment in case of errors
-Rule<Map<Long, User>> mapRule = userRule.liftToMap(id -> "user_" + id);
-
-mapRule.test(Map.of(1, user1, 2, user2)); // Invalid (user_1.must.be...)
+Rule<Map<Long, User>> mapRule = userRule.lift().toMap(id -> "user_" + id);
+mapRule.apply(Map.of(1, user1, 2,user2)); // Invalid (user_1.must.be...)
 ```
 
 ---
 
 ### I have a List<Validation<T>>, how can I turn it into a Validation<List<T>>?
 
-When you have a collection of validations and you want to combine them into a single validation containing a list of all successful values (or all accumulated errors if any fail), you can use **`Validation.transpose()`**.
+When you have a collection of validations and you want to combine them into a single validation containing a list of all
+successful values (or all accumulated errors if any fail), you can use **`Validations.transpose()`**.
 
 This operation is often called "sequence" in other functional programming libraries.
 
 #### Example: Transposing a List
+
 ```java
 List<Validation<String>> validations = List.of(
-    Validation.valid("A"),
-    Validation.valid("B")
+        Validation.valid("A"),
+        Validation.valid("B")
 );
 
-Validation<List<String>> result = Validation.transpose(validations);
+Validation<List<String>> result = Validations.transpose(validations);
 // result is Valid(["A", "B"])
 ```
 
-If any of the validations in the list are `Invalid`, the resulting validation will be `Invalid` and will contain **all** the errors from all the invalid entries.
+If any of the validations in the list are `Invalid`, the resulting validation will be `Invalid` and will contain **all**
+the errors from all the invalid entries.
 
 #### Transposing Optionals and Options
-The `transpose` method is also available for `java.util.Optional` and Vavr `Option`. It allows you to flip the container:
 
-*   **`Optional<Validation<T>>`** → **`Validation<Optional<T>>`**
-*   **`Option<Validation<T>>`** → **`Validation<Option<T>>`**
+The `transpose` method is also available for `java.util.Optional` and Vavr `Option`. It allows you to flip the
+container:
 
-This is useful when you have an optional validation step and you want to treat an empty container as a successful validation of "nothing".
+* **`Optional<Validation<T>>`** → **`Validation<Optional<T>>`**
+* **`Option<Validation<T>>`** → **`Validation<Option<T>>`**
+
+This is useful when you have an optional validation step and you want to treat an empty container as a successful
+validation of "nothing".
 
 ```java
 Optional<Validation<String>> optionalV = someOptional.map(this::validateContent);//returns a Validation.valid("hello")
-Validation<Optional<String>> result = Validation.transpose(optionalV);
+Validation<Optional<String>> result = Validations.transpose(optionalV);
 // result is Valid(Optional["hello"])
 
 Optional<Validation<String>> emptyV = Optional.empty();
-Validation<Optional<String>> resultEmpty = Validation.transpose(emptyV);
+Validation<Optional<String>> resultEmpty = Validations.transpose(emptyV);
 // resultEmpty is Valid(Optional.empty())
 ```
 
@@ -331,106 +385,123 @@ Validation<Optional<String>> resultEmpty = Validation.transpose(emptyV);
 
 ### I have a String, and want to make sure it's a valid value for a given Enum
 
-You can use the `asEnum(Class<E> clazz)` method found in `StringRules`. This method returns a `MappingRule<String, E>` that validates if the input string matches one of the enum constants and, if successful, transforms it into that enum instance.
+You can use the `asEnum(Class<E> clazz)` method found in `StringRules`. This method returns a `MappingRule<String, E>`
+that validates if the input string matches one of the enum constants (case insensitive) and, if successful, transforms it into that enum
+instance.
 
 ```java
-enum Status { OPEN, CLOSED }
+enum Status {OPEN, CLOSED}
 
 MappingRule<String, Status> rule = strings.asEnum(Status.class);
 
-rule.test("OPEN");    // Valid(Status.OPEN)
-rule.test("UNKNOWN"); // Invalid (must.be.valid.enum.value)
+rule.apply("open");    // Valid(Status.OPEN)
+rule.apply("UNKNOWN"); // Invalid (must.be.valid.enum.value)
 ```
 
-If the validation fails, it uses the error key `must.be.valid.enum.value` and provides the invalid input as a parameter named `value`.  
-If you only want to check if the String represents a valid enum value, but keep the String, use `strings.canBeEnum` instead. 
+If the validation fails, it uses the error key `must.be.valid.enum.value` and provides the invalid input as a parameter
+named `value`.  
+If you only want to check if the String represents a valid enum value, but keep the String, use `strings.canBeEnum`
+instead.
 
 
 ---
 
 ### I have a Rule for a certain type (e.g., Amount), and now I have another type Transaction that wraps Amount, can I reuse the Amount rule?
 
-Yes, you can easily reuse rules for wrapped types or properties using `Rule.with(selector, rule)` or the more fluent `rule.given(selector)`.
+Yes, you can easily reuse rules for wrapped types or properties using `Rule.on(selector, rule)` or the more fluent
+`rule.on(selector)`.
 
-#### Using `Rule.with`
+#### Using `Rule.on`
+
 This static method is great for building rules from the outside:
 
 ```java
 Rule<Amount> amountRule = AmountRules.isPositive();
-Rule<Transaction> transactionRule = Rule.with(Transaction::getAmount, amountRule);
+Rule<Transaction> transactionRule = Rule.on(Transaction::getAmount, amountRule);
 ```
 
-#### Using `rule.given`
+#### Using `rule.on`
+
 This instance method allows you to "lift" an existing rule to work on a parent object:
 
 ```java
 Rule<Amount> amountRule = AmountRules.isPositive();
-Rule<Transaction> transactionRule = amountRule.given(Transaction::getAmount);
+Rule<Transaction> transactionRule = amountRule.on(Transaction::getAmount);
 ```
 
-Both methods create a `Rule<Transaction>` that extracts the `Amount` from a `Transaction` and applies the `amountRule` to it. If the validation fails, the error will be reported at the `amount` path (or whatever the selector represents).
+Both methods create a `Rule<Transaction>` that extracts the `Amount` from a `Transaction` and applies the `amountRule`
+to it. If the validation fails, the error will be reported at the `amount` path (or whatever the selector represents).
 
 ---
 
 ### How can I make sure my record or class is created with valid values?
 
-There are two main approaches to ensure your objects are always in a valid state: validating **before** calling the constructor or validating **inside** the constructor.
+There are two main approaches to ensure your objects are always in a valid state: validating **before** calling the
+constructor or validating **inside** the constructor.
 
 #### 1. Validating Before Creation (Materialization)
-You can use `Validation.mapN` to combine several independent validations and, if all pass, call your constructor or a factory method. This is the recommended "functional" approach as it returns a `Validation<Target>` rather than throwing an exception.
+
+You can use `Validations.combine` to combine several independent validations and, if all pass, call your constructor or a
+factory method. This is the recommended "functional" approach as it returns a `Validation<Target>` rather than throwing
+an exception.
 
 ```java
-record Person(String name, int age) {}
+record Person(String name, int age) {
+}
 
 // use the Rule API directly:
-Validation<String> nameV = strings.minLength(3).test(dto.name()).at("name");
-Validation<Integer> ageV = ints.min(18).test(dto.age()).at("age");
+Validation<String> nameV = strings.minLength(3).apply(dto.name()).at("name");
+Validation<Integer> ageV = ints.min(18).apply(dto.age()).at("age");
 // or using the DSL
-Validation<String> nameV = validateThat(dto.name(),Person::name).is(strings.minLength(3));
-Validation<Integer> ageV = validateThat(dto.age(),Person::age).is(ints.min(18));
-        
+Validation<String> nameV = validateThat(dto.name(), Person::name).is(strings.minLength(3));
+Validation<Integer> ageV = validateThat(dto.age(), Person::age).is(ints.min(18));
+
 // now combine the Validations into a Person if both are Valid 
-Validation<Person> personV = Validation.mapN(nameV, ageV, Person::new);
+Validation<Person> personV = Validations.combine(nameV, ageV).into(Person::new);
 ```
 
-There is an alternative, still experimental syntax in `ValidatingDSL` that looks like this:
+There is an alternative syntax using `DSL` that looks like this:
 
 ```java
 Validation<Person> personV = validating(
-        validateThat(dto.name(),Person::name).is(strings.minLength(3)),
-        validateThat(dto.age(),Person::age).is(ints.min(18))
-    ).map(Person::new);
+        validateThat(dto.name(), Person::name).is(strings.minLength(3)),
+        validateThat(dto.age(), Person::age).is(ints.min(18))
+).map(Person::new);
 ```
 
-
-
 #### 2. Validating Inside the Constructor (Fail-Fast)
-If you prefer your constructor to throw a `ValidationException` when given invalid values (common in DDD or when using Java Records), you can use the `assertAllValid` method from the `DSL` class.
+
+If you prefer your constructor to throw a `ValidationException` when given invalid values (common in DDD or when using
+Java Records), you can use the `assertValid` method from the `DSL` class.
 
 ```java
 import static be.iffy.fv.dsl.DSL.*;
 
 record Person(String name, int age) {
     public Person {
-        assertAllValid(
-            validateThat(name, "name").is(strings.minLength(3)),
-            validateThat(age, "age").is(ints.min(18))
+        assertValid(
+                validateThat(name, "name").is(strings.minLength(3)),
+                validateThat(age, "age").is(ints.min(18))
         );
     }
 }
 ```
 
-If any of the validations fail, `assertAllValid` throws a `ValidationException` containing all the collected error messages.
+If any of the validations fail, `assertValid` throws a `ValidationException` containing all the collected error
+messages.
 
 ---
 
 ### Do I need to use Strings to name the values I'm validating?
 
-No! While you can always use a plain `String` to name a value (which becomes the path segment in error messages), the library also supports **`PropertySelector`**.
+No! While you can always use a plain `String` to name a value (which becomes the path segment in error messages), the
+library also supports **`PropertySelector`**.
 
-A `PropertySelector` is a functional interface that allows you to use **method references** to identify properties. The library then automatically extracts the property name from the method reference.
+A `PropertySelector` is a functional interface that allows you to use **method references** to identify properties. The
+library then automatically extracts the property name from the method reference.
 
 #### Why use `PropertySelector`?
+
 - **Type-safety**: You get compiler checks and IDE support (autocompletion, refactoring).
 - **Less duplication**: No need to repeat field names as strings.
 - **Automatic naming**: It handles `get` and `is` prefixes and record component names automatically.
@@ -438,12 +509,14 @@ A `PropertySelector` is a functional interface that allows you to use **method r
 #### Examples
 
 **Using Strings:**
+
 ```java
 Validation<String> v = validateThat(user.getName(), "name").is(strings.notEmpty());
 // Error path: "name"
 ```
 
 **Using `PropertySelector`:**
+
 ```java
 Validation<String> v = validateThat(user.getName(), User::getName).is(strings.notEmpty());
 // Error path: "name" (extracted from getName)
@@ -456,13 +529,15 @@ Validation<String> v3 = validateThat(person.email(), Person::email).is(strings.l
 // Error path: "email" (extracted from email)
 ```
 
-You can use `PropertySelector` in many places, including `validateThat`, `assertThat`, and when focusing rules with `Rule.with()` or `rule.given()`.
+You can use `PropertySelector` in many places, including `validateThat`, `assertThat`, and when focusing rules with
+`Rule.on()` or `rule.on()`.
 
 ---
 
 ### In my constructor, I want to be liberal with my input, and only validate the value after changing it
 
-You can use `assertThat(value,"field").map(transformation)` to transform a value before applying rules to it. This is useful when you want to normalize input (like trimming strings or converting case) and then validate the result.
+You can use `assertThat(value,"field").map(transformation)` to transform a value before applying rules to it. This is
+useful when you want to normalize input (like trimming strings or converting case) and then validate the result.
 
 #### Example: Trimming and checking length
 
@@ -472,12 +547,13 @@ import static be.iffy.fv.dsl.DSL.*;
 record Username(String value) {
     public Username {
         // assertThat returns the valid value or throws a ValidationException otherwise
-        value = assertThat(value,"value").map(String::trim).is(strings.minLength(3)); 
+        value = assertThat(value, "value").after(stringOps.trim()).is(strings.minLength(3));
     }
 }
 ```
 
 In this example:
+
 1. The input `value` is trimmed.
 2. The trimmed value is checked against `minLength(3)`.
 3. If it fails, a `ValidationException` is thrown.
@@ -488,21 +564,26 @@ In this example:
 
 ### Ok, but I want to transform multiple fields in my constructor, how do I get their transformed values?
 
-When you have multiple fields that need transformation and validation, you can use **`assertAllValid`** with multiple arguments. It will return a Vavr **`Tuple`** containing all the transformed values if they are all valid, or throw a `ValidationException` with all accumulated errors.
-The assignment doesn't look super nice, but it's the best we can do without java having explicit support for something like tuple assignment.
+When you have multiple fields that need transformation and validation, you can use **`assertValid`** with multiple
+arguments. It will return a Vavr **`Tuple`** containing all the transformed values if they are all valid, or throw a
+`ValidationException` with all accumulated errors.
+The assignment doesn't look super nice, but it's the best we can do without java having explicit support for something
+like tuple assignment.  
+You can also still use multiple seperate `x = assertThat(...)` statements, but then you lose error accumulation.
 
 #### Example: Normalizing multiple fields
 
 ```java
 import static be.iffy.fv.dsl.DSL.*;
+
 import io.vavr.Tuple2;
 
 record User(String username, String email) {
     public User {
         // using a var makes this better :)
-        Tuple2<String, String> values = assertAllValid(
-            validateThat(username, "username").map(String::trim).is(strings.minLength(3)),
-            validateThat(email, "email").map(String::toLowerCase).is(strings.email())
+        Tuple2<String, String> values = assertValid(
+                validateThat(username, "username").after(stringOps.trim()).is(strings.minLength(3)),
+                validateThat(email, "email").after(stringOps.toLowerCase()).is(strings.email())
         );
 
         this.username = values._1; // is trimmed
@@ -512,12 +593,13 @@ record User(String username, String email) {
 ```
 
 In this case:
+
 1. Both `username` and `email` are transformed (trimmed and lowercased respectively).
 2. The rules are applied to the transformed values.
 3. If any check fails, a `ValidationException` is thrown containing all errors.
 4. If all succeed, a `Tuple2` is returned containing the trimmed username and the lowercased email.
 
-The library supports `assertAllValid` for up to 8 validations, returning `Tuple2` through `Tuple8`.
+The library supports `assertValid` for up to 8 validations, returning `Tuple2` through `Tuple8`.
 
 ---
 
@@ -533,14 +615,18 @@ import static be.iffy.fv.dsl.DSL.*;
 Rule<String> trimmedMinLength3 = after(String::trim).is(strings.minLength(3));
 ```
 
-This is very similar to the `validateThat(value).map(...)` syntax used in constructors, but it allows you to package the transformation and the validation into a single `Rule` object.
+This is very similar to the `validateThat(value).after(...)` syntax used in constructors, but it allows you to package the
+transformation and the validation into a single `Rule` object.
 
 #### Technical Note: Rule vs MappingRule
 
-Technically, any rule that transforms its input (like one using `after`) should be a `MappingRule`. However, the `after(...).is(...)` DSL returns a **`Rule`** for convenience. 
+Technically, any rule that transforms its input (like one using `after`) should be a `MappingRule`. However, the
+`after(...).is(...)` DSL returns a **`Rule`** for convenience.
 
-This allows you to use the resulting rule anywhere a standard `Rule` is expected, while still benefiting from the internal transformation. If you need to expose the transformed value to the rest of a validation chain, you would typically use `MappingRule` explicitly.
-Using a MappingRule for this case would look something like this: 
+This allows you to use the resulting rule anywhere a standard `Rule` is expected, while still benefiting from the
+internal transformation. If you need to expose the transformed value to the rest of a validation chain, you would
+typically use `MappingRule` explicitly.
+Using a MappingRule for this case would look something like this:
 
 ```java
 MappingRule<String, String> trimmedMinLength3 = MappingRule.of(String::trim, "can.not.fail").then(minLength);
@@ -550,9 +636,11 @@ MappingRule<String, String> trimmedMinLength3 = MappingRule.of(String::trim, "ca
 
 ### I have some type whose constructor throws an exception, how can I make a Validation for this type?
 
-If you want to validate a type constructed using a method or constructor that can throw an exception (checked or unchecked), you can use Vavr's **`Try`** in combination with **`Validation.from(Try)`**.
+If you want to validate a type constructed using a method or constructor that can throw an exception (checked or
+unchecked), you can use Vavr's **`Try`** in combination with **`Validation.from()._try(...)`**.
 
-This allows you to wrap the potentially failing construction in a `Try`, and then convert it into a `Validation` object which fits perfectly into the rest of the library's ecosystem.
+This allows you to wrap the potentially failing construction in a `Try`, and then convert it into a `Validation` object
+which fits perfectly into the rest of the library's ecosystem.
 
 #### Example: Validating a URL
 
@@ -561,20 +649,23 @@ Since `new URL(String)` throws a checked `MalformedURLException`, it's a perfect
 ```java
 import be.iffy.fv.Validation;
 import io.vavr.control.Try;
+
 import java.net.URL;
 
 public Validation<URL> validateUrl(String input) {
     return Validation.from(
-        Try.of(() -> new URL(input)),
-        "invalid.url" // Error key to use if Try fails
+            Try.of(() -> new URL(input)),
+            "invalid.url" // Error key to use if Try fails
     );
 }
 ```
+
 Note: there's a built-in MappingRule<String, URL> asURL() in StringRules for this.
 
 In this example:
+
 1. `Try.of(...)` attempts to create the `URL`. If an exception is thrown, it captures it in a `Failure` state.
-2. `Validation.from(tryResult, "invalid.url")` converts the `Try` into a `Validation`. 
+2. `Validation.from(tryResult, "invalid.url")` converts the `Try` into a `Validation`.
 3. If the `Try` was a `Success`, you get a `Valid<URL>`.
 4. If the `Try` was a `Failure`, you get an `Invalid` result with the error key `"invalid.url"`.
 
@@ -582,14 +673,17 @@ In this example:
 
 ### I have a Validation, but I want to add an extra check on the value
 
-If you already have a `Validation<T>` object and you want to apply an additional `Rule<T>` to its value (if it's valid), you can use the **`refine()`** method.
+If you already have a `Validation<T>` object and you want to apply an additional `Rule<T>` to its value (if it's valid),
+you can use the **`refine()`** method.
 
-This is particularly useful when you've already performed some initial validation or transformation and want to "refine" the result with further constraints.
+This is particularly useful when you've already performed some initial validation or transformation and want to "refine"
+the result with further constraints.
 
 #### Example: Refining a validation
 
 ```java
 import be.iffy.fv.Validation;
+
 import static be.iffy.fv.rules.text.StringRules.strings;
 
 Validation<String> initialValidation = ...;
@@ -599,6 +693,7 @@ Validation<String> refinedValidation = initialValidation.refine(strings.looksLik
 ```
 
 In this case:
+
 1. If `initialValidation` is `Invalid`, `refine()` does nothing and returns the original `Invalid` result.
 2. If `initialValidation` is `Valid`, the `strings.email()` rule is applied to the value.
 3. If the email rule passes, you get a `Valid` result with the original value.
@@ -606,12 +701,13 @@ In this case:
 
 #### Filtering with predicates
 
-If you just want to check a simple condition without creating a full `Rule` object, you can also use **`filter()`**, which uses `refine` internally:
+If you just want to check a simple condition without creating a full `Rule` object, you can also use **`filter()`**,
+which uses `refine` internally:
 
 ```java
 Validation<String> filtered = initialValidation.filter(
-    s -> s.startsWith("A"), 
-    "must.start.with.A"
+        s -> s.startsWith("A"),
+        "must.start.with.A"
 );
 ```
 
@@ -619,7 +715,8 @@ Validation<String> filtered = initialValidation.filter(
 
 ### If I have for example a Rule for Number, can I use it to also validate a subtype like BigDecimal?
 
-Yes! Because `Rule<T>` is contravariant in its type parameter (meaning it can handle any subtype of `T`), you can use a rule defined for a supertype to validate a subtype. 
+Yes! Because `Rule<T>` is contravariant in its type parameter (meaning it can handle any subtype of `T`), you can use a
+rule defined for a supertype to validate a subtype.
 
 This is particularly useful for combining general rules with type-specific ones.
 
@@ -636,10 +733,13 @@ Rule<BigDecimal> combined = isMinusFortyTwo.or(isPositive);
 
 ### How can I apply a rule only if a certain condition is met?
 
-Sometimes you only want to validate something if a specific condition is true. The library provides several ways to do this depending on what the condition is based on.
+Sometimes you only want to validate something if a specific condition is true. The library provides several ways to do
+this depending on what the condition is based on.
 
 #### 1. Using `Rule.when(boolean, Rule)`
-If you have a simple boolean flag or condition known at the time of validation, use `Rule.when`. If the condition is `false`, the rule is skipped and the result is always `Valid`.
+
+If you have a simple boolean flag or condition known at the time of validation, use `Rule.when`. If the condition is
+`false`, the rule is skipped and the result is always `Valid`.
 
 ```java
 boolean includeAdvancedChecks = ...;
@@ -647,6 +747,7 @@ Rule<String> rule = Rule.when(includeAdvancedChecks, strings.minLength(10));
 ```
 
 #### 2. Using `Rule.choose(boolean, Rule, Rule)`
+
 If you want to apply one rule if a condition is true, and another if it's false, use `Rule.choose`.
 
 ```java
@@ -655,7 +756,9 @@ Rule<String> passwordRule = Rule.choose(isNewUser, strings.minLength(12), string
 ```
 
 #### 3. Using `rule.onlyIf(Predicate<? super T>)`
-If the condition depends on the **value being validated**, use `onlyIf` with a `Predicate`. The rule will only be executed if the predicate matches the value.
+
+If the condition depends on the **value being validated**, use `onlyIf` with a `Predicate`. The rule will only be
+executed if the predicate matches the value.
 
 ```java
 // Only check the length if the string starts with "A"
@@ -663,6 +766,7 @@ Rule<String> rule = strings.minLength(10).onlyIf(s -> s.startsWith("A"));
 ```
 
 #### 4. Using `rule.onlyIf(Supplier<Boolean>)`
+
 You can also use a `Supplier<Boolean>` for dynamic conditions that might change during the application lifecycle.
 
 ```java
@@ -673,12 +777,17 @@ Rule<String> rule = strings.minLength(10).onlyIf(() -> config.isValidationEnable
 
 ### What's the difference between methods like map and mapCatching? What does catchingAll mean?
 
-The standard **`map`** and **`flatMap`** methods follow pure functional semantics: they expect the mapping function to be successful. If the function throws an exception (even a `ValidationException`), it will propagate up the call stack.
+The standard **`map`** and **`flatMap`** methods follow pure functional semantics: they expect the mapping function to
+be successful. If the function throws an exception (even a `ValidationException`), it will propagate up the call stack.
 
 #### `mapCatching` and `flatMapCatching`
-These methods are specifically designed to bridge the gap between "fail-fast" validation (which throws `ValidationException`) and "accumulating" validation (which returns `Validation` objects).
 
-If the function passed to `mapCatching` or `flatMapCatching` throws a **`ValidationException`**, the exception is caught, and its errors are automatically converted into an `Invalid` result. This allows you to use methods that throw exceptions inside a functional chain without manually catching them.
+These methods are specifically designed to bridge the gap between "fail-fast" validation (which throws
+`ValidationException`) and "accumulating" validation (which returns `Validation` objects).
+
+If the function passed to `mapCatching` or `flatMapCatching` throws a **`ValidationException`**, the exception is
+caught, and its errors are automatically converted into an `Invalid` result. This allows you to use methods that throw
+exceptions inside a functional chain without manually catching them.
 
 ```java
 Validation<User> userV = validateThat(dto).is(userRule);
@@ -688,12 +797,16 @@ Validation<ProcessedUser> processedV = userV.mapCatching(user -> new ProcessedUs
 ```
 
 > [!NOTE]
-> Other exceptions (like `RuntimeException` or `NullPointerException`) are **not** caught by these methods and will still be rethrown.
+> Other exceptions (like `RuntimeException` or `NullPointerException`) are **not** caught by these methods and will
+> still be rethrown.
 
 #### `Validation.fromCatchingAll` and `flatMapCatchingAll`
-If you need to catch **any** exception (not just `ValidationException`), you can use **`Validation.fromCatchingAll`** (static method) or **`flatMapCatchingAll`** (instance method).
+
+If you need to catch **any** exception (not just `ValidationException`), you can use **`Validation.fromCatchingAll`** (
+static method) or **`flatMapCatchingAll`** (instance method).
 
 These methods take an additional error message (or an error key) to use when an unexpected `RuntimeException` occurs.
+
 - If the operation succeeds, it returns `Valid`.
 - If a `ValidationException` is thrown, it returns `Invalid` with the errors from the exception.
 - If any other `RuntimeException` is thrown, it returns `Invalid` with the provided fallback error message.
@@ -701,29 +814,34 @@ These methods take an additional error message (or an error key) to use when an 
 ```java
 // Using the static method to create a Validation from a throwing supplier
 Validation<URL> urlV = Validation.fromCatchingAll(
-    () -> new URL(inputString), 
-    "invalid.url"
-);
+                () -> new URL(inputString),
+                "invalid.url"
+        );
 
 // Using the instance method to chain a potentially throwing operation
 Validation<Integer> result = someValidation.flatMapCatchingAll(
-    s -> Validation.valid(Integer.parseInt(s)),
-    ErrorMessage.of("must.be.a.number")
+        s -> Validation.valid(Integer.parseInt(s)),
+        ErrorMessage.of("must.be.a.number")
 );
 ```
 
 #### `MappingRule.ofTry` and `MappingRule.of`
-Similar to `mapCatching`, you can create rules that handle exceptions using `MappingRule.ofTry` (for functions returning a Vavr `Try`) or `MappingRule.of(throwingMapper, errorMessage)` (for functions that might throw an exception).
 
-These are useful when you want to encapsulate the exception handling logic directly inside a reusable `Rule` or `MappingRule`.
+Similar to `mapCatching`, you can create rules that handle exceptions using `MappingRule.ofTry` (for functions returning
+a Vavr `Try`) or `MappingRule.of(throwingMapper, errorMessage)` (for functions that might throw an exception).
+
+These are useful when you want to encapsulate the exception handling logic directly inside a reusable `Rule` or
+`MappingRule`.
 
 ---
 
 ### If a validation fails, can I provide a fallback value or another rule to try?
 
-Yes! You can use **`recoverWith()`** on a `MappingRule` or **`recoverWithRule()`** on a `Rule`. These methods allow you to specify a fallback logic that is only executed if the initial validation fails.
+Yes! You can use **`recoverWith()`** on a `MappingRule` or **`recoverWithRule()`** on a `Rule`. These methods allow you
+to specify a fallback logic that is only executed if the initial validation fails.
 
-This is particularly useful for migration scenarios (e.g., trying to parse a new format, then falling back to an old one) or for providing default values when an optional field is invalid.
+This is particularly useful for migration scenarios (e.g., trying to parse a new format, then falling back to an old
+one) or for providing default values when an optional field is invalid.
 
 #### Example: Recovering with a fallback rule
 
@@ -733,9 +851,15 @@ Rule<String> fallbackRule = strings.startsWith("D");
 
 Rule<String> combined = primaryRule.recoverWithRule(fallbackRule);
 
-combined.test("too short"); // Invalid (must start with D)
-combined.test("DEFAULT"); // Valid, too short but starts with D
-combined.test("long enough string"); // Valid
+combined.
+
+test("too short"); // Invalid (must start with D)
+combined.
+
+test("DEFAULT"); // Valid, too short but starts with D
+combined.
+
+test("long enough string"); // Valid
 ```
 
 #### Example: Recovering with a transformation
@@ -750,7 +874,8 @@ MappingRule<String, Integer> rule = parseNew.recoverWith(parseOld);
 ```
 
 > [!NOTE]
-> The difference between `recoverWith` and `or()` is that `recoverWith` only returns the errors from the **fallback** rule if both fail, whereas `or()` combines the errors from both.
+> The difference between `recoverWith` and `or()` is that `recoverWith` only returns the errors from the **fallback**
+> rule if both fail, whereas `or()` combines the errors from both.
 
 ---
 
@@ -758,33 +883,36 @@ MappingRule<String, Integer> rule = parseNew.recoverWith(parseOld);
 
 These methods all combine multiple rules, but they behave differently regarding execution flow and error collection:
 
-1.  **`ruleA.and(ruleB)` (Short-circuiting):**
-    *   If `ruleA` fails, `ruleB` is **not executed**.
-    *   The result contains only the errors from `ruleA`.
-    *   Use this when `ruleB` depends on `ruleA` (e.g., `notNull().and(minLength(5))`).
+1. **`ruleA.and(ruleB)` (Short-circuiting):**
+    * If `ruleA` fails, `ruleB` is **not executed**.
+    * The result contains only the errors from `ruleA`.
+    * Use this when `ruleB` depends on `ruleA` (e.g., `notNull().and(minLength(5))`).
 
-2.  **`ruleA.andAlso(ruleB)` (Non-short-circuiting):**
-    *   Both rules are **always executed**.
-    *   If both fail, the result contains **all errors** from both.
-    *   Use this when you want to report as many problems as possible to the user at once.
+2. **`ruleA.andAlso(ruleB)` (Non-short-circuiting):**
+    * Both rules are **always executed**.
+    * If both fail, the result contains **all errors** from both.
+    * Use this when you want to report as many problems as possible to the user at once.
 
-3.  **`Rule.all(ruleA, ruleB, ...)`:**
-    *   Similar to `andAlso()`, it executes all rules and collects all errors.
-    *   It is often more readable when combining more than two rules.
+3. **`Rule.all(ruleA, ruleB, ...)`:**
+    * Similar to `andAlso()`, it executes all rules and collects all errors.
+    * It is often more readable when combining more than two rules.
 
 ---
 
 ### I want to perform a side effect (like logging) only if a validation is successful.
 
-You can use the **`peek()`** method on a `Validation` object. It allows you to provide a `Consumer` that will be executed only if the validation is `Valid`. The `peek()` method returns the original `Validation` object, so you can continue the chain.
+You can use the **`peek()`** method on a `Validation` object. It allows you to provide a `Consumer` that will be
+executed only if the validation is `Valid`. The `peek()` method returns the original `Validation` object, so you can
+continue the chain.
 
 ```java
 Validation<User> result = validateUser(dto)
-    .peek(user -> logger.info("Successfully validated user: {}", user.getId()))
-    .refine(extraSecurityCheck);
+        .peek(user -> logger.info("Successfully validated user: {}", user.getId()))
+        .refine(extraSecurityCheck);
 ```
 
-If you want to perform actions in both cases (success and failure), you can use `whenValid(Consumer)` and `whenInvalid(Consumer)`.
+If you want to perform actions in both cases (success and failure), you can use `whenValid(Consumer)` and
+`whenInvalid(Consumer)`.
 
 ---
 
@@ -793,23 +921,25 @@ If you want to perform actions in both cases (success and failure), you can use 
 For cross-field validation, you typically have two options:
 
 #### 1. Validating at the Object Level
+
 Create a `Rule` for the object itself that looks at multiple fields.
 
 ```java
 Rule<Period> validPeriod = Rule.of(
-    p -> p.getStart().isBefore(p.getEnd()),
-    ErrorMessage.of("start.must.be.before.end", "end")
+        p -> p.getStart().isBefore(p.getEnd()),
+        ErrorMessage.of("start.must.be.before.end", "end")
 );
 
 Validation<Period> v = validateThat(period).is(validPeriod);
 ```
 
 #### 2. Using `flatMap` or `refine` on the result of `mapN`
+
 After combining multiple validated fields, you can apply an additional check on the resulting object.
 
 ```java
 Validation<Period> periodV = Validation.mapN(startV, endV, Period::new)
-    .refine(Rule.of(p -> p.getStart().isBefore(p.getEnd()), "start.must.be.before.end"));
+        .refine(Rule.of(p -> p.getStart().isBefore(p.getEnd()), "start.must.be.before.end"));
 ```
 
 or using the DSL:
@@ -819,16 +949,27 @@ LocalDate start = LocalDate.now();
 LocalDate end = LocalDate.now().plusDays(1);
 
 validating(
-    validateThat(start).isNotNull(),
-    validateThat(end).isNotNull()
+        validateThat(start).
+
+isNotNull(),
+
+validateThat(end).
+
+isNotNull()
 )
-.map(Period::new)
-.refine(
-    Rule.of(
-        p -> p.start.isBefore(p.end),
+        .
+
+map(Period::new)
+.
+
+refine(
+        Rule.of(
+                p ->p.start.
+
+isBefore(p.end),
         "start.must.be.before.end"
-    )
-);
+                )
+                );
 ```
 
 ---
@@ -837,10 +978,12 @@ validating(
 
 The library is built on top of **Vavr**, but it provides excellent support for both standard Java types and Vavr types.
 
-*   **Inputs:** Most methods accept standard Java types (e.g., `java.util.List`, `java.util.Optional`).
-*   **Transformations:** You can lift rules to work on either type:
-    *   Use `liftToList()` for `java.util.List` vs `liftToVavrList()` for `io.vavr.collection.List`.
-    *   Use `liftToOptional()` for `java.util.Optional` vs `liftToOption()` for `io.vavr.control.Option`.
-*   **Results:** The library internally uses Vavr types for error collection (`io.vavr.collection.List<ErrorMessage>`). If you need a standard Java list of errors, you can use `javaErrors()`.
+* **Inputs:** Most methods accept standard Java types (e.g., `java.util.List`, `java.util.Optional`).
+* **Transformations:** You can lift rules to work on either type:
+    * Use `liftToList()` for `java.util.List` vs `liftToVavrList()` for `io.vavr.collection.List`.
+    * Use `liftToOptional()` for `java.util.Optional` vs `liftToOption()` for `io.vavr.control.Option`.
+* **Results:** The library internally uses Vavr types for error collection (`io.vavr.collection.List<ErrorMessage>`). If
+  you need a standard Java list of errors, you can use `javaErrors()`.
 
-We recommend using Vavr collections in your domain logic where possible for better functional integration, but the library does not force you to do so in your APIs.
+We recommend using Vavr collections in your domain logic where possible for better functional integration, but the
+library does not force you to do so in your APIs.
