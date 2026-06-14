@@ -228,7 +228,7 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
      *
      * @param selector a function that extracts a value of type V from an input of type T
      */
-    default <V> MappingRule<V, R> on(Function<? super V, ? extends T> selector) {
+    default <V> MappingRule<V, R> on(PropertySelector<? super V, ? extends T> selector) {
        return MappingRule.on(selector, this);
     }
 
@@ -239,12 +239,12 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
      * @param rule     the rule to be applied to the extracted value
      * @return a new {@link MappingRule} that tests the applied selector and rule combination
      */
-    static <T, V, R> MappingRule<T, R> on(Function<? super T, ? extends V> selector, Function<? super V, ? extends Validation<? extends R>> rule) {
+    static <T, V, R> MappingRule<T, R> on(PropertySelector<? super T, ? extends V> selector, Function<? super V, ? extends Validation<? extends R>> rule) {
         Objects.requireNonNull(selector, "selector cannot be null");
         Objects.requireNonNull(rule, "rule cannot be null");
         return input -> Validation.narrow(
                 Objects.requireNonNull(
-                        rule.apply(selector.apply(input)),
+                        rule.apply(selector.apply(input)).at(selector.getPropertyName()),
                         "rule cannot return null Validation"
                 )
         );

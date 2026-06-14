@@ -799,7 +799,7 @@ class MappingRuleTest {
             // Assert
             assertThatValidation(result)
                     .isInvalid()
-                    .hasErrorMessage("not.a.number");
+                    .hasErrorMessage("value.not.a.number");
         }
     }
 
