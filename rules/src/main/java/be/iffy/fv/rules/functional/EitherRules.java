@@ -91,7 +91,7 @@ public class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
         Objects.requireNonNull(rule, "rule cannot be null");
         return Rule.notNull().and(either -> {
             if (either.isLeft()) {
-                return rule.test(either.getLeft()).map(ignore -> either);
+                return rule.apply(either.getLeft()).map(ignore -> either);
             }
             return Validation.valid(either);
         });
@@ -108,7 +108,7 @@ public class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
         Objects.requireNonNull(rule, "rule cannot be null");
         return Rule.notNull().and(either -> {
             if (either.isRight()) {
-                return rule.test(either.get()).map(ignore -> either);
+                return rule.apply(either.get()).map(ignore -> either);
             }
             return Validation.valid(either);
         });

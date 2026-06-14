@@ -23,10 +23,10 @@ class FieldsDSLTest {
                 .when(UserDTO::subscribed)
                 .then(b -> b.require(UserDTO::email, isLongEnough, "email"));
 
-        assertThatValidation(rule.test(new UserDTO(true, "foo@bar.com"))).isValid();
-        assertThatValidation(rule.test(new UserDTO(false, "bla"))).isValid();
+        assertThatValidation(rule.apply(new UserDTO(true, "foo@bar.com"))).isValid();
+        assertThatValidation(rule.apply(new UserDTO(false, "bla"))).isValid();
 
-        assertThatValidation(rule.test(new UserDTO(true, "bla"))).isInvalid().hasErrorMessages("email.too.short");
+        assertThatValidation(rule.apply(new UserDTO(true, "bla"))).isInvalid().hasErrorMessages("email.too.short");
     }
 
     @Test
@@ -39,9 +39,9 @@ class FieldsDSLTest {
 
         Rule<UserDTO> rule = ruleFor(UserDTO.class).comparing(UserDTO::from, "from").isLessThan(UserDTO::to, "to");
 
-        assertThatValidation(rule.test(new UserDTO(from, to))).isValid();
+        assertThatValidation(rule.apply(new UserDTO(from, to))).isValid();
 
-        assertThatValidation(rule.test(new UserDTO(to, from))).isInvalid().hasErrorMessage("must.be.less.than", Map("field1", "from", "field2", "to"));
+        assertThatValidation(rule.apply(new UserDTO(to, from))).isInvalid().hasErrorMessage("must.be.less.than", Map("field1", "from", "field2", "to"));
     }
 
     @Test
@@ -54,9 +54,9 @@ class FieldsDSLTest {
 
         Rule<UserDTO> rule = ruleFor(UserDTO.class).comparing(UserDTO::from).isLessThan(UserDTO::to);
 
-        assertThatValidation(rule.test(new UserDTO(from, to))).isValid();
+        assertThatValidation(rule.apply(new UserDTO(from, to))).isValid();
 
-        assertThatValidation(rule.test(new UserDTO(to, from))).isInvalid().hasErrorMessage("must.be.less.than", Map("field1", "from", "field2", "to"));
+        assertThatValidation(rule.apply(new UserDTO(to, from))).isInvalid().hasErrorMessage("must.be.less.than", Map("field1", "from", "field2", "to"));
     }
 
     @Test
@@ -69,10 +69,10 @@ class FieldsDSLTest {
 
         Rule<UserDTO> rule = ruleFor(UserDTO.class).when(UserDTO::member).comparing(UserDTO::from, "from").isLessThan(UserDTO::to, "to");
 
-        assertThatValidation(rule.test(new UserDTO(true, from, to))).isValid();
-        assertThatValidation(rule.test(new UserDTO(false, to, from))).isValid();
+        assertThatValidation(rule.apply(new UserDTO(true, from, to))).isValid();
+        assertThatValidation(rule.apply(new UserDTO(false, to, from))).isValid();
 
-        assertThatValidation(rule.test(new UserDTO(true, to, from))).isInvalid().hasErrorMessage("must.be.less.than", Map("field1", "from", "field2", "to"));
+        assertThatValidation(rule.apply(new UserDTO(true, to, from))).isInvalid().hasErrorMessage("must.be.less.than", Map("field1", "from", "field2", "to"));
     }
 
     @Test
@@ -84,8 +84,8 @@ class FieldsDSLTest {
                 .when(UserDTO::subscribed)
                 .thenField(UserDTO::email, "email").isEqualTo(UserDTO::email2, "email2");
 
-        assertThatValidation(rule.test(new UserDTO(true, "foo@bar.com", "foo@bar.com"))).isValid();
-        assertThatValidation(rule.test(new UserDTO(true, "foo@bar.com2", "foo@bar.com")))
+        assertThatValidation(rule.apply(new UserDTO(true, "foo@bar.com", "foo@bar.com"))).isValid();
+        assertThatValidation(rule.apply(new UserDTO(true, "foo@bar.com2", "foo@bar.com")))
                 .isInvalid()
                 .hasErrorMessage("fields.must.be.equal", Map("field1", "email", "field2", "email2"));
     }

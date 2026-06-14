@@ -445,7 +445,7 @@ class VavrListRulesTest {
             MappingRule<String, Integer> toInt = MappingRule.catching(Integer::parseInt, "must.be.integer");
             List<Integer> expected = List.of(1, 2, 3);
 
-            assertThatValidation(vavrLists.map(toInt).test(List.of("1", "2", "3")).at("value"))
+            assertThatValidation(vavrLists.map(toInt).apply(List.of("1", "2", "3")).at("value"))
                     .isValid()
                     .isEqualTo(expected);
         }
@@ -454,7 +454,7 @@ class VavrListRulesTest {
         void map_withInvalidInput_returnsErrorsAtCorrectIndices() {
             MappingRule<String, Integer> toInt = MappingRule.catching(Integer::parseInt, "must.be.integer");
 
-            assertThatValidation(vavrLists.map(toInt).test(List.of("1", "abc", "3")).at("value"))
+            assertThatValidation(vavrLists.map(toInt).apply(List.of("1", "abc", "3")).at("value"))
                     .isInvalid()
                     .hasErrorMessages("value[1].must.be.integer");
         }

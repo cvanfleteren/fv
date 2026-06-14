@@ -210,11 +210,11 @@ public class DSLTest {
 
             Rule<String> mr = after(stringOps.trim()).is(strings.maxLength(5));
 
-            Validation<String> foo = mr.test("12345 ");
+            Validation<String> foo = mr.apply("12345 ");
 
             Rule<Map<Integer, String>> mapRule = mr.lift().toVavrMap();
 
-            Validation<Map<Integer, String>> foo2 = mapRule.test(HashMap.of(1, "12345 "));
+            Validation<Map<Integer, String>> foo2 = mapRule.apply(HashMap.of(1, "12345 "));
 
             Validation<Map<Integer, String>> result = validateThat(input, "value").is(mapRule);
 

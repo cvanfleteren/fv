@@ -18,7 +18,7 @@ public final class ValidationDSL<T> {
     private String name = "";
 
     public ValidationDSL(T value) {
-        this.validation = Rule.<T>notNull().test(value);
+        this.validation = Rule.<T>notNull().apply(value);
     }
 
     public ValidationDSL(T value, String name) {

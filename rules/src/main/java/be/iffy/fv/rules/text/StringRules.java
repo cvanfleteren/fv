@@ -402,7 +402,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
 
             return combine(first, second)
                     .into(mapper)
-                    .test(input);
+                    .apply(input);
         });
     }
 

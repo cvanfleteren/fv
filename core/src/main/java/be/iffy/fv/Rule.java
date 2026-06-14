@@ -26,8 +26,8 @@ import java.util.function.Supplier;
  *     <li>If you need to transform the input, but keep the type, you can look at using a {@link Transformation}, for example like this (using the DSL)
  *     {@snippet :
  *     Rule<String> originalRule = after(stringOps.trim()).is(strings.maxLength(2));
- *     Validation<String> v = originalRule.test("  12  "); // Valid
- *     }
+ *     Validation<String> v = originalRule.apply("  12  "); // Valid
+ *}
  *     </li>
  * </ul>
  *
@@ -42,11 +42,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      * @param value the value to be validated.
      * @return a {@link Validation} object indicating the result of the test.
      */
-    Validation<T> test(T value);
-
-    default Validation<T> apply(T value) {
-        return test(value);
-    }
+    Validation<T> apply(T value);
 
     //region Factory methods
 
@@ -133,7 +129,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
     default <S extends T> Rule<S> and(Function<? super S, ? extends Validation<?>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input ->
-                test(input).flatMap(v ->
+                apply(input).flatMap(v ->
                         // map back to original input so we're protected against other returning an incompatible value
                         other.apply(input).map(ignored -> input)
 
@@ -152,7 +148,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
         // map back to original input so we're protected against other returning an incompatible value
         return input ->
                 Validations.combine(
-                                test(input),
+                                apply(input),
                                 other.apply(input)
                 )
                 .map((v, o) -> input);
@@ -240,7 +236,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
                 return Invalid.notNull();
             }
 
-            Validation<T> first = this.test(input);
+            Validation<T> first = this.apply(input);
             if (first.isValid()) {
                 return first;
             }
@@ -265,7 +261,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
                 return Invalid.notNull();
             }
 
-            Validation<S> first = this.<S>narrow().test(input);
+            Validation<S> first = this.<S>narrow().apply(input);
             if (first.isValid()) {
                 return first;
             }
@@ -286,7 +282,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      */
     default <R> MappingRule<T, R> then(Function<? super T, ? extends Validation<? extends R>> ruleLikeFunction) {
         return input ->
-                test(input)
+                apply(input)
                         .refine(MappingRule.of(ruleLikeFunction));
     }
 
@@ -301,7 +297,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
         Objects.requireNonNull(other, "other rule cannot be null");
         Objects.requireNonNull(errorKey, "errorKey cannot be null");
         return input -> {
-            boolean v1Valid = this.test(input).isValid();
+            boolean v1Valid = this.apply(input).isValid();
             boolean v2Valid = other.apply(input).isValid();
             if (v1Valid ^ v2Valid) {
                 return Validation.valid(input);
@@ -336,7 +332,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
     default Rule<T> negate(ErrorMessage negatedError) {
         Objects.requireNonNull(negatedError, "negatedError cannot be null");
         return input -> {
-            Validation<T> original = this.test(input);
+            Validation<T> original = this.apply(input);
             return original.isValid()
                     ? Validation.invalid(negatedError)
                     : Validation.valid(input);
@@ -356,7 +352,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
                 return Invalid.notNull();
             }
             if (condition.test(input)) {
-                return this.test(input);
+                return this.apply(input);
             }
             return Validation.valid(input);
         };
@@ -373,7 +369,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
         return input -> {
             boolean shouldRun = Objects.requireNonNull(condition.get(), "condition result cannot be null");
             if (shouldRun) {
-                return this.test(input);
+                return this.apply(input);
             }
             return Validation.valid(input);
         };
@@ -389,7 +385,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
         Objects.requireNonNull(condition, "condition cannot be null");
         return input -> {
             if (condition) {
-                return this.test(input);
+                return this.apply(input);
             }
             return Validation.valid(input);
         };
@@ -401,11 +397,15 @@ public interface Rule<T> extends Function<T, Validation<T>> {
     default Rule<T> withErrorKey(String errorKey) {
         Objects.requireNonNull(errorKey, "errorKey cannot be null");
         return input ->
-                this.test(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
+                this.apply(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
     }
 
+    /**
+     * Converts this Rule into a {@link Predicate} that tests whether
+     * the given input satisfies the rule's conditions.
+     */
     default <S extends T> Predicate<S> toPredicate() {
-        return value -> test(value).isValid();
+        return value -> apply(value).isValid();
     }
 
     /**

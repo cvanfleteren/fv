@@ -28,6 +28,6 @@ public record VatNumber(String value, CountryCode countrycode) {
                 )
         );
 
-        return valid.test(vat);
+        return valid.apply(vat);
     }
 }

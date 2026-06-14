@@ -20,9 +20,9 @@ public final class VListValidationDSL<L, E> {
 
     public VListValidationDSL(List<L> value, String name) {
         this(
-                Rule.<List<L>>notNull().test(value),
+                Rule.<List<L>>notNull().apply(value),
                 //E and L start out the same
-                Rule.<List<E>>notNull().test((List<E>) value),
+                Rule.<List<E>>notNull().apply((List<E>) value),
                 name
         );
     }
@@ -41,7 +41,7 @@ public final class VListValidationDSL<L, E> {
     }
 
     public <R> VListValidationDSL<R, R> eachIs(Function<E, Validation<R>> rule) {
-        Validation<List<R>> newElements = elementValidation.refine(list -> MappingRule.of(rule).lift().toVavrList().test(list));
+        Validation<List<R>> newElements = elementValidation.refine(list -> MappingRule.of(rule).lift().toVavrList().apply(list));
         Validation<List<R>> newList = listValidation.flatMap(ignore -> newElements);
         return new VListValidationDSL<>(
                 newList,

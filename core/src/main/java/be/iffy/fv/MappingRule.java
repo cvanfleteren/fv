@@ -28,12 +28,7 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
      * with the successfully transformed value or a {@link Invalid} containing the errors encountered during
      * mapping or validation.
      */
-    Validation<R> test(T value);
-
-    @Override
-    default Validation<R> apply(T value) {
-        return test(value);
-    }
+    Validation<R> apply(T value);
 
     //region factory methods
 
@@ -169,7 +164,7 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
     default MappingRule<T, R> fallback(Function<? super T, ? extends Validation<R>> fallback) {
         Objects.requireNonNull(fallback, "fallback rule cannot be null");
         return input -> {
-            Validation<R> first = this.test(input);
+            Validation<R> first = this.apply(input);
             if (first.isValid()) {
                 return first;
             }
@@ -190,7 +185,7 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
      */
     default <Z> MappingRule<T, Z> then(Function<? super R, ? extends Validation<? extends Z>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return (T input) -> this.test(input).flatMap(rule::apply);
+        return (T input) -> this.apply(input).flatMap(rule::apply);
     }
 
     /**
@@ -205,7 +200,7 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
     default MappingRule<T, R> or(Function<? super T, ? extends Validation<? extends R>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input -> {
-            Validation<R> first = this.test(input);
+            Validation<R> first = this.apply(input);
             if (first.isValid()) {
                 return first;
             }
@@ -261,11 +256,7 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
     default MappingRule<T, R> withErrorKey(String errorKey) {
         Objects.requireNonNull(errorKey, "errorKey cannot be null");
         return input ->
-                this.test(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
-    }
-
-    default <S extends T> Predicate<S> toPredicate() {
-        return value -> test(value).isValid();
+                this.apply(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
     }
 
     /**
@@ -274,7 +265,7 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
      */
     default <Z> MappingRule<T, Z> map(Function<? super R, ? extends Z> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
-        return (T input) -> this.test(input).map(mapper);
+        return (T input) -> this.apply(input).map(mapper);
     }
 
     /**
@@ -288,6 +279,14 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
     }
 
     //endregion
+
+    /**
+     * Converts this MappingRule into a {@link Predicate} that tests whether
+     * the given input satisfies the rule's conditions.
+     */
+    default <S extends T> Predicate<S> toPredicate() {
+        return value -> apply(value).isValid();
+    }
 
     default MappingRuleLifter<T, R> lift() {
         return new MappingRuleLifter<>(this);

@@ -47,11 +47,11 @@ class ObjectRulesTest {
 
         @Test
         void valid() {
-            assertThatValidation(objects.asOptional().test("a"))
+            assertThatValidation(objects.asOptional().apply("a"))
                     .isValid()
                     .isEqualTo(java.util.Optional.of("a"));
 
-            assertThatValidation(objects.asOptional().test(null))
+            assertThatValidation(objects.asOptional().apply(null))
                     .isValid()
                     .isEqualTo(java.util.Optional.empty());
         }
@@ -62,11 +62,11 @@ class ObjectRulesTest {
 
         @Test
         void valid() {
-            assertThatValidation(objects.asOption().test("a"))
+            assertThatValidation(objects.asOption().apply("a"))
                     .isValid()
                     .isEqualTo(io.vavr.control.Option.of("a"));
 
-            assertThatValidation(objects.asOption().test(null))
+            assertThatValidation(objects.asOption().apply(null))
                     .isValid()
                     .isEqualTo(io.vavr.control.Option.none());
         }
@@ -248,7 +248,7 @@ class ObjectRulesTest {
 
         @Test
         void isInstanceOf_whenNull_returnsNotNullError() {
-            assertThatValidation(objects.isInstanceOf(String.class).test(null))
+            assertThatValidation(objects.isInstanceOf(String.class).apply(null))
                     .isInvalid()
                     .hasErrorMessages("must.not.be.null");
         }
@@ -261,28 +261,28 @@ class ObjectRulesTest {
 
         @Test
         void construct_withErrorMessage_whenValid_returnsValid() {
-            assertThatValidation(rule.test("123.45"))
+            assertThatValidation(rule.apply("123.45"))
                     .isValid()
                     .isEqualTo(new BigDecimal("123.45"));
         }
 
         @Test
         void construct_withErrorMessage_whenInvalid_returnsInvalid() {
-            assertThatValidation(rule.test("not-a-number"))
+            assertThatValidation(rule.apply("not-a-number"))
                     .isInvalid()
                     .hasErrorMessage("invalid.number");
         }
 
         @Test
         void construct_withErrorKey_whenValid_returnsValid() {
-            assertThatValidation(rule.test("123.45"))
+            assertThatValidation(rule.apply("123.45"))
                     .isValid()
                     .isEqualTo(new BigDecimal("123.45"));
         }
 
         @Test
         void construct_withErrorKey_whenInvalid_returnsInvalid() {
-            assertThatValidation(rule.test("not-a-number"))
+            assertThatValidation(rule.apply("not-a-number"))
                     .isInvalid()
                     .hasErrorMessage("invalid.number");
         }
@@ -293,7 +293,7 @@ class ObjectRulesTest {
                 throw new ValidationException(List.of(ErrorMessage.of("custom.error")));
             });
 
-            assertThatValidation(throwingRule.test("any"))
+            assertThatValidation(throwingRule.apply("any"))
                     .isInvalid()
                     .hasErrorMessage("custom.error");
         }
@@ -304,7 +304,7 @@ class ObjectRulesTest {
                 throw new RuntimeException("boom");
             });
 
-            assertThatValidation(throwingRule.test("any"))
+            assertThatValidation(throwingRule.apply("any"))
                     .isInvalid()
                     .hasErrorMessage("could.not.construct");
         }
@@ -313,7 +313,7 @@ class ObjectRulesTest {
         void construct_withoutErrorMessage_whenValid_returnsValid() {
             MappingRule<String, String> successRule = objects.construct(input -> "prefixed-" + input);
 
-            assertThatValidation(successRule.test("value"))
+            assertThatValidation(successRule.apply("value"))
                     .isValid()
                     .isEqualTo("prefixed-value");
         }

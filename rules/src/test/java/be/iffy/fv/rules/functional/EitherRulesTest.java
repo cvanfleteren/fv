@@ -35,7 +35,7 @@ class EitherRulesTest {
         @Test
         void isRightWithRule_whenRightFailsRule_fails() {
             Rule<Either<String, Integer>> rule = EitherRules.<String, Integer>eithers().isRight(ints.positive());
-            assertThatValidation(rule.test(Either.right(-1)).at("value"))
+            assertThatValidation(rule.apply(Either.right(-1)).at("value"))
                     .isInvalid()
                     .hasErrorMessages("value.must.be.positive");
         }
@@ -68,7 +68,7 @@ class EitherRulesTest {
         @Test
         void isLeftWithRule_whenLeftFailsRule_fails() {
             Rule<Either<String, Integer>> rule = EitherRules.<String, Integer>eithers().isLeft(StringRules.strings.notEmpty());
-            assertThatValidation(rule.test(Either.left("")).at("value"))
+            assertThatValidation(rule.apply(Either.left("")).at("value"))
                     .isInvalid()
                     .hasErrorMessages("value.must.not.be.empty");
         }
@@ -95,7 +95,7 @@ class EitherRulesTest {
         @Test
         void validateLeftWith_whenLeftFailsRule_fails() {
             Rule<Either<String, Integer>> rule = EitherRules.<String, Integer>eithers().validateLeftWith(StringRules.strings.notEmpty());
-            assertThatValidation(rule.test(Either.left("")).at("value"))
+            assertThatValidation(rule.apply(Either.left("")).at("value"))
                     .isInvalid()
                     .hasErrorMessages("value.must.not.be.empty");
             invalidTest(null, rule, "must.not.be.null");
@@ -117,7 +117,7 @@ class EitherRulesTest {
         @Test
         void validateRightWith_whenRightFailsRule_fails() {
             Rule<Either<String, Integer>> rule = EitherRules.<String, Integer>eithers().validateRightWith(ints.positive());
-            assertThatValidation(rule.test(Either.right(-1)).at("value"))
+            assertThatValidation(rule.apply(Either.right(-1)).at("value"))
                     .isInvalid()
                     .hasErrorMessages("value.must.be.positive");
             invalidTest(null, rule, "must.not.be.null");

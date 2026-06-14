@@ -116,7 +116,7 @@ public class MapRules {
         return Rule.notNull().and(map -> {
             Rule<V> castedRule = (Rule<V>) rule;
             Rule<Map<K, V>> rule2 = castedRule.lift().toMap();
-            return rule2.test(map);
+            return rule2.apply(map);
         });
     }
 

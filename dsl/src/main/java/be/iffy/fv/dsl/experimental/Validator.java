@@ -83,8 +83,8 @@ public class Validator {
         }
 
         public <V> MappingRule<T, V> builds(Function<R1, V> mapper) {
-            return input -> predicate.test(input).flatMapCatching(ignore -> {
-                return rule1.test(input).map(mapper);
+            return input -> predicate.apply(input).flatMapCatching(ignore -> {
+                return rule1.apply(input).map(mapper);
             });
         }
     }
@@ -109,9 +109,9 @@ public class Validator {
         }
 
         public <V> MappingRule<T, V> builds(Function2<R1, R2, V> mapper) {
-            return input -> predicate.test(input).flatMapCatching(ignore -> {
-                Validation<R1> r1 = rule1.test(input);
-                Validation<R2> r2 = rule2.test(input);
+            return input -> predicate.apply(input).flatMapCatching(ignore -> {
+                Validation<R1> r1 = rule1.apply(input);
+                Validation<R2> r2 = rule2.apply(input);
                 return Validations.combine(r1, r2).map(mapper);
             });
         }
@@ -131,10 +131,10 @@ public class Validator {
         }
 
         public <V> MappingRule<T, V> builds(Function3<R1, R2, R3, V> mapper) {
-            return input -> predicate.test(input).flatMapCatching(ignore -> {
-                Validation<R1> r1 = rule1.test(input);
-                Validation<R2> r2 = rule2.test(input);
-                Validation<R3> r3 = rule3.test(input);
+            return input -> predicate.apply(input).flatMapCatching(ignore -> {
+                Validation<R1> r1 = rule1.apply(input);
+                Validation<R2> r2 = rule2.apply(input);
+                Validation<R3> r3 = rule3.apply(input);
                 return Validations.combine(r1, r2, r3).map(mapper);
             });
         }
@@ -164,11 +164,11 @@ public class Validator {
         }
 
         public <V> MappingRule<T, V> builds(Function4<R1, R2, R3, R4, V> mapper) {
-            return input -> predicate.test(input).flatMapCatching(ignore -> {
-                Validation<R1> r1 = rule1.test(input);
-                Validation<R2> r2 = rule2.test(input);
-                Validation<R3> r3 = rule3.test(input);
-                Validation<R4> r4 = rule4.test(input);
+            return input -> predicate.apply(input).flatMapCatching(ignore -> {
+                Validation<R1> r1 = rule1.apply(input);
+                Validation<R2> r2 = rule2.apply(input);
+                Validation<R3> r3 = rule3.apply(input);
+                Validation<R4> r4 = rule4.apply(input);
                 return Validations.combine(r1, r2, r3, r4).map(mapper);
             });
         }
@@ -200,12 +200,12 @@ public class Validator {
         }
 
         public <V> MappingRule<T, V> builds(Function5<R1, R2, R3, R4, R5, V> mapper) {
-            return input -> predicate.test(input).flatMapCatching(ignore -> {
-                Validation<R1> r1 = rule1.test(input);
-                Validation<R2> r2 = rule2.test(input);
-                Validation<R3> r3 = rule3.test(input);
-                Validation<R4> r4 = rule4.test(input);
-                Validation<R5> r5 = rule5.test(input);
+            return input -> predicate.apply(input).flatMapCatching(ignore -> {
+                Validation<R1> r1 = rule1.apply(input);
+                Validation<R2> r2 = rule2.apply(input);
+                Validation<R3> r3 = rule3.apply(input);
+                Validation<R4> r4 = rule4.apply(input);
+                Validation<R5> r5 = rule5.apply(input);
                 return Validations.combine(r1, r2, r3, r4, r5).map(mapper);
             });
         }
@@ -239,13 +239,13 @@ public class Validator {
         }
 
         public <V> MappingRule<T, V> builds(Function6<R1, R2, R3, R4, R5, R6, V> mapper) {
-            return input -> predicate.test(input).flatMapCatching(ignore -> {
-                Validation<R1> r1 = rule1.test(input);
-                Validation<R2> r2 = rule2.test(input);
-                Validation<R3> r3 = rule3.test(input);
-                Validation<R4> r4 = rule4.test(input);
-                Validation<R5> r5 = rule5.test(input);
-                Validation<R6> r6 = rule6.test(input);
+            return input -> predicate.apply(input).flatMapCatching(ignore -> {
+                Validation<R1> r1 = rule1.apply(input);
+                Validation<R2> r2 = rule2.apply(input);
+                Validation<R3> r3 = rule3.apply(input);
+                Validation<R4> r4 = rule4.apply(input);
+                Validation<R5> r5 = rule5.apply(input);
+                Validation<R6> r6 = rule6.apply(input);
                 return Validations.combine(r1, r2, r3, r4, r5, r6).map(mapper);
             });
         }
@@ -281,14 +281,14 @@ public class Validator {
         }
 
         public <V> MappingRule<T, V> builds(Function7<R1, R2, R3, R4, R5, R6, R7, V> mapper) {
-            return input -> predicate.test(input).flatMapCatching(ignore -> {
-                Validation<R1> r1 = rule1.test(input);
-                Validation<R2> r2 = rule2.test(input);
-                Validation<R3> r3 = rule3.test(input);
-                Validation<R4> r4 = rule4.test(input);
-                Validation<R5> r5 = rule5.test(input);
-                Validation<R6> r6 = rule6.test(input);
-                Validation<R7> r7 = rule7.test(input);
+            return input -> predicate.apply(input).flatMapCatching(ignore -> {
+                Validation<R1> r1 = rule1.apply(input);
+                Validation<R2> r2 = rule2.apply(input);
+                Validation<R3> r3 = rule3.apply(input);
+                Validation<R4> r4 = rule4.apply(input);
+                Validation<R5> r5 = rule5.apply(input);
+                Validation<R6> r6 = rule6.apply(input);
+                Validation<R7> r7 = rule7.apply(input);
                 return Validations.combine(r1, r2, r3, r4, r5, r6, r7).map(mapper);
             });
         }
@@ -326,15 +326,15 @@ public class Validator {
         }
 
         public <V> MappingRule<T, V> builds(Function8<R1, R2, R3, R4, R5, R6, R7, R8, V> mapper) {
-            return input -> predicate.test(input).flatMapCatching(ignore -> {
-                Validation<R1> r1 = rule1.test(input);
-                Validation<R2> r2 = rule2.test(input);
-                Validation<R3> r3 = rule3.test(input);
-                Validation<R4> r4 = rule4.test(input);
-                Validation<R5> r5 = rule5.test(input);
-                Validation<R6> r6 = rule6.test(input);
-                Validation<R7> r7 = rule7.test(input);
-                Validation<R8> r8 = rule8.test(input);
+            return input -> predicate.apply(input).flatMapCatching(ignore -> {
+                Validation<R1> r1 = rule1.apply(input);
+                Validation<R2> r2 = rule2.apply(input);
+                Validation<R3> r3 = rule3.apply(input);
+                Validation<R4> r4 = rule4.apply(input);
+                Validation<R5> r5 = rule5.apply(input);
+                Validation<R6> r6 = rule6.apply(input);
+                Validation<R7> r7 = rule7.apply(input);
+                Validation<R8> r8 = rule8.apply(input);
                 return Validations.combine(r1, r2, r3, r4, r5, r6, r7, r8).map(mapper);
             });
         }

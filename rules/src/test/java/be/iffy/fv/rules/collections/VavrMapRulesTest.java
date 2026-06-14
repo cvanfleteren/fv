@@ -89,7 +89,7 @@ class VavrMapRulesTest {
             );
 
             // Act
-            Validation<Map<String, BigDecimal>> result = mapRule.test(input).at("value");
+            Validation<Map<String, BigDecimal>> result = mapRule.apply(input).at("value");
 
             // Assert: failures are attributed to their keys in the path
             assertThatValidation(result)

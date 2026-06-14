@@ -92,7 +92,7 @@ class ExceptionHandlingTest {
                 throw new ValidationException(List.of(ErrorMessage.of("rule.error")));
             }, "fallback.error");
 
-            Validation<Integer> result = rule.test("input");
+            Validation<Integer> result = rule.apply("input");
             assertThatValidation(result).isInvalid().hasErrorKeys("rule.error");
         }
 
@@ -104,7 +104,7 @@ class ExceptionHandlingTest {
                 throw new ValidationException(List.of(ErrorMessage.of("rule.error")));
             }, "fallback.error");
 
-            assertThatThrownBy(() -> rule.test("input")).isInstanceOf(ValidationException.class);
+            assertThatThrownBy(() -> rule.apply("input")).isInstanceOf(ValidationException.class);
         }
     }
 
@@ -116,7 +116,7 @@ class ExceptionHandlingTest {
             Rule<String> rule2 = Rule.ok();
             Rule<String> combined = rule1.or(rule2);
 
-            assertThatThrownBy(() -> combined.test("test")).isInstanceOf(RuntimeException.class).hasMessage("boom");
+            assertThatThrownBy(() -> combined.apply("test")).isInstanceOf(RuntimeException.class).hasMessage("boom");
         }
 
         @Test
@@ -125,7 +125,7 @@ class ExceptionHandlingTest {
             Rule<String> rule2 = s -> { throw new RuntimeException("boom2"); };
             Rule<String> combined = rule1.andAlso(rule2);
 
-            assertThatThrownBy(() -> combined.test("test")).isInstanceOf(RuntimeException.class).hasMessage("boom1");
+            assertThatThrownBy(() -> combined.apply("test")).isInstanceOf(RuntimeException.class).hasMessage("boom1");
         }
     }
 }

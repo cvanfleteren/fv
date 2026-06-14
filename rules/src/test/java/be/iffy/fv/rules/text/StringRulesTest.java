@@ -1082,14 +1082,14 @@ class StringRulesTest {
 
         @Test
         void isEnum_whenValidEnumValue_returnsValid() {
-            assertThatValidation(strings.asEnum(TestEnum.class).test("A"))
+            assertThatValidation(strings.asEnum(TestEnum.class).apply("A"))
                     .isValid()
                     .isEqualTo(TestEnum.A);
         }
 
         @Test
         void isEnum_whenInvalidEnumValue_returnsInvalid() {
-            assertThatValidation(strings.asEnum(TestEnum.class).test("C"))
+            assertThatValidation(strings.asEnum(TestEnum.class).apply("C"))
                     .isInvalid()
                     .hasErrorMessage("must.be.valid.enum.value", HashMap.of("value", "C"));
         }
@@ -1104,14 +1104,14 @@ class StringRulesTest {
 
         @Test
         void canBeEnum_whenValidEnumValue_returnsValid() {
-            assertThatValidation(strings.canBeEnum(TestEnum.class).test("A"))
+            assertThatValidation(strings.canBeEnum(TestEnum.class).apply("A"))
                     .isValid()
                     .isEqualTo("A");
         }
 
         @Test
         void canBeEnum_whenInvalidEnumValue_returnsInvalid() {
-            assertThatValidation(strings.canBeEnum(TestEnum.class).test("C"))
+            assertThatValidation(strings.canBeEnum(TestEnum.class).apply("C"))
                     .isInvalid()
                     .hasErrorMessage("must.be.valid.enum.value", HashMap.of("value", "C"));
         }

@@ -148,7 +148,7 @@ class CollectionRulesTest {
 
         @Test
         void invalid() {
-            assertThatValidation(collections.noNullElements().test(Arrays.asList("a", null, "c")).at("value"))
+            assertThatValidation(collections.noNullElements().apply(Arrays.asList("a", null, "c")).at("value"))
                     .isInvalid()
                     .hasErrorMessages("value[1].must.not.be.null");
         }
@@ -207,7 +207,7 @@ class CollectionRulesTest {
             invalidTest(null, collections.noneMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
             invalidTest(List.of(1, 2, 3), collections.noneMatch(n -> n % 2 == 0), "must.none.match");
             assertThatValidation(
-                    collections.noneMatch((Predicate<String>) s -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")).test(List.of("a", "bb", "c")).at("value")
+                    collections.noneMatch((Predicate<String>) s -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")).apply(List.of("a", "bb", "c")).at("value")
             )
                     .isInvalid()
                     .hasErrorMessages("value[1].len.must.not.be.two");
@@ -423,7 +423,7 @@ class CollectionRulesTest {
             List<Integer> input = List.of(-1, 10, 0);
 
             // Act
-            var result = listRule.test(input).at("value");
+            var result = listRule.apply(input).at("value");
 
             // Assert: failures are attributed to their indices in the path
             assertThatValidation(result)

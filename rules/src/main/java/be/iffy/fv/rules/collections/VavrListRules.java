@@ -277,11 +277,11 @@ public class VavrListRules {
      * <p>
      * Error key: whatever the key(s) are that the passed mappingRule returns.
      *
-     * @see MappingRule#liftToVavrList()
+     * @see MappingRule#lift()
      */
     public <T, R> MappingRule<List<T>, List<R>> map(MappingRule<T, R> mappingRule) {
         return input ->
-                mappingRule.lift().toVavrList().test(input);
+                mappingRule.lift().toVavrList().apply(input);
     }
 
     /**

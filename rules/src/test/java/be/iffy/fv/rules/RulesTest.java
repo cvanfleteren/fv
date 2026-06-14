@@ -12,13 +12,13 @@ import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 
 public class RulesTest {
     public static <T> void validTest(T value, Rule<? super T> rule) {
-        assertThatValidation(rule.test(value))
+        assertThatValidation(rule.apply(value))
                 .isValid()
                 .isEqualTo(value);
     }
 
     public static <T, R> void validTest(T value, R expected, MappingRule<? super T, R> rule) {
-        assertThatValidation(rule.test(value))
+        assertThatValidation(rule.apply(value))
                 .isValid()
                 .isEqualTo(expected);
     }

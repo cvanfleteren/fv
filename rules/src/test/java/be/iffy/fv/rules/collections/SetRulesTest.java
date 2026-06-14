@@ -13,7 +13,6 @@ import java.util.function.Predicate;
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
-import static be.iffy.fv.rules.collections.ListRules.lists;
 import static be.iffy.fv.rules.collections.SetRules.sets;
 import static be.iffy.fv.rules.numbers.IntegerRules.ints;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -148,7 +147,7 @@ class SetRulesTest {
             withNulls.add(null);
             withNulls.add("c");
 
-            assertThatValidation(sets.<String>noNullElements().test(withNulls).at("value"))
+            assertThatValidation(sets.<String>noNullElements().apply(withNulls).at("value"))
                     .isInvalid()
                     .hasErrorMessages("value[1].must.not.be.null");
         }
@@ -215,7 +214,7 @@ class SetRulesTest {
             invalidTest(new LinkedHashSet<>(List.of(1, 2, 3)), sets.noneMatch(n -> n % 2 == 0), "must.none.match");
 
             assertThatValidation(
-                    sets.noneMatch((Predicate<String>) s -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")).test(new LinkedHashSet<>(List.of("a", "bb", "c"))).at("value")
+                    sets.noneMatch((Predicate<String>) s -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")).apply(new LinkedHashSet<>(List.of("a", "bb", "c"))).at("value")
             )
                     .isInvalid()
                     .hasErrorMessages("value[1].len.must.not.be.two");
@@ -431,7 +430,7 @@ class SetRulesTest {
             Set<Integer> input = new LinkedHashSet<>(List.of(-1, 10, 0));
 
             // Act
-            var result = listRule.test(input).at("value");
+            var result = listRule.apply(input).at("value");
 
             // Assert: failures are attributed to their indices in the path
             assertThatValidation(result)

@@ -146,7 +146,7 @@ class VavrSetRulesTest {
         void invalid() {
             Set<String> withNulls = LinkedHashSet.of("a", null, "c");
 
-            assertThatValidation(vavrSets.<String>noNullElements().test(withNulls).at("value"))
+            assertThatValidation(vavrSets.<String>noNullElements().apply(withNulls).at("value"))
                     .isInvalid()
                     .hasErrorMessages("value[1].must.not.be.null");
         }
@@ -208,7 +208,7 @@ class VavrSetRulesTest {
 
 
             assertThatValidation(
-                    vavrSets.noneMatch((Predicate<String>) s -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")).test(LinkedHashSet.of("a", "bb", "c")).at("value")
+                    vavrSets.noneMatch((Predicate<String>) s -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")).apply(LinkedHashSet.of("a", "bb", "c")).at("value")
             )
                     .isInvalid()
                     .hasErrorMessages("value[1].len.must.not.be.two");
@@ -426,7 +426,7 @@ class VavrSetRulesTest {
             Set<Integer> input = LinkedHashSet.of(-1, 10, 0);
 
             // Act
-            var result = listRule.test(input).at("value");
+            var result = listRule.apply(input).at("value");
 
             // Assert: failures are attributed to their indices in the path
             assertThatValidation(result)

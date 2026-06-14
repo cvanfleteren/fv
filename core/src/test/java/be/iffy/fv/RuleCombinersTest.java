@@ -17,7 +17,7 @@ class RuleCombinersTest {
 
             MappingRule<String, String> combined = RuleCombiners.combine(rule1, rule2).map((length, upper) -> length + ":" + upper);
 
-            assertThatValidation(combined.test("hello"))
+            assertThatValidation(combined.apply("hello"))
                     .isValid()
                     .isEqualTo("5:HELLO");
         }
@@ -29,7 +29,7 @@ class RuleCombinersTest {
 
             MappingRule<String, String> combined = RuleCombiners.combine(rule1, rule2).map((length, upper) -> length + ":" + upper);
 
-            assertThatValidation(combined.test("hello"))
+            assertThatValidation(combined.apply("hello"))
                     .isInvalid()
                     .hasErrorMessage("error.one")
                     .hasErrorMessage("error.two");
@@ -42,7 +42,7 @@ class RuleCombinersTest {
 
             MappingRule<String, String> combined = RuleCombiners.combine(rule1, rule2).map((length, upper) -> length + ":" + upper);
 
-            assertThatValidation(combined.test("hello"))
+            assertThatValidation(combined.apply("hello"))
                     .isInvalid()
                     .hasErrorMessage("error.two");
         }
@@ -55,10 +55,10 @@ class RuleCombinersTest {
             MappingRule<String, String> combinedMap = RuleCombiners.combine(rule1, rule2).map((l, u) -> l + ":" + u);
             MappingRule<String, String> combinedInto = RuleCombiners.combine(rule1, rule2).into((l, u) -> l + ":" + u);
 
-            assertThatValidation(combinedMap.test("hello"))
+            assertThatValidation(combinedMap.apply("hello"))
                     .isValid()
                     .isEqualTo("5:HELLO");
-            assertThatValidation(combinedInto.test("hello"))
+            assertThatValidation(combinedInto.apply("hello"))
                     .isValid()
                     .isEqualTo("5:HELLO");
         }
@@ -74,7 +74,7 @@ class RuleCombinersTest {
 
             MappingRule<String, String> combined = RuleCombiners.combine(rule1, rule2, rule3).map((l, u, s) -> l + ":" + u + ":" + s);
 
-            assertThatValidation(combined.test("hello"))
+            assertThatValidation(combined.apply("hello"))
                     .isValid()
                     .isEqualTo("5:HELLO:static");
         }
@@ -91,7 +91,7 @@ class RuleCombinersTest {
 
             MappingRule<String, String> combined = RuleCombiners.combine(rule1, rule2, rule3, rule4).map((l, u, a, b) -> l + ":" + u + ":" + a + ":" + b);
 
-            assertThatValidation(combined.test("hello"))
+            assertThatValidation(combined.apply("hello"))
                     .isValid()
                     .isEqualTo("5:HELLO:a:b");
         }
@@ -109,7 +109,7 @@ class RuleCombinersTest {
 
             MappingRule<String, String> combined = RuleCombiners.combine(rule1, rule2, rule3, rule4, rule5).map((l, u, a, b, c) -> l + ":" + u + ":" + a + ":" + b + ":" + c);
 
-            assertThatValidation(combined.test("hello"))
+            assertThatValidation(combined.apply("hello"))
                     .isValid()
                     .isEqualTo("5:HELLO:a:b:c");
         }
@@ -128,7 +128,7 @@ class RuleCombinersTest {
 
             MappingRule<String, String> combined = RuleCombiners.combine(rule1, rule2, rule3, rule4, rule5, rule6).map((l, u, a, b, c, d) -> l + ":" + u + ":" + a + ":" + b + ":" + c + ":" + d);
 
-            assertThatValidation(combined.test("hello"))
+            assertThatValidation(combined.apply("hello"))
                     .isValid()
                     .isEqualTo("5:HELLO:a:b:c:d");
         }
@@ -148,7 +148,7 @@ class RuleCombinersTest {
 
             MappingRule<String, String> combined = RuleCombiners.combine(rule1, rule2, rule3, rule4, rule5, rule6, rule7).map((l, u, a, b, c, d, e) -> l + ":" + u + ":" + a + ":" + b + ":" + c + ":" + d + ":" + e);
 
-            assertThatValidation(combined.test("hello"))
+            assertThatValidation(combined.apply("hello"))
                     .isValid()
                     .isEqualTo("5:HELLO:a:b:c:d:e");
         }
@@ -169,7 +169,7 @@ class RuleCombinersTest {
 
             MappingRule<String, String> combined = RuleCombiners.combine(rule1, rule2, rule3, rule4, rule5, rule6, rule7, rule8).map((l, u, a, b, c, d, e, f) -> l + ":" + u + ":" + a + ":" + b + ":" + c + ":" + d + ":" + e + ":" + f);
 
-            assertThatValidation(combined.test("hello"))
+            assertThatValidation(combined.apply("hello"))
                     .isValid()
                     .isEqualTo("5:HELLO:a:b:c:d:e:f");
         }

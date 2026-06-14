@@ -78,7 +78,7 @@ class RuleTest {
 
             // Assert
             assertThat(narrowedRule).isSameAs(superRule);
-            assertThatValidation(narrowedRule.test(BigDecimal.valueOf(10)))
+            assertThatValidation(narrowedRule.apply(BigDecimal.valueOf(10)))
                     .isValid();
         }
 
@@ -86,10 +86,10 @@ class RuleTest {
         void test_assignmentToSuperType_compiles() {
             Rule<BigDecimal> isPositive = Rule.of(b -> b.doubleValue() > 0, "must.be.positive");
             // Option 1: Use a wildcard
-            Validation<? extends Number> v1 = isPositive.test(BigDecimal.valueOf(500));
+            Validation<? extends Number> v1 = isPositive.apply(BigDecimal.valueOf(500));
 
             // Option 2: Use narrow
-            Validation<Number> v2 = Validation.narrow(isPositive.test(BigDecimal.valueOf(500)));
+            Validation<Number> v2 = Validation.narrow(isPositive.apply(BigDecimal.valueOf(500)));
         }
     }
 
@@ -102,7 +102,7 @@ class RuleTest {
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
 
             // Act
-            Validation<String> result = rule.test("hello");
+            Validation<String> result = rule.apply("hello");
 
             // Assert
             assertThatValidation(result)
@@ -116,7 +116,7 @@ class RuleTest {
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
 
             // Act
-            Validation<String> result = rule.test("hi");
+            Validation<String> result = rule.apply("hi");
 
             // Assert
             assertThatValidation(result)
@@ -148,7 +148,7 @@ class RuleTest {
             }, "some.error");
 
             // Act
-            Validation<String> result = rule.test(null);
+            Validation<String> result = rule.apply(null);
 
             // Assert
             assertThatValidation(result)
@@ -162,7 +162,7 @@ class RuleTest {
             Rule<String> rule = Rule.ok();
 
             // Act
-            Validation<String> result = rule.test("any");
+            Validation<String> result = rule.apply("any");
 
             // Assert
             assertThatValidation(result)
@@ -176,7 +176,7 @@ class RuleTest {
             Rule<String> rule = Rule.ok();
 
             // Act & Assert
-            assertThatValidation(rule.test(null)).isInvalid()
+            assertThatValidation(rule.apply(null)).isInvalid()
                     .hasErrorKeys("must.not.be.null");
         }
     }
@@ -191,7 +191,7 @@ class RuleTest {
             Rule<String> combined = Rule.both(rule1.narrow(), rule2);
 
             // Act
-            Validation<String> result = combined.test("a");
+            Validation<String> result = combined.apply("a");
 
             // Assert
             assertThatValidation(result)
@@ -207,7 +207,7 @@ class RuleTest {
             Rule<String> combined = Rule.both(rule1, rule2);
 
             // Act
-            Validation<String> result = combined.test("hello");
+            Validation<String> result = combined.apply("hello");
 
             // Assert
             assertThatValidation(result)
@@ -230,7 +230,7 @@ class RuleTest {
             Rule<String> combined = Rule.all(rule1, rule2, rule3, rule4.narrow());
 
             // Act
-            Validation<String> result = combined.test("a");
+            Validation<String> result = combined.apply("a");
 
             // Assert
             assertThatValidation(result)
@@ -247,7 +247,7 @@ class RuleTest {
             Rule<String> combined = Rule.all(rule1, rule2, rule3);
 
             // Act
-            Validation<String> result = combined.test("hello!");
+            Validation<String> result = combined.apply("hello!");
 
             // Assert
             assertThatValidation(result)
@@ -263,7 +263,7 @@ class RuleTest {
             Rule<String> combined = Rule.all(rule1, rule2);
 
             // Act
-            Validation<String> result = combined.test("any");
+            Validation<String> result = combined.apply("any");
 
             // Assert
             assertThatValidation(result)
@@ -285,7 +285,7 @@ class RuleTest {
             Rule<String> combined = Rule.any(rule1, rule2, rule3);
 
             // Act
-            Validation<String> result = combined.test("hi!");
+            Validation<String> result = combined.apply("hi!");
 
             // Assert
             assertThatValidation(result)
@@ -301,7 +301,7 @@ class RuleTest {
             Rule<String> combined = Rule.any(rule1, rule2);
 
             // Act
-            Validation<String> result = combined.test("hello");
+            Validation<String> result = combined.apply("hello");
 
             // Assert
             assertThatValidation(result)
@@ -317,7 +317,7 @@ class RuleTest {
             Rule<String> combined = Rule.any(rule1, rule2);
 
             // Act
-            Validation<String> result = combined.test("a");
+            Validation<String> result = combined.apply("a");
 
             // Assert
             assertThatValidation(result)
@@ -336,7 +336,7 @@ class RuleTest {
             }, "error.two");
 
             // Act
-            Rule.any(firstRule, secondRule).test("test");
+            Rule.any(firstRule, secondRule).apply("test");
 
             // Assert
             assertThat(secondRuleCalled.get()).isFalse();
@@ -353,7 +353,7 @@ class RuleTest {
             Rule<String> combined = rule1.andAlso(rule2);
 
             // Act
-            Validation<String> result = combined.test("a");
+            Validation<String> result = combined.apply("a");
 
             // Assert
             assertThatValidation(result)
@@ -369,7 +369,7 @@ class RuleTest {
             Rule<String> combined = rule1.andAlso(rule2);
 
             // Act
-            Validation<String> result = combined.test("hello");
+            Validation<String> result = combined.apply("hello");
 
             // Assert
             assertThatValidation(result)
@@ -397,7 +397,7 @@ class RuleTest {
 
             // 4. The result: since and maps the result of the second Rule back to the value of the first Rule,
             // we're protected from the misbehaving second rule
-            String result = combinedRule.test("some input").getOrElseThrow();
+            String result = combinedRule.apply("some input").getOrElseThrow();
             assertThat(result).isEqualTo("some input");
         }
 
@@ -419,7 +419,7 @@ class RuleTest {
             Rule<String> combined = rule1.and(rule2);
 
             // Act
-            Validation<String> result = combined.test("hello");
+            Validation<String> result = combined.apply("hello");
 
             // Assert
             assertThatValidation(result)
@@ -435,7 +435,7 @@ class RuleTest {
             Rule<String> combined = rule1.and(rule2);
 
             // Act
-            Validation<String> result = combined.test("hi");
+            Validation<String> result = combined.apply("hi");
 
             // Assert
             assertThatValidation(result)
@@ -451,7 +451,7 @@ class RuleTest {
             Rule<String> combined = rule1.and(rule2);
 
             // Act
-            Validation<String> result = combined.test("apple");
+            Validation<String> result = combined.apply("apple");
 
             // Assert
             assertThatValidation(result)
@@ -480,9 +480,9 @@ class RuleTest {
             Rule<BigDecimal> combined = isLessThan1000.and(isPositive);
 
             // Assert
-            assertThatValidation(combined.test(new BigDecimal("500")))
+            assertThatValidation(combined.apply(new BigDecimal("500")))
                     .isValid();
-            assertThatValidation(combined.test(new BigDecimal("-1")))
+            assertThatValidation(combined.apply(new BigDecimal("-1")))
                     .isInvalid()
                     .hasErrorMessage("must.be.positive");
         }
@@ -499,8 +499,8 @@ class RuleTest {
             Rule<BigDecimal> or = decimalRule.or(numberRule);
             Rule<BigDecimal> or2 = numberRule.or(decimalRule);
 
-            assertThatValidation(or.test(BigDecimal.valueOf(10))).isValid();
-            assertThatValidation(or2.test(BigDecimal.valueOf(10))).isValid();
+            assertThatValidation(or.apply(BigDecimal.valueOf(10))).isValid();
+            assertThatValidation(or2.apply(BigDecimal.valueOf(10))).isValid();
         }
 
         @Test
@@ -511,7 +511,7 @@ class RuleTest {
             Rule<String> combined = rule1.or(rule2);
 
             // Act
-            Validation<String> result = combined.test("apple"); // Fails rule2, matches rule1 (length > 3)
+            Validation<String> result = combined.apply("apple"); // Fails rule2, matches rule1 (length > 3)
 
             // Assert
             assertThatValidation(result)
@@ -527,7 +527,7 @@ class RuleTest {
             Rule<String> combined = rule1.or(rule2);
 
             // Act
-            Validation<String> result = combined.test("hi"); // Fails rule1 (length <= 5), matches rule2
+            Validation<String> result = combined.apply("hi"); // Fails rule1 (length <= 5), matches rule2
 
             // Assert
             assertThatValidation(result)
@@ -543,7 +543,7 @@ class RuleTest {
             Rule<String> combined = rule1.or(rule2);
 
             // Act
-            Validation<String> result = combined.test("abc");
+            Validation<String> result = combined.apply("abc");
 
             // Assert
             assertThatValidation(result)
@@ -572,10 +572,10 @@ class RuleTest {
             Rule<BigDecimal> combined = isMinusFortyTwo.or(isPositive);
 
             // Assert
-            assertThatValidation(combined.test(new BigDecimal("10"))).isValid();
-            assertThatValidation(combined.test(new BigDecimal("-42"))).isValid();
+            assertThatValidation(combined.apply(new BigDecimal("10"))).isValid();
+            assertThatValidation(combined.apply(new BigDecimal("-42"))).isValid();
 
-            assertThatValidation(combined.test(new BigDecimal("-1")))
+            assertThatValidation(combined.apply(new BigDecimal("-1")))
                     .isInvalid()
                     .hasErrorMessages("must.be.minus.forty.two", "must.be.positive");
         }
@@ -586,7 +586,7 @@ class RuleTest {
 
 
         Validation<String> isLongerThan5(String in) {
-            return Rule.<String>of(s -> s.length() > 5, "too.short").test(in);
+            return Rule.<String>of(s -> s.length() > 5, "too.short").apply(in);
         }
 
         @Test
@@ -596,7 +596,7 @@ class RuleTest {
             Rule<String> combined = startsWithH.xor(this::isLongerThan5, "exactly.one.must.match");
 
             // Act
-            Validation<String> result = combined.test("hello");
+            Validation<String> result = combined.apply("hello");
 
             // Assert
             assertThatValidation(result)
@@ -612,7 +612,7 @@ class RuleTest {
             Rule<String> combined = startsWithH.xor(isLongerThan5, "exactly.one.must.match");
 
             // Act
-            Validation<String> result = combined.test("apple pie");
+            Validation<String> result = combined.apply("apple pie");
 
             // Assert
             assertThatValidation(result)
@@ -628,7 +628,7 @@ class RuleTest {
             Rule<String> combined = startsWithH.xor(isLongerThan3, "exactly.one.must.match");
 
             // Act
-            Validation<String> result = combined.test("hello");
+            Validation<String> result = combined.apply("hello");
 
             // Assert
             assertThatValidation(result)
@@ -644,7 +644,7 @@ class RuleTest {
             Rule<String> combined = startsWithH.xor(isLongerThan10, "exactly.one.must.match");
 
             // Act
-            Validation<String> result = combined.test("apple");
+            Validation<String> result = combined.apply("apple");
 
             // Assert
             assertThatValidation(result)
@@ -662,10 +662,10 @@ class RuleTest {
             Rule<BigDecimal> combined = isMinusFortyTwo.xor(isPositive, "exactly.one.must.match");
 
             // Assert
-            assertThatValidation(combined.test(new BigDecimal("10"))).isValid();
-            assertThatValidation(combined.test(new BigDecimal("-42"))).isValid();
+            assertThatValidation(combined.apply(new BigDecimal("10"))).isValid();
+            assertThatValidation(combined.apply(new BigDecimal("-42"))).isValid();
 
-            assertThatValidation(combined.test(new BigDecimal("-1")))
+            assertThatValidation(combined.apply(new BigDecimal("-1")))
                     .isInvalid()
                     .hasErrorMessage("exactly.one.must.match");
         }
@@ -703,7 +703,7 @@ class RuleTest {
             Rule<String> notStartsWithH = startsWithH.negate("must.not.start.with.h");
 
             // Act
-            Validation<String> result = notStartsWithH.test("hello");
+            Validation<String> result = notStartsWithH.apply("hello");
 
             // Assert
             assertThatValidation(result)
@@ -718,7 +718,7 @@ class RuleTest {
             Rule<String> notStartsWithH = startsWithH.negate("must.not.start.with.h");
 
             // Act
-            Validation<String> result = notStartsWithH.test("apple");
+            Validation<String> result = notStartsWithH.apply("apple");
 
             // Assert
             assertThatValidation(result)
@@ -733,7 +733,7 @@ class RuleTest {
             Rule<Integer> isNotEven = isEven.negate(ErrorMessage.of("must.not.be.even"));
 
             // Act
-            Validation<Integer> result = isNotEven.test(2);
+            Validation<Integer> result = isNotEven.apply(2);
 
             // Assert
             assertThatValidation(result)
@@ -775,7 +775,7 @@ class RuleTest {
             Rule<String> combined = rule1.fallback(rule2);
 
             // Act
-            Validation<String> result = combined.test("apple");
+            Validation<String> result = combined.apply("apple");
 
             // Assert
             assertThatValidation(result)
@@ -791,7 +791,7 @@ class RuleTest {
             Rule<String> combined = rule1.fallback(rule2);
 
             // Act
-            Validation<String> result = combined.test("hi");
+            Validation<String> result = combined.apply("hi");
 
             // Assert
             assertThatValidation(result)
@@ -807,7 +807,7 @@ class RuleTest {
             Rule<String> combined = rule1.fallback(rule2);
 
             // Act
-            Validation<String> result = combined.test("abc");
+            Validation<String> result = combined.apply("abc");
 
             // Assert
             assertThatValidation(result)
@@ -840,13 +840,13 @@ class RuleTest {
 
             // Assert
             // 1. First rule matches
-            assertThatValidation(combined.test(new BigDecimal("-42"))).isValid();
+            assertThatValidation(combined.apply(new BigDecimal("-42"))).isValid();
 
             // 2. Second rule matches (recovery)
-            assertThatValidation(combined.test(new BigDecimal("10"))).isValid();
+            assertThatValidation(combined.apply(new BigDecimal("10"))).isValid();
 
             // 3. Both fail
-            assertThatValidation(combined.test(new BigDecimal("-1")))
+            assertThatValidation(combined.apply(new BigDecimal("-1")))
                     .isInvalid()
                     .hasErrorMessage("must.be.positive");
         }
@@ -862,7 +862,7 @@ class RuleTest {
             Rule<List<String>> listRule = rule.lift().toVavrList();
 
             // Act
-            Validation<List<String>> result = listRule.test(List.of("hello", "world"));
+            Validation<List<String>> result = listRule.apply(List.of("hello", "world"));
 
             // Assert
             assertThatValidation(result)
@@ -877,7 +877,7 @@ class RuleTest {
             Rule<List<String>> listRule = rule.lift().toVavrList();
 
             // Act
-            Validation<List<String>> result = listRule.test(List.of("hello", "hi", "yo","a"));
+            Validation<List<String>> result = listRule.apply(List.of("hello", "hi", "yo","a"));
 
             // Assert
             assertThatValidation(result)
@@ -894,7 +894,7 @@ class RuleTest {
             Rule<List<String>> listRule = rule.lift().toVavrList();
 
             // Act
-            Validation<List<String>> result = listRule.test(List.of("hi", "hello"));
+            Validation<List<String>> result = listRule.apply(List.of("hi", "hello"));
 
             // Assert
             assertThatValidation(result)
@@ -913,7 +913,7 @@ class RuleTest {
             Rule<Option<String>> optionRule = rule.lift().toOption();
 
             // Act
-            Validation<Option<String>> result = optionRule.test(Option.none());
+            Validation<Option<String>> result = optionRule.apply(Option.none());
 
             // Assert
             assertThatValidation(result)
@@ -928,7 +928,7 @@ class RuleTest {
             Rule<Option<String>> optionRule = rule.lift().toOption();
 
             // Act
-            Validation<Option<String>> result = optionRule.test(Option.of("hello"));
+            Validation<Option<String>> result = optionRule.apply(Option.of("hello"));
 
             // Assert
             assertThatValidation(result)
@@ -943,7 +943,7 @@ class RuleTest {
             Rule<Option<String>> optionRule = rule.lift().toOption();
 
             // Act
-            Validation<Option<String>> result = optionRule.test(Option.of("hi"));
+            Validation<Option<String>> result = optionRule.apply(Option.of("hi"));
 
             // Assert
             assertThatValidation(result)
@@ -960,7 +960,7 @@ class RuleTest {
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
             Rule<Optional<String>> lifted = rule.lift().toOptional();
 
-            assertThat(lifted.test(Optional.empty())).isEqualTo(Validation.valid(Optional.empty()));
+            assertThat(lifted.apply(Optional.empty())).isEqualTo(Validation.valid(Optional.empty()));
         }
 
         @Test
@@ -968,7 +968,7 @@ class RuleTest {
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
             Rule<Optional<String>> lifted = rule.lift().toOptional();
 
-            assertThat(lifted.test(Optional.of("Alice"))).isEqualTo(Validation.valid(Optional.of("Alice")));
+            assertThat(lifted.apply(Optional.of("Alice"))).isEqualTo(Validation.valid(Optional.of("Alice")));
         }
 
         @Test
@@ -976,7 +976,7 @@ class RuleTest {
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
             Rule<Optional<String>> lifted = rule.lift().toOptional();
 
-            assertThatValidation(lifted.test(Optional.of("Bob")))
+            assertThatValidation(lifted.apply(Optional.of("Bob")))
                     .isInvalid()
                     .hasErrorMessage("too.short");
         }
@@ -997,7 +997,7 @@ class RuleTest {
             );
 
             // Act
-            Validation<Map<String, String>> result = mapRule.test(input);
+            Validation<Map<String, String>> result = mapRule.apply(input);
 
             // Assert
             assertThatValidation(result)
@@ -1017,7 +1017,7 @@ class RuleTest {
             );
 
             // Act
-            Validation<Map<String, String>> result = mapRule.test(input).at("aMap");
+            Validation<Map<String, String>> result = mapRule.apply(input).at("aMap");
 
             // Assert
             assertThatValidation(result)
@@ -1038,7 +1038,7 @@ class RuleTest {
             );
 
             // Act
-            Validation<Map<Integer, String>> result = mapRule.test(input).at("aMap");
+            Validation<Map<Integer, String>> result = mapRule.apply(input).at("aMap");
 
             // Assert
             assertThatValidation(result)
@@ -1055,7 +1055,7 @@ class RuleTest {
             Map<String, String> input = HashMap.empty();
 
             // Act
-            Validation<Map<String, String>> result = mapRule.test(input);
+            Validation<Map<String, String>> result = mapRule.apply(input);
 
             // Assert
             assertThatValidation(result)
@@ -1076,7 +1076,7 @@ class RuleTest {
             );
 
             // Act
-            Validation<Map<Integer, String>> result = mapRule.test(input);
+            Validation<Map<Integer, String>> result = mapRule.apply(input);
 
             // Assert
             assertThatValidation(result)
@@ -1110,7 +1110,7 @@ class RuleTest {
             input.put("b", "world");
 
             // Act
-            Validation<java.util.Map<String, String>> result = mapRule.test(input);
+            Validation<java.util.Map<String, String>> result = mapRule.apply(input);
 
             // Assert
             assertThatValidation(result)
@@ -1129,7 +1129,7 @@ class RuleTest {
             input.put("b", "yo");
 
             // Act
-            Validation<java.util.Map<String, String>> result = mapRule.test(input).at("aMap");
+            Validation<java.util.Map<String, String>> result = mapRule.apply(input).at("aMap");
 
             // Assert
             assertThatValidation(result)
@@ -1149,7 +1149,7 @@ class RuleTest {
             input.put(20, "yo");
 
             // Act
-            Validation<java.util.Map<Integer, String>> result = mapRule.test(input).at("aMap");
+            Validation<java.util.Map<Integer, String>> result = mapRule.apply(input).at("aMap");
 
             // Assert
             assertThatValidation(result)
@@ -1166,7 +1166,7 @@ class RuleTest {
             java.util.Map<String, String> input = java.util.Collections.emptyMap();
 
             // Act
-            Validation<java.util.Map<String, String>> result = mapRule.test(input);
+            Validation<java.util.Map<String, String>> result = mapRule.apply(input);
 
             // Assert
             assertThatValidation(result)
@@ -1181,7 +1181,7 @@ class RuleTest {
             Rule<java.util.Map<String, String>> mapRule = rule.lift().toMap();
 
             // Act
-            Validation<java.util.Map<String, String>> result = mapRule.test(null);
+            Validation<java.util.Map<String, String>> result = mapRule.apply(null);
 
             // Assert
             assertThatValidation(result)
@@ -1244,7 +1244,7 @@ class RuleTest {
             Rule<String> rule = Rule.of(s -> s.length() > 5, "too.short");
             Rule<String> conditionalRule = rule.onlyIf(s -> s.startsWith("a"));
 
-            assertThatValidation(conditionalRule.test("apple-pie"))
+            assertThatValidation(conditionalRule.apply("apple-pie"))
                     .isValid()
                     .isEqualTo("apple-pie");
         }
@@ -1254,7 +1254,7 @@ class RuleTest {
             Rule<String> rule = Rule.of(s -> s.length() > 10, "too.short");
             Rule<String> conditionalRule = rule.onlyIf(s -> s.startsWith("a"));
 
-            assertThatValidation(conditionalRule.test("apple"))
+            assertThatValidation(conditionalRule.apply("apple"))
                     .isInvalid()
                     .hasErrorMessage("too.short");
         }
@@ -1265,7 +1265,7 @@ class RuleTest {
             Rule<String> conditionalRule = rule.onlyIf(s -> s.startsWith("b"));
 
             // "apple" does not start with "b", so rule shouldn't run
-            assertThatValidation(conditionalRule.test("apple"))
+            assertThatValidation(conditionalRule.apply("apple"))
                     .isValid()
                     .isEqualTo("apple");
         }
@@ -1275,7 +1275,7 @@ class RuleTest {
             Rule<String> rule = Rule.of(s -> s.length() > 5, "too.short");
             Rule<String> conditionalRule = rule.onlyIf(() -> true);
 
-            assertThatValidation(conditionalRule.test("abc"))
+            assertThatValidation(conditionalRule.apply("abc"))
                     .isInvalid()
                     .hasErrorMessage("too.short");
         }
@@ -1285,7 +1285,7 @@ class RuleTest {
             Rule<String> rule = Rule.of(s -> s.length() > 5, "too.short");
             Rule<String> conditionalRule = rule.onlyIf(() -> false);
 
-            assertThatValidation(conditionalRule.test("abc"))
+            assertThatValidation(conditionalRule.apply("abc"))
                     .isValid()
                     .isEqualTo("abc");
         }
@@ -1320,7 +1320,7 @@ class RuleTest {
             Rule<StringHolder> withRule = Rule.on(StringHolder::value, rule);
 
             // Act
-            Validation<StringHolder> result = withRule.test(new StringHolder("1234"));
+            Validation<StringHolder> result = withRule.apply(new StringHolder("1234"));
 
             // Assert
             assertThatValidation(result)
@@ -1335,7 +1335,7 @@ class RuleTest {
             Rule<StringHolder> withRule = Rule.on(StringHolder::value, rule);
 
             // Act
-            Validation<StringHolder> result = withRule.test(new StringHolder("12"));
+            Validation<StringHolder> result = withRule.apply(new StringHolder("12"));
 
             // Assert
             assertThatValidation(result)
@@ -1350,7 +1350,7 @@ class RuleTest {
             Rule<StringHolder> givenRule = rule.on(StringHolder::value);
 
             // Act
-            Validation<StringHolder> result = givenRule.test(new StringHolder("1234"));
+            Validation<StringHolder> result = givenRule.apply(new StringHolder("1234"));
 
             // Assert
             assertThatValidation(result)
@@ -1365,7 +1365,7 @@ class RuleTest {
             Rule<StringHolder> givenRule = rule.on(StringHolder::value);
 
             // Act
-            Validation<StringHolder> result = givenRule.test(new StringHolder("12"));
+            Validation<StringHolder> result = givenRule.apply(new StringHolder("12"));
 
             // Assert
             assertThatValidation(result)
@@ -1384,7 +1384,7 @@ class RuleTest {
             Rule<String> describedRule = rule.withErrorKey("invalid.input");
 
             // Act
-            Validation<String> result = describedRule.test("abc");
+            Validation<String> result = describedRule.apply("abc");
 
             // Assert
             assertThatValidation(result)
@@ -1402,7 +1402,7 @@ class RuleTest {
             Rule<String> describedRule = rule.withErrorKey("invalid.input");
 
             // Act
-            Validation<String> result = describedRule.test("abcdef");
+            Validation<String> result = describedRule.apply("abcdef");
 
             // Assert
             assertThatValidation(result)
@@ -1421,7 +1421,7 @@ class RuleTest {
             Rule<String> conditionalRule = Rule.when(true, rule);
 
             // Act
-            Validation<String> result = conditionalRule.test("hello");
+            Validation<String> result = conditionalRule.apply("hello");
 
             // Assert
             assertThatValidation(result)
@@ -1436,7 +1436,7 @@ class RuleTest {
             Rule<String> conditionalRule = Rule.when(true, rule);
 
             // Act
-            Validation<String> result = conditionalRule.test("he");
+            Validation<String> result = conditionalRule.apply("he");
 
             // Assert
             assertThatValidation(result)
@@ -1451,7 +1451,7 @@ class RuleTest {
             Rule<String> conditionalRule = Rule.when(false, rule);
 
             // Act
-            Validation<String> result = conditionalRule.test("hi");
+            Validation<String> result = conditionalRule.apply("hi");
 
             // Assert
             assertThatValidation(result)
@@ -1471,7 +1471,7 @@ class RuleTest {
             Rule<String> chosenRule = Rule.choose(true, rule1, rule2);
 
             // Act
-            Validation<String> result = chosenRule.test("hi");
+            Validation<String> result = chosenRule.apply("hi");
 
             // Assert
             assertThatValidation(result)
@@ -1487,7 +1487,7 @@ class RuleTest {
             Rule<String> chosenRule = Rule.choose(false, rule1, rule2);
 
             // Act
-            Validation<String> result = chosenRule.test("hi");
+            Validation<String> result = chosenRule.apply("hi");
 
             // Assert
             assertThatValidation(result).isValid().isEqualTo("hi");

@@ -30,7 +30,7 @@ class MappingRuleTest {
 
             MappingRule<String, Object> rule = lengthRule.then(toStringRule);
 
-            Validation<Object> result = rule.test("hello");
+            Validation<Object> result = rule.apply("hello");
 
             assertThat(result.isValid()).isTrue();
             assertThat(result.getOrElse("")).isEqualTo("5");
@@ -44,7 +44,7 @@ class MappingRuleTest {
 
             MappingRule<String, Boolean> lengthIsEvenRule = lengthRule.then(evenRule);
 
-            Validation<Boolean> result = lengthIsEvenRule.test("hello");
+            Validation<Boolean> result = lengthIsEvenRule.apply("hello");
 
             assertThat(result.isValid()).isFalse();
             assertThat(result.errors()).extracting(ErrorMessage::message).containsExactly("length.invalid");
@@ -57,7 +57,7 @@ class MappingRuleTest {
 
             MappingRule<String, Number> lengthIsEvenRule = lengthRule.then(evenRule);
 
-            Validation<Number> result = lengthIsEvenRule.test("hello");
+            Validation<Number> result = lengthIsEvenRule.apply("hello");
 
             assertThat(result.isValid()).isFalse();
             assertThat(result.errors()).extracting(ErrorMessage::message).containsExactly("length.invalid");
@@ -70,7 +70,7 @@ class MappingRuleTest {
 
             MappingRule<String, Boolean> lengthIsEvenRule = lengthRule.then(evenRule);
 
-            Validation<Boolean> result = lengthIsEvenRule.test("hello");
+            Validation<Boolean> result = lengthIsEvenRule.apply("hello");
 
             assertThat(result.isValid()).isFalse();
             assertThat(result.errors()).extracting(ErrorMessage::message).containsExactly("even.invalid");
@@ -83,7 +83,7 @@ class MappingRuleTest {
 
             MappingRule<String, Boolean> lengthIsEvenRule = lengthRule.then(evenRule);
 
-            Validation<Boolean> result = lengthIsEvenRule.test("hello");
+            Validation<Boolean> result = lengthIsEvenRule.apply("hello");
 
             assertThat(result.isValid()).isFalse();
             assertThat(result.errors()).extracting(ErrorMessage::message).containsExactly("length.invalid");
@@ -100,7 +100,7 @@ class MappingRuleTest {
             MappingRule<String, String> mapToRule = rule.mapTo("Success");
 
             // Act
-            Validation<String> result = mapToRule.test("123");
+            Validation<String> result = mapToRule.apply("123");
 
             // Assert
             assertThatValidation(result)
@@ -115,7 +115,7 @@ class MappingRuleTest {
             MappingRule<String, String> mapToRule = rule.mapTo("Success");
 
             // Act
-            Validation<String> result = mapToRule.test("abc");
+            Validation<String> result = mapToRule.apply("abc");
 
             // Assert
             assertThatValidation(result)
@@ -134,7 +134,7 @@ class MappingRuleTest {
             MappingRule<List<String>, List<Integer>> listRule = rule.lift().toVavrList();
 
             // Act
-            Validation<List<Integer>> result = listRule.test(List.of("123", "456"));
+            Validation<List<Integer>> result = listRule.apply(List.of("123", "456"));
 
             // Assert
             assertThatValidation(result)
@@ -149,7 +149,7 @@ class MappingRuleTest {
             MappingRule<List<String>, List<Integer>> listRule = rule.lift().toVavrList();
 
             // Act
-            Validation<List<Integer>> result = listRule.test(List.of("123", "hi", "yo"));
+            Validation<List<Integer>> result = listRule.apply(List.of("123", "hi", "yo"));
 
             // Assert
             assertThatValidation(result)
@@ -166,7 +166,7 @@ class MappingRuleTest {
             MappingRule<List<String>, List<Integer>> listRule = rule.lift().toVavrList();
 
             // Act
-            Validation<List<Integer>> result = listRule.test(List.of("hi", "hello"));
+            Validation<List<Integer>> result = listRule.apply(List.of("hi", "hello"));
 
             // Assert
             assertThatValidation(result)
@@ -185,7 +185,7 @@ class MappingRuleTest {
             MappingRule<java.util.List<String>, java.util.List<Integer>> listRule = rule.lift().toList();
 
             // Act
-            Validation<java.util.List<Integer>> result = listRule.test(java.util.List.of("123", "456"));
+            Validation<java.util.List<Integer>> result = listRule.apply(java.util.List.of("123", "456"));
 
             // Assert
             assertThatValidation(result)
@@ -200,7 +200,7 @@ class MappingRuleTest {
             MappingRule<java.util.List<String>, java.util.List<Integer>> listRule = rule.lift().toList();
 
             // Act
-            Validation<java.util.List<Integer>> result = listRule.test(java.util.List.of("123", "hi", "yo"));
+            Validation<java.util.List<Integer>> result = listRule.apply(java.util.List.of("123", "hi", "yo"));
 
             // Assert
             assertThatValidation(result)
@@ -217,7 +217,7 @@ class MappingRuleTest {
             MappingRule<java.util.List<String>, java.util.List<Integer>> listRule = rule.lift().toList();
 
             // Act
-            Validation<java.util.List<Integer>> result = listRule.test(java.util.List.of("hi", "hello"));
+            Validation<java.util.List<Integer>> result = listRule.apply(java.util.List.of("hi", "hello"));
 
             // Assert
             assertThatValidation(result)
@@ -236,7 +236,7 @@ class MappingRuleTest {
             MappingRule<Option<String>, Option<Integer>> optionRule = rule.lift().toOption();
 
             // Act
-            Validation<Option<Integer>> result = optionRule.test(Option.none());
+            Validation<Option<Integer>> result = optionRule.apply(Option.none());
 
             // Assert
             assertThatValidation(result)
@@ -251,7 +251,7 @@ class MappingRuleTest {
             MappingRule<Option<String>, Option<Integer>> optionRule = rule.lift().toOption();
 
             // Act
-            Validation<Option<Integer>> result = optionRule.test(Option.of("123"));
+            Validation<Option<Integer>> result = optionRule.apply(Option.of("123"));
 
             // Assert
             assertThatValidation(result)
@@ -266,7 +266,7 @@ class MappingRuleTest {
             MappingRule<Option<String>, Option<Integer>> optionRule = rule.lift().toOption();
 
             // Act
-            Validation<Option<Integer>> result = optionRule.test(Option.of("a"));
+            Validation<Option<Integer>> result = optionRule.apply(Option.of("a"));
 
             // Assert
             assertThatValidation(result)
@@ -285,7 +285,7 @@ class MappingRuleTest {
             MappingRule<java.util.Optional<String>, java.util.Optional<Integer>> optionalRule = rule.lift().toOptional();
 
             // Act
-            Validation<java.util.Optional<Integer>> result = optionalRule.test(java.util.Optional.empty());
+            Validation<java.util.Optional<Integer>> result = optionalRule.apply(java.util.Optional.empty());
 
             // Assert
             assertThatValidation(result)
@@ -300,7 +300,7 @@ class MappingRuleTest {
             MappingRule<java.util.Optional<String>, java.util.Optional<Integer>> optionalRule = rule.lift().toOptional();
 
             // Act
-            Validation<java.util.Optional<Integer>> result = optionalRule.test(java.util.Optional.of("123"));
+            Validation<java.util.Optional<Integer>> result = optionalRule.apply(java.util.Optional.of("123"));
 
             // Assert
             assertThatValidation(result)
@@ -315,7 +315,7 @@ class MappingRuleTest {
             MappingRule<java.util.Optional<String>, java.util.Optional<Integer>> optionalRule = rule.lift().toOptional();
 
             // Act
-            Validation<java.util.Optional<Integer>> result = optionalRule.test(java.util.Optional.of("a"));
+            Validation<java.util.Optional<Integer>> result = optionalRule.apply(java.util.Optional.of("a"));
 
             // Assert
             assertThatValidation(result)
@@ -338,7 +338,7 @@ class MappingRuleTest {
             );
 
             // Act
-            Validation<Map<String, Integer>> result = mapRule.test(input);
+            Validation<Map<String, Integer>> result = mapRule.apply(input);
 
             // Assert
             assertThatValidation(result)
@@ -358,7 +358,7 @@ class MappingRuleTest {
             );
 
             // Act
-            Validation<Map<String, Integer>> result = mapRule.test(input).at("aMap");
+            Validation<Map<String, Integer>> result = mapRule.apply(input).at("aMap");
 
             // Assert
             assertThatValidation(result)
@@ -378,7 +378,7 @@ class MappingRuleTest {
             );
 
             // Act
-            Validation<Map<Integer, Integer>> result = mapRule.test(input).at("aMap");
+            Validation<Map<Integer, Integer>> result = mapRule.apply(input).at("aMap");
 
             // Assert
             assertThatValidation(result)
@@ -398,7 +398,7 @@ class MappingRuleTest {
             );
 
             // Act
-            Validation<Map<Integer, Integer>> result = mapRule.test(input);
+            Validation<Map<Integer, Integer>> result = mapRule.apply(input);
 
             // Assert
             assertThatValidation(result)
@@ -421,7 +421,7 @@ class MappingRuleTest {
             );
 
             // Act
-            Validation<java.util.Map<String, Integer>> result = mapRule.test(input);
+            Validation<java.util.Map<String, Integer>> result = mapRule.apply(input);
 
             // Assert
             assertThatValidation(result)
@@ -441,7 +441,7 @@ class MappingRuleTest {
             );
 
             // Act
-            Validation<java.util.Map<String, Integer>> result = mapRule.test(input).at("aMap");
+            Validation<java.util.Map<String, Integer>> result = mapRule.apply(input).at("aMap");
 
             // Assert
             assertThatValidation(result)
@@ -461,7 +461,7 @@ class MappingRuleTest {
             );
 
             // Act
-            Validation<java.util.Map<Integer, Integer>> result = mapRule.test(input).at("aMap");
+            Validation<java.util.Map<Integer, Integer>> result = mapRule.apply(input).at("aMap");
 
             // Assert
             assertThatValidation(result)
@@ -481,7 +481,7 @@ class MappingRuleTest {
             );
 
             // Act
-            Validation<java.util.Map<Integer, Integer>> result = mapRule.test(input);
+            Validation<java.util.Map<Integer, Integer>> result = mapRule.apply(input);
 
             // Assert
             assertThatValidation(result)
@@ -495,7 +495,7 @@ class MappingRuleTest {
         @Test
         void notNull_whenValueIsPresent_returnsValidResult() {
             MappingRule<String, String> rule = MappingRule.notNull();
-            assertThatValidation(rule.test("hello"))
+            assertThatValidation(rule.apply("hello"))
                     .isValid()
                     .isEqualTo("hello");
         }
@@ -503,7 +503,7 @@ class MappingRuleTest {
         @Test
         void notNull_whenValueIsNull_returnsInvalidWithDefaultError() {
             MappingRule<String, String> rule = MappingRule.notNull();
-            assertThatValidation(rule.test(null))
+            assertThatValidation(rule.apply(null))
                     .isInvalid()
                     .hasErrorMessages("must.not.be.null");
         }
@@ -514,18 +514,18 @@ class MappingRuleTest {
         @Test
         void ofTry_withErrorMessage_whenTryIsSuccess_returnsValidResult() {
             MappingRule<String, Integer> rule = MappingRule.fromTry(s -> Try.success(Integer.parseInt(s)), ErrorMessage.of("error"));
-            assertThat(rule.test("123")).isEqualTo(Validation.valid(123));
+            assertThat(rule.apply("123")).isEqualTo(Validation.valid(123));
         }
         @Test
         void ofTry_withErrorMessage_whenTryIsFailure_returnsInvalidWithErrorMessage() {
             MappingRule<String, Integer> rule = MappingRule.fromTry(s -> Try.failure(new NumberFormatException()), ErrorMessage.of("invalid.number"));
-            assertThat(rule.test("abc")).isEqualTo(Validation.invalid(ErrorMessage.of("invalid.number")));
+            assertThat(rule.apply("abc")).isEqualTo(Validation.invalid(ErrorMessage.of("invalid.number")));
         }
         @Test
         void ofTry_whenTryIsFailureWithValidationException_returnsInvalidWithValidationExceptionErrors() {
             List<ErrorMessage> errors = List.of(ErrorMessage.of("error.1"), ErrorMessage.of("error.2"));
             MappingRule<String, Integer> rule = MappingRule.fromTry(s -> Try.failure(new ValidationException(errors)), "fallback.error");
-            assertThatValidation(rule.test("abc"))
+            assertThatValidation(rule.apply("abc"))
                     .isInvalid()
                     .hasErrorMessages("error.1", "error.2");
         }
@@ -561,7 +561,7 @@ class MappingRuleTest {
             MappingRule<String, Integer> rule = MappingRule.fromTry(s -> Try.of(() -> Integer.parseInt(s)), "not.a.number");
 
             // Act
-            Validation<Integer> result = rule.test("123");
+            Validation<Integer> result = rule.apply("123");
 
             // Assert
             assertThatValidation(result)
@@ -575,7 +575,7 @@ class MappingRuleTest {
             MappingRule<String, Integer> rule = MappingRule.fromTry(s -> Try.of(() -> Integer.parseInt(s)), "not.a.number");
 
             // Act
-            Validation<Integer> result = rule.test("abc");
+            Validation<Integer> result = rule.apply("abc");
 
             // Assert
             assertThatValidation(result)
@@ -640,7 +640,7 @@ class MappingRuleTest {
         @Test
         void or_whenFirstRuleIsSuccessful_returnsFirstRuleResult() {
             // Act
-            Validation<Integer> result = orRule.test("123");
+            Validation<Integer> result = orRule.apply("123");
 
             // Assert
             assertThatValidation(result)
@@ -651,7 +651,7 @@ class MappingRuleTest {
         @Test
         void or_whenFirstRuleFailsAndSecondRuleIsSuccessful_returnsSecondRuleResult() {
             // Act
-            Validation<Integer> result = orRule.test("abc");
+            Validation<Integer> result = orRule.apply("abc");
 
             // Assert
             assertThatValidation(result)
@@ -667,7 +667,7 @@ class MappingRuleTest {
             MappingRule<String, Integer> orRule = rule1.or(rule2);
 
             // Act
-            Validation<Integer> result = orRule.test("abc");
+            Validation<Integer> result = orRule.apply("abc");
 
             // Assert
             assertThatValidation(result)
@@ -695,7 +695,7 @@ class MappingRuleTest {
             MappingRule<String, Integer> recoverRule = rule1.fallback(rule2);
 
             // Act
-            Validation<Integer> result = recoverRule.test("123");
+            Validation<Integer> result = recoverRule.apply("123");
 
             // Assert
             assertThatValidation(result)
@@ -711,7 +711,7 @@ class MappingRuleTest {
             MappingRule<String, Integer> recoverRule = rule1.fallback(rule2);
 
             // Act
-            Validation<Integer> result = recoverRule.test("abc");
+            Validation<Integer> result = recoverRule.apply("abc");
 
             // Assert
             assertThatValidation(result)
@@ -729,7 +729,7 @@ class MappingRuleTest {
             MappingRule<String, Integer> recoverRule = rule1.fallback(rule2);
 
             // Act
-            Validation<Integer> result = recoverRule.test("abc");
+            Validation<Integer> result = recoverRule.apply("abc");
 
             // Assert
             assertThatValidation(result)
@@ -762,7 +762,7 @@ class MappingRuleTest {
             MappingRule<NumberHolder, Number> withRule = MappingRule.on(NumberHolder::value, rule);
 
             // Act
-            Validation<Number> result = withRule.test(new NumberHolder("1234"));
+            Validation<Number> result = withRule.apply(new NumberHolder("1234"));
 
             // Assert
             assertThatValidation(result)
@@ -779,7 +779,7 @@ class MappingRuleTest {
             MappingRule<StringHolder, Integer> wv = rule.on(StringHolder::value);
 
             // Act
-            Validation<Number> result = withRule.test(new StringHolder("1234"));
+            Validation<Number> result = withRule.apply(new StringHolder("1234"));
 
             // Assert
             assertThatValidation(result)
@@ -794,7 +794,7 @@ class MappingRuleTest {
             MappingRule<StringHolder, Integer> withRule = MappingRule.on(StringHolder::value, rule);
 
             // Act
-            Validation<Integer> result = withRule.test(new StringHolder("abc"));
+            Validation<Integer> result = withRule.apply(new StringHolder("abc"));
 
             // Assert
             assertThatValidation(result)
@@ -813,7 +813,7 @@ class MappingRuleTest {
             MappingRule<String, Integer> describedRule = rule.withErrorKey("invalid.input");
 
             // Act
-            Validation<Integer> result = describedRule.test("abc");
+            Validation<Integer> result = describedRule.apply("abc");
 
             // Assert
             assertThatValidation(result)
@@ -831,7 +831,7 @@ class MappingRuleTest {
             MappingRule<String, Integer> describedRule = rule.withErrorKey("invalid.input");
 
             // Act
-            Validation<Integer> result = describedRule.test("123");
+            Validation<Integer> result = describedRule.apply("123");
 
             // Assert
             assertThatValidation(result)
@@ -853,7 +853,7 @@ class MappingRuleTest {
             MappingRule<String, Integer> rule = MappingRule.of(AsMappingRule::validator);
 
             // Act
-            Validation<Integer> result = rule.test("123");
+            Validation<Integer> result = rule.apply("123");
 
             // Assert
             assertThatValidation(result)
@@ -869,7 +869,7 @@ class MappingRuleTest {
             MappingRule<String, Integer> rule = MappingRule.of(func);
 
             // Act
-            Validation<Integer> result = rule.test("abc");
+            Validation<Integer> result = rule.apply("abc");
 
             // Assert
             assertThatValidation(result)

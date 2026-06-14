@@ -271,11 +271,11 @@ public class ListRules {
      * <p>
      * Error key: whatever the key(s) are that the passed mappingRule returns.
      *
-     * @see MappingRule#liftToList()
+     * @see MappingRule#lift()
      */
     public <T, R> MappingRule<List<T>, List<R>> map(Function<T, ? extends Validation<R>> mappingRule) {
         return input ->
-                MappingRule.of(mappingRule).lift().toList().test(input);
+                MappingRule.of(mappingRule).lift().toList().apply(input);
     }
 
     /**

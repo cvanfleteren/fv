@@ -14,7 +14,6 @@ import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static be.iffy.fv.rules.collections.MapRules.*;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
-import static be.iffy.fv.rules.collections.VavrMapRules.vavrMaps;
 
 class MapRulesTest {
 
@@ -94,7 +93,7 @@ class MapRulesTest {
                     "c", BigDecimal.ZERO
             );
 
-            Validation<Map<String, BigDecimal>> result = mapRule.test(input).at("value");
+            Validation<Map<String, BigDecimal>> result = mapRule.apply(input).at("value");
 
             assertThatValidation(result)
                     .isInvalid();

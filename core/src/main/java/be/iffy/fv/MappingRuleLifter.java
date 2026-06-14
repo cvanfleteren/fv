@@ -19,7 +19,7 @@ public class MappingRuleLifter<T, R> extends Lifter<T,R> {
 
     @Override
     public Validation<R> test(T value) {
-        return rule.test(value);
+        return rule.apply(value);
     }
 
     /**

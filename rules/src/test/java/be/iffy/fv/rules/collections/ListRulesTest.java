@@ -145,7 +145,7 @@ class ListRulesTest {
 
         @Test
         void invalid() {
-            assertThatValidation(lists.noNullElements().test(Arrays.asList("a", null, "c")).at("value"))
+            assertThatValidation(lists.noNullElements().apply(Arrays.asList("a", null, "c")).at("value"))
                     .isInvalid()
                     .hasErrorMessages("value[1].must.not.be.null");
         }
@@ -204,7 +204,7 @@ class ListRulesTest {
             invalidTest(null, lists.noneMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
             invalidTest(List.of(1, 2, 3), lists.noneMatch(n -> n % 2 == 0), "must.none.match");
             assertThatValidation(
-                    lists.noneMatch((Predicate<String>) s -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")).test(List.of("a", "bb", "c")).at("value")
+                    lists.noneMatch((Predicate<String>) s -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")).apply(List.of("a", "bb", "c")).at("value")
             )
                     .isInvalid()
                     .hasErrorMessages("value[1].len.must.not.be.two");
@@ -423,7 +423,7 @@ class ListRulesTest {
             MappingRule<String, Integer> toInt = MappingRule.catching(Integer::parseInt, "must.be.integer");
             List<Integer> expected = List.of(1, 2, 3);
             
-            assertThatValidation(lists.map(toInt).test(List.of("1", "2", "3")).at("value"))
+            assertThatValidation(lists.map(toInt).apply(List.of("1", "2", "3")).at("value"))
                     .isValid()
                     .isEqualTo(expected);
         }
@@ -432,7 +432,7 @@ class ListRulesTest {
         void map_withInvalidInput_returnsErrorsAtCorrectIndices() {
             MappingRule<String, Integer> toInt = MappingRule.catching(Integer::parseInt, "must.be.integer");
 
-            assertThatValidation(lists.map(toInt).test(List.of("1", "abc", "3")).at("value"))
+            assertThatValidation(lists.map(toInt).apply(List.of("1", "abc", "3")).at("value"))
                     .isInvalid()
                     .hasErrorMessages("value[1].must.be.integer");
         }
@@ -457,7 +457,7 @@ class ListRulesTest {
             List<Integer> input = List.of(-1, 10, 0);
 
             // Act
-            var result = listRule.test(input).at("value");
+            var result = listRule.apply(input).at("value");
 
             // Assert: failures are attributed to their indices in the path
             assertThatValidation(result)

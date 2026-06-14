@@ -43,7 +43,7 @@ public final class AfterDSL<T> {
         Objects.requireNonNull(rule, "rule cannot be null");
         return input -> {
             T transformed = transformer.apply(input);
-            return rule.test(transformed);
+            return rule.apply(transformed);
         };
     }
 

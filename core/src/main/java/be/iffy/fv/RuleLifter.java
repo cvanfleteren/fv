@@ -22,7 +22,7 @@ public class RuleLifter<T> extends Lifter<T,T> {
 
     @Override
     public Validation<T> test(T value) {
-        return rule.test(value);
+        return rule.apply(value);
     }
 
     /**

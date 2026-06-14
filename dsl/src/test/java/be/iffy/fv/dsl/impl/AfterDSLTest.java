@@ -18,7 +18,7 @@ class AfterDSLTest {
         void is_whenTransformedInputIsValid_returnsValid() {
             Rule<String> rule = after(stringOps.trim()).is(strings.maxLength(3));
             
-            Validation<String> result = rule.test(" abc ");
+            Validation<String> result = rule.apply(" abc ");
 
             assertThatValidation(result).isValid().isEqualTo("abc");
         }
@@ -27,7 +27,7 @@ class AfterDSLTest {
         void is_whenTransformedInputIsInvalid_returnsInvalid() {
             Rule<String> rule = after(stringOps.trim()).is(strings.maxLength(3));
             
-            Validation<String> result = rule.test(" abcd ");
+            Validation<String> result = rule.apply(" abcd ");
 
             assertThatValidation(result).isInvalid().hasErrorKeys("must.have.max.length");
         }
@@ -36,7 +36,7 @@ class AfterDSLTest {
         void is_whenInputIsNull_handlesNullSafely() {
             Rule<String> rule = after(stringOps.trim()).is(strings.maxLength(3));
             
-            Validation<String> result = rule.test(null);
+            Validation<String> result = rule.apply(null);
 
             assertThatValidation(result).isInvalid().hasErrorKeys("must.not.be.null");
         }
@@ -49,21 +49,21 @@ class AfterDSLTest {
 
         @Test
         void is_whenTransformedInputIsValid_returnsValidMappedValue() {
-            Validation<Integer> result = mappingRule.test(" 123 ");
+            Validation<Integer> result = mappingRule.apply(" 123 ");
 
             assertThatValidation(result).isValid().isEqualTo(123);
         }
 
         @Test
         void is_whenTransformedInputIsInvalid_returnsInvalid() {
-            Validation<Integer> result = mappingRule.test(" abc ");
+            Validation<Integer> result = mappingRule.apply(" abc ");
 
             assertThatValidation(result).isInvalid().hasErrorKeys("must.be.integer");
         }
         
         @Test
         void is_whenInputIsNull_handlesNullSafely() {
-             Validation<Integer> result = mappingRule.test(null);
+             Validation<Integer> result = mappingRule.apply(null);
 
             assertThatValidation(result).isInvalid().hasErrorKeys("must.not.be.null");
         }

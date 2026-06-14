@@ -43,7 +43,7 @@ public class FieldsDSL {
 
     public interface RequireBuilder<T> {
         default <V> Rule<T> require(Function<T, V> get, Rule<V> rule, String fieldName) {
-            return input -> rule.test(get.apply(input)).mapTo(input).at(fieldName);
+            return input -> rule.apply(get.apply(input)).mapTo(input).at(fieldName);
         }
     }
 
@@ -172,7 +172,7 @@ public class FieldsDSL {
             Rule<T> ruleX = ruleFunction.apply(this);
             return input -> {
                 if (when.test(input)) {
-                    return ruleX.test(input).mapTo(input);
+                    return ruleX.apply(input).mapTo(input);
                 } else {
                     return Validation.valid(input);
                 }

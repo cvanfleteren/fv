@@ -370,7 +370,7 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
             Rule<T> castedRule = rule.narrow();
 
             io.vavr.collection.List<Validation<T>> validations = io.vavr.collection.List.ofAll(collection)
-                    .map(castedRule::test)
+                    .map(castedRule::apply)
                     .zipWithIndex((validation, index) -> validation.mapErrors(errors -> errors.map(e -> e.atIndex(index))));
 
             io.vavr.collection.List<ErrorMessage> allErrors = validations.flatMap(Validation::errors);
