@@ -13,6 +13,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Validations {
+
     /**
      * Transforms a {@link Seq} of {@link Validation}s into a single {@code Validation} of a {@link List}.
      * If any validation is invalid, the result will contain all accumulated errors.

@@ -134,20 +134,8 @@ public record ErrorMessage(String errorKey, List<Path> paths, Map<String, @Nulla
         };
     }
 
-    public ErrorMessage withErrorKey(String errorKey) {
-        return new ErrorMessage(errorKey, this.paths, this.parameters);
-    }
-
-    public ErrorMessage withPaths(List<Path> paths) {
+    ErrorMessage withPaths(List<Path> paths) {
         return new ErrorMessage(this.errorKey, paths, this.parameters);
-    }
-
-    public ErrorMessage withParameters(Map<String, Object> parameters) {
-        return new ErrorMessage(this.errorKey, this.paths, parameters);
-    }
-
-    public ErrorMessage addParameters(String key, Object value) {
-        return new ErrorMessage(this.errorKey, this.paths, parameters.put(key, value));
     }
 
     /**

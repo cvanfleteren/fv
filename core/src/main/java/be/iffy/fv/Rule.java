@@ -13,8 +13,7 @@ import java.util.function.Supplier;
 /**
  * Represents a validation rule that can be applied to a value.
  *
- * <p>A Rule is essentially a {@link java.util.function.Predicate} that returns a {@link Validation}
- * object containing either the valid value or a structured {@link ErrorMessage}.
+ * <p>A Rule is essentially like a {@link java.util.function.Predicate} that returns a {@link Validation} instead of a boolean.
  * <p>
  * When making your own Rules, keep the following in mind:
  * <ul>
@@ -22,8 +21,12 @@ import java.util.function.Supplier;
  *         Rules are <em>not automatically nullSafe</em> (meaning the value they test might be null), but a Rule created with the
  *         {@code Rule.of(...)} factories will never pass the null to the predicate.
  *     </li>
- *     <li>Rules are <em>not supposed to change their input</em>, the value in the returned {@link be.iffy.fv.Validation.Valid} should be the <em>same instance</em> as the input. To change the input (type or value), use a {@link MappingRule}</li>
- *     <li>If you need to transform the input, but keep the type, you can look at using a {@link Transformation}, for example like this (using the DSL)
+ *     <li>
+ *         Rules are <em>not supposed to change their input</em>, the value in the returned {@link be.iffy.fv.Validation.Valid} should be the <em>same instance</em> as the input.
+ *          To change the input (type or value), use a {@link MappingRule}
+ *      </li>
+ *     <li>
+ *         If you need to transform the input, but keep the type, you can look at using a {@link Transformation}, for example like this (using the DSL)
  *     {@snippet :
  *     Rule<String> originalRule = after(stringOps.trim()).is(strings.maxLength(2));
  *     Validation<String> v = originalRule.apply("  12  "); // Valid
@@ -132,7 +135,6 @@ public interface Rule<T> extends Function<T, Validation<T>> {
                 apply(input).flatMap(v ->
                         // map back to original input so we're protected against other returning an incompatible value
                         other.apply(input).map(ignored -> input)
-
                 );
     }
 
