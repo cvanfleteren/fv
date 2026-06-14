@@ -40,13 +40,13 @@ public class VavrListValidationDslTest {
         }
         List<String> roles = List.of("A");
 
-        //TODO CVF
         // Act
         Validation<List<Role>> result = validateThatList(roles, ListHolder::roles)
                 .is(vavrLists.minSize(2))
-                .eachIs(strings.minLength(2))//TODO check if combining vs other eachIs leads to same result
+                .eachIs(strings.minLength(2))
                 .eachIs(objects.construct(Role::new))
                 .validate();
+
 
         // Assert
         assertThatValidation(result)
