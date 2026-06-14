@@ -281,7 +281,7 @@ public class VavrListRules {
      */
     public <T, R> MappingRule<List<T>, List<R>> map(MappingRule<T, R> mappingRule) {
         return input ->
-                mappingRule.liftToVavrList().test(input);
+                mappingRule.lift().toVavrList().test(input);
     }
 
     /**

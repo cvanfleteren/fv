@@ -1,10 +1,10 @@
 package be.iffy.fv.rules.collections;
 
-import io.vavr.collection.HashSet;
-import io.vavr.collection.Set;
 import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
+import io.vavr.collection.HashSet;
+import io.vavr.collection.Set;
 
 import java.util.Map;
 
@@ -115,7 +115,7 @@ public class MapRules {
     public <K, V> Rule<Map<K, V>> validateValuesWith(Rule<? super V> rule) {
         return Rule.notNull().and(map -> {
             Rule<V> castedRule = (Rule<V>) rule;
-            Rule<Map<K, V>> rule2 = castedRule.liftToMap();
+            Rule<Map<K, V>> rule2 = castedRule.lift().toMap();
             return rule2.test(map);
         });
     }

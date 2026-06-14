@@ -132,7 +132,7 @@ class MappingRuleTest {
         void liftToList_whenAllElementsAreValid_returnsValidResult() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
-            MappingRule<List<String>, List<Integer>> listRule = rule.liftToVavrList();
+            MappingRule<List<String>, List<Integer>> listRule = rule.lift().toVavrList();
 
             // Act
             Validation<List<Integer>> result = listRule.test(List.of("123", "456"));
@@ -147,7 +147,7 @@ class MappingRuleTest {
         void liftToList_whenSomeElementsAreInvalid_accumulatesErrorsWithCorrectIndices() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
-            MappingRule<List<String>, List<Integer>> listRule = rule.liftToVavrList();
+            MappingRule<List<String>, List<Integer>> listRule = rule.lift().toVavrList();
 
             // Act
             Validation<List<Integer>> result = listRule.test(List.of("123", "hi", "yo"));
@@ -164,7 +164,7 @@ class MappingRuleTest {
             MappingRule<String, Integer> rule = s -> s.length() > 3
                     ? Validation.valid(s.length())
                     : Validation.invalid(ErrorMessage.of("too.short"), ErrorMessage.of("must.be.longer"));
-            MappingRule<List<String>, List<Integer>> listRule = rule.liftToVavrList();
+            MappingRule<List<String>, List<Integer>> listRule = rule.lift().toVavrList();
 
             // Act
             Validation<List<Integer>> result = listRule.test(List.of("hi", "hello"));
@@ -183,7 +183,7 @@ class MappingRuleTest {
         void liftToList_whenAllElementsAreValid_returnsValidResult() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
-            MappingRule<java.util.List<String>, java.util.List<Integer>> listRule = rule.liftToList();
+            MappingRule<java.util.List<String>, java.util.List<Integer>> listRule = rule.lift().toList();
 
             // Act
             Validation<java.util.List<Integer>> result = listRule.test(java.util.List.of("123", "456"));
@@ -198,7 +198,7 @@ class MappingRuleTest {
         void liftToList_whenSomeElementsAreInvalid_accumulatesErrorsWithCorrectIndices() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
-            MappingRule<java.util.List<String>, java.util.List<Integer>> listRule = rule.liftToList();
+            MappingRule<java.util.List<String>, java.util.List<Integer>> listRule = rule.lift().toList();
 
             // Act
             Validation<java.util.List<Integer>> result = listRule.test(java.util.List.of("123", "hi", "yo"));
@@ -215,7 +215,7 @@ class MappingRuleTest {
             MappingRule<String, Integer> rule = s -> s.length() > 3
                     ? Validation.valid(s.length())
                     : Validation.invalid(ErrorMessage.of("too.short"), ErrorMessage.of("must.be.longer"));
-            MappingRule<java.util.List<String>, java.util.List<Integer>> listRule = rule.liftToList();
+            MappingRule<java.util.List<String>, java.util.List<Integer>> listRule = rule.lift().toList();
 
             // Act
             Validation<java.util.List<Integer>> result = listRule.test(java.util.List.of("hi", "hello"));
@@ -234,7 +234,7 @@ class MappingRuleTest {
         void liftToOption_whenNone_returnsValidResult() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
-            MappingRule<Option<String>, Option<Integer>> optionRule = rule.liftToOption();
+            MappingRule<Option<String>, Option<Integer>> optionRule = rule.lift().toOption();
 
             // Act
             Validation<Option<Integer>> result = optionRule.test(Option.none());
@@ -249,7 +249,7 @@ class MappingRuleTest {
         void liftToOption_whenSomeAndValid_returnsValidResult() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
-            MappingRule<Option<String>, Option<Integer>> optionRule = rule.liftToOption();
+            MappingRule<Option<String>, Option<Integer>> optionRule = rule.lift().toOption();
 
             // Act
             Validation<Option<Integer>> result = optionRule.test(Option.of("123"));
@@ -264,7 +264,7 @@ class MappingRuleTest {
         void liftToOption_whenSomeAndInvalid_returnsInvalidWithSameErrors() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
-            MappingRule<Option<String>, Option<Integer>> optionRule = rule.liftToOption();
+            MappingRule<Option<String>, Option<Integer>> optionRule = rule.lift().toOption();
 
             // Act
             Validation<Option<Integer>> result = optionRule.test(Option.of("a"));
@@ -283,7 +283,7 @@ class MappingRuleTest {
         void liftToOptional_whenEmpty_returnsValidResult() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
-            MappingRule<java.util.Optional<String>, java.util.Optional<Integer>> optionalRule = rule.liftToOptional();
+            MappingRule<java.util.Optional<String>, java.util.Optional<Integer>> optionalRule = rule.lift().toOptional();
 
             // Act
             Validation<java.util.Optional<Integer>> result = optionalRule.test(java.util.Optional.empty());
@@ -298,7 +298,7 @@ class MappingRuleTest {
         void liftToOptional_whenNotEmptyAndValid_returnsValidResult() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
-            MappingRule<java.util.Optional<String>, java.util.Optional<Integer>> optionalRule = rule.liftToOptional();
+            MappingRule<java.util.Optional<String>, java.util.Optional<Integer>> optionalRule = rule.lift().toOptional();
 
             // Act
             Validation<java.util.Optional<Integer>> result = optionalRule.test(java.util.Optional.of("123"));
@@ -313,7 +313,7 @@ class MappingRuleTest {
         void liftToOptional_whenNotEmptyAndInvalid_returnsInvalidWithSameErrors() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
-            MappingRule<java.util.Optional<String>, java.util.Optional<Integer>> optionalRule = rule.liftToOptional();
+            MappingRule<java.util.Optional<String>, java.util.Optional<Integer>> optionalRule = rule.lift().toOptional();
 
             // Act
             Validation<java.util.Optional<Integer>> result = optionalRule.test(java.util.Optional.of("a"));
@@ -331,7 +331,7 @@ class MappingRuleTest {
         @Test
         void liftToMap_whenAllValuesAreValid_returnsValidResult() {
             // Arrange
-            MappingRule<Map<String, String>, Map<String, Integer>> mapRule = mustBeInt.liftToVavrMap();
+            MappingRule<Map<String, String>, Map<String, Integer>> mapRule = mustBeInt.lift().toVavrMap();
 
             Map<String, String> input = LinkedHashMap.of(
                     "a", "123",
@@ -351,7 +351,7 @@ class MappingRuleTest {
         void liftToMap_whenSomeValuesAreInvalid_addsKeyToPathAndAccumulatesErrors() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
-            MappingRule<Map<String, String>, Map<String, Integer>> mapRule = rule.liftToVavrMap();
+            MappingRule<Map<String, String>, Map<String, Integer>> mapRule = rule.lift().toVavrMap();
 
             Map<String, String> input = HashMap.of(
                     "a", "hi",
@@ -371,7 +371,7 @@ class MappingRuleTest {
         void liftToMap_withKeyExtractor_whenSomeValuesAreInvalid_usesExtractedKeyInPath() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
-            MappingRule<Map<Integer, String>, Map<Integer, Integer>> mapRule = rule.liftToVavrMap(k -> "k" + k);
+            MappingRule<Map<Integer, String>, Map<Integer, Integer>> mapRule = rule.lift().toVavrMap(k -> "k" + k);
 
             Map<Integer, String> input = HashMap.of(
                     10, "a",
@@ -391,7 +391,7 @@ class MappingRuleTest {
         void liftToMap_withKeyExtractor_whenAllValuesAreValid_returnsValidResult() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
-            MappingRule<Map<Integer, String>, Map<Integer, Integer>> mapRule = rule.liftToVavrMap(k -> "id-" + k);
+            MappingRule<Map<Integer, String>, Map<Integer, Integer>> mapRule = rule.lift().toVavrMap(k -> "id-" + k);
 
             Map<Integer, String> input = LinkedHashMap.of(
                     1, "123",
@@ -414,7 +414,7 @@ class MappingRuleTest {
         @Test
         void liftToJMap_whenAllValuesAreValid_returnsValidResult() {
             // Arrange
-            MappingRule<java.util.Map<String, String>, java.util.Map<String, Integer>> mapRule = mustBeInt.liftToMap();
+            MappingRule<java.util.Map<String, String>, java.util.Map<String, Integer>> mapRule = mustBeInt.lift().toMap();
 
             java.util.Map<String, String> input = java.util.Map.of(
                     "a", "123",
@@ -434,7 +434,7 @@ class MappingRuleTest {
         void liftToJMap_whenSomeValuesAreInvalid_addsKeyToPathAndAccumulatesErrors() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
-            MappingRule<java.util.Map<String, String>, java.util.Map<String, Integer>> mapRule = rule.liftToMap();
+            MappingRule<java.util.Map<String, String>, java.util.Map<String, Integer>> mapRule = rule.lift().toMap();
 
             java.util.Map<String, String> input = java.util.Map.of(
                     "a", "hi",
@@ -454,7 +454,7 @@ class MappingRuleTest {
         void liftToJMap_withKeyExtractor_whenSomeValuesAreInvalid_usesExtractedKeyInPath() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
-            MappingRule<java.util.Map<Integer, String>, java.util.Map<Integer, Integer>> mapRule = rule.liftToMap(k -> "k" + k);
+            MappingRule<java.util.Map<Integer, String>, java.util.Map<Integer, Integer>> mapRule = rule.lift().toMap(k -> "k" + k);
 
             java.util.Map<Integer, String> input = java.util.Map.of(
                     10, "a",
@@ -474,7 +474,7 @@ class MappingRuleTest {
         void liftToJMap_withKeyExtractor_whenAllValuesAreValid_returnsValidResult() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
-            MappingRule<java.util.Map<Integer, String>, java.util.Map<Integer, Integer>> mapRule = rule.liftToMap(k -> "id-" + k);
+            MappingRule<java.util.Map<Integer, String>, java.util.Map<Integer, Integer>> mapRule = rule.lift().toMap(k -> "id-" + k);
 
             java.util.Map<Integer, String> input = java.util.Map.of(
                     1, "123",

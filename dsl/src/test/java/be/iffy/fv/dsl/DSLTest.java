@@ -212,7 +212,7 @@ public class DSLTest {
 
             Validation<String> foo = mr.test("12345 ");
 
-            Rule<Map<Integer, String>> mapRule = mr.liftToVavrMap();
+            Rule<Map<Integer, String>> mapRule = mr.lift().toVavrMap();
 
             Validation<Map<Integer, String>> foo2 = mapRule.test(HashMap.of(1, "12345 "));
 

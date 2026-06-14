@@ -41,7 +41,7 @@ public final class JListValidationDSL<L, E> {
     }
 
     public <R> JListValidationDSL<R, R> eachIs(Function<E, Validation<R>> rule) {
-        Validation<List<R>> newElements = elementValidation.refine(list -> MappingRule.of(rule).liftToList().test(list));
+        Validation<List<R>> newElements = elementValidation.refine(list -> MappingRule.of(rule).lift().toList().test(list));
         Validation<List<R>> newList = listValidation.flatMap(ignore -> newElements);
         return new JListValidationDSL<>(
                 newList,

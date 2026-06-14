@@ -1,13 +1,9 @@
 package be.iffy.fv;
 
 import be.iffy.fv.Validation.Invalid;
-import io.vavr.collection.List;
-import io.vavr.collection.Map;
-import io.vavr.control.Option;
 import io.vavr.control.Try;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -227,107 +223,6 @@ public interface MappingRule<T, R> extends  ValidationOperator<T, R> {
 
     //endregion
 
-    //region Lifts
-
-    /**
-     * Lifts a {@link MappingRule} so it applies to a {@link List} of T instead of a single T.
-     * If the List is empty, the List is considered valid.
-     */
-    default MappingRule<List<T>, List<R>> liftToVavrList() {
-        return of(ValidationOperator.super.liftToVavrList());
-    }
-
-    /**
-     * Lifts a {@link MappingRule} so it applies to a {@link java.util.List} of T instead of a single T.
-     * If the List is empty, the List is considered valid.
-     */
-    default MappingRule<java.util.List<T>, java.util.List<R>> liftToList() {
-        return of(ValidationOperator.super.liftToList());
-    }
-
-    /**
-     * Lifts the current mapping rule to operate on the content of {@link Option} containers.
-     * Empty Options (None) are considered to be valid.
-     */
-    default MappingRule<Option<T>, Option<R>> liftToOption() {
-        return of(ValidationOperator.super.liftToOption());
-    }
-
-    /**
-     * Lifts the current mapping rule to operate on the content of {@link Optional} containers.
-     * Empty Optionals are considered to be valid.
-     */
-    default MappingRule<Optional<T>, Optional<R>> liftToOptional() {
-        return of(ValidationOperator.super.liftToOptional());
-    }
-
-    /**
-     * Lifts this {@link MappingRule} so it applies to a {@link Map} of K to T.
-     * <p>
-     * Be careful, the key {@code key.toString()} will be used as part of the path segment.
-     * Make sure to have a key that has a meaningful string representation for this.
-     * If you can't guarantee this, use the version of {@link #liftToVavrMap(Function)} that takes a keyExtractor function instead.
-     * <p>
-     * Semantics:
-     * - Each value in the map is validated, and the resulting validations are collected.
-     * - If any validation fails, the entire map is considered invalid.
-     * - If all validations pass, the map is considered valid.
-     */
-    default <K> MappingRule<Map<K, T>, Map<K, R>> liftToVavrMap() {
-        return of(ValidationOperator.super.liftToVavrMap());
-    }
-
-    /**
-     * Lifts this {@link MappingRule} so it applies to a {@link Map} of K to T.
-     * <p>
-     * Behaves the same as {@link #liftToVavrMap()}, but uses the keyExtractor function to generate the path segment.
-     * <p>
-     * Semantics:
-     * - If the Map is empty, the map is considered valid.
-     * - Each value in the map is validated, and the resulting validations are collected.
-     * - If any validation fails, the entire map is considered invalid.
-     * - If all validations pass, the map is considered valid.
-     *
-     * @param keyExtractor the function to extract a path segment from the key.
-     */
-    default <K> MappingRule<Map<K, T>, Map<K, R>> liftToVavrMap(Function<K, Object> keyExtractor) {
-        return of(ValidationOperator.super.liftToVavrMap(keyExtractor));
-    }
-
-    /**
-     * Lifts this {@link MappingRule} so it applies to a {@link java.util.Map} of K to T.
-     * <p>
-     * Be careful, the key {@code key.toString()} will be used as part of the path segment.
-     * Make sure to have a key that has a meaningful string representation for this.
-     * If you can't guarantee this, use the version of {@link #liftToMap(Function)} that takes a keyExtractor function instead.
-     * <p>
-     * Semantics:
-     * - Each value in the map is validated, and the resulting validations are collected.
-     * - If any validation fails, the entire map is considered invalid.
-     * - If all validations pass, the map is considered valid.
-     */
-    default <K> MappingRule<java.util.Map<K, T>, java.util.Map<K, R>> liftToMap() {
-        return of(ValidationOperator.super.liftToMap());
-    }
-
-    /**
-     * Lifts this {@link MappingRule} so it applies to a {@link java.util.Map} of K to T.
-     * <p>
-     * Behaves the same as {@link #liftToMap()}, but uses the keyExtractor function to generate the path segment.
-     * <p>
-     * Semantics:
-     * - If the Map is empty, the map is considered valid.
-     * - Each value in the map is validated, and the resulting validations are collected.
-     * - If any validation fails, the entire map is considered invalid.
-     * - If all validations pass, the map is considered valid.
-     *
-     * @param keyExtractor the function to extract a path segment from the key.
-     */
-    default <K> MappingRule<java.util.Map<K, T>, java.util.Map<K, R>> liftToMap(Function<K, Object> keyExtractor) {
-        return of(ValidationOperator.super.liftToMap(keyExtractor));
-    }
-
-    //endregion
 
     //region modifiers
 
@@ -385,4 +280,8 @@ public interface MappingRule<T, R> extends  ValidationOperator<T, R> {
     }
 
     //endregion
+
+    default MappingRuleLifter<T, R> lift() {
+        return new MappingRuleLifter<>(this);
+    }
 }
