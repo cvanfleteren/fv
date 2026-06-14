@@ -9,7 +9,13 @@ import java.util.function.Function;
 
 import static be.iffy.fv.MappingRule.of;
 
-public record MappingRuleLifter<T, R>(MappingRule<T, R> rule) implements Lifter<T,R> {
+public class MappingRuleLifter<T, R> extends Lifter<T,R> {
+
+    private final MappingRule<T, R> rule;
+
+    MappingRuleLifter(MappingRule<T, R> rule) {
+        this.rule = rule;
+    }
 
     @Override
     public Validation<R> test(T value) {
@@ -21,7 +27,7 @@ public record MappingRuleLifter<T, R>(MappingRule<T, R> rule) implements Lifter<
      * If the List is empty, the List is considered valid.
      */
     public MappingRule<List<T>, List<R>> toVavrList() {
-        return MappingRule.of(Lifter.super.toVavrList());
+        return MappingRule.of(super.toVavrList());
     }
 
     /**
@@ -29,7 +35,7 @@ public record MappingRuleLifter<T, R>(MappingRule<T, R> rule) implements Lifter<
      * If the List is empty, the List is considered valid.
      */
     public MappingRule<java.util.List<T>, java.util.List<R>> toList() {
-        return of(Lifter.super.toList());
+        return of(super.toList());
     }
 
     /**
@@ -37,7 +43,7 @@ public record MappingRuleLifter<T, R>(MappingRule<T, R> rule) implements Lifter<
      * Empty Options (None) are considered to be valid.
      */
     public MappingRule<Option<T>, Option<R>> toOption() {
-        return of(Lifter.super.toOption());
+        return of(super.toOption());
     }
 
     /**
@@ -45,7 +51,7 @@ public record MappingRuleLifter<T, R>(MappingRule<T, R> rule) implements Lifter<
      * Empty Optionals are considered to be valid.
      */
     public MappingRule<Optional<T>, Optional<R>> toOptional() {
-        return of(Lifter.super.toOptional());
+        return of(super.toOptional());
     }
 
     /**
@@ -61,7 +67,7 @@ public record MappingRuleLifter<T, R>(MappingRule<T, R> rule) implements Lifter<
      * - If all validations pass, the map is considered valid.
      */
     public <K> MappingRule<Map<K, T>, Map<K, R>> toVavrMap() {
-        return of(Lifter.super.toVavrMap());
+        return of(super.toVavrMap());
     }
 
     /**
@@ -78,7 +84,7 @@ public record MappingRuleLifter<T, R>(MappingRule<T, R> rule) implements Lifter<
      * @param keyExtractor the function to extract a path segment from the key.
      */
     public <K> MappingRule<Map<K, T>, Map<K, R>> toVavrMap(Function<K, Object> keyExtractor) {
-        return of(Lifter.super.toVavrMap(keyExtractor));
+        return of(super.toVavrMap(keyExtractor));
     }
 
     /**
@@ -94,7 +100,7 @@ public record MappingRuleLifter<T, R>(MappingRule<T, R> rule) implements Lifter<
      * - If all validations pass, the map is considered valid.
      */
     public <K> MappingRule<java.util.Map<K, T>, java.util.Map<K, R>>toMap() {
-        return of(Lifter.super.toMap());
+        return of(super.toMap());
     }
 
     /**
@@ -111,7 +117,7 @@ public record MappingRuleLifter<T, R>(MappingRule<T, R> rule) implements Lifter<
      * @param keyExtractor the function to extract a path segment from the key.
      */
     public <K> MappingRule<java.util.Map<K, T>, java.util.Map<K, R>> toMap(Function<K, Object> keyExtractor) {
-        return of(Lifter.super.toMap(keyExtractor));
+        return of(super.toMap(keyExtractor));
     }
 
 }

@@ -33,7 +33,7 @@ import java.util.function.Supplier;
  *
  */
 @FunctionalInterface
-public interface Rule<T> extends ValidationOperator<T, T> {
+public interface Rule<T> extends Function<T, Validation<T>> {
 
     /**
      * Tests the given value against the rule. If the value passes the test,
@@ -399,7 +399,13 @@ public interface Rule<T> extends ValidationOperator<T, T> {
      * Returns a new {@link Rule} that, when invalid, uses the passed errorKey as single ErrorMessage.
      */
     default Rule<T> withErrorKey(String errorKey) {
-        return Rule.of(ValidationOperator.super.withErrorKey(errorKey));
+        Objects.requireNonNull(errorKey, "errorKey cannot be null");
+        return input ->
+                this.test(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
+    }
+
+    default <S extends T> Predicate<S> toPredicate() {
+        return value -> test(value).isValid();
     }
 
     /**

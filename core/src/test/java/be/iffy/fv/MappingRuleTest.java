@@ -9,7 +9,6 @@ import io.vavr.control.Try;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -591,18 +590,18 @@ class MappingRuleTest {
         @Test
         void toPredicate_whenRuleValid_returnsTrue() {
             // Arrange
-            Rule<Number> rule = Rule.of(s -> s.doubleValue() > 0, "must.be.positive");
-            Predicate<BigDecimal> p = rule.toPredicate();
+            MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
+            Predicate<String> p = rule.toPredicate();
 
             // Act + Assert
-            assertThat(p.test(BigDecimal.ONE)).isTrue();
+            assertThat(p.test("1")).isTrue();
         }
 
         @Test
         void toPredicate_whenRuleInvalid_returnsFalse() {
             // Arrange
-            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
-            Predicate<? super String> p = rule.toPredicate();
+            MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
+            Predicate<String> p = rule.toPredicate();
 
             // Act + Assert
             assertThat(p.test("hi")).isFalse();
@@ -612,19 +611,19 @@ class MappingRuleTest {
         void toPredicate_delegatesToRuleTest_everyTime() {
             // Arrange
             final int[] calls = {0};
-            Rule<Integer> countingRule = value -> {
+            MappingRule<String, Integer> countingRule = value -> {
                 calls[0]++;
-                return value > 0
-                        ? Validation.valid(value)
+                return Integer.parseInt(value) > 0
+                        ? Validation.valid(Integer.parseInt(value))
                         : Validation.invalid("must.be.positive");
             };
 
-            Predicate<? super Integer> p = countingRule.toPredicate();
+            Predicate<String> p = countingRule.toPredicate();
 
             // Act
-            p.test(1);
-            p.test(-1);
-            p.test(2);
+            p.test("1");
+            p.test("-1");
+            p.test("2");
 
             // Assert
             assertThat(calls[0]).isEqualTo(3);
@@ -632,14 +631,14 @@ class MappingRuleTest {
     }
 
     @Nested
-    class OrElse {
+    class Or {
 
         MappingRule<String, Integer> rule1 = MappingRule.catching(Integer::parseInt, "not.a.number");
         MappingRule<String, Integer> rule2 = s -> Validation.valid(s.length());
         MappingRule<String, Integer> orRule = rule1.or(rule2);
 
         @Test
-        void orElse_whenFirstRuleIsSuccessful_returnsFirstRuleResult() {
+        void or_whenFirstRuleIsSuccessful_returnsFirstRuleResult() {
             // Act
             Validation<Integer> result = orRule.test("123");
 
@@ -650,7 +649,7 @@ class MappingRuleTest {
         }
 
         @Test
-        void orElse_whenFirstRuleFailsAndSecondRuleIsSuccessful_returnsSecondRuleResult() {
+        void or_whenFirstRuleFailsAndSecondRuleIsSuccessful_returnsSecondRuleResult() {
             // Act
             Validation<Integer> result = orRule.test("abc");
 
@@ -661,7 +660,7 @@ class MappingRuleTest {
         }
 
         @Test
-        void orElse_whenBothRulesFail_returnsCombinedErrors() {
+        void or_whenBothRulesFail_returnsCombinedErrors() {
             // Arrange
             MappingRule<String, Integer> rule1 = MappingRule.catching(Integer::parseInt, "not.a.number");
             MappingRule<String, Integer> rule2 = MappingRule.catching(s -> { throw new RuntimeException(); }, "generic.error");
@@ -677,7 +676,7 @@ class MappingRuleTest {
         }
 
         @Test
-        void orElse_whenOtherIsNull_throwsNullPointerException() {
+        void or_whenOtherIsNull_throwsNullPointerException() {
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "not.a.number");
             assertThatCode(() -> rule.or(null))
                     .isInstanceOf(NullPointerException.class)

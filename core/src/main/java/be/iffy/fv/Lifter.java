@@ -14,11 +14,11 @@ import java.util.function.Function;
 
 import static be.iffy.fv.Validation.invalid;
 
-public interface Lifter<T, R> {
+abstract class Lifter<T, R> {
 
-    Validation<R> test(T value);;
+    abstract Validation<R> test(T value);
 
-    default Function<List<T>, Validation<List<R>>> toVavrList() {
+    protected Function<List<T>, Validation<List<R>>> toVavrList() {
         return values -> {
             if (values == null) {
                 return Validation.Invalid.notNull();
@@ -29,7 +29,7 @@ public interface Lifter<T, R> {
         };
     }
 
-    default Function<java.util.List<T>, Validation<java.util.List<R>>> toList() {
+    protected Function<java.util.List<T>, Validation<java.util.List<R>>> toList() {
         return values -> {
             if (values == null) {
                 return Validation.Invalid.notNull();
@@ -40,7 +40,7 @@ public interface Lifter<T, R> {
         };
     }
 
-    default Function<Option<T>, Validation<Option<R>>> toOption() {
+    protected Function<Option<T>, Validation<Option<R>>> toOption() {
         return opt -> {
             if (opt == null) {
                 return Validation.Invalid.notNull();
@@ -54,7 +54,7 @@ public interface Lifter<T, R> {
      * Lifts the current mapping rule to operate on the content of {@link Optional} containers.
      * Empty Optionals are considered to be valid.
      */
-    default Function<Optional<T>, Validation<Optional<R>>> toOptional() {
+    protected Function<Optional<T>, Validation<Optional<R>>> toOptional() {
         return opt -> {
             if (opt == null) {
                 return Validation.Invalid.notNull();
@@ -65,11 +65,11 @@ public interface Lifter<T, R> {
         };
     }
 
-    default <K> Function<Map<K, T>, Validation<Map<K, R>>> toVavrMap() {
+    protected <K> Function<Map<K, T>, Validation<Map<K, R>>> toVavrMap() {
         return toVavrMap(Objects::toString);
     }
 
-    default <K> Function<Map<K, T>, Validation<Map<K, R>>> toVavrMap(Function<K, Object> keyExtractor) {
+    protected <K> Function<Map<K, T>, Validation<Map<K, R>>> toVavrMap(Function<K, Object> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
         return map -> {
             if(map == null) {
@@ -96,11 +96,11 @@ public interface Lifter<T, R> {
         };
     }
 
-    default <K> Function<java.util.Map<K, T>, Validation<java.util.Map<K, R>>> toMap() {
+    protected <K> Function<java.util.Map<K, T>, Validation<java.util.Map<K, R>>> toMap() {
         return toMap(Objects::toString);
     }
 
-    default <K> Function<java.util.Map<K, T>, Validation<java.util.Map<K, R>>> toMap(Function<K, Object> keyExtractor) {
+    protected <K> Function<java.util.Map<K, T>, Validation<java.util.Map<K, R>>> toMap(Function<K, Object> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
         //TODO make native version
         return value -> toVavrMap(keyExtractor).apply(HashMap.ofAll(value)).map(Map::toJavaMap);

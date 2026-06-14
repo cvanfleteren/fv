@@ -1,11 +1,13 @@
 package be.iffy.fv;
 
 import be.iffy.fv.Validation.Invalid;
+import io.vavr.collection.List;
 import io.vavr.control.Try;
 
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static be.iffy.fv.Validation.invalid;
 
@@ -16,7 +18,7 @@ import static be.iffy.fv.Validation.invalid;
  *
  */
 @FunctionalInterface
-public interface MappingRule<T, R> extends  ValidationOperator<T, R> {
+public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
 
     /**
      * Evaluates the input against this rule, transforming it from type T to type R.
@@ -257,7 +259,13 @@ public interface MappingRule<T, R> extends  ValidationOperator<T, R> {
      * Returns a new {@link MappingRule} that, when invalid, uses the passed errorKey as single ErrorMessage.
      */
     default MappingRule<T, R> withErrorKey(String errorKey) {
-        return MappingRule.of(ValidationOperator.super.withErrorKey(errorKey));
+        Objects.requireNonNull(errorKey, "errorKey cannot be null");
+        return input ->
+                this.test(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
+    }
+
+    default <S extends T> Predicate<S> toPredicate() {
+        return value -> test(value).isValid();
     }
 
     /**

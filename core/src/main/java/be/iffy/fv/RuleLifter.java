@@ -12,7 +12,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
-public record RuleLifter<T>(Rule<T> rule) implements Lifter<T,T> {
+public class RuleLifter<T> extends Lifter<T,T> {
+
+    private final Rule<T> rule;
+
+    RuleLifter(Rule<T> rule) {
+        this.rule = rule;
+    }
 
     @Override
     public Validation<T> test(T value) {
@@ -23,7 +29,7 @@ public record RuleLifter<T>(Rule<T> rule) implements Lifter<T,T> {
      * Lifts this {@link Rule} so it applies to a {@link List} of T instead of a single T.
      */
     public Rule<List<T>> toVavrList() {
-        return Rule.of(Lifter.super.toVavrList());
+        return Rule.of(super.toVavrList());
     }
 
     /**
@@ -51,7 +57,7 @@ public record RuleLifter<T>(Rule<T> rule) implements Lifter<T,T> {
      */
     @Override
     public Rule<Option<T>> toOption() {
-        return Rule.of(Lifter.super.toOption());
+        return Rule.of(super.toOption());
     }
 
     /**
@@ -64,7 +70,7 @@ public record RuleLifter<T>(Rule<T> rule) implements Lifter<T,T> {
      */
     @Override
     public Rule<Optional<T>> toOptional() {
-        return Rule.of(Lifter.super.toOptional());
+        return Rule.of(super.toOptional());
     }
 
     /**
@@ -82,7 +88,7 @@ public record RuleLifter<T>(Rule<T> rule) implements Lifter<T,T> {
      */
     @Override
     public <K> Rule<Map<K, T>> toVavrMap() {
-        return Rule.of(Lifter.super.toVavrMap());
+        return Rule.of(super.toVavrMap());
     }
 
     /**
@@ -130,7 +136,7 @@ public record RuleLifter<T>(Rule<T> rule) implements Lifter<T,T> {
      */
     @Override
     public <K> Rule<java.util.Map<K, T>> toMap() {
-        return Rule.of(Lifter.super.toMap());
+        return Rule.of(super.toMap());
     }
 
     /**

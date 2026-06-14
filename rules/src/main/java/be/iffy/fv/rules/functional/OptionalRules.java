@@ -73,7 +73,7 @@ public class OptionalRules {
      * Error key: {@code must.not.be.empty} or the key of the passed rule
      */
     public <T> Rule<Optional<T>> contains(Function<? super T, Validation<T>> rule) {
-        return Rule.both(notEmpty(), Rule.of(rule).liftToOptional());
+        return Rule.both(notEmpty(), Rule.of(rule).lift().toOptional());
     }
 
     /**
