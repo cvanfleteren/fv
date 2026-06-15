@@ -250,7 +250,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * Maps a valid value to a new validation, or returns this if invalid.  If the mapper throws any {@link RuntimeException}s, they will be rethrown.
      * Use {@link #flatMapCatching(Function)} if you want to handle {@link ValidationException}s thrown by the mapper.
      */
-    default <R> Validation<R> flatMap(Function<? super T, Validation<? extends R>> flatMapper) {
+    default <R> Validation<R> flatMap(Function<? super T, ? extends Validation<? extends R>> flatMapper) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
         return switch (this) {
             case Valid(var value) -> Validation.narrow(
@@ -263,7 +263,7 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Like {@link #flatMap(Function)}, but catches {@link ValidationException}s thrown by the mapper and turns them into an invalid validation.
      */
-    default <R> Validation<R> flatMapCatching(Function<? super T, Validation<? extends R>> flatMapper) {
+    default <R> Validation<R> flatMapCatching(Function<? super T, ? extends Validation<? extends R>> flatMapper) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
         return switch (this) {
             case Valid(var value) -> {
@@ -285,7 +285,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      * If an exception other than {@link ValidationException} is thrown, the provided {@link ErrorMessage} is used.
      * Does not catch {@link Error}s.
      */
-    default <R> Validation<R> flatMapCatchingAll(Function<? super T, Validation<? extends R>> flatMapper, ErrorMessage errorMessage) {
+    default <R> Validation<R> flatMapCatchingAll(Function<? super T, ? extends Validation<? extends R>> flatMapper, ErrorMessage errorMessage) {
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return flatMapCatchingAll(flatMapper, e -> errorMessage);
     }
@@ -293,14 +293,14 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Like {@link #flatMapCatchingAll(Function, ErrorMessage)}, but uses the provided error key.
      */
-    default <R> Validation<R> flatMapCatchingAll(Function<? super T, Validation<? extends R>> flatMapper, String errorKey) {
+    default <R> Validation<R> flatMapCatchingAll(Function<? super T, ? extends Validation<? extends R>> flatMapper, String errorKey) {
         return flatMapCatchingAll(flatMapper, ErrorMessage.of(errorKey));
     }
 
     /**
      * Like {@link #flatMapCatchingAll(Function, ErrorMessage)}, but uses the provided mapper to create an {@link ErrorMessage}.
      */
-    default <R> Validation<R> flatMapCatchingAll(Function<? super T, Validation<? extends R>> flatMapper, Function<Exception, ErrorMessage> errorMessageMaker) {
+    default <R> Validation<R> flatMapCatchingAll(Function<? super T, ? extends Validation<? extends R>> flatMapper, Function<Exception, ErrorMessage> errorMessageMaker) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
         Objects.requireNonNull(errorMessageMaker, "errorMessageMaker cannot be null");
         return switch (this) {
@@ -336,7 +336,7 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Alias for {@link #flatMap(Function)}.
      */
-    default <R> Validation<R> refine(Function<? super T, ? extends Validation<R>> refinement) {
+    default <R> Validation<R> refine(Function<? super T, ? extends Validation<? extends R>> refinement) {
         Objects.requireNonNull(refinement, "refinement cannot be null");
         return this.flatMap(refinement::apply);
     }
