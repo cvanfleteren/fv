@@ -28,6 +28,7 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
      * with the successfully transformed value or a {@link Invalid} containing the errors encountered during
      * mapping or validation.
      */
+    @Override
     Validation<R> apply(T value);
 
     //region factory methods

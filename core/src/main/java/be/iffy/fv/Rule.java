@@ -45,6 +45,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      * @param value the value to be validated.
      * @return a {@link Validation} object indicating the result of the test.
      */
+    @Override
     Validation<T> apply(T value);
 
     //region Factory methods
