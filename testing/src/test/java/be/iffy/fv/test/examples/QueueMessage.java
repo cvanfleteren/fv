@@ -25,11 +25,12 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
     public record Transaction(BigDecimal amount) {
     }
 
-    public record MandateInfo(String mandateId,
-                              LocalDate dateOfSignature,
-                              Boolean amendmentIndicator,
-                              Optional<String> amendmentType,
-                              Optional<String> amendmentOriginalValue
+    public record MandateInfo(
+        String mandateId,
+        LocalDate dateOfSignature,
+        Boolean amendmentIndicator,
+        Optional<String> amendmentType,
+        Optional<String> amendmentOriginalValue
     ) {
     }
 
@@ -37,21 +38,22 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
         BE, NL, LU
     }
 
+
     public static final Rule<MonetaryAmount> atLeast1000 = Rule.on(MonetaryAmount::value, bigDecimals.atLeast(new BigDecimal(1000)));
     public static final Rule<MonetaryAmount> atLeast1000_2 = bigDecimals.atLeast(new BigDecimal(1000)).on(MonetaryAmount::value);
 
     public Validation<Command> validate() {
         return validating(
-                validateThat(this.debtor, "debtor").is(this::validateDebtor),
-                validateThat(this.kboNumber, "kboNumber").is(objects.construct(KboNumber::new)),
-                validateThatList(this.transactions, "transactions")
-                        .is(lists.notEmpty())
-                        .eachIs(this::validateTransaction)
-                        .is(lists.anyMatch(
-                                        Rule.on(Command.Transaction::amount, atLeast1000).toPredicate(),
-                                        ErrorMessage.of("one.must.be.at.least", "min", 1000)
-                                )
-                        ).validate()
+            validateThat(this.debtor, "debtor").is(this::validateDebtor),
+            validateThat(this.kboNumber, "kboNumber").is(objects.construct(KboNumber::new)),
+            validateThatList(this.transactions, "transactions")
+                .is(lists.notEmpty())
+                .eachIs(this::validateTransaction)
+                .is(lists.anyMatch(
+                        Rule.on(Command.Transaction::amount, atLeast1000).toPredicate(),
+                        ErrorMessage.of("one.must.be.at.least", "min", 1000)
+                    )
+                ).validate()
         ).map(Command::new);
     }
 
@@ -65,28 +67,28 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
     Validation<Command.Address> validateAddress(QueueMessage.Address address) {
 
         MappingRule<QueueMessage.Address, Command.Address> mr = combine(
-                MappingRule.on(Address::country, optionals.matches(strings.asEnum(Country.class))),
-                Rule.on(Address::city, strings.notBlank()),
-                Rule.on(Address::street, strings.notBlank()),
-                Rule.on(Address::houseNumber, strings.notBlank())
+            MappingRule.on(Address::country, optionals.matches(strings.asEnum(Country.class))),
+            Rule.on(Address::city, strings.notBlank()),
+            Rule.on(Address::street, strings.notBlank()),
+            Rule.on(Address::houseNumber, strings.notBlank())
         ).into((country, city, street, houseNumber) -> new Command.Address(address.street, address.houseNumber, address.city));
 
         //return mr.apply(address);
 
         return validateThat(address.country, "country")
-                .is(optionals.matches(strings.asEnum(Country.class)))
-                .flatMap(country ->
-                        Validation.from().catching(() -> new Command.Address(address.street, address.houseNumber, address.city))
-                );
+            .is(optionals.matches(strings.asEnum(Country.class)))
+            .flatMap(country ->
+                Validation.from().catching(() -> new Command.Address(address.street, address.houseNumber, address.city))
+            );
     }
 
     Validation<Command.Debtor> validateDebtor(QueueMessage.Debtor debtor) {
         return validating(
-                validateThat(debtor.enterpriseNumber, "enterpriseNumber").is(EnterpriseNumber::from),
-                validateThat(debtor.bic, "bic").is(Bic::from),
-                validateThat(debtor.name, "name").is(strings.notBlank()),
-                validateThat(debtor.address, "address").is(objects.notNull(Address.class).then(this::validateAddress)),
-                validateThat(debtor.mandateInfo, "mandateInfo").is(this::validateMandateInfo)
+            validateThat(debtor.enterpriseNumber, "enterpriseNumber").is(EnterpriseNumber::from),
+            validateThat(debtor.bic, "bic").is(Bic::from),
+            validateThat(debtor.name, "name").is(strings.notBlank()),
+            validateThat(debtor.address, "address").is(objects.notNull(Address.class).then(this::validateAddress)),
+            validateThat(debtor.mandateInfo, "mandateInfo").is(this::validateMandateInfo)
         ).map(Command.Debtor::new);
     }
 
@@ -98,13 +100,13 @@ public record QueueMessage(Debtor debtor, String kboNumber, List<Transaction> tr
             if (amendmentIndicator) {
                 // two optional fields, but in this context they are required
                 return validating(
-                        validateThat(mandateInfo.amendmentType(), "amendmentType").is(optionals.required(strings.asEnum(Command.MandateInfo.AmendmentType.class))),
-                        validateThat(mandateInfo.amendmentOriginalValue(), "amendmentOriginalValue").is(optionals.required())
+                    validateThat(mandateInfo.amendmentType(), "amendmentType").is(optionals.required(strings.asEnum(Command.MandateInfo.AmendmentType.class))),
+                    validateThat(mandateInfo.amendmentOriginalValue(), "amendmentOriginalValue").is(optionals.required())
                 ).map((amendmentType, originalValue) ->
-                        new Command.MandateInfo(mandateInfo.mandateId(),
-                                mandateInfo.dateOfSignature(),
-                                Optional.of(new Command.MandateInfo.MandateAmendment(amendmentType, originalValue))
-                        )
+                    new Command.MandateInfo(mandateInfo.mandateId(),
+                        mandateInfo.dateOfSignature(),
+                        Optional.of(new Command.MandateInfo.MandateAmendment(amendmentType, originalValue))
+                    )
                 );
             } else {
                 // no amendment indicator, ignore the other amendment fields
