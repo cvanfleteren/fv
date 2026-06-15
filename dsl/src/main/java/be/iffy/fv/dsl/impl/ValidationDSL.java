@@ -4,33 +4,43 @@ import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
+import io.vavr.control.Option;
 
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * DSL class for validating a single value.
+ * {@snippet :
  *
+ * record Record(String value, int number) {
+ *
+ *    public Record {
+ *        value = assertValid(
+ *             valdateThat(value,"value").after(stringOps.trim()).is(strings.minLength(2)),
+ *             validateThat(number,"number").is(ints.positive())
+*         )._1;
+ *    }
+ *
+ * }
+ *}
  */
 public final class ValidationDSL<T> {
 
     private final Validation<T> validation;
-    private String name = "";
+    private final Option<String> name;
 
-    public ValidationDSL(T value) {
-        this.validation = Rule.<T>notNull().apply(value);
-    }
-
-    public ValidationDSL(T value, String name) {
+    public ValidationDSL(T value, Option<String> name) {
         if (value == null) {
             this.validation = Validation.invalid(ErrorMessage.of("must.not.be.null"));
         } else {
             this.validation = Validation.valid(value);
         }
-        this.name = name;
+        this.name = name.filter(Predicate.not(String::isBlank));
     }
 
-    private ValidationDSL(Validation<T> validation, String name) {
+    private ValidationDSL(Validation<T> validation, Option<String> name) {
         this.validation = Objects.requireNonNull(validation, "validation cannot be null");
         this.name = name;
     }
@@ -46,10 +56,7 @@ public final class ValidationDSL<T> {
     }
 
     /**
-     * Transforms the validation from type T to type R using the provided mapping rule.
-     *
-     * @param mapper the mapping rule used to refine and transform the validation
-     * @return a new ValidationDSL instance representing the transformed validation
+     * Maps the validation from type T to type R using the provided mapping rule.
      */
     public <R> ValidationDSL<R> map(MappingRule<T, R> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
@@ -62,35 +69,11 @@ public final class ValidationDSL<T> {
      */
     public Validation<T> is(Rule<? super T> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        if (name.isEmpty()) {
-            return validation.refine(rule.narrow());
-        } else {
-            return validation.refine(rule.narrow()).at(name);
-        }
-    }
-
-    /**
-     * Validates that the value satisfies the given rule.
-     */
-    public <R> Validation<R> is(MappingRule<? super T, ? extends R> rule) {
-        Objects.requireNonNull(rule, "rule cannot be null");
-        if (name.isEmpty()) {
-            return
-                    validation.flatMap(value ->
-                            Validation.narrow(
-                                    Objects.requireNonNull(rule.apply(value), "rule cannot return null Validation")
-                            )
-                    );
-
-        } else {
-            return Validation.narrow(
-                    validation.flatMap(value ->
-                            Validation.narrow(
-                                    Objects.requireNonNull(rule.apply(value), "rule cannot return null Validation")
-                            )
-                    ).at(name)
-            );
-        }
+        Validation<T> refined = validation.refine(rule.narrow());
+        return name.fold(
+            () -> refined,
+            refined::at
+        );
     }
 
     /**
@@ -98,28 +81,23 @@ public final class ValidationDSL<T> {
      */
     public <R> Validation<R> is(Function<? super T, ? extends Validation<? extends R>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        if (name.isEmpty()) {
-            return
-                    validation.flatMap(value ->
-                            Validation.narrow(
-                                    Objects.requireNonNull(rule.apply(value), "rule cannot return null Validation")
-                            )
-                    );
-        } else {
-            return Validation.narrow(
-                    validation.flatMap(value ->
-                            Validation.narrow(
-                                    Objects.requireNonNull(rule.apply(value), "rule cannot return null Validation")
-                            )
-                    ).at(name)
-            );
-        }
+
+        Validation<R> refined = validation.flatMap(value ->
+            Validation.narrow(
+                Objects.requireNonNull(rule.apply(value), "rule cannot return null Validation")
+            )
+        );
+
+        return name.fold(
+            () -> refined,
+            refined::at
+        );
     }
 
     /**
      * Validates that the value is not null.
      */
     public Validation<T> isNotNull() {
-        return validation.refine(Rule.notNull()).at(name);
+        return is(Rule.notNull());
     }
 }

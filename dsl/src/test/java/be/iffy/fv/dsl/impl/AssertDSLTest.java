@@ -20,7 +20,7 @@ class AssertDSLTest {
 
         @Test
         void nullInput_noNullOk_throws() {
-            assertThatThrownBy(()  -> DSL.assertThat((String)null, "field").map(stringOps.trim()).is(strings.minLength(4)))
+            assertThatThrownBy(()  -> DSL.assertThat((String)null, "field").after(stringOps.trim()).is(strings.minLength(4)))
                     .isInstanceOf(ValidationException.class).hasMessage("field.must.not.be.null");
         }
     }
@@ -83,7 +83,7 @@ class AssertDSLTest {
     class Map {
         @Test
         void map_whenTransformationSucceeds_returnsMappedValue() {
-            String result = assertThat(" ok ", "field").map(String::trim).isNotNull();
+            String result = assertThat(" ok ", "field").after(String::trim).isNotNull();
             assertThat(result).isEqualTo("ok");
         }
 
@@ -93,7 +93,7 @@ class AssertDSLTest {
             Transformation<String> t = s -> {throw new IllegalArgumentException(s);};
 
             assertThatThrownBy(() -> assertThat("boom", "field")
-                    .map(t)
+                    .after(t)
                     .isNotNull())
                     .isInstanceOf(IllegalArgumentException.class);
         }

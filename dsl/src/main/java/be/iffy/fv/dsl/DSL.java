@@ -14,6 +14,7 @@ import be.iffy.fv.rules.time.*;
 import io.vavr.*;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -386,7 +387,7 @@ public final class DSL {
      * Starts a validation process for a single value.
      */
     public static <T> ValidationDSL<T> validateThat(T value) {
-        return new ValidationDSL<>(value);
+        return new ValidationDSL<>(value, Option.none());
     }
 
     /**
@@ -396,7 +397,7 @@ public final class DSL {
      * @param name the name of the value (e.g., field name).
      */
     public static <T> ValidationDSL<T> validateThat(T value, String name) {
-        return new ValidationDSL<>(value, name);
+        return new ValidationDSL<>(value, Option.of(name));
     }
 
     /**
@@ -407,7 +408,7 @@ public final class DSL {
      */
     public static <ANY, T> ValidationDSL<T> validateThat(T value, PropertySelector<ANY, T> name) {
         Objects.requireNonNull(name, "name cannot be null");
-        return new ValidationDSL<>(value, name.getPropertyName());
+        return new ValidationDSL<>(value, Option.of(name.getPropertyName()));
     }
 
     /**

@@ -389,7 +389,7 @@ public class DSLTest {
         @Test
         void assertThat_map_whenValid_returnsMappedValue() {
             // Act
-            String result = DSL.assertThat(" ok ", "field").map(String::trim).is(Rule.notNull());
+            String result = DSL.assertThat(" ok ", "field").after(String::trim).is(Rule.notNull());
 
             // Assert
             assertThat(result).isEqualTo("ok");

@@ -19,6 +19,8 @@ import java.util.function.Function;
  * ...
  * }
  * </pre>
+ *
+ * The main entry point <em>after</em> is defined in {@link be.iffy.fv.dsl.DSL#after(Transformation)}
  */
 public final class AfterDSL<T> {
     private final Transformation<T> transformer;

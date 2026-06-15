@@ -35,9 +35,10 @@ public final class JListValidationDSL<L, E> {
 
     public Validation<List<E>> validate() {
         return Validations
-                .combine(listValidation.at(name), elementValidation.at(name)).map((list, elements) -> elements)
-                // make errors unique because something like a null list would appear in both validations
-                .mapErrors(io.vavr.collection.List::distinct);
+                .combine(
+                    listValidation.at(name),
+                    elementValidation.at(name)
+                ).map((list, elements) -> elements);
     }
 
     public <R> JListValidationDSL<R, R> eachIs(Function<E, Validation<R>> rule) {
