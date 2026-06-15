@@ -612,7 +612,7 @@ Yes! If you want to create a reusable `Rule` that includes a transformation step
 ```java
 import static be.iffy.fv.dsl.DSL.*;
 
-Rule<String> trimmedMinLength3 = after(String::trim).is(strings.minLength(3));
+Rule<String> trimmedMinLength3 = after(stringOps.trim()).is(strings.minLength(3));
 ```
 
 This is very similar to the `validateThat(value).after(...)` syntax used in constructors, but it allows you to package the
@@ -665,7 +665,7 @@ Note: there's a built-in MappingRule<String, URL> asURL() in StringRules for thi
 In this example:
 
 1. `Try.of(...)` attempts to create the `URL`. If an exception is thrown, it captures it in a `Failure` state.
-2. `Validation.from(tryResult, "invalid.url")` converts the `Try` into a `Validation`.
+2. `Validation.from()._try(tryResult, "invalid.url")` converts the `Try` into a `Validation`.
 3. If the `Try` was a `Success`, you get a `Valid<URL>`.
 4. If the `Try` was a `Failure`, you get an `Invalid` result with the error key `"invalid.url"`.
 
@@ -673,7 +673,7 @@ In this example:
 
 ### I have a Validation, but I want to add an extra check on the value
 
-If you already have a `Validation<T>` object and you want to apply an additional `Rule<T>` to its value (if it's valid),
+If you already have a `Validation<T>` object and you want to apply an additional `Rule<T>` or `MappingRule<T, R>` to its value (if it's valid),
 you can use the **`refine()`** method.
 
 This is particularly useful when you've already performed some initial validation or transformation and want to "refine"
