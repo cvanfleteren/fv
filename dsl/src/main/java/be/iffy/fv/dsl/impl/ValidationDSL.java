@@ -36,13 +36,13 @@ public final class ValidationDSL<T> {
     }
 
     /**
-     * Maps the value being validated using the provided mapper function.
-     * If the current validation is already invalid, the mapper is not applied.
-     * If the mapper throws an Exception, it is caught and the validation becomes {@link Validation.Invalid}
+     * Transforms the value being validated using the provided transformation function.
+     * If the current validation is already invalid, the transformation is not applied.
+     * No exceptions are caught, use #map({@link MappingRule} if you have a mapper that could throw.
      */
-    public ValidationDSL<T> map(be.iffy.fv.Transformation<T> mapper) {
-        Objects.requireNonNull(mapper, "mapper cannot be null");
-        return new ValidationDSL<>(validation.mapCatching(mapper::apply), name);
+    public ValidationDSL<T> after(be.iffy.fv.Transformation<T> transformation) {
+        Objects.requireNonNull(transformation, "transformation cannot be null");
+        return new ValidationDSL<>(validation.map(transformation::apply), name);
     }
 
     /**

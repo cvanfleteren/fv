@@ -25,9 +25,9 @@ public record Command(Debtor debtor, KboNumber kboNumber, List<Transaction> tran
     public record Address(String street, String houseNumber, String city) {
         public Address {
             var result = assertValid(
-                    validateThat(street, QueueMessage.Address::street).map(stringOps.trim()).is(strings.notBlank()),
-                    validateThat(houseNumber, QueueMessage.Address::houseNumber).map(stringOps.trim()).is(strings.notBlank()),
-                    validateThat(city, QueueMessage.Address::city).map(stringOps.trim()).is(strings.notBlank().and(strings.minLength(2)))
+                    validateThat(street, QueueMessage.Address::street).after(stringOps.trim()).is(strings.notBlank()),
+                    validateThat(houseNumber, QueueMessage.Address::houseNumber).after(stringOps.trim()).is(strings.notBlank()),
+                    validateThat(city, QueueMessage.Address::city).after(stringOps.trim()).is(strings.notBlank().and(strings.minLength(2)))
             );
             street = result._1;
             houseNumber = result._2;

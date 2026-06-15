@@ -182,7 +182,7 @@ public class DSLTest {
 
             @Test
             void isNotNull_whenValueIsNotNull_returnsValid() {
-                Validation<String> v = validateThat((String) null, "field").map(stringOps.trim()).is(strings.minLength(4));
+                Validation<String> v = validateThat((String) null, "field").after(stringOps.trim()).is(strings.minLength(4));
                 assertThatValidation(v).isInvalid().hasErrorMessage("field.must.not.be.null");
             }
         }
@@ -294,7 +294,7 @@ public class DSLTest {
 
             Person p = new Person("  hugh", 30);
 
-            Validation<String> v = validateThat(p.name()).map(String::trim).is(compliant);
+            Validation<String> v = validateThat(p.name()).after(String::trim).is(compliant);
 
             assertThatValidation(v).isValid().isEqualTo("hugh");
         }
@@ -309,7 +309,7 @@ public class DSLTest {
 
             Person p = new Person(null, 30);
 
-            Validation<String> v = validateThat(p.name()).map(String::trim).is(compliant);
+            Validation<String> v = validateThat(p.name()).after(String::trim).is(compliant);
 
             assertThatValidation(v).isInvalid().hasErrorKeys("must.not.be.null");
         }
@@ -321,7 +321,7 @@ public class DSLTest {
 
             // Act
             var result = validateThat(value)
-                    .map(String::trim)
+                    .after(String::trim)
                     .is(strings.asInteger().then(Rule.of(i -> i == 123, "must.be.123")));
 
             // Assert
@@ -353,7 +353,7 @@ public class DSLTest {
 
             // Act
             var result = validateThat(value)
-                    .map(stringOps.keepDigits())
+                    .after(stringOps.keepDigits())
                     .map(strings.asInteger())
                     .is(Rule.of(i -> i > 100, "must.be.greater.than.100"));
 

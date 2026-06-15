@@ -2,7 +2,6 @@ package be.iffy.fv.dsl;
 
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
-import be.iffy.fv.ValidationFactory;
 import be.iffy.fv.Validations;
 import org.junit.jupiter.api.Test;
 
@@ -42,7 +41,7 @@ public class DSLClientTest {
         record Person(String name, int age) {
             Person {
                 var values = DSL.assertValid(
-                        validateThat(name, "name").map(String::trim).is(minLength),
+                        validateThat(name, "name").after(String::trim).is(minLength),
                         validateThat(age, "age").is(minAge)
                 );
                 name = values._1();
