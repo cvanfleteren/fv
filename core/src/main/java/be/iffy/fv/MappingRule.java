@@ -185,7 +185,7 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
      */
     default <Z> MappingRule<T, Z> then(Function<? super R, ? extends Validation<? extends Z>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return (T input) -> this.apply(input).flatMap(rule::apply);
+        return (T input) -> this.apply(input).flatMap(rule);
     }
 
     /**

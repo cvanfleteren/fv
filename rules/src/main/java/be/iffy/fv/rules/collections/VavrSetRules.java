@@ -49,7 +49,7 @@ public class VavrSetRules {
 
                 List<ErrorMessage> allErrors = set
                         .toList()
-                        .map(castedRule::apply)
+                        .map(castedRule)
                         .zipWithIndex((validation, index) ->
                                 validation.mapErrors(errors -> errors.map(e -> e.atIndex(index)))
                         ).flatMap(Validation::errors);

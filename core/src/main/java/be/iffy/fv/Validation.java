@@ -338,7 +338,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      */
     default <R> Validation<R> refine(Function<? super T, ? extends Validation<? extends R>> refinement) {
         Objects.requireNonNull(refinement, "refinement cannot be null");
-        return this.flatMap(refinement::apply);
+        return this.flatMap(refinement);
     }
 
     /**

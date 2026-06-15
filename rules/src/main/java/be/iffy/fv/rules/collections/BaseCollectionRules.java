@@ -152,7 +152,7 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
     /**
      * Fails if any element in the collection does not match the given predicate.
      *
-     
+
      * @param predicate    the predicate to test each element against.
      * @param errorMessage the error message to use if validation fails.
      * @return a {@link Rule} that validates if all elements match the predicate.
@@ -370,7 +370,7 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
             Rule<T> castedRule = rule.narrow();
 
             io.vavr.collection.List<Validation<T>> validations = io.vavr.collection.List.ofAll(collection)
-                    .map(castedRule::apply)
+                    .map(castedRule)
                     .zipWithIndex((validation, index) -> validation.mapErrors(errors -> errors.map(e -> e.atIndex(index))));
 
             io.vavr.collection.List<ErrorMessage> allErrors = validations.flatMap(Validation::errors);
