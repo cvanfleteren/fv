@@ -744,7 +744,7 @@ class RuleTest {
     class OrElse {
 
         @Test
-        void recoverWith_whenFirstRulePasses_returnsFirstResultAndDoesNotCallSecond() {
+        void orElse_whenFirstRulePasses_returnsFirstResultAndDoesNotCallSecond() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
@@ -760,7 +760,7 @@ class RuleTest {
         }
 
         @Test
-        void recoverWith_whenFirstRuleFailsAndSecondRulePasses_returnsSecondResult() {
+        void orElse_whenFirstRuleFailsAndSecondRulePasses_returnsSecondResult() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 5, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
@@ -776,7 +776,7 @@ class RuleTest {
         }
 
         @Test
-        void recoverWith_whenBothRulesFail_returnsOnlySecondRuleErrors() {
+        void orElse_whenBothRulesFail_returnsOnlySecondRuleErrors() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 5, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
@@ -795,7 +795,7 @@ class RuleTest {
         }
 
         @Test
-        void recoverWith_whenOtherRuleIsNull_throwsNullPointerException() {
+        void orElse_whenOtherRuleIsNull_throwsNullPointerException() {
             // Arrange
             Rule<String> rule = Rule.of(s -> true, "msg");
 
@@ -806,7 +806,7 @@ class RuleTest {
         }
 
         @Test
-        void recoverWith_whenCombiningWithRuleOfSuperType_compilesAndWorks() {
+        void orElse_whenCombiningWithRuleOfSuperType_compilesAndWorks() {
             // Arrange
             Rule<Number> isPositive = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
             Rule<BigDecimal> isMinusFortyTwo = Rule.of(b -> b.compareTo(new BigDecimal("-42")) == 0, "must.be.minus.forty.two");
