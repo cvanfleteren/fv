@@ -3,7 +3,9 @@ package be.iffy.fv.dsl.impl;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
+import be.iffy.fv.ValidationException;
 import io.vavr.control.Option;
+import org.jetbrains.annotations.Contract;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -45,6 +47,7 @@ public final class AssertDSL<T> {
      * If the current validation is already invalid, the transformation is not applied.
      * No exceptions are caught, use #map({@link MappingRule} if you have a mapper that could throw.
      */
+    @Contract(pure = true)
     public AssertDSL<T> after(be.iffy.fv.Transformation<T> transformation) {
         Objects.requireNonNull(transformation, "transformation cannot be null");
         return new AssertDSL<>(validation.map(transformation::apply), name);
@@ -53,6 +56,7 @@ public final class AssertDSL<T> {
     /**
      * Maps the validation from type T to type R using the provided mapping rule.
      */
+    @Contract(pure = true)
     public <R> AssertDSL<R> map(MappingRule<T, R> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
         return new AssertDSL<>(validation.refine(mapper), name);
@@ -61,7 +65,7 @@ public final class AssertDSL<T> {
     /**
      * Asserts that the value satisfies the given rule.
      */
-    public <R> R is(Function<? super T, ? extends Validation<R>> rule) {
+    public <R> R is(Function<? super T, ? extends Validation<R>> rule) throws ValidationException {
         Objects.requireNonNull(rule, "rule cannot be null");
         Validation<R> refined = validation.refine(MappingRule.of(rule));
         return name.fold(
@@ -73,7 +77,8 @@ public final class AssertDSL<T> {
     /**
      * Asserts that the value is not null.
      */
-    public T isNotNull() {
+    @Contract()
+    public T isNotNull() throws ValidationException {
         return is(Rule.notNull());
     }
 }

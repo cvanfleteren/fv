@@ -4,6 +4,7 @@ import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Transformation;
 import be.iffy.fv.Validation;
+import org.jetbrains.annotations.Contract;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -41,6 +42,7 @@ public final class AfterDSL<T> {
      *
      * @param rule the rule to apply to the transformed input
      */
+    @Contract(pure = true)
     public Rule<T> is(Rule<T> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
         return input -> {
@@ -54,6 +56,7 @@ public final class AfterDSL<T> {
      *
      * @param ruleFunction the function to apply to the transformed input
      */
+    @Contract(pure = true)
     public <R> MappingRule<T, R> is(Function<? super T, ? extends Validation<R>> ruleFunction) {
         Objects.requireNonNull(ruleFunction, "ruleFunction cannot be null");
         return input -> {

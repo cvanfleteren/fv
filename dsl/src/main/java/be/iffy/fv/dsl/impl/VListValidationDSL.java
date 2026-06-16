@@ -5,6 +5,7 @@ import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 import be.iffy.fv.Validations;
 import io.vavr.collection.List;
+import org.jetbrains.annotations.Contract;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -33,6 +34,7 @@ public final class VListValidationDSL<L, E> {
         this.name = name;
     }
 
+    @Contract(pure = true)
     public Validation<List<E>> validate() {
         return Validations
                 .combine(listValidation.at(name), elementValidation.at(name)).map((list, elements) -> elements)
@@ -40,6 +42,7 @@ public final class VListValidationDSL<L, E> {
                 .mapErrors(List::distinct);
     }
 
+    @Contract(pure = true)
     public <R> VListValidationDSL<R, R> eachIs(Function<E, Validation<R>> rule) {
         Validation<List<R>> newElements = elementValidation.refine(list -> MappingRule.of(rule).lift().toVavrList().apply(list));
         Validation<List<R>> newList = listValidation.flatMap(ignore -> newElements);
@@ -56,6 +59,7 @@ public final class VListValidationDSL<L, E> {
      *
      * @param rule the rule for the list.
      */
+    @Contract(pure = true)
     public VListValidationDSL<L, E> is(Function<List<L>, Validation<List<L>>> rule) {
         Validation<List<L>> ruleValidation = Validation.narrowSuper(listValidation.refine(MappingRule.of(rule)));
         return new VListValidationDSL<>(ruleValidation, elementValidation, name);

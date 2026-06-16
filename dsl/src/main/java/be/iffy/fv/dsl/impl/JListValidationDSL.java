@@ -4,6 +4,7 @@ import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 import be.iffy.fv.Validations;
+import org.jetbrains.annotations.Contract;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +34,7 @@ public final class JListValidationDSL<L, E> {
         this.name = name;
     }
 
+    @Contract(pure = true)
     public Validation<List<E>> validate() {
         return Validations
                 .combine(
@@ -41,6 +43,7 @@ public final class JListValidationDSL<L, E> {
                 ).map((list, elements) -> elements);
     }
 
+    @Contract(pure = true)
     public <R> JListValidationDSL<R, R> eachIs(Function<E, Validation<R>> rule) {
         Validation<List<R>> newElements = elementValidation.refine(list -> MappingRule.of(rule).lift().toList().apply(list));
         Validation<List<R>> newList = listValidation.flatMap(ignore -> newElements);
@@ -54,6 +57,7 @@ public final class JListValidationDSL<L, E> {
     /**
      * Validates that the list satisfies the given rule.
      */
+    @Contract(pure = true)
     public JListValidationDSL<L, E> is(Rule<List<L>> rule) {
         Validation<List<L>> ruleValidation = Validation.narrowSuper(listValidation.refine(rule));
         return new JListValidationDSL<>(ruleValidation, elementValidation, name);

@@ -27,6 +27,11 @@
             <artifactId>vavr</artifactId>
             <version>1.0.1</version>
         </dependency>
+      <dependency>
+          <groupId>org.jetbrains</groupId>
+          <artifactId>annotations</artifactId>
+          <version>26.1.0</version>
+      </dependency>
     </dependencies>
 
     <build>

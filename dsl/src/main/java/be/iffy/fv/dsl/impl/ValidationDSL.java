@@ -5,6 +5,7 @@ import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 import io.vavr.control.Option;
+import org.jetbrains.annotations.Contract;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -20,7 +21,7 @@ import java.util.function.Predicate;
  *        value = assertValid(
  *             valdateThat(value,"value").after(stringOps.trim()).is(strings.minLength(2)),
  *             validateThat(number,"number").is(ints.positive())
-*         )._1;
+ *        )._1;
  *    }
  *
  * }
@@ -50,6 +51,7 @@ public final class ValidationDSL<T> {
      * If the current validation is already invalid, the transformation is not applied.
      * No exceptions are caught, use #map({@link MappingRule} if you have a mapper that could throw.
      */
+    @Contract(pure = true)
     public ValidationDSL<T> after(be.iffy.fv.Transformation<T> transformation) {
         Objects.requireNonNull(transformation, "transformation cannot be null");
         return new ValidationDSL<>(validation.map(transformation::apply), name);
@@ -58,6 +60,7 @@ public final class ValidationDSL<T> {
     /**
      * Maps the validation from type T to type R using the provided mapping rule.
      */
+    @Contract(pure = true)
     public <R> ValidationDSL<R> map(MappingRule<T, R> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
         return new ValidationDSL<>(validation.refine(mapper), name);
@@ -67,6 +70,7 @@ public final class ValidationDSL<T> {
      * Validates that the value satisfies the given rule.
      * If the value is {@code null}, an error "must.not.be.null" is automatically added.
      */
+    @Contract(pure = true)
     public Validation<T> is(Rule<? super T> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
         Validation<T> refined = validation.refine(rule.narrow());
@@ -79,6 +83,7 @@ public final class ValidationDSL<T> {
     /**
      * Validates that the value satisfies the given rule.
      */
+    @Contract(pure = true)
     public <R> Validation<R> is(Function<? super T, ? extends Validation<? extends R>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
 
@@ -97,6 +102,7 @@ public final class ValidationDSL<T> {
     /**
      * Validates that the value is not null.
      */
+    @Contract(pure = true)
     public Validation<T> isNotNull() {
         return is(Rule.notNull());
     }
