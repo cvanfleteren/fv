@@ -248,7 +248,7 @@ We need a MappingRule because we'll be changing the type of Validation from Opti
 
 Unlike `lift().toOptional()`, which returns valid for empty optionals, these methods will return an `Invalid` result with
 the error key `must.not.be.empty` if the optional is empty. If the optional contains a value, it applies the rule to
-that value and—importantly—**extracts** the value from the container.
+that value and **extracts** the value from the container.
 
 ```java
 Rule<String> minLengthRule = strings.minLength(5);
@@ -301,7 +301,7 @@ allNotEmpty.apply(List.of("abc", "")); // Invalid ([1].must.not.be.empty)
 If you are using the `ListRules` or `VavrListRules` classes, you can also use `allMatchRule(Rule)`:
 
 ```java
-Rule<List<String>> allNotEmpty = collections.allMatchRule(strings.notEmpty());
+Rule<List<String>> allNotEmpty = lists.allMatchRule(strings.notEmpty());
 ```
 
 All these approaches are equivalent, as they are convenience wrappers around `lift().toList()`.
@@ -314,7 +314,7 @@ Yes! Similar to lists, you can lift a `Rule<T>` or `MappingRule<T, R>` to work o
 `java.util.Map`) or `lift().toVavrMap()` (for Vavr `Map`).
 
 When you lift a rule to a map, it applies the rule to every **value** in the map. The map **key** is used to create a
-path segment for any error messages, so you can easily identify which entry failed.
+path segment for any error messages, so you can identify which entry failed.
 
 ```java
 Rule<String> notEmpty = strings.notEmpty();
@@ -332,7 +332,7 @@ naming convention, you can provide a `keyExtractor` function:
 ```java
 Rule<User> userRule = ...;
 // Use the user's ID as the path segment in case of errors
-Rule<Map<Long, User>> mapRule = userRule.lift().toMap(id -> "user_" + id);
+Rule<Map<Long, User>> mapRule = userRule.lift().toMap(mapKey -> "user_" + mapKey);
 mapRule.apply(Map.of(1, user1, 2,user2)); // Invalid (user_1.must.be...)
 ```
 
@@ -341,11 +341,11 @@ mapRule.apply(Map.of(1, user1, 2,user2)); // Invalid (user_1.must.be...)
 ### I have a List<Validation<T>>, how can I turn it into a Validation<List<T>>?
 
 When you have a collection of validations and you want to combine them into a single validation containing a list of all
-successful values (or all accumulated errors if any fail), you can use **`Validations.transpose()`**.
+successful values (or all accumulated errors if any fail), you can use **`Validations.sequence()`**.
 
 This operation is often called "sequence" in other functional programming libraries.
 
-#### Example: Transposing a List
+#### Example: Sequencing a List
 
 ```java
 List<Validation<String>> validations = List.of(
@@ -353,16 +353,16 @@ List<Validation<String>> validations = List.of(
         Validation.valid("B")
 );
 
-Validation<List<String>> result = Validations.transpose(validations);
+Validation<List<String>> result = Validations.sequence(validations);
 // result is Valid(["A", "B"])
 ```
 
 If any of the validations in the list are `Invalid`, the resulting validation will be `Invalid` and will contain **all**
 the errors from all the invalid entries.
 
-#### Transposing Optionals and Options
+#### Sequencing Optionals and Options
 
-The `transpose` method is also available for `java.util.Optional` and Vavr `Option`. It allows you to flip the
+The `sequence` method is also available for `java.util.Optional` and Vavr `Option`. It allows you to flip the
 container:
 
 * **`Optional<Validation<T>>`** → **`Validation<Optional<T>>`**
@@ -373,11 +373,11 @@ validation of "nothing".
 
 ```java
 Optional<Validation<String>> optionalV = someOptional.map(this::validateContent);//returns a Validation.valid("hello")
-Validation<Optional<String>> result = Validations.transpose(optionalV);
+Validation<Optional<String>> result = Validations.sequence(optionalV);
 // result is Valid(Optional["hello"])
 
 Optional<Validation<String>> emptyV = Optional.empty();
-Validation<Optional<String>> resultEmpty = Validations.transpose(emptyV);
+Validation<Optional<String>> resultEmpty = Validations.sequence(emptyV);
 // resultEmpty is Valid(Optional.empty())
 ```
 
@@ -402,6 +402,11 @@ If the validation fails, it uses the error key `must.be.valid.enum.value` and pr
 named `value`.  
 If you only want to check if the String represents a valid enum value, but keep the String, use `strings.canBeEnum`
 instead.
+
+There's also a variant that takes a `Function<String, E> enumProvider` function, allowing you to choose which method to use to 
+lookup an enum from the given name (like in the case where you'd have a static method on an enum looking up the right value given a code).
+
+
 
 
 ---

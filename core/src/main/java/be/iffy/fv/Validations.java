@@ -17,8 +17,8 @@ public class Validations {
      *
      * @param validations the sequence of validations to sequence.
      */
-    public static <T> Validation<List<T>> transpose(Seq<? extends Validation<? extends T>> validations) {
-        return transpose(validations, "");
+    public static <T> Validation<List<T>> sequence(Seq<? extends Validation<? extends T>> validations) {
+        return sequence(validations, "");
     }
 
     /**
@@ -29,7 +29,7 @@ public class Validations {
      * @param name        the path entry under which the errors will be mapped. e.g., name "foo" will result in errormessages like "foo[1].some.message"
      *                    if the second entry in the list is invalid.
      */
-    public static <T> Validation<List<T>> transpose(Seq<? extends Validation<? extends T>> validations, String name) {
+    public static <T> Validation<List<T>> sequence(Seq<? extends Validation<? extends T>> validations, String name) {
         Objects.requireNonNull(validations, "validations cannot be null");
         Objects.requireNonNull(name, "name cannot be null");
 
@@ -48,7 +48,7 @@ public class Validations {
      * Transforms a {@code Option<Validation<T>>} into a {@code Validation<Option<T>>}.
      * If the Option is empty, the resulting Validation is considered to be {@link Validation.Valid}
      */
-    public static <T> Validation<Option<T>> transpose(Option<? extends Validation<? extends T>> option) {
+    public static <T> Validation<Option<T>> sequence(Option<? extends Validation<? extends T>> option) {
         Objects.requireNonNull(option, "option cannot be null");
         return option.fold(
                 () -> Validation.valid(Option.none()),
@@ -60,7 +60,7 @@ public class Validations {
      * Transforms a {@code Optional<Validation<T>>} into a {@code Validation<Optional<T>>}.
      * If the Optional is empty, the resulting Validation is considered to be {@link Validation.Valid}
      */
-    public static <T> Validation<Optional<T>> transpose(Optional<? extends Validation<? extends T>> optional) {
+    public static <T> Validation<Optional<T>> sequence(Optional<? extends Validation<? extends T>> optional) {
         Objects.requireNonNull(optional, "optional cannot be null");
         return optional.<Validation<Optional<T>>>map(validation -> validation.map(Optional::ofNullable))
                 .orElseGet(() -> Validation.valid(Optional.empty()));
@@ -73,9 +73,9 @@ public class Validations {
      * @param validations the collection of validations to transpose.
      * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
      */
-    public static <T> Validation<java.util.List<T>> transpose(java.util.Collection<? extends Validation<? extends T>> validations) {
+    public static <T> Validation<java.util.List<T>> sequence(java.util.Collection<? extends Validation<? extends T>> validations) {
         Objects.requireNonNull(validations, "validations cannot be null");
-        return transpose(List.ofAll(validations))
+        return sequence(List.ofAll(validations))
                 .map(List::asJava);
     }
 
@@ -86,10 +86,10 @@ public class Validations {
      * @param validations the collection of validations to sequence.
      * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
      */
-    public static <T> Validation<java.util.List<T>> transpose(java.util.Collection<? extends Validation<? extends T>> validations, String at) {
+    public static <T> Validation<java.util.List<T>> sequence(java.util.Collection<? extends Validation<? extends T>> validations, String at) {
         Objects.requireNonNull(validations, "validations cannot be null");
         Objects.requireNonNull(at, "at cannot be null");
-        return transpose(List.ofAll(validations), at)
+        return sequence(List.ofAll(validations), at)
                 .map(List::asJava);
     }
 

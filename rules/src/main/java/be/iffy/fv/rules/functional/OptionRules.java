@@ -36,7 +36,7 @@ public class OptionRules {
     public <T, R> MappingRule<Option<T>, Option<R>> matches(Function<? super T, Validation<R>> mappingRuleLike) {
         return input -> {
             Option<Validation<R>> res = input.map(mappingRuleLike);
-            return Validations.transpose(res);
+            return Validations.sequence(res);
         };
     }
 

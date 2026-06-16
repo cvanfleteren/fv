@@ -43,7 +43,7 @@ public class RuleLifter<T> extends Lifter<T,T> {
             }
             java.util.List<Validation<T>> validations = values.stream().map(this::test).toList();
             // Validation.sequence already adds the [index] path segment, so we don't do it here.
-            return Validations.transpose(validations);
+            return Validations.sequence(validations);
         };
     }
 

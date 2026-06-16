@@ -25,7 +25,7 @@ abstract class Lifter<T, R> {
             }
             List<Validation<R>> validations = values.map(this::test);
             // Validation.sequence already adds the [index] path segment, so we don't do it here.
-            return Validations.transpose(validations);
+            return Validations.sequence(validations);
         };
     }
 
@@ -36,7 +36,7 @@ abstract class Lifter<T, R> {
             }
             java.util.List<Validation<R>> validations = values.stream().map(this::test).toList();
             // Validation.sequence already adds the [index] path segment, so we don't do it here.
-            return Validations.transpose(validations);
+            return Validations.sequence(validations);
         };
     }
 

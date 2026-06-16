@@ -891,7 +891,7 @@ public class ValidationTest {
             );
 
             // Act
-            Validation<List<Integer>> result = Validations.transpose(validations);
+            Validation<List<Integer>> result = Validations.sequence(validations);
 
             // Assert
             assertThatValidation(result)
@@ -909,7 +909,7 @@ public class ValidationTest {
             );
 
             // Act
-            Validation<List<Integer>> result = Validations.transpose(validations);
+            Validation<List<Integer>> result = Validations.sequence(validations);
 
             // Assert
             assertThatValidation(result)
@@ -927,7 +927,7 @@ public class ValidationTest {
             );
 
             // Act
-            Validation<List<Integer>> result = Validations.transpose(validations, "first");
+            Validation<List<Integer>> result = Validations.sequence(validations, "first");
 
             // Assert
             assertThatValidation(result)
@@ -941,7 +941,7 @@ public class ValidationTest {
             List<Validation<Integer>> validations = List.empty();
 
             // Act
-            Validation<List<Integer>> result = Validations.transpose(validations);
+            Validation<List<Integer>> result = Validations.sequence(validations);
 
             // Assert
             assertThatValidation(result)
@@ -956,7 +956,7 @@ public class ValidationTest {
             Validation<Integer> intV = Validation.valid(1);
 
             // Act
-            Validation<List<Number>> result = Validations.transpose(List.of(intV));
+            Validation<List<Number>> result = Validations.sequence(List.of(intV));
 
             // Assert
             assertThatValidation(result)
@@ -974,7 +974,7 @@ public class ValidationTest {
             Option<Validation<Integer>> option = Option.some(Validation.valid(1));
 
             // Act
-            Validation<Option<Integer>> result = Validations.transpose(option.map(v -> v));
+            Validation<Option<Integer>> result = Validations.sequence(option.map(v -> v));
 
             // Assert
             assertThatValidation(result)
@@ -988,7 +988,7 @@ public class ValidationTest {
             Option<Validation<Integer>> option = Option.some(Validation.invalid(ErrorMessage.of("error")));
 
             // Act
-            Validation<Option<Integer>> result = Validations.transpose(option.map(v -> v));
+            Validation<Option<Integer>> result = Validations.sequence(option.map(v -> v));
 
             // Assert
             assertThatValidation(result)
@@ -1002,7 +1002,7 @@ public class ValidationTest {
             Option<Validation<Integer>> option = Option.none();
 
             // Act
-            Validation<Option<Integer>> result = Validations.transpose(option.map(v -> v));
+            Validation<Option<Integer>> result = Validations.sequence(option.map(v -> v));
 
             // Assert
             assertThatValidation(result)
@@ -1016,7 +1016,7 @@ public class ValidationTest {
             Option<Validation<Integer>> option = Option.some(Validation.valid(1));
 
             // Act
-            Validation<Option<Number>> result = Validations.transpose(option.map(v -> v));
+            Validation<Option<Number>> result = Validations.sequence(option.map(v -> v));
 
             // Assert
             assertThatValidation(result)
@@ -1034,7 +1034,7 @@ public class ValidationTest {
             Optional<Validation<Integer>> optional = Optional.of(Validation.valid(1));
 
             // Act
-            Validation<Optional<Integer>> result = Validations.transpose(optional);
+            Validation<Optional<Integer>> result = Validations.sequence(optional);
 
             // Assert
             assertThatValidation(result)
@@ -1048,7 +1048,7 @@ public class ValidationTest {
             Optional<Validation<Integer>> optional = Optional.of(Validation.invalid(ErrorMessage.of("error")));
 
             // Act
-            Validation<Optional<Integer>> result = Validations.transpose(optional);
+            Validation<Optional<Integer>> result = Validations.sequence(optional);
 
             // Assert
             assertThatValidation(result)
@@ -1062,7 +1062,7 @@ public class ValidationTest {
             Optional<Validation<Integer>> optional = Optional.empty();
 
             // Act
-            Validation<Optional<Integer>> result = Validations.transpose(optional);
+            Validation<Optional<Integer>> result = Validations.sequence(optional);
 
             // Assert
             assertThatValidation(result)
@@ -1076,7 +1076,7 @@ public class ValidationTest {
             Optional<Validation<Integer>> optional = Optional.of(Validation.valid(1));
 
             // Act
-            Validation<Optional<Number>> result = Validations.transpose(optional);
+            Validation<Optional<Number>> result = Validations.sequence(optional);
 
             // Assert
             assertThatValidation(result)
@@ -1345,7 +1345,7 @@ public class ValidationTest {
             Validation<String> invalid2 = Validation.invalid(ErrorMessage.of("error1"), ErrorMessage.of("error2"));
 
             // Act
-            Validation<List<String>> result = Validations.transpose(List.of(invalid, invalid2)).at("field");
+            Validation<List<String>> result = Validations.sequence(List.of(invalid, invalid2)).at("field");
 
             // Assert
             assertThatValidation(result)
@@ -2692,7 +2692,7 @@ public class ValidationTest {
             );
 
             // Act
-            Validation<java.util.List<String>> result = Validations.transpose(validations);
+            Validation<java.util.List<String>> result = Validations.sequence(validations);
 
             // Assert
             assertThatValidation(result)
@@ -2710,7 +2710,7 @@ public class ValidationTest {
             );
 
             // Act
-            Validation<java.util.List<String>> result = Validations.transpose(validations);
+            Validation<java.util.List<String>> result = Validations.sequence(validations);
 
             // Assert
             assertThatValidation(result)
@@ -2728,7 +2728,7 @@ public class ValidationTest {
             );
 
             // Act
-            Validation<java.util.List<String>> result = Validations.transpose(validations, "collection");
+            Validation<java.util.List<String>> result = Validations.sequence(validations, "collection");
 
             // Assert
             assertThatValidation(result)

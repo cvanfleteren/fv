@@ -34,7 +34,7 @@ public class OptionalRules {
     public <T, R> MappingRule<Optional<T>, Optional<R>> matches(Function<? super T, Validation<R>> mappingRuleLike) {
         return input -> {
             Optional<Validation<R>> res = input.map(mappingRuleLike);
-            return Validations.transpose(res);
+            return Validations.sequence(res);
         };
     }
 
