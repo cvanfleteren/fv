@@ -180,6 +180,24 @@ class StringRulesTest {
     }
 
     @Nested
+    class SplitAt {
+
+        @Test
+        void valid() {
+            validTest("abcdef", "abc|def", strings.splitAt(3, (a, b) -> a + "|" + b));
+            validTest("abcdef", "|abcdef", strings.splitAt(0, (a, b) -> a + "|" + b));
+            validTest("abcdef", "abcdef|", strings.splitAt(6, (a, b) -> a + "|" + b));
+            validTest("abc", "abc|", strings.splitAt(3, (a, b) -> a + "|" + b));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, strings.splitAt(3, (a, b) -> a + "|" + b), "must.not.be.null");
+            invalidTest("ab", strings.splitAt(3, (a, b) -> a + "|" + b), "must.be.valid.substring");
+        }
+    }
+
+    @Nested
     class MinLength {
 
         @Test

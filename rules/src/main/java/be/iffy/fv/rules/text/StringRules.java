@@ -428,8 +428,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
 
     public <R> MappingRule<String, R> splitAt(int index, Function2<String, String, R> mapper) {
         return MappingRule.<String>notNull().then(input -> {
-            MappingRule<String, String> first = take(index - 1);
-            MappingRule<String, String> second = drop(index - 1);
+            MappingRule<String, String> first = take(index);
+            MappingRule<String, String> second = drop(index);
 
             return combine(first, second)
                     .into(mapper)
