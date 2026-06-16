@@ -63,6 +63,8 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      * Rule semantics will be enforced, so the ruleLikeFunction won't be able to return another value.
      */
     static <T> Rule<T> of(Function<? super T, ? extends Validation<? extends T>> ruleLikeFunction) {
+        Objects.requireNonNull(ruleLikeFunction, "ruleLikeFunction cannot be null");
+
         if (ruleLikeFunction instanceof Rule) {
             // no need to wrap if the function is already a Rule
             @SuppressWarnings("unchecked")
@@ -70,7 +72,6 @@ public interface Rule<T> extends Function<T, Validation<T>> {
             return alreadyRule;
         }
 
-        Objects.requireNonNull(ruleLikeFunction, "ruleLikeFunction cannot be null");
         return input -> {
             if (input == null) {
                 return Invalid.notNull();

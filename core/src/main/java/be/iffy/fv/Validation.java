@@ -443,7 +443,6 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Creates an invalid validation with the provided error messages.
      */
-    @SuppressWarnings("unchecked")
     static <T> Validation<T> invalid(ErrorMessage error, ErrorMessage... moreErrors) {
         Objects.requireNonNull(error, "error cannot be null");
         Objects.requireNonNull(moreErrors, "moreErrors cannot be null");
@@ -453,26 +452,28 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Creates an invalid validation with a single error message key.
      */
-    @SuppressWarnings("unchecked")
     static <T> Validation<T> invalid(String errorKey) {
         return new Invalid<>(List.of(ErrorMessage.of(errorKey)));
     }
 
     /**
      * Creates an invalid validation with the provided list of error messages.
+     * Error messages will be deduplicated!
      */
-    @SuppressWarnings("unchecked")
     static <T> Validation<T> invalid(List<ErrorMessage> errors) {
-        return (Validation<T>) new Invalid(errors);
+        return  new Invalid<>(errors);
+    }
+
+    /**
+     * Creates an invalid validation with the provided list of error messages.
+     * Error messages will be deduplicated!
+     */
+    static <T> Validation<T> invalid(java.util.List<ErrorMessage> errors) {
+        return  new Invalid<>(List.ofAll(errors));
     }
     //endregion
 
-    //region factory methods for unknown values
-
-    //endregion
-
     //region casting
-
     /**
      * Narrows a {@code Validation<? extends T>} to a {@code Validation<T>}.
      *
