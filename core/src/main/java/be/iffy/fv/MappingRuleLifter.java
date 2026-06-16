@@ -9,6 +9,9 @@ import java.util.function.Function;
 
 import static be.iffy.fv.MappingRule.of;
 
+/**
+ * Public only because of necessity, is meant to be used from {@link MappingRule#lift()}
+ */
 public class MappingRuleLifter<T, R> extends Lifter<T,R> {
 
     private final MappingRule<T, R> rule;

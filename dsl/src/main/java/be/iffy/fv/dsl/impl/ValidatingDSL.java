@@ -12,6 +12,9 @@ import java.util.Objects;
  */
 public final class ValidatingDSL {
 
+    /**
+     * Combine multiple Validations, allowing you to map or flatMap over their values.
+     */
     public static class ValidatingBuilder2<T1, T2> {
         private final Tuple2<Validation<T1>, Validation<T2>> vs;
 
@@ -36,6 +39,9 @@ public final class ValidatingDSL {
         }
     }
 
+    /**
+     * Combine multiple Validations, allowing you to map or flatMap over their values.
+     */
     public static class ValidatingBuilder3<T1, T2, T3> {
         private final Tuple3<Validation<T1>, Validation<T2>, Validation<T3>> vs;
 
@@ -60,6 +66,9 @@ public final class ValidatingDSL {
         }
     }
 
+    /**
+     * Combine multiple Validations, allowing you to map or flatMap over their values.
+     */
     public static class ValidatingBuilder4<T1, T2, T3, T4> {
         private final Tuple4<Validation<T1>, Validation<T2>, Validation<T3>, Validation<T4>> vs;
 
@@ -89,6 +98,9 @@ public final class ValidatingDSL {
         }
     }
 
+    /**
+     * Combine multiple Validations, allowing you to map or flatMap over their values.
+     */
     public static class ValidatingBuilder5<T1, T2, T3, T4, T5> {
         private final Tuple5<Validation<T1>, Validation<T2>, Validation<T3>, Validation<T4>, Validation<T5>> vs;
 
@@ -119,6 +131,9 @@ public final class ValidatingDSL {
         }
     }
 
+    /**
+     * Combine multiple Validations, allowing you to map or flatMap over their values.
+     */
     public static class ValidatingBuilder6<T1, T2, T3, T4, T5, T6> {
         private final Tuple6<Validation<T1>, Validation<T2>, Validation<T3>, Validation<T4>, Validation<T5>, Validation<T6>> vs;
 
@@ -150,6 +165,9 @@ public final class ValidatingDSL {
         }
     }
 
+    /**
+     * Combine multiple Validations, allowing you to map or flatMap over their values.
+     */
     public static class ValidatingBuilder7<T1, T2, T3, T4, T5, T6, T7> {
         private final Tuple7<Validation<T1>, Validation<T2>, Validation<T3>, Validation<T4>, Validation<T5>, Validation<T6>, Validation<T7>> vs;
 
@@ -167,10 +185,6 @@ public final class ValidatingDSL {
 
         /**
          * Maps the values of the passed Validations if they are {@link Validation.Valid}
-         *
-         * @param mapper a function that takes the inputs of types T1, T2, T3, T4, T5, T6, and T7 and produces a result of type T
-
-         * @return a {@code Validation<T>} containing the transformed result, or an {@link Validation.Invalid} if either validation fails
          */
         @Contract(pure = true)
         public <T> Validation<T> map(Function7<T1, T2, T3, T4, T5, T6, T7, T> mapper) {
@@ -186,6 +200,9 @@ public final class ValidatingDSL {
         }
     }
 
+    /**
+     * Combine multiple Validations, allowing you to map or flatMap over their values.
+     */
     public static class ValidatingBuilder8<T1, T2, T3, T4, T5, T6, T7, T8> {
         private final Tuple8<Validation<T1>, Validation<T2>, Validation<T3>, Validation<T4>, Validation<T5>, Validation<T6>, Validation<T7>, Validation<T8>> vs;
 

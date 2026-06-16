@@ -70,7 +70,7 @@ public class Validations {
      * Transforms a {@link java.util.Collection} of {@link Validation}s into a single {@code Validation} of a {@link java.util.List}.
      * If any validation is invalid, the result will contain all accumulated errors.
      *
-     * @param validations the collection of validations to transpose.
+     * @param validations the collection of validations to sequence.
      * @return a {@code Validation} containing a list of values if all are valid, or all errors if any are invalid.
      */
     public static <T> Validation<java.util.List<T>> sequence(java.util.Collection<? extends Validation<? extends T>> validations) {

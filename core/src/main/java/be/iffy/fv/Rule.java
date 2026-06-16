@@ -77,7 +77,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
                 return Invalid.notNull();
             }
             return Validation.narrow(
-                    Objects.requireNonNull(ruleLikeFunction.apply(input), "ruleLikeFunction cannot return null Validation").mapTo(input)
+                Objects.requireNonNull(ruleLikeFunction.apply(input), "ruleLikeFunction cannot return null Validation").mapTo(input)
             );
         };
     }
@@ -108,7 +108,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      */
     static <T> Rule<T> notNull() {
         return input ->
-                input == null ? Invalid.notNull() : Validation.valid(input);
+            input == null ? Invalid.notNull() : Validation.valid(input);
     }
 
     //endregion
@@ -125,10 +125,10 @@ public interface Rule<T> extends Function<T, Validation<T>> {
     default <S extends T> Rule<S> and(Function<? super S, ? extends Validation<?>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input ->
-                apply(input).flatMap(v ->
-                        // map back to original input so we're protected against other returning an incompatible value
-                        other.apply(input).map(ignored -> input)
-                );
+            apply(input).flatMap(v ->
+                // map back to original input so we're protected against other returning an incompatible value
+                other.apply(input).map(ignored -> input)
+            );
     }
 
     /**
@@ -142,18 +142,18 @@ public interface Rule<T> extends Function<T, Validation<T>> {
         Objects.requireNonNull(other, "other rule cannot be null");
         // map back to original input so we're protected against other returning an incompatible value
         return input ->
-                Validations.combine(
-                                apply(input),
-                                other.apply(input)
-                        )
-                        .map((v, o) -> input);
+            Validations.combine(
+                    apply(input),
+                    other.apply(input)
+                )
+                .map((v, o) -> input);
     }
 
     /**
      * Composes multiple rules using "non-short-circuiting and" logic.
      * The combined rule is successful only if all rules are successful.
      * Errors of all failing rules are combined.
-     * If no rules are passed, the value is considered to be valid.
+     * If no rules are passed, the value is considered to be valid if it is non-null.
      * <p>
      * Non-short-circuiting, accumulating.
      */
@@ -162,14 +162,17 @@ public interface Rule<T> extends Function<T, Validation<T>> {
         Objects.requireNonNull(rules, "rules cannot be null");
 
         return value -> {
+            if (value == null) {
+                return Invalid.notNull();
+            }
             List<Validation<T>> validations = List.of(rules).map(rule -> rule.apply(value));
             List<ErrorMessage> errors = validations
-                    .filter(v -> !v.isValid())
-                    .flatMap(Validation::errors);
+                .filter(v -> !v.isValid())
+                .flatMap(Validation::errors);
 
             return errors.isEmpty()
-                    ? Validation.valid(value)
-                    : Validation.invalid(errors);
+                ? Validation.valid(value)
+                : Validation.invalid(errors);
         };
     }
 
@@ -277,8 +280,8 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      */
     default <R> MappingRule<T, R> then(Function<? super T, ? extends Validation<? extends R>> ruleLikeFunction) {
         return input ->
-                apply(input)
-                        .refine(MappingRule.of(ruleLikeFunction));
+            apply(input)
+                .refine(MappingRule.of(ruleLikeFunction));
     }
 
     /**
@@ -289,15 +292,27 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      * Non-short-circuiting, non-accumulating
      */
     default <S extends T> Rule<S> xor(Function<? super S, ? extends Validation<?>> other, String errorKey) {
-        Objects.requireNonNull(other, "other rule cannot be null");
         Objects.requireNonNull(errorKey, "errorKey cannot be null");
+        return xor(other, ErrorMessage.of(errorKey));
+    }
+
+    /**
+     * Composes this rule with another using XOR logic.
+     * Successful only if exactly one of the rules is successful.
+     * Both rules will always be evaluated.
+     * <p>
+     * Non-short-circuiting, non-accumulating
+     */
+    default <S extends T> Rule<S> xor(Function<? super S, ? extends Validation<?>> other, ErrorMessage errorMessage) {
+        Objects.requireNonNull(other, "other cannot be null");
+        Objects.requireNonNull(errorMessage, "errorKey cannot be null");
         return input -> {
             boolean v1Valid = this.apply(input).isValid();
             boolean v2Valid = other.apply(input).isValid();
             if (v1Valid ^ v2Valid) {
                 return Validation.valid(input);
             }
-            return Validation.invalid(errorKey);
+            return Validation.invalid(errorMessage);
         };
     }
 
@@ -327,9 +342,10 @@ public interface Rule<T> extends Function<T, Validation<T>> {
         Objects.requireNonNull(negatedError, "negatedError cannot be null");
         return input -> {
             Validation<T> original = this.apply(input);
-            return original.isValid()
-                    ? Validation.invalid(negatedError)
-                    : Validation.valid(input);
+            return original.fold(
+                invalid -> Validation.valid(input),
+                valid -> Validation.invalid(negatedError)
+            );
         };
     }
 
@@ -361,6 +377,10 @@ public interface Rule<T> extends Function<T, Validation<T>> {
     default Rule<T> onlyIf(Supplier<Boolean> condition) {
         Objects.requireNonNull(condition, "condition cannot be null");
         return input -> {
+            if (input == null) {
+                return Invalid.notNull();
+            }
+
             boolean shouldRun = Objects.requireNonNull(condition.get(), "condition result cannot be null");
             if (shouldRun) {
                 return this.apply(input);
@@ -377,6 +397,10 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      */
     default Rule<T> onlyIf(boolean condition) {
         return input -> {
+            if (input == null) {
+                return Invalid.notNull();
+            }
+
             if (condition) {
                 return this.apply(input);
             }
@@ -390,7 +414,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
     default Rule<T> withErrorKey(String errorKey) {
         Objects.requireNonNull(errorKey, "errorKey cannot be null");
         return input ->
-                this.apply(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
+            this.apply(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
     }
 
     /**
@@ -418,12 +442,12 @@ public interface Rule<T> extends Function<T, Validation<T>> {
         Objects.requireNonNull(selector, "selector cannot be null");
         Objects.requireNonNull(rule, "rule cannot be null");
         return input ->
-                Objects.requireNonNull(
-                                rule.apply(selector.apply(input)),
-                                "rule cannot return a null Validation"
-                        )
-                        .map(ignore -> input)
-                        .at(selector.getPropertyName());
+            Objects.requireNonNull(
+                    rule.apply(selector.apply(input)),
+                    "rule cannot return a null Validation"
+                )
+                .map(ignore -> input)
+                .at(selector.getPropertyName());
     }
 
     /**

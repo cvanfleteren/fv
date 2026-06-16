@@ -39,8 +39,6 @@ public final class AfterDSL<T> {
 
     /**
      * Creates a rule that applies the transformation to the input before evaluating it against the specified rule.
-     *
-     * @param rule the rule to apply to the transformed input
      */
     @Contract(pure = true)
     public Rule<T> is(Rule<T> rule) {
@@ -53,8 +51,6 @@ public final class AfterDSL<T> {
 
     /**
      * Creates a mapping rule that applies the transformation to the input before applying the provided rule function.
-     *
-     * @param ruleFunction the function to apply to the transformed input
      */
     @Contract(pure = true)
     public <R> MappingRule<T, R> is(Function<? super T, ? extends Validation<R>> ruleFunction) {

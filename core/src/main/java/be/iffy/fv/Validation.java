@@ -416,6 +416,9 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     //region factory methods for known values
 
+    /**
+     * Gives access to the ValidationFactory, allow you to construct {@link Validation}s from many different types.
+     */
     static ValidationFactory from() {
         return ValidationFactory.instance;
     }

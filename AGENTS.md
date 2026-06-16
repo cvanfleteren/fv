@@ -11,9 +11,10 @@ This file contains standards and patterns established during the development of 
 
 #### 2. Code Style
 - Follow existing patterns for `sealed interface` and `record` hierarchies.
-- Maintain consistent package structures (e.g., `net.vanfleteren.fv.core`).
+- Maintain consistent package structures (e.g., `be.iffy.fv.core`).
 - Prefer a functional programming style with immutability and side effect free functions.
 - Prefer Vavr types over standard Java types (eg io.vavr.collection.* over java.util.*).
+- Prefer immutability and a functional approach and naming.
  
 #### 3. Design constraints
 - Nulls are generally considered to be invalid values.

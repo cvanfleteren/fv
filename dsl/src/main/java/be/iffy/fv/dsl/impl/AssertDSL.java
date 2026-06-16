@@ -66,7 +66,6 @@ public final class AssertDSL<T> {
     /**
      * Asserts that the value is not null.
      */
-    @Contract(pure = true)
     public T isNotNull() throws ValidationException {
         return validationDSL.isNotNull().getOrElseThrow();
     }

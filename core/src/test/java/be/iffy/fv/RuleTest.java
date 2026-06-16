@@ -654,7 +654,7 @@ class RuleTest {
             // Act & Assert
             assertThatCode(() -> rule.xor(null, "error"))
                     .isInstanceOf(NullPointerException.class)
-                    .hasMessage("other rule cannot be null");
+                    .hasMessage("other cannot be null");
         }
 
         @Test
@@ -663,7 +663,7 @@ class RuleTest {
             Rule<String> rule = Rule.of(s -> true, "ok");
 
             // Act & Assert
-            assertThatCode(() -> rule.xor(Rule.of(s -> true, "ok"), null))
+            assertThatCode(() -> rule.xor(Rule.of(s -> true, "ok"), (String)null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("errorKey cannot be null");
         }

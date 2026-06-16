@@ -117,6 +117,8 @@ public class ValidationFactory {
      * But if the Try succeeds with null, the return validation will be invalid with the key "must.not.be.null".
      * If the {@link Try} is failed, the returned validation will be invalid with the error key "failed.from.try"
      * and param "message" representing the message of the exception
+     * <p>
+     * Error key: {@code failed.from.try}
      */
     public <T> Validation<T> _try(Try<? extends T> _try) {
         Objects.requireNonNull(_try, "_try cannot be null");

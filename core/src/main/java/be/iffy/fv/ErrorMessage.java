@@ -66,7 +66,7 @@ public record ErrorMessage(String errorKey, List<Path> paths, Map<String, @Nulla
      */
     public ErrorMessage prepend(Path path) {
         if (!paths.isEmpty() && paths.head().index.isDefined() && paths.head().text.isEmpty() && path.index.isEmpty()) {
-            // previous path was just an index, an this one hasn't got one, combine them
+            // previous path was just an index, and this one hasn't got one, combine them
             return this.withPaths(paths.tail().prepend(path.withIndex(paths.head().index).withText(path.text)));
         } else {
             return this.withPaths(paths.prepend(path));
@@ -77,7 +77,7 @@ public record ErrorMessage(String errorKey, List<Path> paths, Map<String, @Nulla
      * Associates an index with the current head path segment.
      * If no paths exist, a new empty path segment with the given index is prepended.
      *
-     * @param index the index (e.g., collection index or map key).
+     * @param index the index (e.g., a collection index or map key).
      */
     public ErrorMessage atIndex(Object index) {
         if (paths.isEmpty()) {

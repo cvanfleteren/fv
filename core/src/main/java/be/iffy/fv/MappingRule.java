@@ -84,7 +84,9 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
                 return Invalid.notNull();
             }
             try {
-                return Validation.valid(throwingMapper.apply(input));
+                return Validation.valid(
+                    Objects.requireNonNull(throwingMapper.apply(input), "throwingMapper cannot return null")
+                );
             } catch (ValidationException ve) {
                 return invalid(ve.errors());
             } catch (Exception e) {
