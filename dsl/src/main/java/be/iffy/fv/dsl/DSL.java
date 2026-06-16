@@ -108,7 +108,7 @@ public final class DSL {
     //region Combine Rules
 
     /**
-     * Combines two rule-like functions into a builder that can map all valid values or accumulate all errors.
+     * Combines two Rules into a builder that can map all valid values or accumulate all errors.
      */
     @Contract(pure = true)
     public static <T, R1, R2> RuleCombiners.CombineBuilder2<T, R1, R2> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2) {
@@ -116,7 +116,7 @@ public final class DSL {
     }
 
     /**
-     * Combines three rule-like functions into a builder that can map all valid values or accumulate all errors.
+     * Combines three Rules into a builder that can map all valid values or accumulate all errors.
      */
     @Contract(pure = true)
     public static <T, R1, R2, R3> RuleCombiners.CombineBuilder3<T, R1, R2, R3> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2, Function<? super T, Validation<R3>> r3) {
@@ -124,7 +124,7 @@ public final class DSL {
     }
 
     /**
-     * Combines four rule-like functions into a builder that can map all valid values or accumulate all errors.
+     * Combines four Rules into a builder that can map all valid values or accumulate all errors.
      */
     @Contract(pure = true)
     public static <T, R1, R2, R3, R4> RuleCombiners.CombineBuilder4<T, R1, R2, R3, R4> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2, Function<? super T, Validation<R3>> r3, Function<? super T, Validation<R4>> r4) {
@@ -132,7 +132,7 @@ public final class DSL {
     }
 
     /**
-     * Combines five rule-like functions into a builder that can map all valid values or accumulate all errors.
+     * Combines five Rules into a builder that can map all valid values or accumulate all errors.
      */
     @Contract(pure = true)
     public static <T, R1, R2, R3, R4, R5> RuleCombiners.CombineBuilder5<T, R1, R2, R3, R4, R5> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2, Function<? super T, Validation<R3>> r3, Function<? super T, Validation<R4>> r4, Function<? super T, Validation<R5>> r5) {
@@ -140,7 +140,7 @@ public final class DSL {
     }
 
     /**
-     * Combines six rule-like functions into a builder that can map all valid values or accumulate all errors.
+     * Combines six Rules into a builder that can map all valid values or accumulate all errors.
      */
     @Contract(pure = true)
     public static <T, R1, R2, R3, R4, R5, R6> RuleCombiners.CombineBuilder6<T, R1, R2, R3, R4, R5, R6> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2, Function<? super T, Validation<R3>> r3, Function<? super T, Validation<R4>> r4, Function<? super T, Validation<R5>> r5, Function<? super T, Validation<R6>> r6) {
@@ -148,7 +148,7 @@ public final class DSL {
     }
 
     /**
-     * Combines seven rule-like functions into a builder that can map all valid values or accumulate all errors.
+     * Combines seven Rules into a builder that can map all valid values or accumulate all errors.
      */
     @Contract(pure = true)
     public static <T, R1, R2, R3, R4, R5, R6, R7> RuleCombiners.CombineBuilder7<T, R1, R2, R3, R4, R5, R6, R7> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2, Function<? super T, Validation<R3>> r3, Function<? super T, Validation<R4>> r4, Function<? super T, Validation<R5>> r5, Function<? super T, Validation<R6>> r6, Function<? super T, Validation<R7>> r7) {
@@ -156,7 +156,7 @@ public final class DSL {
     }
 
     /**
-     * Combines eight rule-like functions into a builder that can map all valid values or accumulate all errors.
+     * Combines eight Rules into a builder that can map all valid values or accumulate all errors.
      */
     @Contract(pure = true)
     public static <T, R1, R2, R3, R4, R5, R6, R7, R8> RuleCombiners.CombineBuilder8<T, R1, R2, R3, R4, R5, R6, R7, R8> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2, Function<? super T, Validation<R3>> r3, Function<? super T, Validation<R4>> r4, Function<? super T, Validation<R5>> r5, Function<? super T, Validation<R6>> r6, Function<? super T, Validation<R7>> r7, Function<? super T, Validation<R8>> r8) {
@@ -168,7 +168,7 @@ public final class DSL {
     //region validating / validateThat / validateThatList
 
     /**
-     * Act on the result of multiple validations.
+     * Combines multiple Validations, allowing you to map / flatMap their values if all are Valid.
      */
     @Contract(pure = true)
     public static <T1, T2> ValidatingDSL.ValidatingBuilder2<T1, T2> validating(Validation<T1> v1, Validation<T2> v2) {
@@ -176,7 +176,7 @@ public final class DSL {
     }
 
     /**
-     * Act on the result of multiple validations.
+     * Combines multiple Validations, allowing you to map / flatMap their values if all are Valid.
      */
     @Contract(pure = true)
     public static <T1, T2, T3> ValidatingDSL.ValidatingBuilder3<T1, T2, T3> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3) {
@@ -184,7 +184,7 @@ public final class DSL {
     }
 
     /**
-     * Act on the result of multiple validations.
+     * Combines multiple Validations, allowing you to map / flatMap their values if all are Valid.
      */
     @Contract(pure = true)
     public static <T1, T2, T3, T4> ValidatingDSL.ValidatingBuilder4<T1, T2, T3, T4> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4) {
@@ -192,7 +192,7 @@ public final class DSL {
     }
 
     /**
-     * Act on the result of multiple validations.
+     * Combines multiple Validations, allowing you to map / flatMap their values if all are Valid.
      */
     @Contract(pure = true)
     public static <T1, T2, T3, T4, T5> ValidatingDSL.ValidatingBuilder5<T1, T2, T3, T4, T5> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5) {
@@ -200,7 +200,7 @@ public final class DSL {
     }
 
     /**
-     * Act on the result of multiple validations.
+     * Combines multiple Validations, allowing you to map / flatMap their values if all are Valid.
      */
     @Contract(pure = true)
     public static <T1, T2, T3, T4, T5, T6> ValidatingDSL.ValidatingBuilder6<T1, T2, T3, T4, T5, T6> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6) {
@@ -208,7 +208,7 @@ public final class DSL {
     }
 
     /**
-     * Act on the result of multiple validations.
+     * Combines multiple Validations, allowing you to map / flatMap their values if all are Valid.
      */
     @Contract(pure = true)
     public static <T1, T2, T3, T4, T5, T6, T7> ValidatingDSL.ValidatingBuilder7<T1, T2, T3, T4, T5, T6, T7> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7) {
@@ -216,13 +216,12 @@ public final class DSL {
     }
 
     /**
-     * Act on the result of multiple validations.
+     * Combines multiple Validations, allowing you to map / flatMap their values if all are Valid.
      */
     @Contract(pure = true)
     public static <T1, T2, T3, T4, T5, T6, T7, T8> ValidatingDSL.ValidatingBuilder8<T1, T2, T3, T4, T5, T6, T7, T8> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Validation<T8> v8) {
         return new ValidatingDSL.ValidatingBuilder8<>(v1, v2, v3, v4, v5, v6, v7, v8);
     }
-
 
     /**
      * Quick way to validate that a value is not null.
