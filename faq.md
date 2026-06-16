@@ -386,8 +386,8 @@ Validation<Optional<String>> resultEmpty = Validations.sequence(emptyV);
 ### I have a String, and want to make sure it's a valid value for a given Enum
 
 You can use the `asEnum(Class<E> clazz)` method found in `StringRules`. This method returns a `MappingRule<String, E>`
-that validates if the input string matches one of the enum constants (case insensitive) and, if successful, transforms it into that enum
-instance.
+that validates if the input string matches one of the enum constants (case-insensitive) and, if successful, transforms 
+it into that enum instance.
 
 ```java
 enum Status {OPEN, CLOSED}
@@ -400,14 +400,37 @@ rule.apply("UNKNOWN"); // Invalid (must.be.valid.enum.value)
 
 If the validation fails, it uses the error key `must.be.valid.enum.value` and provides the invalid input as a parameter
 named `value`.  
+
 If you only want to check if the String represents a valid enum value, but keep the String, use `strings.canBeEnum`
 instead.
 
-There's also a variant that takes a `Function<String, E> enumProvider` function, allowing you to choose which method to use to 
-lookup an enum from the given name (like in the case where you'd have a static method on an enum looking up the right value given a code).
+#### Using a Custom Enum Provider
 
+There's also a variant that takes an `enumProvider` function, allowing you to choose how to
+lookup an enum instance from the given string. This is useful when you want to lookup an enum by a code, 
+a database ID, or any other property instead of its name.
 
+```java
+enum Status {
+    OPEN("O"), 
+    CLOSED("C");
 
+    private final String code;
+    Status(String code) { this.code = code; }
+    
+    public static Status fromCode(String code) {
+        return Arrays.stream(values())
+            .filter(s -> s.code.equalsIgnoreCase(code))
+            .findFirst()
+            .orElse(null); // Return null to trigger must.be.valid.enum.value
+    }
+}
+
+MappingRule<String, Status> rule = strings.asEnum(Status.class, Status::fromCode);
+
+rule.apply("O"); // Valid(Status.OPEN)
+rule.apply("X"); // Invalid (must.be.valid.enum.value)
+```
 
 ---
 
@@ -477,14 +500,14 @@ Validation<Person> personV = validating(
 #### 2. Validating Inside the Constructor (Fail-Fast)
 
 If you prefer your constructor to throw a `ValidationException` when given invalid values (common in DDD or when using
-Java Records), you can use the `assertValid` method from the `DSL` class.
+Java Records), you can use the `asserting` method from the `DSL` class.
 
 ```java
 import static be.iffy.fv.dsl.DSL.*;
 
 record Person(String name, int age) {
     public Person {
-        assertValid(
+        asserting(
                 validateThat(name, "name").is(strings.minLength(3)),
                 validateThat(age, "age").is(ints.min(18))
         );
@@ -492,7 +515,7 @@ record Person(String name, int age) {
 }
 ```
 
-If any of the validations fail, `assertValid` throws a `ValidationException` containing all the collected error
+If any of the validations fail, `asserting` throws a `ValidationException` containing all the collected error
 messages.
 
 ---
@@ -541,7 +564,7 @@ You can use `PropertySelector` in many places, including `validateThat`, `assert
 
 ### In my constructor, I want to be liberal with my input, and only validate the value after changing it
 
-You can use `assertThat(value,"field").map(transformation)` to transform a value before applying rules to it. This is
+You can use `assertThat(value,"field").after(transformation)` to transform a value before applying rules to it. This is
 useful when you want to normalize input (like trimming strings or converting case) and then validate the result.
 
 #### Example: Trimming and checking length
@@ -565,11 +588,13 @@ In this example:
 4. If it succeeds, `assertThat` returns the **trimmed** value, which is then assigned to the field.
 5. If the input value was null, the String::trim method would have never been called.
 
+Note: it is important that the Transformation you pass to after is null-safe and does not fail. It is allowed to return null.
+
 ---
 
 ### Ok, but I want to transform multiple fields in my constructor, how do I get their transformed values?
 
-When you have multiple fields that need transformation and validation, you can use **`assertValid`** with multiple
+When you have multiple fields that need transformation and validation, you can use **`asserting`** with multiple
 arguments. It will return a Vavr **`Tuple`** containing all the transformed values if they are all valid, or throw a
 `ValidationException` with all accumulated errors.
 The assignment doesn't look super nice, but it's the best we can do without java having explicit support for something
@@ -586,7 +611,7 @@ import io.vavr.Tuple2;
 record User(String username, String email) {
     public User {
         // using a var makes this better :)
-        Tuple2<String, String> values = assertValid(
+        Tuple2<String, String> values = asserting(
                 validateThat(username, "username").after(stringOps.trim()).is(strings.minLength(3)),
                 validateThat(email, "email").after(stringOps.toLowerCase()).is(strings.email())
         );
@@ -604,7 +629,7 @@ In this case:
 3. If any check fails, a `ValidationException` is thrown containing all errors.
 4. If all succeed, a `Tuple2` is returned containing the trimmed username and the lowercased email.
 
-The library supports `assertValid` for up to 8 validations, returning `Tuple2` through `Tuple8`.
+The library supports `asserting` for up to 8 validations, returning `Tuple2` through `Tuple8`.
 
 ---
 

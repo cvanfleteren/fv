@@ -8,7 +8,7 @@ import static be.iffy.fv.dsl.DSL.*;
 public record VatNumber(String value, CountryCode countrycode) {
 
     public VatNumber {
-        value = assertValid(
+        value = asserting(
                 validateThat(value,VatNumber::value).is(strings.notBlank().and(strings.alphaNumeric())),
                 notNull(countrycode, VatNumber::countrycode)
         )._1;

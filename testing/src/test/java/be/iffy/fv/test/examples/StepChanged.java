@@ -11,7 +11,7 @@ record StepChanged(String source,
                    List<String> errors) {
 
     public StepChanged {
-        assertValid(
+        asserting(
                 notNull(source, StepChanged::source),
                 validateThat(errors,"errors").is(lists.<String>empty().onlyIf(status == ProcessingStatus.SUCCESS)),
                 validateThat(errors,"errors").is(Rule.when(status == ProcessingStatus.SUCCESS, lists.empty())),

@@ -439,7 +439,7 @@ public class DSLTest {
             Validation<Integer> v2 = Validation.valid(123);
 
             // Act & Assert
-            assertThatCode(() -> DSL.assertValid(v1, v2))
+            assertThatCode(() -> DSL.asserting(v1, v2))
                     .doesNotThrowAnyException();
         }
 
@@ -450,7 +450,7 @@ public class DSLTest {
             Validation<Integer> v2 = Validation.valid(123);
 
             // Act
-            var result = DSL.assertValid(v1, v2);
+            var result = DSL.asserting(v1, v2);
 
             // Assert
             assertThat(result).isEqualTo(io.vavr.Tuple.of("ok", 123));
@@ -464,7 +464,7 @@ public class DSLTest {
             Validation<Double> v3 = Validation.valid(1.0);
 
             // Act
-            var result = DSL.assertValid(v1, v2, v3);
+            var result = DSL.asserting(v1, v2, v3);
 
             // Assert
             assertThat(result).isEqualTo(io.vavr.Tuple.of("ok", 123, 1.0));
@@ -479,7 +479,7 @@ public class DSLTest {
             Validation<String> v4 = Validation.valid("v4");
 
             // Act
-            var result = DSL.assertValid(v1, v2, v3, v4);
+            var result = DSL.asserting(v1, v2, v3, v4);
 
             // Assert
             assertThat(result).isEqualTo(io.vavr.Tuple.of("v1", "v2", "v3", "v4"));
@@ -495,7 +495,7 @@ public class DSLTest {
             Validation<String> v5 = Validation.valid("v5");
 
             // Act
-            var result = DSL.assertValid(v1, v2, v3, v4, v5);
+            var result = DSL.asserting(v1, v2, v3, v4, v5);
 
             // Assert
             assertThat(result).isEqualTo(io.vavr.Tuple.of("v1", "v2", "v3", "v4", "v5"));
@@ -512,7 +512,7 @@ public class DSLTest {
             Validation<String> v6 = Validation.valid("v6");
 
             // Act
-            var result = DSL.assertValid(v1, v2, v3, v4, v5, v6);
+            var result = DSL.asserting(v1, v2, v3, v4, v5, v6);
 
             // Assert
             assertThat(result).isEqualTo(io.vavr.Tuple.of("v1", "v2", "v3", "v4", "v5", "v6"));
@@ -530,7 +530,7 @@ public class DSLTest {
             Validation<String> v7 = Validation.valid("v7");
 
             // Act
-            var result = DSL.assertValid(v1, v2, v3, v4, v5, v6, v7);
+            var result = DSL.asserting(v1, v2, v3, v4, v5, v6, v7);
 
             // Assert
             assertThat(result).isEqualTo(io.vavr.Tuple.of("v1", "v2", "v3", "v4", "v5", "v6", "v7"));
@@ -549,7 +549,7 @@ public class DSLTest {
             Validation<String> v8 = Validation.valid("v8");
 
             // Act
-            var result = DSL.assertValid(v1, v2, v3, v4, v5, v6, v7, v8);
+            var result = DSL.asserting(v1, v2, v3, v4, v5, v6, v7, v8);
 
             // Assert
             assertThat(result).isEqualTo(io.vavr.Tuple.of("v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8"));
@@ -563,7 +563,7 @@ public class DSLTest {
             Validation<String> v3 = Validation.invalid("error2");
 
             // Act & Assert
-            assertThatThrownBy(() -> DSL.assertValid(v1, v2, v3))
+            assertThatThrownBy(() -> DSL.asserting(v1, v2, v3))
                     .isInstanceOf(ValidationException.class)
                     .satisfies(ex -> {
                         ValidationException ve = (ValidationException) ex;
@@ -575,7 +575,7 @@ public class DSLTest {
         @Test
         void assertAllValid_whenNoValidationsProvided_doesNotThrow() {
             // Act & Assert
-            assertThatCode(DSL::assertValid).doesNotThrowAnyException();
+            assertThatCode(DSL::asserting).doesNotThrowAnyException();
         }
     }
 }
