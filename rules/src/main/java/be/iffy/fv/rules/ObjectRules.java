@@ -4,6 +4,7 @@ import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
+import be.iffy.fv.Validation.Invalid;
 import io.vavr.control.Try;
 
 import java.util.Objects;
@@ -61,7 +62,7 @@ public class ObjectRules implements IObjectRules<Object> {
             if (clazz.isInstance(input)) {
                 return Validation.valid(clazz.cast(input));
             } else if (input == null) {
-                return Validation.invalid("must.not.be.null");
+                return Invalid.notNull();
             } else {
                 return Validation.invalid(ErrorMessage.of("must.be.instance.of", "type", clazz.getSimpleName()));
             }

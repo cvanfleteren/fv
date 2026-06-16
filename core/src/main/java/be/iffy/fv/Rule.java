@@ -160,12 +160,15 @@ public interface Rule<T> extends Function<T, Validation<T>> {
     @SafeVarargs
     static <T> Rule<T> all(Function<? super T, ? extends Validation<T>>... rules) {
         Objects.requireNonNull(rules, "rules cannot be null");
+        List.of(rules).forEach(rule -> Objects.requireNonNull(rule,"rule cannot be null"));
 
         return value -> {
             if (value == null) {
                 return Invalid.notNull();
             }
-            List<Validation<T>> validations = List.of(rules).map(rule -> rule.apply(value));
+            List<Validation<T>> validations = List.of(rules).map(rule ->
+                Objects.requireNonNull(rule.apply(value),"rule cannot return null Validation")
+            );
             List<ErrorMessage> errors = validations
                 .filter(v -> !v.isValid())
                 .flatMap(Validation::errors);
@@ -307,6 +310,10 @@ public interface Rule<T> extends Function<T, Validation<T>> {
         Objects.requireNonNull(other, "other cannot be null");
         Objects.requireNonNull(errorMessage, "errorKey cannot be null");
         return input -> {
+            if (input == null) {
+                return Invalid.notNull();
+            }
+
             boolean v1Valid = this.apply(input).isValid();
             boolean v2Valid = other.apply(input).isValid();
             if (v1Valid ^ v2Valid) {

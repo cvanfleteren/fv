@@ -1,13 +1,14 @@
 package be.iffy.fv.rules;
 
-import io.vavr.collection.HashMap;
-import io.vavr.collection.HashSet;
-import io.vavr.collection.Set;
-import io.vavr.control.Option;
 import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
+import be.iffy.fv.Validation.Invalid;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.HashSet;
+import io.vavr.collection.Set;
+import io.vavr.control.Option;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -25,7 +26,7 @@ public interface IObjectRules<T> {
      */
     default Rule<T> notNull() {
         return input ->
-                input == null ? Validation.invalid("must.not.be.null") : Validation.valid(input);
+                input == null ? Invalid.notNull() : Validation.valid(input);
     }
 
 
@@ -158,14 +159,14 @@ public interface IObjectRules<T> {
     }
 
     /**
-     * Wraps the object in a {@link java.util.Optional}.
+     * Wraps the object in a {@link java.util.Optional}. Null input becomes Optional.empty().
      */
     default MappingRule<T, Optional<T>> asOptional() {
         return input -> Validation.valid(Optional.ofNullable(input));
     }
 
     /**
-     * Wraps the object in a {@link io.vavr.control.Option}.
+     * Wraps the object in a {@link io.vavr.control.Option}. Null input becomes Option.none()
      */
     default MappingRule<T, Option<T>> asOption() {
         return input -> Validation.valid(Option.of(input));

@@ -16,6 +16,7 @@ import static be.iffy.fv.Validation.invalid;
  * with built-in validation support.
  * The mapping can either succeed (producing a {@link Validation.Valid} R) or fail (producing an {@link Invalid} with error details).
  *
+ *
  */
 @FunctionalInterface
 public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
@@ -35,7 +36,7 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
 
     /**
      * Creates an explicit {@link MappingRule} from a function that has the same signature.
-     * Use this to easily treat existing functions as ValidationCombiners.
+     * Use this to easily treat existing functions as Validations.
      */
     static <T, R> MappingRule<T, R> of(Function<? super T, ? extends Validation<? extends R>> validationFunction) {
         Objects.requireNonNull(validationFunction, "validationFunction cannot be null");

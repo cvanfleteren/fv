@@ -3,6 +3,7 @@ package be.iffy.fv.rules.functional;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
+import be.iffy.fv.Validation.Invalid;
 import be.iffy.fv.Validations;
 import io.vavr.control.Option;
 
@@ -35,6 +36,9 @@ public class OptionRules {
      */
     public <T, R> MappingRule<Option<T>, Option<R>> matches(Function<? super T, Validation<R>> mappingRuleLike) {
         return input -> {
+            if(input == null) {
+                return Invalid.notNull();
+            }
             Option<Validation<R>> res = input.map(mappingRuleLike);
             return Validations.sequence(res);
         };

@@ -1,5 +1,6 @@
 package be.iffy.fv;
 
+import be.iffy.fv.Validation.Invalid;
 import io.vavr.Function2;
 import io.vavr.collection.List;
 import io.vavr.control.Either;
@@ -47,7 +48,7 @@ public class ValidationTest {
             Validation<String> result = Validation.invalid(error1, error2);
 
             // Assert
-            assertThat(result).isInstanceOf(Validation.Invalid.class);
+            assertThat(result).isInstanceOf(Invalid.class);
             assertThat(result.isValid()).isFalse();
             assertThat(result.isInvalid()).isTrue();
             assertThat(result.errors()).containsExactly(error1, error2);
@@ -56,7 +57,7 @@ public class ValidationTest {
         @Test
         void constructor_whenGivenEmptyErrors_throwsIllegalStateException() {
             // Act & Assert
-            assertThatCode(() -> new Validation.Invalid(List.of()))
+            assertThatCode(() -> new Invalid(List.of()))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("errors must be non-empty");
         }
@@ -64,7 +65,7 @@ public class ValidationTest {
         @Test
         void invalid_whenGivenNull_throwsNullPointerException() {
             // Act & Assert
-            assertThatCode(() -> new Validation.Invalid(null))
+            assertThatCode(() -> new Invalid(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("errors cannot be null");
         }
@@ -185,8 +186,8 @@ public class ValidationTest {
             Validation<Integer> integerValidation = Validation.invalid(error);
 
             // Assert
-            assertThat(stringValidation).isInstanceOf(Validation.Invalid.class);
-            assertThat(integerValidation).isInstanceOf(Validation.Invalid.class);
+            assertThat(stringValidation).isInstanceOf(Invalid.class);
+            assertThat(integerValidation).isInstanceOf(Invalid.class);
         }
     }
 
@@ -1270,7 +1271,7 @@ public class ValidationTest {
         @Test
         void at_withPropertySelector_whenInvalid_prependsPropertyName() {
             // Arrange
-            Validation<String> invalid = Validation.invalid("must.not.be.null");
+            Validation<String> invalid = Invalid.notNull();
             PropertySelector<TestBean, String> selector = TestBean::name;
 
             // Act
@@ -1299,7 +1300,7 @@ public class ValidationTest {
         @Test
         void at_whenInvalid_prependsPathToAllErrorMessages() {
             // Arrange
-            Validation<String> invalid = Validation.invalid("must.not.be.null");
+            Validation<String> invalid = Invalid.notNull();
 
             // Act
             Validation<String> result = invalid.at("field");
@@ -1313,7 +1314,7 @@ public class ValidationTest {
         @Test
         void at_whenCalledNested_prependsPathsInCorrectOrder() {
             // Arrange
-            Validation<String> invalid = Validation.invalid("must.not.be.null");
+            Validation<String> invalid = Invalid.notNull();
 
             // Act
             Validation<String> result = invalid.at("nested").at("root");

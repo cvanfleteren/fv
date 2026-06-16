@@ -574,7 +574,7 @@ public sealed interface Validation<T> extends Iterable<T> {
         }
 
         @SuppressWarnings("unchecked")
-        static <T> Invalid<T> notNull() {
+        public static <T> Invalid<T> notNull() {
             return (Invalid<T>) notNull;
         }
     }

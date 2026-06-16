@@ -59,6 +59,9 @@ public class OptionalRules {
     public <T, Z> MappingRule<Optional<T>, Z> required(Function<? super T, ? extends Validation<Z>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
         return input -> {
+            if(input == null) {
+                return Validation.Invalid.notNull();
+            }
             if(input.isEmpty()) {
                 return Validation.invalid("must.not.be.empty");
             } else {
