@@ -12,7 +12,6 @@ import be.iffy.fv.rules.text.StringOps;
 import be.iffy.fv.rules.text.StringRules;
 import be.iffy.fv.rules.time.*;
 import io.vavr.*;
-import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import org.jetbrains.annotations.Contract;
@@ -169,6 +168,13 @@ public final class DSL {
 
     /**
      * Combines multiple Validations, allowing you to map / flatMap their values if all are Valid.
+     *
+     * {@snippet :
+     * Validation<Order> order = validating(
+     *         validateThat(name, "name").is(strings.notBlank()),
+     *         validateThat(price, "price").is(bigDecimals.positive())
+     *     ).mapTo((n, p) -> new Order(n, p));
+     * }
      */
     @Contract(pure = true)
     public static <T1, T2> ValidatingDSL.ValidatingBuilder2<T1, T2> validating(Validation<T1> v1, Validation<T2> v2) {
@@ -176,7 +182,7 @@ public final class DSL {
     }
 
     /**
-     * Combines multiple Validations, allowing you to map / flatMap their values if all are Valid.
+     * Like {@link #validating(Validation, Validation)} but with 3 Validations.
      */
     @Contract(pure = true)
     public static <T1, T2, T3> ValidatingDSL.ValidatingBuilder3<T1, T2, T3> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3) {
@@ -184,7 +190,7 @@ public final class DSL {
     }
 
     /**
-     * Combines multiple Validations, allowing you to map / flatMap their values if all are Valid.
+     * Like {@link #validating(Validation, Validation)} but with 4 Validations.
      */
     @Contract(pure = true)
     public static <T1, T2, T3, T4> ValidatingDSL.ValidatingBuilder4<T1, T2, T3, T4> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4) {
@@ -192,7 +198,7 @@ public final class DSL {
     }
 
     /**
-     * Combines multiple Validations, allowing you to map / flatMap their values if all are Valid.
+     * Like {@link #validating(Validation, Validation)} but with 5 Validations.
      */
     @Contract(pure = true)
     public static <T1, T2, T3, T4, T5> ValidatingDSL.ValidatingBuilder5<T1, T2, T3, T4, T5> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5) {
@@ -200,7 +206,7 @@ public final class DSL {
     }
 
     /**
-     * Combines multiple Validations, allowing you to map / flatMap their values if all are Valid.
+     * Like {@link #validating(Validation, Validation)} but with 6 Validations.
      */
     @Contract(pure = true)
     public static <T1, T2, T3, T4, T5, T6> ValidatingDSL.ValidatingBuilder6<T1, T2, T3, T4, T5, T6> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6) {
@@ -208,7 +214,7 @@ public final class DSL {
     }
 
     /**
-     * Combines multiple Validations, allowing you to map / flatMap their values if all are Valid.
+     * Like {@link #validating(Validation, Validation)} but with 7 Validations.
      */
     @Contract(pure = true)
     public static <T1, T2, T3, T4, T5, T6, T7> ValidatingDSL.ValidatingBuilder7<T1, T2, T3, T4, T5, T6, T7> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7) {
@@ -216,7 +222,7 @@ public final class DSL {
     }
 
     /**
-     * Combines multiple Validations, allowing you to map / flatMap their values if all are Valid.
+     * Like {@link #validating(Validation, Validation)} but with 8 Validations.
      */
     @Contract(pure = true)
     public static <T1, T2, T3, T4, T5, T6, T7, T8> ValidatingDSL.ValidatingBuilder8<T1, T2, T3, T4, T5, T6, T7, T8> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Validation<T8> v8) {
@@ -224,7 +230,10 @@ public final class DSL {
     }
 
     /**
-     * Quick way to validate that a value is not null.
+     * Returns a Validation that is invalid if the value is null. Equivalent to:
+     * {@snippet :
+     *  validateThat(value).is(Rule.notNull())
+     * }
      */
     @Contract(pure = true)
     public static <T> Validation<T> notNull(T value) {
@@ -232,7 +241,10 @@ public final class DSL {
     }
 
     /**
-     * Quick way to validate that a value is not null.
+     * Returns a Validation that is invalid if the value is null. Equivalent to:
+     * {@snippet :
+     *  validateThat(value, "name").is(Rule.notNull())
+     * }
      */
     @Contract(pure = true)
     public static <T> Validation<T> notNull(T value, String name) {
@@ -240,7 +252,10 @@ public final class DSL {
     }
 
     /**
-     * Quick way to validate that a value is not null.
+     * Returns a Validation that is invalid if the value is null. Equivalent to:
+     * {@snippet :
+     *  validateThat(value, Field::name).is(Rule.notNull())
+     * }
      */
     @Contract(pure = true)
     public static <T, V> Validation<T> notNull(T value, PropertySelector<V, T> selector) {
@@ -307,7 +322,7 @@ public final class DSL {
      * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
      */
     @Contract(pure = true)
-    public static <ANY, T> JListValidationDSL<T, T> validateThatList(java.util.List<T> value, PropertySelector<ANY, java.util.List<T>> name) {
+    public static <S, T> JListValidationDSL<T, T> validateThatList(java.util.List<T> value, PropertySelector<S, java.util.List<T>> name) {
         Objects.requireNonNull(name, "name cannot be null");
         return new JListValidationDSL<>(value, name.getPropertyName());
     }
@@ -321,7 +336,15 @@ public final class DSL {
      */
     @Contract(pure = true)
     public static <T> AssertDSL<T> assertThat(T value, String name) {
-        return new AssertDSL<>(value, name);
+        return new AssertDSL<>(value, Option.of(name));
+    }
+
+    /**
+     * Build a Validation that asserts that the valid is {@link be.iffy.fv.Validation.Valid} and returns its value, throwing a {@link ValidationException} otherwise.
+     */
+    @Contract(pure = true)
+    public static <T> AssertDSL<T> assertThat(T value) {
+        return new AssertDSL<>(value, Option.none());
     }
 
     /**
@@ -330,24 +353,18 @@ public final class DSL {
     @Contract(pure = true)
     public static <T, Z> AssertDSL<T> assertThat(T value, PropertySelector<Z, T> selector) {
         Objects.requireNonNull(selector, "selector cannot be null");
-        return new AssertDSL<>(value, selector.getPropertyName());
+        return new AssertDSL<>(value, Option.of(selector.getPropertyName()));
     }
 
     /**
-     * Asserts that all provided validations are valid, otherwise throws a {@link ValidationException} with all errors.
-     * This method is useful in constructors or at the boundaries of your application where you want to ensure
-     * that data is valid before proceeding
+     * Asserts that this validation is valid and returns its value.
+     * If the validation is invalid, a {@link ValidationException} is thrown.
      *
      * @throws ValidationException if any validation is invalid.
      */
-    public static void asserting(Validation<?>... validations) {
-        Objects.requireNonNull(validations, "validations cannot be null");
-        Iterator<ErrorMessage> it = Iterator.of(validations)
-            .map(v -> Objects.requireNonNull(v, "validation cannot be null"))
-            .flatMap(Validation::errors);
-        if (!it.isEmpty()) {
-            throw new ValidationException(it.toList());
-        }
+    public static <T> T asserting(Validation<T> v1) throws ValidationException {
+        Objects.requireNonNull(v1, "v1 validation cannot be null");
+        return v1.getOrElseThrow();
     }
 
     /**
@@ -356,7 +373,7 @@ public final class DSL {
      *
      * @throws ValidationException if any validation is invalid.
      */
-    public static <T1, T2> Tuple2<T1, T2> asserting(Validation<T1> v1, Validation<T2> v2) {
+    public static <T1, T2> Tuple2<T1, T2> asserting(Validation<T1> v1, Validation<T2> v2) throws ValidationException {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         return Validations.combine(v1, v2).map(Tuple::of).getOrElseThrow();
@@ -368,8 +385,8 @@ public final class DSL {
      * @throws ValidationException if any validation is invalid.
      */
     public static <T1, T2, T3> Tuple3<T1, T2, T3> asserting(
-            Validation<T1> v1, Validation<T2> v2, Validation<T3> v3
-    ) {
+        Validation<T1> v1, Validation<T2> v2, Validation<T3> v3
+    ) throws ValidationException {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -382,8 +399,8 @@ public final class DSL {
      * @throws ValidationException if any validation is invalid.
      */
     public static <T1, T2, T3, T4> Tuple4<T1, T2, T3, T4> asserting(
-            Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4
-    ) {
+        Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4
+    ) throws ValidationException {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -397,8 +414,8 @@ public final class DSL {
      * @throws ValidationException if any validation is invalid.
      */
     public static <T1, T2, T3, T4, T5> Tuple5<T1, T2, T3, T4, T5> asserting(
-            Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5
-    ) {
+        Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5
+    ) throws ValidationException {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -413,9 +430,9 @@ public final class DSL {
      * @throws ValidationException if any validation is invalid.
      */
     public static <T1, T2, T3, T4, T5, T6> Tuple6<T1, T2, T3, T4, T5, T6> asserting(
-            Validation<T1> v1, Validation<T2> v2, Validation<T3> v3,
-            Validation<T4> v4, Validation<T5> v5, Validation<T6> v6
-    ) {
+        Validation<T1> v1, Validation<T2> v2, Validation<T3> v3,
+        Validation<T4> v4, Validation<T5> v5, Validation<T6> v6
+    ) throws ValidationException {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -431,9 +448,9 @@ public final class DSL {
      * @throws ValidationException if any validation is invalid.
      */
     public static <T1, T2, T3, T4, T5, T6, T7> Tuple7<T1, T2, T3, T4, T5, T6, T7> asserting(
-            Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4,
-            Validation<T5> v5, Validation<T6> v6, Validation<T7> v7
-    ) {
+        Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4,
+        Validation<T5> v5, Validation<T6> v6, Validation<T7> v7
+    ) throws ValidationException {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");
@@ -450,9 +467,9 @@ public final class DSL {
      * @throws ValidationException if any validation is invalid.
      */
     public static <T1, T2, T3, T4, T5, T6, T7, T8> Tuple8<T1, T2, T3, T4, T5, T6, T7, T8> asserting(
-            Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4,
-            Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Validation<T8> v8
-    ) {
+        Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4,
+        Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Validation<T8> v8
+    ) throws ValidationException {
         Objects.requireNonNull(v1, "v1 validation cannot be null");
         Objects.requireNonNull(v2, "v2 validation cannot be null");
         Objects.requireNonNull(v3, "v3 validation cannot be null");

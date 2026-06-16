@@ -572,10 +572,5 @@ public class DSLTest {
                     });
         }
 
-        @Test
-        void assertAllValid_whenNoValidationsProvided_doesNotThrow() {
-            // Act & Assert
-            assertThatCode(DSL::asserting).doesNotThrowAnyException();
-        }
     }
 }

@@ -1,6 +1,5 @@
 package be.iffy.fv.dsl.impl;
 
-import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
@@ -33,11 +32,7 @@ public final class ValidationDSL<T> {
     private final Option<String> name;
 
     public ValidationDSL(T value, Option<String> name) {
-        if (value == null) {
-            this.validation = Validation.invalid(ErrorMessage.of("must.not.be.null"));
-        } else {
-            this.validation = Validation.valid(value);
-        }
+        this.validation = Validation.fromNullable(value);
         this.name = name.filter(Predicate.not(String::isBlank));
     }
 
@@ -49,7 +44,7 @@ public final class ValidationDSL<T> {
     /**
      * Transforms the value being validated using the provided transformation function.
      * If the current validation is already invalid, the transformation is not applied.
-     * No exceptions are caught, use #map({@link MappingRule} if you have a mapper that could throw.
+     * No exceptions are caught, use {@link #map(MappingRule)} if you have a mapper that could throw.
      */
     @Contract(pure = true)
     public ValidationDSL<T> after(be.iffy.fv.Transformation<T> transformation) {
@@ -74,10 +69,7 @@ public final class ValidationDSL<T> {
     public Validation<T> is(Rule<? super T> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
         Validation<T> refined = validation.refine(rule.narrow());
-        return name.fold(
-            () -> refined,
-            refined::at
-        );
+        return validationAtName(refined);
     }
 
     /**
@@ -93,10 +85,7 @@ public final class ValidationDSL<T> {
             )
         );
 
-        return name.fold(
-            () -> refined,
-            refined::at
-        );
+       return validationAtName(refined);
     }
 
     /**
@@ -104,6 +93,15 @@ public final class ValidationDSL<T> {
      */
     @Contract(pure = true)
     public Validation<T> isNotNull() {
-        return is(Rule.notNull());
+        // not null is checked at construction
+        return validationAtName(validation);
+    }
+
+    // adds the name to the Validation if present
+    private <R> Validation<R> validationAtName(Validation<R> refined) {
+        return name.fold(
+            () -> refined,
+            refined::at
+        );
     }
 }
