@@ -13,7 +13,7 @@ import java.util.Objects;
 public final class ValidatingDSL {
 
     public static class ValidatingBuilder2<T1, T2> {
-        final Tuple2<Validation<T1>, Validation<T2>> vs;
+        private final Tuple2<Validation<T1>, Validation<T2>> vs;
 
         public ValidatingBuilder2(Validation<T1> v1, Validation<T2> v2) {
             this.vs = Tuple.of(Objects.requireNonNull(v1), Objects.requireNonNull(v2));
@@ -37,7 +37,7 @@ public final class ValidatingDSL {
     }
 
     public static class ValidatingBuilder3<T1, T2, T3> {
-        final Tuple3<Validation<T1>, Validation<T2>, Validation<T3>> vs;
+        private final Tuple3<Validation<T1>, Validation<T2>, Validation<T3>> vs;
 
         public ValidatingBuilder3(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3) {
             this.vs = Tuple.of(Objects.requireNonNull(v1), Objects.requireNonNull(v2), Objects.requireNonNull(v3));
@@ -61,7 +61,7 @@ public final class ValidatingDSL {
     }
 
     public static class ValidatingBuilder4<T1, T2, T3, T4> {
-        final Tuple4<Validation<T1>, Validation<T2>, Validation<T3>, Validation<T4>> vs;
+        private final Tuple4<Validation<T1>, Validation<T2>, Validation<T3>, Validation<T4>> vs;
 
         public ValidatingBuilder4(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4) {
             this.vs = Tuple.of(
@@ -90,7 +90,7 @@ public final class ValidatingDSL {
     }
 
     public static class ValidatingBuilder5<T1, T2, T3, T4, T5> {
-        final Tuple5<Validation<T1>, Validation<T2>, Validation<T3>, Validation<T4>, Validation<T5>> vs;
+        private final Tuple5<Validation<T1>, Validation<T2>, Validation<T3>, Validation<T4>, Validation<T5>> vs;
 
         public ValidatingBuilder5(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5) {
             this.vs = Tuple.of(
@@ -120,7 +120,7 @@ public final class ValidatingDSL {
     }
 
     public static class ValidatingBuilder6<T1, T2, T3, T4, T5, T6> {
-        final Tuple6<Validation<T1>, Validation<T2>, Validation<T3>, Validation<T4>, Validation<T5>, Validation<T6>> vs;
+        private final Tuple6<Validation<T1>, Validation<T2>, Validation<T3>, Validation<T4>, Validation<T5>, Validation<T6>> vs;
 
         public ValidatingBuilder6(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6) {
             this.vs = Tuple.of(
@@ -151,7 +151,7 @@ public final class ValidatingDSL {
     }
 
     public static class ValidatingBuilder7<T1, T2, T3, T4, T5, T6, T7> {
-        final Tuple7<Validation<T1>, Validation<T2>, Validation<T3>, Validation<T4>, Validation<T5>, Validation<T6>, Validation<T7>> vs;
+        private final Tuple7<Validation<T1>, Validation<T2>, Validation<T3>, Validation<T4>, Validation<T5>, Validation<T6>, Validation<T7>> vs;
 
         public ValidatingBuilder7(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7) {
             this.vs = Tuple.of(
@@ -187,7 +187,7 @@ public final class ValidatingDSL {
     }
 
     public static class ValidatingBuilder8<T1, T2, T3, T4, T5, T6, T7, T8> {
-        final Tuple8<Validation<T1>, Validation<T2>, Validation<T3>, Validation<T4>, Validation<T5>, Validation<T6>, Validation<T7>, Validation<T8>> vs;
+        private final Tuple8<Validation<T1>, Validation<T2>, Validation<T3>, Validation<T4>, Validation<T5>, Validation<T6>, Validation<T7>, Validation<T8>> vs;
 
        public ValidatingBuilder8(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Validation<T8> v8) {
             this.vs = Tuple.of(
