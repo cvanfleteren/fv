@@ -70,7 +70,7 @@ class ValidatorTest {
 
         MappingRule<LocalUser, Integer> notSubscribed = validatorFor(LocalUser.class)
                 .when(Predicate.not(LocalUser::subscribed))
-                .where(LocalUser::age, Rule.ok())
+                .where(LocalUser::age, Rule.notNull())
                 .builds(age -> age);
 
 

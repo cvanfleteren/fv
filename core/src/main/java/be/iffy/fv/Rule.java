@@ -110,15 +110,6 @@ public interface Rule<T> extends Function<T, Validation<T>> {
                 input == null ? Invalid.notNull() : Validation.valid(input);
     }
 
-    /**
-     * Creates a new {@link Rule} that always returns a valid result for any non-null input.
-     * <p>
-     * Error key: {@code must.not.be.null} if input was null.
-     */
-    static <T> Rule<T> ok() {
-        return Rule.notNull();
-    }
-
     //endregion
 
     //region combinators
@@ -384,7 +375,6 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      * If the condition is false, the value is considered valid by default.
      */
     default Rule<T> onlyIf(boolean condition) {
-        Objects.requireNonNull(condition, "condition cannot be null");
         return input -> {
             if (condition) {
                 return this.apply(input);

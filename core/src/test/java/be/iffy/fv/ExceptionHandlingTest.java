@@ -99,7 +99,7 @@ class ExceptionHandlingTest {
         @Test
         void fromTry_whenMapperThrowsValidationException_propagatesException() {
             // MappingRule.ofTry(mapper, error) itself calls mapper.apply(input) directly
-            
+
             MappingRule<String, Integer> rule = MappingRule.fromTry(s -> {
                 throw new ValidationException(List.of(ErrorMessage.of("rule.error")));
             }, "fallback.error");
@@ -113,7 +113,7 @@ class ExceptionHandlingTest {
         @Test
         void or_whenFirstRuleThrows_propagatesException() {
             Rule<String> rule1 = s -> { throw new RuntimeException("boom"); };
-            Rule<String> rule2 = Rule.ok();
+            Rule<String> rule2 = Rule.notNull();
             Rule<String> combined = rule1.or(rule2);
 
             assertThatThrownBy(() -> combined.apply("test")).isInstanceOf(RuntimeException.class).hasMessage("boom");

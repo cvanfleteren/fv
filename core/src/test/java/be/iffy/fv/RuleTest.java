@@ -155,30 +155,6 @@ class RuleTest {
                     .isInvalid()
                     .hasErrorMessage("must.not.be.null");
         }
-
-        @Test
-        void ok_whenCalled_returnsValidResult() {
-            // Arrange
-            Rule<String> rule = Rule.ok();
-
-            // Act
-            Validation<String> result = rule.apply("any");
-
-            // Assert
-            assertThatValidation(result)
-                    .isValid()
-                    .isEqualTo("any");
-        }
-
-        @Test
-        void ok_whenCalledWithNull_throwsNullPointerException() {
-            // Arrange
-            Rule<String> rule = Rule.ok();
-
-            // Act & Assert
-            assertThatValidation(rule.apply(null)).isInvalid()
-                    .hasErrorKeys("must.not.be.null");
-        }
     }
 
     @Nested
