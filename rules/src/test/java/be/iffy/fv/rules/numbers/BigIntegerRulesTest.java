@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 
-import static be.iffy.fv.rules.numbers.BigIntegerRules.bigInts;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
+import static be.iffy.fv.rules.numbers.BigIntegerRules.bigIntegers;
 
 class BigIntegerRulesTest {
 
@@ -16,15 +16,15 @@ class BigIntegerRulesTest {
     class Positive {
         @Test
         void valid() {
-            validTest(BigInteger.ONE, bigInts.positive());
-            validTest(new BigInteger("42"), bigInts.positive());
+            validTest(BigInteger.ONE, bigIntegers.positive());
+            validTest(new BigInteger("42"), bigIntegers.positive());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, bigInts.positive(), "must.not.be.null");
-            invalidTest(BigInteger.ZERO, bigInts.positive(), "must.be.positive");
-            invalidTest(BigInteger.ONE.negate(), bigInts.positive(), "must.be.positive");
+            invalidTest(null, bigIntegers.positive(), "must.not.be.null");
+            invalidTest(BigInteger.ZERO, bigIntegers.positive(), "must.be.positive");
+            invalidTest(BigInteger.ONE.negate(), bigIntegers.positive(), "must.be.positive");
         }
     }
 
@@ -32,14 +32,14 @@ class BigIntegerRulesTest {
     class NonNegative {
         @Test
         void valid() {
-            validTest(BigInteger.ZERO, bigInts.nonNegative());
-            validTest(BigInteger.ONE, bigInts.nonNegative());
+            validTest(BigInteger.ZERO, bigIntegers.nonNegative());
+            validTest(BigInteger.ONE, bigIntegers.nonNegative());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, bigInts.nonNegative(), "must.not.be.null");
-            invalidTest(BigInteger.ONE.negate(), bigInts.nonNegative(), "must.be.non.negative");
+            invalidTest(null, bigIntegers.nonNegative(), "must.not.be.null");
+            invalidTest(BigInteger.ONE.negate(), bigIntegers.nonNegative(), "must.be.non.negative");
         }
     }
 
@@ -47,14 +47,14 @@ class BigIntegerRulesTest {
     class Negative {
         @Test
         void valid() {
-            validTest(BigInteger.ONE.negate(), bigInts.negative());
+            validTest(BigInteger.ONE.negate(), bigIntegers.negative());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, bigInts.negative(), "must.not.be.null");
-            invalidTest(BigInteger.ZERO, bigInts.negative(), "must.be.negative");
-            invalidTest(BigInteger.ONE, bigInts.negative(), "must.be.negative");
+            invalidTest(null, bigIntegers.negative(), "must.not.be.null");
+            invalidTest(BigInteger.ZERO, bigIntegers.negative(), "must.be.negative");
+            invalidTest(BigInteger.ONE, bigIntegers.negative(), "must.be.negative");
         }
     }
 
@@ -62,14 +62,14 @@ class BigIntegerRulesTest {
     class NonPositive {
         @Test
         void valid() {
-            validTest(BigInteger.ONE.negate(), bigInts.nonPositive());
-            validTest(BigInteger.ZERO, bigInts.nonPositive());
+            validTest(BigInteger.ONE.negate(), bigIntegers.nonPositive());
+            validTest(BigInteger.ZERO, bigIntegers.nonPositive());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, bigInts.nonPositive(), "must.not.be.null");
-            invalidTest(BigInteger.ONE, bigInts.nonPositive(), "must.be.non.positive");
+            invalidTest(null, bigIntegers.nonPositive(), "must.not.be.null");
+            invalidTest(BigInteger.ONE, bigIntegers.nonPositive(), "must.be.non.positive");
         }
     }
 
@@ -77,13 +77,13 @@ class BigIntegerRulesTest {
     class Zero {
         @Test
         void valid() {
-            validTest(BigInteger.ZERO, bigInts.zero());
+            validTest(BigInteger.ZERO, bigIntegers.zero());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, bigInts.zero(), "must.not.be.null");
-            invalidTest(BigInteger.ONE, bigInts.zero(), "must.be.zero");
+            invalidTest(null, bigIntegers.zero(), "must.not.be.null");
+            invalidTest(BigInteger.ONE, bigIntegers.zero(), "must.be.zero");
         }
     }
 
@@ -91,13 +91,13 @@ class BigIntegerRulesTest {
     class NonZero {
         @Test
         void valid() {
-            validTest(BigInteger.ONE, bigInts.nonZero());
+            validTest(BigInteger.ONE, bigIntegers.nonZero());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, bigInts.nonZero(), "must.not.be.null");
-            invalidTest(BigInteger.ZERO, bigInts.nonZero(), "must.not.be.zero");
+            invalidTest(null, bigIntegers.nonZero(), "must.not.be.null");
+            invalidTest(BigInteger.ZERO, bigIntegers.nonZero(), "must.not.be.zero");
         }
     }
 
@@ -105,16 +105,16 @@ class BigIntegerRulesTest {
     class Odd {
         @Test
         void valid() {
-            validTest(BigInteger.ONE, bigInts.odd());
-            validTest(new BigInteger("3"), bigInts.odd());
-            validTest(BigInteger.ONE.negate(), bigInts.odd());
+            validTest(BigInteger.ONE, bigIntegers.odd());
+            validTest(new BigInteger("3"), bigIntegers.odd());
+            validTest(BigInteger.ONE.negate(), bigIntegers.odd());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, bigInts.odd(), "must.not.be.null");
-            invalidTest(BigInteger.ZERO, bigInts.odd(), "must.be.odd");
-            invalidTest(new BigInteger("2"), bigInts.odd(), "must.be.odd");
+            invalidTest(null, bigIntegers.odd(), "must.not.be.null");
+            invalidTest(BigInteger.ZERO, bigIntegers.odd(), "must.be.odd");
+            invalidTest(new BigInteger("2"), bigIntegers.odd(), "must.be.odd");
         }
     }
 
@@ -122,16 +122,16 @@ class BigIntegerRulesTest {
     class Even {
         @Test
         void valid() {
-            validTest(BigInteger.ZERO, bigInts.even());
-            validTest(new BigInteger("2"), bigInts.even());
-            validTest(new BigInteger("-2"), bigInts.even());
+            validTest(BigInteger.ZERO, bigIntegers.even());
+            validTest(new BigInteger("2"), bigIntegers.even());
+            validTest(new BigInteger("-2"), bigIntegers.even());
         }
 
         @Test
         void invalid() {
-            invalidTest(null, bigInts.even(), "must.not.be.null");
-            invalidTest(BigInteger.ONE, bigInts.even(), "must.be.even");
-            invalidTest(BigInteger.ONE.negate(), bigInts.even(), "must.be.even");
+            invalidTest(null, bigIntegers.even(), "must.not.be.null");
+            invalidTest(BigInteger.ONE, bigIntegers.even(), "must.be.even");
+            invalidTest(BigInteger.ONE.negate(), bigIntegers.even(), "must.be.even");
         }
     }
 
@@ -139,14 +139,14 @@ class BigIntegerRulesTest {
     class Min {
         @Test
         void valid() {
-            validTest(new BigInteger("2"), bigInts.min(new BigInteger("2")));
-            validTest(new BigInteger("3"), bigInts.min(new BigInteger("2")));
+            validTest(new BigInteger("2"), bigIntegers.min(new BigInteger("2")));
+            validTest(new BigInteger("3"), bigIntegers.min(new BigInteger("2")));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, bigInts.min(new BigInteger("2")), "must.not.be.null");
-            invalidTest(BigInteger.ONE, bigInts.min(new BigInteger("2")), "must.be.at.least", HashMap.of("min", new BigInteger("2")));
+            invalidTest(null, bigIntegers.min(new BigInteger("2")), "must.not.be.null");
+            invalidTest(BigInteger.ONE, bigIntegers.min(new BigInteger("2")), "must.be.at.least", HashMap.of("min", new BigInteger("2")));
         }
     }
 
@@ -154,14 +154,14 @@ class BigIntegerRulesTest {
     class Max {
         @Test
         void valid() {
-            validTest(new BigInteger("2"), bigInts.max(new BigInteger("2")));
-            validTest(BigInteger.ONE, bigInts.max(new BigInteger("2")));
+            validTest(new BigInteger("2"), bigIntegers.max(new BigInteger("2")));
+            validTest(BigInteger.ONE, bigIntegers.max(new BigInteger("2")));
         }
 
         @Test
         void invalid() {
-            invalidTest(null, bigInts.max(new BigInteger("2")), "must.not.be.null");
-            invalidTest(new BigInteger("3"), bigInts.max(new BigInteger("2")), "must.be.at.most", HashMap.of("max", new BigInteger("2")));
+            invalidTest(null, bigIntegers.max(new BigInteger("2")), "must.not.be.null");
+            invalidTest(new BigInteger("3"), bigIntegers.max(new BigInteger("2")), "must.be.at.most", HashMap.of("max", new BigInteger("2")));
         }
     }
 
@@ -169,12 +169,12 @@ class BigIntegerRulesTest {
     class Between {
         @Test
         void valid() {
-            validTest(new BigInteger("2"), bigInts.between(BigInteger.ONE, new BigInteger("3")));
+            validTest(new BigInteger("2"), bigIntegers.between(BigInteger.ONE, new BigInteger("3")));
         }
 
         @Test
         void invalid() {
-            invalidTest(BigInteger.ZERO, bigInts.between(BigInteger.ONE, new BigInteger("3")), "must.be.between", HashMap.of("min", BigInteger.ONE, "max", new BigInteger("3")));
+            invalidTest(BigInteger.ZERO, bigIntegers.between(BigInteger.ONE, new BigInteger("3")), "must.be.between", HashMap.of("min", BigInteger.ONE, "max", new BigInteger("3")));
         }
     }
 }

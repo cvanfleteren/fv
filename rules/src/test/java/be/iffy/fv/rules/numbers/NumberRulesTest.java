@@ -13,7 +13,7 @@ class NumberRulesTest {
 
     private static final BigDecimalRules bigDecimals = BigDecimalRules.bigDecimals;
 
-    private static final BigIntegerRules bigIntegers = BigIntegerRules.bigInts;
+    private static final BigIntegerRules bigIntegers = BigIntegerRules.bigIntegers;
 
     @Nested
     class PrecisionEdgeCases {

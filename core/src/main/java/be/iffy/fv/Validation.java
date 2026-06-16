@@ -408,7 +408,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      *
      * @param selector The selector for the value that was validated (e.g., SomeRecord::someField or SomeBean::getProperty).
      */
-    default <ANY> Validation<T> at(PropertySelector<ANY, T> selector) {
+    default <S> Validation<T> at(PropertySelector<S, T> selector) {
         Objects.requireNonNull(selector, "selector cannot be null");
         return at(selector.getPropertyName());
     }

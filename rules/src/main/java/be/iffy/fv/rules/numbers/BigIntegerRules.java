@@ -15,7 +15,7 @@ public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules
     /**
      * Singleton instance of {@link BigIntegerRules}.
      */
-    public static final BigIntegerRules bigInts = new BigIntegerRules();
+    public static final BigIntegerRules bigIntegers = new BigIntegerRules();
 
     //region sign related
 

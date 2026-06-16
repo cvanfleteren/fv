@@ -18,7 +18,6 @@ import io.vavr.control.Option;
 
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Entry point for the functional validation API.
@@ -28,6 +27,8 @@ import java.util.function.Supplier;
  * or to delegate to other classes as a way to reduce imports for the library user.
  */
 public final class DSL {
+
+    //region Rules
 
     public static final ObjectRules objects = ObjectRules.objects;
 
@@ -39,7 +40,7 @@ public final class DSL {
 
     public static final BigDecimalRules bigDecimals = BigDecimalRules.bigDecimals;
 
-    public static final BigIntegerRules bigInts = BigIntegerRules.bigInts;
+    public static final BigIntegerRules bigIntegers = BigIntegerRules.bigIntegers;
 
     public static final DoubleRules doubles = DoubleRules.doubles;
 
@@ -81,6 +82,10 @@ public final class DSL {
 
     public static final OptionalRules optionals = OptionalRules.optionals;
 
+    //endregion
+
+    //region Other
+
     /**
      * A tiny DSL for helping to define Rules that transform their input before running their actual logic on it.
      * Usage would look like this:
@@ -96,23 +101,9 @@ public final class DSL {
         return new AfterDSL<>(transformation);
     }
 
-    /**
-     * A tiny DSL for helping to define Rules that transform their input before running their actual logic on it.
-     * Usage would look like this:
-     * <pre>
-     * {@code
-     * ...
-     * Rule<String> originalRule = after(String::trim).is(strings.length(5));
-     * ...
-     * }
-     * </pre>
-     */
-    public static <T> AfterDSL<T> after(Supplier<Transformation<T>> transformation) {
-        Objects.requireNonNull(transformation, "transformation cannot be null");
-        return new AfterDSL<>(
-                Objects.requireNonNull(transformation.get(), "transformation result cannot be null")
-        );
-    }
+    //endregion
+
+    //region Combine Rules
 
     /**
      * Combines two rule-like functions into a builder that can map all valid values or accumulate all errors.
@@ -163,6 +154,10 @@ public final class DSL {
         return RuleCombiners.combine(r1, r2, r3, r4, r5, r6, r7, r8);
     }
 
+    //endregion
+
+    //region validating / validateThat / validateThatList
+
     /**
      * Act on the result of multiple validations.
      */
@@ -212,6 +207,90 @@ public final class DSL {
         return new ValidatingDSL.ValidatingBuilder8<>(v1, v2, v3, v4, v5, v6, v7, v8);
     }
 
+
+    /**
+     * Quick way to validate that a value is not null.
+     */
+    public static <T> Validation<T> notNull(T value) {
+        return validateThat(value).is(Rule.notNull());
+    }
+
+    /**
+     * Quick way to validate that a value is not null.
+     */
+    public static <T> Validation<T> notNull(T value, String name) {
+        return validateThat(value, name).is(Rule.notNull());
+    }
+
+    /**
+     * Quick way to validate that a value is not null.
+     */
+    public static <T, V> Validation<T> notNull(T value, PropertySelector<V, T> selector) {
+        return validateThat(value, selector).is(Rule.notNull());
+    }
+
+    /**
+     * Starts a validation process for a single value.
+     */
+    public static <T> ValidationDSL<T> validateThat(T value) {
+        return new ValidationDSL<>(value, Option.none());
+    }
+
+    /**
+     * Starts a validation process for a single value with a logical name.
+     * The name will be prepended to any error messages.
+     *
+     * @param name the name of the value (e.g., field name).
+     */
+    public static <T> ValidationDSL<T> validateThat(T value, String name) {
+        return new ValidationDSL<>(value, Option.of(name));
+    }
+
+    /**
+     * Starts a validation process for a single value with a logical name.
+     * The PropertySelector will get converted to a name and will be prepended to any error messages.
+     *
+     * @param name a selector for the name of the value (e.g., Field::name).
+     */
+    public static <S, T> ValidationDSL<T> validateThat(T value, PropertySelector<S, T> name) {
+        Objects.requireNonNull(name, "name cannot be null");
+        return new ValidationDSL<>(value, Option.of(name.getPropertyName()));
+    }
+
+    /**
+     * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
+     */
+    public static <T> VListValidationDSL<T, T> validateThatList(List<T> value, String name) {
+        return new VListValidationDSL<>(value, name);
+    }
+
+    /**
+     * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
+     */
+    public static <S, T> VListValidationDSL<T, T> validateThatList(List<T> value, PropertySelector<S, List<T>> name) {
+        Objects.requireNonNull(name, "name cannot be null");
+        return new VListValidationDSL<>(value, name.getPropertyName());
+    }
+
+    /**
+     * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
+     */
+    public static <T> JListValidationDSL<T, T> validateThatList(java.util.List<T> value, String name) {
+        return new JListValidationDSL<>(value, name);
+    }
+
+    /**
+     * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
+     */
+    public static <ANY, T> JListValidationDSL<T, T> validateThatList(java.util.List<T> value, PropertySelector<ANY, java.util.List<T>> name) {
+        Objects.requireNonNull(name, "name cannot be null");
+        return new JListValidationDSL<>(value, name.getPropertyName());
+    }
+
+    //endregion
+
+    //region asserting / assertThat
+
     /**
      * Build a Validation that asserts that the valid is {@link be.iffy.fv.Validation.Valid} and returns its value, throwing a {@link ValidationException} otherwise.
      */
@@ -237,14 +316,12 @@ public final class DSL {
     public static void asserting(Validation<?>... validations) {
         Objects.requireNonNull(validations, "validations cannot be null");
         Iterator<ErrorMessage> it = Iterator.of(validations)
-                .map(v -> Objects.requireNonNull(v, "validation cannot be null"))
-                .flatMap(Validation::errors);
+            .map(v -> Objects.requireNonNull(v, "validation cannot be null"))
+            .flatMap(Validation::errors);
         if (!it.isEmpty()) {
             throw new ValidationException(it.toList());
         }
     }
-
-    //region assertValid with Tuples
 
     /**
      * Asserts that two validations are valid and returns their values as a {@link Tuple2}.
@@ -360,85 +437,5 @@ public final class DSL {
         return Validations.combine(v1, v2, v3, v4, v5, v6, v7, v8).map(Tuple::of).getOrElseThrow();
     }
     //endregion
-
-
-    /**
-     * Quick way to assert a value is not null.
-     */
-    public static <T> Validation<T> notNull(T value) {
-        return validateThat(value).is(Rule.notNull());
-    }
-
-    /**
-     * Quick way to assert a value is not null.
-     */
-    public static <T> Validation<T> notNull(T value, String name) {
-        return validateThat(value, name).is(Rule.notNull());
-    }
-
-    /**
-     * Quick way to assert a value is not null.
-     */
-    public static <T, V> Validation<T> notNull(T value, PropertySelector<V, T> selector) {
-        return validateThat(value, selector).is(Rule.notNull());
-    }
-
-    /**
-     * Starts a validation process for a single value.
-     */
-    public static <T> ValidationDSL<T> validateThat(T value) {
-        return new ValidationDSL<>(value, Option.none());
-    }
-
-    /**
-     * Starts a validation process for a single value with a logical name.
-     * The name will be prepended to any error messages.
-     *
-     * @param name the name of the value (e.g., field name).
-     */
-    public static <T> ValidationDSL<T> validateThat(T value, String name) {
-        return new ValidationDSL<>(value, Option.of(name));
-    }
-
-    /**
-     * Starts a validation process for a single value with a logical name.
-     * The PropertySelector will get converted to a name and will be prepended to any error messages.
-     *
-     * @param name a selector for the name of the value (e.g., Field::name).
-     */
-    public static <ANY, T> ValidationDSL<T> validateThat(T value, PropertySelector<ANY, T> name) {
-        Objects.requireNonNull(name, "name cannot be null");
-        return new ValidationDSL<>(value, Option.of(name.getPropertyName()));
-    }
-
-    /**
-     * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
-     */
-    public static <T> VListValidationDSL<T, T> validateThatList(List<T> value, String name) {
-        return new VListValidationDSL<>(value, name);
-    }
-
-    /**
-     * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
-     */
-    public static <ANY, T> VListValidationDSL<T, T> validateThatList(List<T> value, PropertySelector<ANY, List<T>> name) {
-        Objects.requireNonNull(name, "name cannot be null");
-        return new VListValidationDSL<>(value, name.getPropertyName());
-    }
-
-    /**
-     * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
-     */
-    public static <T> JListValidationDSL<T, T> validateThatList(java.util.List<T> value, String name) {
-        return new JListValidationDSL<>(value, name);
-    }
-
-    /**
-     * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
-     */
-    public static <ANY, T> JListValidationDSL<T, T> validateThatList(java.util.List<T> value, PropertySelector<ANY, java.util.List<T>> name) {
-        Objects.requireNonNull(name, "name cannot be null");
-        return new JListValidationDSL<>(value, name.getPropertyName());
-    }
 
 }

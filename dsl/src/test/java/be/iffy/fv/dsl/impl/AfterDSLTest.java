@@ -17,7 +17,7 @@ class AfterDSLTest {
         @Test
         void is_whenTransformedInputIsValid_returnsValid() {
             Rule<String> rule = after(stringOps.trim()).is(strings.maxLength(3));
-            
+
             Validation<String> result = rule.apply(" abc ");
 
             assertThatValidation(result).isValid().isEqualTo("abc");
@@ -26,7 +26,7 @@ class AfterDSLTest {
         @Test
         void is_whenTransformedInputIsInvalid_returnsInvalid() {
             Rule<String> rule = after(stringOps.trim()).is(strings.maxLength(3));
-            
+
             Validation<String> result = rule.apply(" abcd ");
 
             assertThatValidation(result).isInvalid().hasErrorKeys("must.have.max.length");
@@ -35,7 +35,7 @@ class AfterDSLTest {
         @Test
         void is_whenInputIsNull_handlesNullSafely() {
             Rule<String> rule = after(stringOps.trim()).is(strings.maxLength(3));
-            
+
             Validation<String> result = rule.apply(null);
 
             assertThatValidation(result).isInvalid().hasErrorKeys("must.not.be.null");
@@ -45,7 +45,7 @@ class AfterDSLTest {
     @Nested
     class IsMappingRule {
 
-        MappingRule<String, Integer> mappingRule = after(stringOps::trim).is(strings.asInteger());
+        MappingRule<String, Integer> mappingRule = after(stringOps.trim()).is(strings.asInteger());
 
         @Test
         void is_whenTransformedInputIsValid_returnsValidMappedValue() {
@@ -60,7 +60,7 @@ class AfterDSLTest {
 
             assertThatValidation(result).isInvalid().hasErrorKeys("must.be.integer");
         }
-        
+
         @Test
         void is_whenInputIsNull_handlesNullSafely() {
              Validation<Integer> result = mappingRule.apply(null);
