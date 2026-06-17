@@ -9,6 +9,7 @@ import io.vavr.control.Try;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -541,6 +542,28 @@ class MappingRuleTest {
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("errorMessage cannot be null");
         }
+
+        @Test
+        void fromTry_withErrorMessageMaker_whenTryIsFailure_usesMakerToCreateErrorMessage() {
+            MappingRule<String, Integer> rule = MappingRule.fromTry(
+                    s -> Try.failure(new RuntimeException("boom")),
+                    (input, throwable) -> ErrorMessage.of("error.with.input", "input", input).prepend(ErrorMessage.Path.of(throwable.getMessage()))
+            );
+
+            Validation<Integer> result = rule.apply("test-input");
+
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("boom.error.with.input", HashMap.of("input", "test-input"));
+        }
+
+        @Test
+        @SuppressWarnings("unchecked")
+        void fromTry_withErrorMessageMaker_whenErrorMessageMakerIsNull_throwsNullPointerException() {
+            assertThatCode(() -> MappingRule.fromTry(s -> Try.success(1), (BiFunction) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("errorMessageMaker cannot be null");
+        }
         @Test
         void of_whenMapperIsNull_throwsNullPointerException() {
             assertThatCode(() -> MappingRule.catching(null, "error"))
@@ -556,7 +579,7 @@ class MappingRuleTest {
         }
 
         @Test
-        void ofTry_whenTryIsSuccess_returnsValidResult() {
+        void fromTry_whenTryIsSuccess_returnsValidResult() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.fromTry(s -> Try.of(() -> Integer.parseInt(s)), "not.a.number");
 
@@ -570,7 +593,7 @@ class MappingRuleTest {
         }
 
         @Test
-        void ofTry_whenTryIsFailure_returnsInvalidWithErrorMessage() {
+        void fromTry_whenTryIsFailure_returnsInvalidWithErrorMessage() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.fromTry(s -> Try.of(() -> Integer.parseInt(s)), "not.a.number");
 

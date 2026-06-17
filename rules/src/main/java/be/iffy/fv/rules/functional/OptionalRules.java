@@ -3,6 +3,7 @@ package be.iffy.fv.rules.functional;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
+import be.iffy.fv.Validation.Invalid;
 import be.iffy.fv.Validations;
 
 import java.util.Objects;
@@ -33,6 +34,9 @@ public class OptionalRules {
      */
     public <T, R> MappingRule<Optional<T>, Optional<R>> matches(Function<? super T, Validation<R>> mappingRuleLike) {
         return input -> {
+            if(input == null) {
+                return Invalid.notNull();
+            }
             Optional<Validation<R>> res = input.map(mappingRuleLike);
             return Validations.sequence(res);
         };
@@ -60,7 +64,7 @@ public class OptionalRules {
         Objects.requireNonNull(rule, "rule cannot be null");
         return input -> {
             if(input == null) {
-                return Validation.Invalid.notNull();
+                return Invalid.notNull();
             }
             if(input.isEmpty()) {
                 return Validation.invalid("must.not.be.empty");
@@ -75,7 +79,7 @@ public class OptionalRules {
      * <p>
      * Error key: {@code must.not.be.empty} or the key of the passed rule
      */
-    public <T> Rule<Optional<T>> contains(Function<? super T, Validation<T>> rule) {
+    public <T> Rule<Optional<T>> contains( Function<? super T, ? extends Validation<? extends T>> rule) {
         return Rule.all(notEmpty(), Rule.of(rule).lift().toOptional());
     }
 

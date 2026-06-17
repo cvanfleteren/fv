@@ -151,13 +151,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      */
     public MappingRule<String, UUID> asUUID() {
-        return MappingRule.<String>notNull().then(input -> {
-            try {
-                return Validation.valid(UUID.fromString(input));
-            } catch (IllegalArgumentException e) {
-                return Validation.invalid(ErrorMessage.of("must.be.uuid", "value", input));
-            }
-        });
+        return MappingRule.catching(UUID::fromString, (input, e) -> ErrorMessage.of("must.be.uuid", "value", input));
     }
 
     /**
@@ -171,13 +165,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      */
     public MappingRule<String, URL> asURL() {
-        return MappingRule.<String>notNull().then(input -> {
-            try {
-                return Validation.valid(URI.create(input).toURL());
-            } catch (Exception e) {
-                return Validation.invalid(ErrorMessage.of("must.be.url", "value", input));
-            }
-        });
+        return MappingRule.fromTry(input -> Try.of(() -> URI.create(input).toURL()), (input, e) -> ErrorMessage.of("must.be.url", "value", input));
     }
 
     /**

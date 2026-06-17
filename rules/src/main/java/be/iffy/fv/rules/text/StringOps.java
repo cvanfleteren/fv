@@ -179,12 +179,14 @@ public class StringOps {
                 .append("]+")
                 .toString();
 
+        Pattern pattern = Pattern.compile(toRemove);
+
         return input -> {
             if (input != null) {
                 if (toRemove.isEmpty()) {
                     return input;
                 }
-                return input.replaceAll(characterClass, "");
+                return pattern.matcher(input).replaceAll("");
             } else {
                 return null;
             }
@@ -357,7 +359,7 @@ public class StringOps {
                     }
                 }
                 default -> {
-                    // maxLen >= 4: prefer single-character ellipsis with as much content as fits
+                    // maxLen >= 3: prefer single-character ellipsis with as much content as fits
                     int room = maxLen - 1;
                     int cut = safeCutIndex(s, room);
                     if (cut > 0) {

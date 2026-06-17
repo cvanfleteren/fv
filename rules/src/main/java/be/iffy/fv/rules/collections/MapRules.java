@@ -114,7 +114,7 @@ public class MapRules {
      */
     public <K, V> Rule<Map<K, V>> validateValuesWith(Rule<? super V> rule) {
         return Rule.notNull().and(map -> {
-            Rule<V> castedRule = (Rule<V>) rule;
+            Rule<V> castedRule = rule.narrow();
             Rule<Map<K, V>> rule2 = castedRule.lift().toMap();
             return rule2.apply(map);
         });

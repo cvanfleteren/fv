@@ -3,12 +3,14 @@ package be.iffy.fv.rules.collections;
 import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
+import be.iffy.fv.Validation;
 import io.vavr.Function1;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 import io.vavr.collection.Traversable;
 
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -159,7 +161,7 @@ public class VavrListRules {
      * <p>
      * Error key: {@code must.none.match}
      *
-     
+
      * @param rule the Rule to test each element against.
      * @return a {@link Rule} that validates if none of the elements match the {@link Rule}.
      */
@@ -279,9 +281,8 @@ public class VavrListRules {
      *
      * @see MappingRule#lift()
      */
-    public <T, R> MappingRule<List<T>, List<R>> map(MappingRule<T, R> mappingRule) {
-        return input ->
-                mappingRule.lift().toVavrList().apply(input);
+    public <T, R> MappingRule<List<T>, List<R>> map(Function<T, ? extends Validation<R>> mappingRule) {
+        return MappingRule.of(mappingRule).lift().toVavrList();
     }
 
     /**

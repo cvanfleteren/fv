@@ -110,6 +110,7 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
      * If the Try fails with {@link ValidationException}, its errors are preserved, otherwise the provided error message is used.
      */
     static <T, R> MappingRule<T, R> fromTry(Function<? super T, ? extends Try<? extends R>> tryProvider, String errorKey) {
+        Objects.requireNonNull(errorKey, "errorKey cannot be null");
         return fromTry(tryProvider, ErrorMessage.of(errorKey));
     }
 
@@ -122,8 +123,21 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
      * If the Try fails with {@link ValidationException}, its errors are preserved, otherwise the provided error message is used.
      */
     static <T, R> MappingRule<T, R> fromTry(Function<? super T, ? extends Try<? extends R>> tryProvider, ErrorMessage errorMessage) {
-        Objects.requireNonNull(tryProvider, "tryProvider cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
+        return fromTry(tryProvider, (input, e) -> errorMessage);
+    }
+
+    /**
+     * Creates a MappingRule from a function that returns a Try.
+     * <p>
+     * The tryProvider itself is invoked directly. If the tryProvider throws before returning a Try,
+     * that exception is propagated. Only failures represented as Try.Failure are converted into Invalid.
+     * <p>
+     * If the Try fails with {@link ValidationException}, its errors are preserved, otherwise the provided error message is used.
+     */
+    static <T, R> MappingRule<T, R> fromTry(Function<? super T, ? extends Try<? extends R>> tryProvider, BiFunction<? super T, Throwable, ErrorMessage> errorMessageMaker) {
+        Objects.requireNonNull(tryProvider, "tryProvider cannot be null");
+        Objects.requireNonNull(errorMessageMaker, "errorMessageMaker cannot be null");
         return input -> {
             if (input == null) {
                 return Invalid.notNull();
@@ -134,7 +148,7 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
                         if (t instanceof ValidationException ve) {
                             return invalid(ve.errors());
                         } else {
-                            return invalid(errorMessage);
+                            return invalid(errorMessageMaker.apply(input, t));
                         }
                     },
                     Validation::valid

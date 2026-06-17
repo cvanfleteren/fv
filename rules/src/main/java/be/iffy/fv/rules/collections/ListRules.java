@@ -273,9 +273,8 @@ public class ListRules {
      *
      * @see MappingRule#lift()
      */
-    public <T, R> MappingRule<List<T>, List<R>> map(Function<T, ? extends Validation<R>> mappingRule) {
-        return input ->
-                MappingRule.of(mappingRule).lift().toList().apply(input);
+    public <T, R> MappingRule<List<T>, List<R>> map(Function<T, ? extends Validation<? extends R>> mappingRule) {
+        return MappingRule.of(mappingRule).lift().toList();
     }
 
     /**
