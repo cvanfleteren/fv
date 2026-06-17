@@ -128,8 +128,8 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
             if (input == null) {
                 return Invalid.notNull();
             }
-            Try<? extends R> _try = Objects.requireNonNull(tryProvider.apply(input), "tryProvider cannot return null Try");
-            return _try.fold(
+            Try<? extends R> result = Objects.requireNonNull(tryProvider.apply(input), "tryProvider cannot return null Try");
+            return result.fold(
                     t -> {
                         if (t instanceof ValidationException ve) {
                             return invalid(ve.errors());
