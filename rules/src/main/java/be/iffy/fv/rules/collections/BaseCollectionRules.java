@@ -5,12 +5,10 @@ import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 import io.vavr.Function1;
 import io.vavr.Tuple;
-import io.vavr.Tuple2;
 import io.vavr.collection.*;
 
 import java.util.Objects;
 import java.util.function.Predicate;
-import java.util.stream.IntStream;
 
 import static be.iffy.fv.rules.ObjectRules.objects;
 
@@ -296,38 +294,38 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
         Objects.requireNonNull(key, "key cannot be null");
 
         return Rule.notNull().and(values -> {
+            // General approach: Iterate through the collection with indices, keeping track of the first occurrence of each key.
+            // If a key is encountered again, its index is added to a list of duplicates for that key.
             io.vavr.collection.List<T> list = io.vavr.collection.List.ofAll(values);
 
-            Tuple2<Map<K, Integer>, Map<K, io.vavr.collection.List<Integer>>> state = IntStream.range(0, list.size())
-                    .boxed()
-                    .reduce(
-                            Tuple.of(HashMap.empty(), HashMap.empty()),
-                            (acc, idx) -> {
-                                Map<K, Integer> firstIndexByKey = acc._1;
-                                Map<K, io.vavr.collection.List<Integer>> duplicateIndicesByKey = acc._2;
+            Map<K, io.vavr.collection.List<Integer>> duplicateIndicesByKey = list.zipWithIndex()
+                    .foldLeft(
+                            // The accumulator holds a Tuple of (firstIndexByKey, duplicateIndicesByKey)
+                            Tuple.of(HashMap.<K, Integer>empty(), HashMap.<K, io.vavr.collection.List<Integer>>empty()),
+                            (acc, t) -> {
+                                HashMap<K, Integer> firstIndexByKey = acc._1;
+                                HashMap<K, io.vavr.collection.List<Integer>> duplicates = acc._2;
 
-                                T value = list.get(idx);
+                                T value = t._1;
+                                int idx = t._2;
                                 K keyValue = keyExtractor.apply(value);
 
                                 if (firstIndexByKey.containsKey(keyValue)) {
+                                    // Key already seen, record this index as a duplicate
                                     int firstIdx = firstIndexByKey.get(keyValue).get();
 
-                                    io.vavr.collection.List<Integer> indices = duplicateIndicesByKey
+                                    io.vavr.collection.List<Integer> indices = duplicates
                                             .get(keyValue)
                                             .getOrElse(io.vavr.collection.List.of(firstIdx))
                                             .append(idx);
 
-                                    return Tuple.of(firstIndexByKey, duplicateIndicesByKey.put(keyValue, indices));
+                                    return Tuple.of(firstIndexByKey, duplicates.put(keyValue, indices));
                                 } else {
-                                    return Tuple.of(firstIndexByKey.put(keyValue, idx), duplicateIndicesByKey);
+                                    // First time seeing this key, record its index
+                                    return Tuple.of(firstIndexByKey.put(keyValue, idx), duplicates);
                                 }
-                            },
-                            (acc1, acc2) -> {
-                                throw new UnsupportedOperationException("Parallel stream not supported");
                             }
-                    );
-
-            Map<K, io.vavr.collection.List<Integer>> duplicateIndicesByKey = state._2;
+                    )._2;
 
             if (duplicateIndicesByKey.isEmpty()) {
                 return Validation.valid(values);
