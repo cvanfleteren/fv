@@ -28,6 +28,7 @@ feel free to open an issue or reach out to the maintainers.
 - [Ok, but I want to transform multiple fields in my constructor, how do I get their transformed values?](#ok-but-i-want-to-transform-multiple-fields-in-my-constructor-how-do-i-get-their-transformed-values)
 - [Ok, but can I do the same when defining a Rule?](#ok-but-can-i-do-the-same-when-defining-a-rule)
 - [I have some type whose constructor throws an exception, how can I make a Validation for this type?](#i-have-some-type-whose-constructor-throws-an-exception-how-can-i-make-a-validation-for-this-type)
+- [What types can I turn into a Validation?](#what-types-can-i-turn-into-a-validation)
 - [I have a Validation, but I want to add an extra check on the value](#i-have-a-validation-but-i-want-to-add-an-extra-check-on-the-value)
 - [If I have for example a Rule for Number, can I use it to also validate a subtype like BigDecimal?](#if-i-have-for-example-a-rule-for-number-can-i-use-it-to-also-validate-a-subtype-like-bigdecimal)
 - [How can I apply a rule only if a certain condition is met?](#how-can-i-apply-a-rule-only-if-a-certain-condition-is-met)
@@ -700,6 +701,63 @@ In this example:
 
 ---
 
+### What types can I turn into a Validation?
+
+The library can't anticipate every type you'll need to validate, so `Validation.from()` returns a **`ValidationFactory`**
+that converts other common "result" types into a `Validation`. This is the main entry point for interoperability with
+code that doesn't already speak in `Validation`s.
+
+`ValidationFactory` currently supports:
+
+* **`Supplier<T>`** via `catching(...)` and `catchingAll(...)` — for code that throws exceptions instead of returning a result type.
+* **`Try<T>`** via `_try(...)` — for code that already returns a Vavr `Try`.
+* **`Option<T>`** via `option(...)` — for Vavr's optional type.
+* **`Optional<T>`** via `optional(...)` — for the standard Java optional type.
+* **`Either<L, R>`** via `either(...)` — for Vavr's either type, converting the `Left` into an `ErrorMessage`.
+
+#### `catching` vs `catchingAll` vs `_try`
+
+These three are easy to confuse because they all deal with "things that might fail", but they differ in what they accept and what they catch:
+
+* **`catching(Supplier<T>)`** takes a `Supplier` and runs it immediately. If it throws a `ValidationException`, that
+  exception's errors become the `Invalid` result. Any *other* exception (including a `NullPointerException` from a
+  `null` result) is **not caught** and propagates to the caller. Use this when you trust the supplier to either
+  succeed, return non-null, or throw `ValidationException` on purpose.
+* **`catchingAll(Supplier<T>, ...)`** also takes a `Supplier`, but catches *any* `Exception` (not just
+  `ValidationException`) and converts it into an `Invalid`, using either a fixed `ErrorMessage`/error key or a
+  `Function<Exception, ErrorMessage>` you provide. This is the one to reach for when calling into code you don't
+  control and don't want a stray exception to escape as a Java exception. It's also the most dangerous of the three,
+  since it can silently swallow bugs like an unexpected `NullPointerException` — only use it when you're sure you want
+  every exception treated as a validation failure.
+* **`_try(Try<T>, ...)`** doesn't run anything itself — you hand it an already-evaluated Vavr `Try`. If the `Try` is a
+  `Failure` wrapping a `ValidationException`, its errors are preserved; otherwise the provided `ErrorMessage`/error key
+  is used. There's also a no-argument overload, `_try(Try<T>)`, which uses the error key `failed.from.try` (with a
+  `message` parameter) for non-`ValidationException` failures, and treats a `Try` that succeeds with `null` as invalid
+  with `"must.not.be.null"`. Prefer `_try` when you're working with an API that already returns `Try`, or when you want
+  to build the `Try` yourself (e.g. with `Try.of(...)`) so you control exactly what gets caught.
+
+```java
+import be.iffy.fv.Validation;
+import io.vavr.control.Try;
+
+// catching: only ValidationException is converted, everything else propagates
+Validation<Integer> a = Validation.from().catching(() -> Integer.parseInt(input));
+
+// catchingAll: every Exception becomes an Invalid with the given error key
+Validation<Integer> b = Validation.from().catchingAll(() -> Integer.parseInt(input), "invalid.number");
+
+// _try: you build the Try yourself, then convert it
+Validation<Integer> c = Validation.from()._try(Try.of(() -> Integer.parseInt(input)), "invalid.number");
+```
+
+See also [I have some type whose constructor throws an exception, how can I make a Validation for this
+type?](#i-have-some-type-whose-constructor-throws-an-exception-how-can-i-make-a-validation-for-this-type) and
+[What's the difference between methods like map and mapCatching? What does catchingAll
+mean?](#whats-the-difference-between-methods-like-map-and-mapcatching-what-does-catchingall-mean) for more on these
+exception-catching variants.
+
+---
+
 ### I have a Validation, but I want to add an extra check on the value
 
 If you already have a `Validation<T>` object and you want to apply an additional `Rule<T>` or `MappingRule<T, R>` to its value (if it's valid),
@@ -978,16 +1036,27 @@ LocalDate start = LocalDate.now();
 LocalDate end = LocalDate.now().plusDays(1);
 
 validating(
-        validateThat(start).isNotNull(),
-        validateThat(end).isNotNull()
+        validateThat(start).
+
+isNotNull(),
+
+validateThat(end).
+
+isNotNull()
 )
-.map(Period::new)
-.refine(
-    Rule.of(
-      p -> p.start.isBefore(p.end),
-      "start.must.be.before.end"
-    )
-);
+        .
+
+map(Period::new)
+.
+
+refine(
+        Rule.of(
+                p ->p.start.
+
+isBefore(p.end),
+        "start.must.be.before.end"
+                )
+                );
 ```
 
 ---
