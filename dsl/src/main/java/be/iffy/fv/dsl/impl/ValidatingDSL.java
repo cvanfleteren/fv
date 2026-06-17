@@ -15,7 +15,7 @@ public final class ValidatingDSL {
     /**
      * Combine multiple Validations, allowing you to map or flatMap over their values.
      */
-    public static class ValidatingBuilder2<T1, T2> {
+    public static final class ValidatingBuilder2<T1, T2> {
         private final Validation<T1> v1;
         private final Validation<T2> v2;
 
@@ -44,7 +44,7 @@ public final class ValidatingDSL {
     /**
      * Combine multiple Validations, allowing you to map or flatMap over their values.
      */
-    public static class ValidatingBuilder3<T1, T2, T3> {
+    public static final class ValidatingBuilder3<T1, T2, T3> {
         private final Validation<T1> v1;
         private final Validation<T2> v2;
         private final Validation<T3> v3;
@@ -75,7 +75,7 @@ public final class ValidatingDSL {
     /**
      * Combine multiple Validations, allowing you to map or flatMap over their values.
      */
-    public static class ValidatingBuilder4<T1, T2, T3, T4> {
+    public static final class ValidatingBuilder4<T1, T2, T3, T4> {
         private final Validation<T1> v1;
         private final Validation<T2> v2;
         private final Validation<T3> v3;
@@ -108,7 +108,7 @@ public final class ValidatingDSL {
     /**
      * Combine multiple Validations, allowing you to map or flatMap over their values.
      */
-    public static class ValidatingBuilder5<T1, T2, T3, T4, T5> {
+    public static final class ValidatingBuilder5<T1, T2, T3, T4, T5> {
         private final Validation<T1> v1;
         private final Validation<T2> v2;
         private final Validation<T3> v3;
@@ -143,7 +143,7 @@ public final class ValidatingDSL {
     /**
      * Combine multiple Validations, allowing you to map or flatMap over their values.
      */
-    public static class ValidatingBuilder6<T1, T2, T3, T4, T5, T6> {
+    public static final class ValidatingBuilder6<T1, T2, T3, T4, T5, T6> {
         private final Validation<T1> v1;
         private final Validation<T2> v2;
         private final Validation<T3> v3;
@@ -180,7 +180,7 @@ public final class ValidatingDSL {
     /**
      * Combine multiple Validations, allowing you to map or flatMap over their values.
      */
-    public static class ValidatingBuilder7<T1, T2, T3, T4, T5, T6, T7> {
+    public static final class ValidatingBuilder7<T1, T2, T3, T4, T5, T6, T7> {
         private final Validation<T1> v1;
         private final Validation<T2> v2;
         private final Validation<T3> v3;
@@ -219,7 +219,7 @@ public final class ValidatingDSL {
     /**
      * Combine multiple Validations, allowing you to map or flatMap over their values.
      */
-    public static class ValidatingBuilder8<T1, T2, T3, T4, T5, T6, T7, T8> {
+    public static final class ValidatingBuilder8<T1, T2, T3, T4, T5, T6, T7, T8> {
         private final Validation<T1> v1;
         private final Validation<T2> v2;
         private final Validation<T3> v3;

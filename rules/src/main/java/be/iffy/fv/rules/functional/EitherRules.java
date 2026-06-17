@@ -15,6 +15,8 @@ import java.util.Objects;
  */
 public final class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
 
+    private EitherRules() {}
+
     /**
      * Singleton instance of {@link EitherRules}.
      */

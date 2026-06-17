@@ -164,12 +164,14 @@ public final class StringOps {
      */
     public Transformation<String> removeCharacters(String chars) {
         final String toRemove = Objects.requireNonNullElse(chars, "");
-        // Build a character class from the provided characters
+        if (toRemove.isEmpty()) {
+            return input -> input;
+        }
+        // Build a character class from the provided characters, escaping regex metacharacters
         final String characterClass = toRemove
                 .chars()
                 .mapToObj(c -> {
                     char ch = (char) c;
-                    // Escape regex metacharacters inside character class: - ] ^ \
                     if (ch == '-' || ch == ']' || ch == '^' || ch == '\\') {
                         return "\\" + ch;
                     }
@@ -179,18 +181,9 @@ public final class StringOps {
                 .append("]+")
                 .toString();
 
-        Pattern pattern = Pattern.compile(toRemove);
+        Pattern pattern = Pattern.compile(characterClass);
 
-        return input -> {
-            if (input != null) {
-                if (toRemove.isEmpty()) {
-                    return input;
-                }
-                return pattern.matcher(input).replaceAll("");
-            } else {
-                return null;
-            }
-        };
+        return input -> input != null ? pattern.matcher(input).replaceAll("") : null;
     }
 
     /**

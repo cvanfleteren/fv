@@ -6,7 +6,7 @@ import io.vavr.collection.List;
  * Exception thrown when validation fails during mandatory validation checks.
  * It contains the list of {@link ErrorMessage} objects that caused the failure.
  */
-public class ValidationException extends RuntimeException {
+public final class ValidationException extends RuntimeException {
 
     private final List<ErrorMessage> errors;
 
@@ -17,11 +17,16 @@ public class ValidationException extends RuntimeException {
      */
     public ValidationException(List<ErrorMessage> errors) {
         // we don't use the formattedMessage because that could potentially become very big
-        super(errors.map(ErrorMessage::message).mkString(", "));
-        if(errors.isEmpty()) {
+        // requireNonEmpty is evaluated before super() so the object is never partially initialized
+        super(requireNonEmpty(errors).map(ErrorMessage::message).mkString(", "));
+        this.errors = errors;
+    }
+
+    private static List<ErrorMessage> requireNonEmpty(List<ErrorMessage> errors) {
+        if (errors.isEmpty()) {
             throw new IllegalArgumentException("Errors must be non-empty");
         }
-        this.errors = errors;
+        return errors;
     }
 
     public ValidationException(String errorKey) {
