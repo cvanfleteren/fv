@@ -816,6 +816,69 @@ MappingRule<String, String> trimmedMinLength3 = MappingRule.catching(String::tri
 
 ---
 
+### What is the difference between `validateThat`, `assertThat`, `validating`, and `asserting`?
+
+These four DSL entry points cover two axes: **single value vs. combined** and **functional (returns `Validation`) vs. asserting (throws on failure)**.
+
+| Method | Takes | Returns | Throws? |
+|---|---|---|---|
+| `validateThat(value, name)` | a single value | `Validation<T>` | no |
+| `assertThat(value, name)` | a single value | the value `T` | yes |
+| `validating(v1, v2, …)` | `Validation` objects | `Validation<mapped>` | no |
+| `asserting(v1, v2, …)` | `Validation` objects | `Tuple` of values | yes |
+
+#### `validateThat` — functional, single value
+
+Use when you want to validate one value and keep the result as a `Validation` object for later combination.
+Returns `Validation<T>`; never throws.
+
+```java
+Validation<String> nameV = validateThat(dto.name(), Person::name).is(strings.minLength(3));
+```
+
+#### `assertThat` — throwing, single value
+
+Use inside a constructor (or any code that should fail-fast) when you only have one field to validate, optionally
+with a transformation step via `.after(...)`.
+Returns the (possibly transformed) value `T` directly, or throws `ValidationException`.
+
+```java
+value = assertThat(value, "value").after(stringOps.trim()).is(strings.minLength(3));
+```
+
+#### `validating` — functional, multiple values
+
+Use to combine several `Validation` objects into one without throwing. Errors from all fields are accumulated.
+`.map(…)` on the result builds the target object if all validations succeed.
+Returns `Validation<MappedType>`; never throws.
+
+```java
+Validation<Person> personV = validating(
+        validateThat(dto.name(), Person::name).is(strings.minLength(3)),
+        validateThat(dto.age(), Person::age).is(ints.min(18))
+).map(Person::new);
+```
+
+#### `asserting` — throwing, multiple values
+
+Use inside a constructor to validate multiple fields at once with full error accumulation. Returns a `Tuple` of the
+(possibly transformed) values; throws `ValidationException` with **all** errors if any validation fails.
+
+```java
+Tuple2<String, String> t = asserting(
+        validateThat(username, "username").after(stringOps.trim()).is(strings.minLength(3)),
+        validateThat(email, "email").after(stringOps.toLowerCase()).is(strings.email())
+);
+username = t._1;
+email = t._2;
+```
+
+**Rule of thumb:** prefer the `validating` / `validateThat` pair when you want a purely functional result
+(`Validation`). Use `asserting` / `assertThat` when you are inside a constructor and want the library to throw for
+you.
+
+---
+
 ## Exception Interop
 
 ### I have some type whose constructor throws an exception, how can I make a Validation for this type?
