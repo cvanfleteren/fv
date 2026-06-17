@@ -33,6 +33,7 @@ failure.errors();    // List<ErrorMessage>: "must.have.min.length"
 - [Nested validation paths](#nested-validation-paths)
 - [Available rules](#available-rules)
 - [Inspecting errors](#inspecting-errors)
+- [Wrapping other types with `Validation.from()`](#wrapping-other-types-with-validationfrom)
 - [Testing with `assertThatValidation`](#testing-with-assertthatvalidation)
 - [More recipes](#more-recipes)
 - [License](#license)
@@ -305,6 +306,27 @@ if (result.isInvalid()) {
 
 ---
 
+## Wrapping other types with `Validation.from()`
+
+When integrating with code that uses `Try`, `Optional`, `Either`, or constructors that throw,
+`Validation.from()` gives you a `ValidationFactory` to bridge those types into a `Validation`:
+
+```java
+// From a throwing call — wraps any exception as Invalid with the given error key
+Validation<URL> url = Validation.from().catchingAll(() -> new URL(input), "invalid.url");
+
+// From a Vavr Try you already have
+Validation<Integer> n = Validation.from()._try(Try.of(() -> Integer.parseInt(input)), "invalid.number");
+
+// From a Java Optional (empty → Invalid "must.not.be.empty")
+Validation<String> s = Validation.from().optional(Optional.ofNullable(value), "must.not.be.empty");
+```
+
+See the [Exception Interop](faq.md#exception-interop) section of the FAQ for all supported types
+(`Option`, `Either`, `catching` vs `catchingAll` vs `_try`, and more).
+
+---
+
 ## Testing with `assertThatValidation`
 
 The `assertj` module adds AssertJ-style assertions for `Validation<T>`, so your tests read naturally and you don't
@@ -335,7 +357,7 @@ more targeted assertions.
 
 This README only scratches the surface. See **[faq.md](faq.md)** for recipes covering rule composition
 (`and`, `andAlso`, `or`, `xor`, `fallback`), null-safety, validating `Optional`/`Option`/lists/maps, enums,
-cross-field validation, exception handling (`mapCatching`, `flatMapCatchingAll`), and more.
+cross-field validation, exception handling (`Validation.from()`, `mapCatching`, `flatMapCatchingAll`), and more.
 
 ---
 

@@ -20,6 +20,15 @@ import java.util.function.Supplier;
  *     <li>{@link Invalid}: representing a failed validation and containing one or more {@link ErrorMessage} objects.</li>
  * </ul>
  *
+ * Instances can be created by:
+ * <ul>
+ *     <li>applying a Rule or MappingRule: {@code Validation<String> v =  someRule.apply("someValue");}</li>
+ *     <li>Use the Valid / Invalid constructor: {@code Validation<String> v = Validation.valid("someValue);}</li>
+ *     <li>the Validation.fromNullable(someValue) method, returning a Valid if the value was not null</li>
+ *     <li>Interop with other types using the ValidationFactory: {@code Validation<String> v = Validation.from().catching(() -> someCodeThatCanThrowValidationException())}</li>
+ * </ul>
+ *
+ *
  * <h2>Example: Basic usage and result handling</h2>
  * <pre>{@code
  * // 1. Create a validation (e.g., from a rule or a factory)
@@ -417,7 +426,8 @@ public sealed interface Validation<T> extends Iterable<T> {
     //region factory methods for known values
 
     /**
-     * Gives access to the ValidationFactory, allow you to construct {@link Validation}s from many different types.
+     * Construct a Validation by giving you access to the ValidationFactory, allowing you to construct
+     * {@link Validation}s from many different types like Try, Optional, Functions, ... .
      */
     static ValidationFactory from() {
         return ValidationFactory.instance;
