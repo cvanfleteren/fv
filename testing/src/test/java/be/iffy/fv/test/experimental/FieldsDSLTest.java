@@ -1,13 +1,13 @@
-package be.iffy.fv.dsl.experimental;
+package be.iffy.fv.test.experimental;
 
 import be.iffy.fv.Rule;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import static io.vavr.API.Map;
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
-import static be.iffy.fv.dsl.experimental.FieldsDSL.ruleFor;
+import static be.iffy.fv.test.experimental.dsl.FieldsDSL.ruleFor;
+import static io.vavr.API.Map;
 
 class FieldsDSLTest {
 

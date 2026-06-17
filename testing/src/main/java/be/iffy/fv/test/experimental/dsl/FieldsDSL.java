@@ -1,17 +1,16 @@
-package be.iffy.fv.dsl.experimental;
+package be.iffy.fv.test.experimental.dsl;
 
-import io.vavr.Function1;
-import io.vavr.Lazy;
 import be.iffy.fv.ErrorMessage;
+import be.iffy.fv.PropertySelector;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
-import be.iffy.fv.PropertySelector;
+import io.vavr.API;
+import io.vavr.Function1;
+import io.vavr.Lazy;
 
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import static io.vavr.API.Map;
 
 public final class FieldsDSL {
 
@@ -115,7 +114,7 @@ public final class FieldsDSL {
                     if (Objects.equals(left.apply(input), get.apply(input))) {
                         return Validation.valid(input);
                     } else {
-                        return Validation.invalid(ErrorMessage.of("fields.must.be.equal", Map("field1", fieldName.get(), "field2", otherFieldName.get())));
+                        return Validation.invalid(ErrorMessage.of("fields.must.be.equal", API.Map("field1", fieldName.get(), "field2", otherFieldName.get())));
                     }
                 };
             }
@@ -134,7 +133,7 @@ public final class FieldsDSL {
                     if (left.apply(input).compareTo(get.apply(input)) < 0) {
                         return Validation.valid(input);
                     } else {
-                        return Validation.invalid(ErrorMessage.of("must.be.less.than", Map("field1", fieldName.get(), "field2", otherFieldName.get())));
+                        return Validation.invalid(ErrorMessage.of("must.be.less.than", API.Map("field1", fieldName.get(), "field2", otherFieldName.get())));
                     }
                 };
             }
@@ -155,7 +154,7 @@ public final class FieldsDSL {
                         if (Objects.equals(ruleFunction.apply(input), get.apply(input))) {
                             return Validation.valid(input);
                         } else {
-                            return Validation.<T>invalid(ErrorMessage.of("fields.must.be.equal", Map("field1", fieldName, "field2", otherFieldName)));
+                            return Validation.<T>invalid(ErrorMessage.of("fields.must.be.equal", API.Map("field1", fieldName, "field2", otherFieldName)));
                         }
                     };
                 }

@@ -1,11 +1,11 @@
-package be.iffy.fv.dsl.experimental;
+package be.iffy.fv.test.experimental;
 
 import be.iffy.fv.MappingRule;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
-import static be.iffy.fv.dsl.experimental.Validator.validatorFor;
+import static be.iffy.fv.test.experimental.dsl.Validator.validatorFor;
 
 class ValidatorArityTest {
 

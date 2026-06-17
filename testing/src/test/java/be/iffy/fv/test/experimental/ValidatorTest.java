@@ -1,4 +1,4 @@
-package be.iffy.fv.dsl.experimental;
+package be.iffy.fv.test.experimental;
 
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.function.Predicate;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
-import static be.iffy.fv.dsl.experimental.Validator.validatorFor;
+import static be.iffy.fv.test.experimental.dsl.Validator.validatorFor;
 
 class ValidatorTest {
 

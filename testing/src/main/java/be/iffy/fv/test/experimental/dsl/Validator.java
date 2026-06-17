@@ -1,4 +1,4 @@
-package be.iffy.fv.dsl.experimental;
+package be.iffy.fv.test.experimental.dsl;
 
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.PropertySelector;
@@ -41,7 +41,7 @@ public class Validator {
         }
 
         public ValidatorBuilder(Predicate<T> predicate) {
-            this((MappingRule<T, ?>) input -> predicate.test(input) ? Validation.valid(input) : Validation.invalid("Predicate failed"));
+            this((MappingRule<T, ?>) input -> predicate.test(input) ? Validation.valid(input) : Validation.invalid("predicate.failed"));
         }
 
         public ValidatorBuilder(MappingRule<T, ?> predicate) {
