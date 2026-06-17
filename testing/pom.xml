@@ -12,6 +12,10 @@
   <artifactId>testing</artifactId>
   <name>Functional Validation - Testing</name>
 
+  <properties>
+    <maven.deploy.skip>true</maven.deploy.skip>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>be.iffy.fv</groupId>
