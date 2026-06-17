@@ -25,8 +25,6 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-import static be.iffy.fv.RuleCombiners.combine;
-
 /**
  * Validation rules for {@link String} values.
  */
@@ -412,19 +410,63 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     //endregion
 
     // region parts of string
-
-
+    
+    /**
+     * Splits the string at the specified index and maps the two parts.
+     * Fails if the index is not valid for the input string.
+     * Strings passed to the mapper are not guaranteed to be non-empty, use the {@link #splitAt(int, boolean, Function2)} w
+     * ith true variant if you want empty parts to be considered Invalid.
+     * <p>
+     * Error key: {@code must.be.valid.substring}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code index}: the index at which to split ({@link Integer})</li>
+     * </ul>
+     *
+     * @param index  the index at which to split the string.
+     * @param mapper a function that takes the two parts and returns a result.
+     * @param <R>    the type of the result.
+     * @return a {@link MappingRule} that splits the string.
+     */
     public <R> MappingRule<String, R> splitAt(int index, Function2<String, String, R> mapper) {
-        return MappingRule.<String>notNull().then(input -> {
-            MappingRule<String, String> first = take(index);
-            MappingRule<String, String> second = drop(index);
-
-            return combine(first, second)
-                    .into(mapper)
-                    .apply(input);
-        });
+        return splitAt(index, false, mapper);
     }
 
+    /**
+     * Splits the string at the specified index and maps the two parts.
+     * Fails if the index is not valid for the input string, or if any of the parts are empty and {@code requireNonEmpty} is true.
+     * <p>
+     * Error key: {@code must.be.valid.substring}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code index}: the index at which to split ({@link Integer})</li>
+     * </ul>
+     *
+     * @param index            the index at which to split the string.
+     * @param requireNonEmpty  if true, fails if any of the resulting parts are empty.
+     * @param mapper           a function that takes the two parts and returns a result.
+     * @param <R>              the type of the result.
+     * @return a {@link MappingRule} that splits the string.
+     */
+    public <R> MappingRule<String, R> splitAt(int index, boolean requireNonEmpty, Function2<String, String, R> mapper) {
+        return MappingRule.<String>notNull().then(input -> {
+            if (index < 0 || index > input.length()) {
+                return Validation.invalid(
+                        ErrorMessage.of("must.be.valid.substring", HashMap.of("index", index))
+                );
+            }
+            String first = input.substring(0, index);
+            String second = input.substring(index);
+            if (requireNonEmpty && (first.isEmpty() || second.isEmpty())) {
+                return Validation.invalid(
+                        ErrorMessage.of("must.be.valid.substring", HashMap.of("index", index))
+                );
+            }
+            return Validation.valid(mapper.apply(first, second));
+        });
+    }
 
     /**
      * Takes a substring of the string.

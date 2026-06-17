@@ -188,12 +188,18 @@ class StringRulesTest {
             validTest("abcdef", "|abcdef", strings.splitAt(0, (a, b) -> a + "|" + b));
             validTest("abcdef", "abcdef|", strings.splitAt(6, (a, b) -> a + "|" + b));
             validTest("abc", "abc|", strings.splitAt(3, (a, b) -> a + "|" + b));
+            validTest("", "|", strings.splitAt(0, (a, b) -> a + "|" + b));
+            validTest("abcdef", "abc|def", strings.splitAt(3, true, (a, b) -> a + "|" + b));
         }
 
         @Test
         void invalid() {
             invalidTest(null, strings.splitAt(3, (a, b) -> a + "|" + b), "must.not.be.null");
-            invalidTest("ab", strings.splitAt(3, (a, b) -> a + "|" + b), "must.be.valid.substring");
+            invalidTest("ab", strings.splitAt(3, (a, b) -> a + "|" + b), "must.be.valid.substring", HashMap.of("index", 3));
+            invalidTest("abc", strings.splitAt(-1, (a, b) -> a + "|" + b), "must.be.valid.substring", HashMap.of("index", -1));
+            invalidTest("abc", strings.splitAt(0, true, (a, b) -> a + "|" + b), "must.be.valid.substring", HashMap.of("index", 0));
+            invalidTest("abc", strings.splitAt(3, true, (a, b) -> a + "|" + b), "must.be.valid.substring", HashMap.of("index", 3));
+            invalidTest("", strings.splitAt(0, true, (a, b) -> a + "|" + b), "must.be.valid.substring", HashMap.of("index", 0));
         }
     }
 
