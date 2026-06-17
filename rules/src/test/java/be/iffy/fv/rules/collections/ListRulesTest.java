@@ -32,6 +32,7 @@ class ListRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, lists.notEmpty(), "must.not.be.null");
             invalidTest(new ArrayList<>(), lists.notEmpty(), "must.not.be.empty");
         }
     }
@@ -47,6 +48,7 @@ class ListRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, lists.empty(), "must.not.be.null");
             invalidTest(List.of("x"), lists.empty(), "must.be.empty");
         }
     }
@@ -197,12 +199,14 @@ class ListRulesTest {
             Rule<List<Integer>> noEvens = lists.noneMatch(n -> n % 2 == 0);
             validTest(List.of(1, 3, 5), noEvens);
             validTest(List.<Integer>of(), lists.noneMatch(n -> n % 2 == 0));
+            validTest(List.of(1, 3, 5), lists.noneMatchRule(ints.even()));
         }
 
         @Test
         void invalid() {
             invalidTest(null, lists.noneMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
             invalidTest(List.of(1, 2, 3), lists.noneMatch(n -> n % 2 == 0), "must.none.match");
+            invalidTest(List.of(1, 2, 3), lists.noneMatchRule(ints.even()), "must.none.match");
             assertThatValidation(
                     lists.noneMatch((Predicate<String>) s -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")).apply(List.of("a", "bb", "c")).at("value")
             )
@@ -407,6 +411,7 @@ class ListRulesTest {
         @Test
         void valid() {
             validTest(List.of("a", "b", "s"), lists.allUnique());
+            validTest(List.of(), lists.allUnique());
         }
 
         @Test
@@ -416,25 +421,31 @@ class ListRulesTest {
     }
 
     @Nested
-    class MapTests {
+    class Map {
 
         @Test
-        void map_withValidInput_returnsMappedValues() {
+        void valid() {
             MappingRule<String, Integer> toInt = MappingRule.catching(Integer::parseInt, "must.be.integer");
-            List<Integer> expected = List.of(1, 2, 3);
-            
+            assertThatValidation(lists.map(toInt).apply(List.of()).at("value"))
+                    .isValid()
+                    .isEqualTo(List.of());
             assertThatValidation(lists.map(toInt).apply(List.of("1", "2", "3")).at("value"))
                     .isValid()
-                    .isEqualTo(expected);
+                    .isEqualTo(List.of(1, 2, 3));
         }
 
         @Test
-        void map_withInvalidInput_returnsErrorsAtCorrectIndices() {
+        void invalid() {
             MappingRule<String, Integer> toInt = MappingRule.catching(Integer::parseInt, "must.be.integer");
-
+            assertThatValidation(lists.map(toInt).apply(null).at("value"))
+                    .isInvalid()
+                    .hasErrorMessage("value.must.not.be.null");
             assertThatValidation(lists.map(toInt).apply(List.of("1", "abc", "3")).at("value"))
                     .isInvalid()
                     .hasErrorMessages("value[1].must.be.integer");
+            assertThatValidation(lists.map(toInt).apply(List.of("abc", "xyz")).at("value"))
+                    .isInvalid()
+                    .hasErrorMessages("value[0].must.be.integer", "value[1].must.be.integer");
         }
     }
 

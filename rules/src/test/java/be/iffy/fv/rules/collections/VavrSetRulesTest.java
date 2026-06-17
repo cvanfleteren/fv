@@ -31,6 +31,7 @@ class VavrSetRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, vavrSets.notEmpty(), "must.not.be.null");
             invalidTest(HashSet.empty(), vavrSets.notEmpty(), "must.not.be.empty");
         }
     }
@@ -46,6 +47,7 @@ class VavrSetRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, vavrSets.empty(), "must.not.be.null");
             invalidTest(HashSet.of("x"), vavrSets.empty(), "must.be.empty");
         }
     }
@@ -198,13 +200,14 @@ class VavrSetRulesTest {
             Rule<Set<Integer>> noEvens = vavrSets.noneMatch(n -> n % 2 == 0);
             validTest(HashSet.of(1, 3, 5), noEvens);
             validTest(HashSet.<Integer>of(), vavrSets.noneMatch(n -> n % 2 == 0));
+            validTest(HashSet.of(1, 3, 5), vavrSets.noneMatchRule(ints.even()));
         }
 
         @Test
         void invalid() {
             invalidTest(null, vavrSets.noneMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
-
             invalidTest(LinkedHashSet.of(1, 2, 3), vavrSets.noneMatch(n -> n % 2 == 0), "must.none.match");
+            invalidTest(LinkedHashSet.of(1, 2, 3), vavrSets.noneMatchRule(ints.even()), "must.none.match");
 
 
             assertThatValidation(
@@ -414,6 +417,7 @@ class VavrSetRulesTest {
         void valid() {
             Rule<Number> rule = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
             validTest(HashSet.of(1, 10, 2), vavrSets.validateValuesWith(rule));
+            validTest(HashSet.of(), vavrSets.validateValuesWith(rule));
         }
 
         @Test
@@ -421,12 +425,12 @@ class VavrSetRulesTest {
             invalidTest(null, vavrSets.validateValuesWith(Rule.of(n -> true, "")), "must.not.be.null");
             // Arrange
             Rule<Number> rule = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
-            Rule<Set<Integer>> listRule = vavrSets.validateValuesWith(rule);
+            Rule<Set<Integer>> setRule = vavrSets.validateValuesWith(rule);
 
             Set<Integer> input = LinkedHashSet.of(-1, 10, 0);
 
             // Act
-            var result = listRule.apply(input).at("value");
+            var result = setRule.apply(input).at("value");
 
             // Assert: failures are attributed to their indices in the path
             assertThatValidation(result)

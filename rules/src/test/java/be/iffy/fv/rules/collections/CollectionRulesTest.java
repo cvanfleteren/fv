@@ -33,6 +33,7 @@ class CollectionRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, collections.notEmpty(), "must.not.be.null");
             invalidTest(new ArrayList<>(), collections.notEmpty(), "must.not.be.empty");
             invalidTest(java.util.Set.of(), collections.notEmpty(), "must.not.be.empty");
         }
@@ -49,6 +50,7 @@ class CollectionRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, collections.empty(), "must.not.be.null");
             invalidTest(List.of("x"), collections.empty(), "must.be.empty");
             invalidTest(java.util.Set.of(1), collections.empty(), "must.be.empty");
         }
@@ -200,12 +202,14 @@ class CollectionRulesTest {
             Rule<Collection<Integer>> noEvens = collections.noneMatch(n -> n % 2 == 0);
             validTest(List.of(1, 3, 5), noEvens);
             validTest(List.<Integer>of(), collections.noneMatch(n -> n % 2 == 0));
+            validTest(List.of(1, 3, 5), collections.noneMatchRule(ints.even()));
         }
 
         @Test
         void invalid() {
             invalidTest(null, collections.noneMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
             invalidTest(List.of(1, 2, 3), collections.noneMatch(n -> n % 2 == 0), "must.none.match");
+            invalidTest(List.of(1, 2, 3), collections.noneMatchRule(ints.even()), "must.none.match");
             assertThatValidation(
                     collections.noneMatch((Predicate<String>) s -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")).apply(List.of("a", "bb", "c")).at("value")
             )
@@ -411,6 +415,7 @@ class CollectionRulesTest {
         void valid() {
             Rule<Number> rule = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
             validTest(List.of(1, 10, 2), collections.validateValuesWith(rule));
+            validTest(List.of(), collections.validateValuesWith(rule));
         }
 
         @Test

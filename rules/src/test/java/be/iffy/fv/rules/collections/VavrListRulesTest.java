@@ -31,6 +31,7 @@ class VavrListRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, vavrLists.notEmpty(), "must.not.be.null");
             invalidTest(List.of(), vavrLists.notEmpty(), "must.not.be.empty");
         }
     }
@@ -45,6 +46,7 @@ class VavrListRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, vavrLists.empty(), "must.not.be.null");
             invalidTest(List.of("x"), vavrLists.empty(), "must.be.empty");
         }
     }
@@ -428,6 +430,7 @@ class VavrListRulesTest {
         @Test
         void valid() {
             validTest(List.of("a", "b", "s"), vavrLists.allUnique());
+            validTest(List.empty(), vavrLists.allUnique());
         }
 
         @Test
@@ -438,25 +441,31 @@ class VavrListRulesTest {
 
 
     @Nested
-    class MapTests {
+    class Map {
 
         @Test
-        void map_withValidInput_returnsMappedValues() {
+        void valid() {
             MappingRule<String, Integer> toInt = MappingRule.catching(Integer::parseInt, "must.be.integer");
-            List<Integer> expected = List.of(1, 2, 3);
-
+            assertThatValidation(vavrLists.map(toInt).apply(List.empty()).at("value"))
+                    .isValid()
+                    .isEqualTo(List.empty());
             assertThatValidation(vavrLists.map(toInt).apply(List.of("1", "2", "3")).at("value"))
                     .isValid()
-                    .isEqualTo(expected);
+                    .isEqualTo(List.of(1, 2, 3));
         }
 
         @Test
-        void map_withInvalidInput_returnsErrorsAtCorrectIndices() {
+        void invalid() {
             MappingRule<String, Integer> toInt = MappingRule.catching(Integer::parseInt, "must.be.integer");
-
+            assertThatValidation(vavrLists.map(toInt).apply(null).at("value"))
+                    .isInvalid()
+                    .hasErrorMessage("value.must.not.be.null");
             assertThatValidation(vavrLists.map(toInt).apply(List.of("1", "abc", "3")).at("value"))
                     .isInvalid()
                     .hasErrorMessages("value[1].must.be.integer");
+            assertThatValidation(vavrLists.map(toInt).apply(List.of("abc", "xyz")).at("value"))
+                    .isInvalid()
+                    .hasErrorMessages("value[0].must.be.integer", "value[1].must.be.integer");
         }
     }
 

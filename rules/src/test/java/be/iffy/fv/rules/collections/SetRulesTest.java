@@ -29,6 +29,7 @@ class SetRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, sets.notEmpty(), "must.not.be.null");
             invalidTest(new java.util.HashSet<>(), sets.notEmpty(), "must.not.be.empty");
         }
     }
@@ -44,6 +45,7 @@ class SetRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, sets.empty(), "must.not.be.null");
             invalidTest(Set.of("x"), sets.empty(), "must.be.empty");
         }
     }
@@ -195,23 +197,18 @@ class SetRulesTest {
     class NoneMatch {
 
         @Test
-        void noneMatch_whenElementsMatchPredicate_isInvalid() {
+        void valid() {
             Rule<Set<Integer>> noEvens = sets.noneMatch(n -> n % 2 == 0);
             validTest(Set.of(1, 3, 5), noEvens);
             validTest(Set.<Integer>of(), sets.noneMatch(n -> n % 2 == 0));
-        }
-
-        @Test
-        void noneMatchRule_whenElementsMatchRule_isInvalid() {
             validTest(Set.of(1, 3, 5), sets.noneMatchRule(ints.even()));
-            invalidTest(new LinkedHashSet<>(List.of(1, 2, 3)), sets.noneMatchRule(ints.even()), "must.none.match");
         }
 
         @Test
         void invalid() {
             invalidTest(null, sets.noneMatch((Predicate<Integer>) (n -> n % 2 == 0)), "must.not.be.null");
-
             invalidTest(new LinkedHashSet<>(List.of(1, 2, 3)), sets.noneMatch(n -> n % 2 == 0), "must.none.match");
+            invalidTest(new LinkedHashSet<>(List.of(1, 2, 3)), sets.noneMatchRule(ints.even()), "must.none.match");
 
             assertThatValidation(
                     sets.noneMatch((Predicate<String>) s -> s.length() == 2, ErrorMessage.of("len.must.not.be.two")).apply(new LinkedHashSet<>(List.of("a", "bb", "c"))).at("value")
@@ -418,6 +415,7 @@ class SetRulesTest {
         void valid() {
             Rule<Number> rule = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
             validTest(Set.of(1, 10, 2), sets.validateValuesWith(rule));
+            validTest(Set.of(), sets.validateValuesWith(rule));
         }
 
         @Test
@@ -425,12 +423,12 @@ class SetRulesTest {
             invalidTest(null, sets.validateValuesWith(Rule.of(n -> true, "")), "must.not.be.null");
             // Arrange
             Rule<Number> rule = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
-            Rule<Set<Integer>> listRule = sets.validateValuesWith(rule);
+            Rule<Set<Integer>> setRule = sets.validateValuesWith(rule);
 
             Set<Integer> input = new LinkedHashSet<>(List.of(-1, 10, 0));
 
             // Act
-            var result = listRule.apply(input).at("value");
+            var result = setRule.apply(input).at("value");
 
             // Assert: failures are attributed to their indices in the path
             assertThatValidation(result)
