@@ -767,8 +767,8 @@ record User(String username, String email) {
                 validateThat(email, "email").after(stringOps.toLowerCase()).is(strings.email())
         );
 
-        this.username = values._1; // is trimmed
-        this.email = values._2; // is lowercased
+        username = values._1; // is trimmed
+        email = values._2; // is lowercased
     }
 }
 ```
