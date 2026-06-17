@@ -9,6 +9,7 @@ import io.vavr.control.Try;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -75,6 +76,14 @@ class MappingRuleTest {
 
             assertThat(result.isValid()).isFalse();
             assertThat(result.errors()).extracting(ErrorMessage::message).containsExactly("even.invalid");
+        }
+
+        @Test
+        void then_whenOtherIsNull_throwsNullPointerException() {
+            MappingRule<String, Integer> rule = s -> Validation.valid(s.length());
+            assertThatCode(() -> rule.then(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("rule cannot be null");
         }
 
         @Test
@@ -326,10 +335,10 @@ class MappingRuleTest {
     }
 
     @Nested
-    class LiftToMap {
+    class LiftToVavrMap {
 
         @Test
-        void liftToMap_whenAllValuesAreValid_returnsValidResult() {
+        void liftToVavrMap_whenAllValuesAreValid_returnsValidResult() {
             // Arrange
             MappingRule<Map<String, String>, Map<String, Integer>> mapRule = mustBeInt.lift().toVavrMap();
 
@@ -348,7 +357,7 @@ class MappingRuleTest {
         }
 
         @Test
-        void liftToMap_whenSomeValuesAreInvalid_addsKeyToPathAndAccumulatesErrors() {
+        void liftToVavrMap_whenSomeValuesAreInvalid_addsKeyToPathAndAccumulatesErrors() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
             MappingRule<Map<String, String>, Map<String, Integer>> mapRule = rule.lift().toVavrMap();
@@ -368,7 +377,7 @@ class MappingRuleTest {
         }
 
         @Test
-        void liftToMap_withKeyExtractor_whenSomeValuesAreInvalid_usesExtractedKeyInPath() {
+        void liftToVavrMap_withKeyExtractor_whenSomeValuesAreInvalid_usesExtractedKeyInPath() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
             MappingRule<Map<Integer, String>, Map<Integer, Integer>> mapRule = rule.lift().toVavrMap(k -> "k" + k);
@@ -388,7 +397,7 @@ class MappingRuleTest {
         }
 
         @Test
-        void liftToMap_withKeyExtractor_whenAllValuesAreValid_returnsValidResult() {
+        void liftToVavrMap_withKeyExtractor_whenAllValuesAreValid_returnsValidResult() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "must.be.int");
             MappingRule<Map<Integer, String>, Map<Integer, Integer>> mapRule = rule.lift().toVavrMap(k -> "id-" + k);
@@ -699,6 +708,23 @@ class MappingRuleTest {
         }
 
         @Test
+        void or_whenFirstRuleIsSuccessful_doesNotEvaluateSecondRule() {
+            // Arrange
+            AtomicBoolean secondRuleCalled = new AtomicBoolean(false);
+            MappingRule<String, Integer> firstRule = MappingRule.catching(Integer::parseInt, "not.a.number");
+            MappingRule<String, Integer> secondRule = s -> {
+                secondRuleCalled.set(true);
+                return Validation.valid(s.length());
+            };
+
+            // Act
+            firstRule.or(secondRule).apply("123");
+
+            // Assert
+            assertThat(secondRuleCalled.get()).isFalse();
+        }
+
+        @Test
         void or_whenOtherIsNull_throwsNullPointerException() {
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "not.a.number");
             assertThatCode(() -> rule.or(null))
@@ -708,10 +734,10 @@ class MappingRuleTest {
     }
 
     @Nested
-    class RecoverWith {
+    class Fallback {
 
         @Test
-        void recoverWith_whenFirstRuleIsSuccessful_returnsFirstRuleResult() {
+        void fallback_whenFirstRuleIsSuccessful_returnsFirstRuleResult() {
             // Arrange
             MappingRule<String, Integer> rule1 = MappingRule.catching(Integer::parseInt, "not.a.number");
             MappingRule<String, Integer> rule2 = s -> Validation.valid(s.length());
@@ -727,7 +753,7 @@ class MappingRuleTest {
         }
 
         @Test
-        void recoverWith_whenFirstRuleFailsAndSecondRuleIsSuccessful_returnsSecondRuleResult() {
+        void fallback_whenFirstRuleFailsAndSecondRuleIsSuccessful_returnsSecondRuleResult() {
             // Arrange
             MappingRule<String, Integer> rule1 = MappingRule.catching(Integer::parseInt, "not.a.number");
             MappingRule<String, Integer> rule2 = s -> Validation.valid(s.length());
@@ -743,7 +769,7 @@ class MappingRuleTest {
         }
 
         @Test
-        void recoverWith_whenBothRulesFail_returnsSecondRuleErrors() {
+        void fallback_whenBothRulesFail_returnsSecondRuleErrors() {
             // Arrange
             MappingRule<String, Integer> rule1 = MappingRule.catching(Integer::parseInt, "not.a.number");
             MappingRule<String, Integer> rule2 = MappingRule.catching(s -> {
@@ -761,7 +787,7 @@ class MappingRuleTest {
         }
 
         @Test
-        void recoverWith_whenOtherIsNull_throwsNullPointerException() {
+        void fallback_whenOtherIsNull_throwsNullPointerException() {
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "not.a.number");
             assertThatCode(() -> rule.fallback(null))
                     .isInstanceOf(NullPointerException.class)
@@ -799,8 +825,6 @@ class MappingRuleTest {
             MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "not.a.number");
             MappingRule<StringHolder, Number> withRule = MappingRule.on(StringHolder::value, rule);
 
-            MappingRule<StringHolder, Integer> wv = rule.on(StringHolder::value);
-
             // Act
             Validation<Number> result = withRule.apply(new StringHolder("1234"));
 
@@ -808,6 +832,36 @@ class MappingRuleTest {
             assertThatValidation(result)
                     .isValid()
                     .isEqualTo(1234);
+        }
+
+        @Test
+        void on_instanceMethod_whenRulePasses_returnsMappedValidResult() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "not.a.number");
+            MappingRule<StringHolder, Integer> withRule = rule.on(StringHolder::value);
+
+            // Act
+            Validation<Integer> result = withRule.apply(new StringHolder("1234"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo(1234);
+        }
+
+        @Test
+        void on_instanceMethod_whenRuleFails_returnsInvalidWithRuleErrors() {
+            // Arrange
+            MappingRule<String, Integer> rule = MappingRule.catching(Integer::parseInt, "not.a.number");
+            MappingRule<StringHolder, Integer> withRule = rule.on(StringHolder::value);
+
+            // Act
+            Validation<Integer> result = withRule.apply(new StringHolder("abc"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("value.not.a.number");
         }
 
         @Test
@@ -871,7 +925,7 @@ class MappingRuleTest {
         }
 
         @Test
-        void catching_whenFunctionReturnsValid_returnsValidResult() {
+        void of_whenFunctionReturnsValid_returnsValidResult() {
             // Arrange
             MappingRule<String, Integer> rule = MappingRule.of(AsMappingRule::validator);
 
@@ -885,7 +939,7 @@ class MappingRuleTest {
         }
 
         @Test
-        void catching_whenFunctionReturnsInvalid_returnsInvalidResult() {
+        void of_whenFunctionReturnsInvalid_returnsInvalidResult() {
             // Arrange
             ErrorMessage error = ErrorMessage.of("invalid.input");
             Function<String, Validation<Integer>> func = s -> Validation.invalid(error);

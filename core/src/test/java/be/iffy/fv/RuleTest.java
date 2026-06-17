@@ -303,6 +303,40 @@ class RuleTest {
         }
 
         @Test
+        void andAlso_whenFirstRuleFailsAndSecondRulePasses_returnsInvalidWithFirstErrorOnly() {
+            // Arrange
+            Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> combined = rule1.andAlso(rule2);
+
+            // Act
+            Validation<String> result = combined.apply("hi"); // length 2, starts with h
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("too.short");
+            assertThat(result.errors()).hasSize(1);
+        }
+
+        @Test
+        void andAlso_whenFirstRulePassesAndSecondRuleFails_returnsInvalidWithSecondErrorOnly() {
+            // Arrange
+            Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
+            Rule<String> combined = rule1.andAlso(rule2);
+
+            // Act
+            Validation<String> result = combined.apply("apple"); // length 5, doesn't start with h
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("must.start.with.h");
+            assertThat(result.errors()).hasSize(1);
+        }
+
+        @Test
         void andAlso_whenBothRulesPass_returnsValidResult() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
@@ -398,6 +432,23 @@ class RuleTest {
             assertThatValidation(result)
                     .isInvalid()
                     .hasErrorMessage("must.start.with.h");
+        }
+
+        @Test
+        void and_whenFirstRuleFails_doesNotEvaluateSecondRule() {
+            // Arrange
+            AtomicBoolean secondRuleCalled = new AtomicBoolean(false);
+            Rule<String> firstRule = Rule.of(s -> false, "error.one");
+            Rule<String> secondRule = Rule.of(s -> {
+                secondRuleCalled.set(true);
+                return true;
+            }, "error.two");
+
+            // Act
+            firstRule.and(secondRule).apply("test");
+
+            // Assert
+            assertThat(secondRuleCalled.get()).isFalse();
         }
 
         @Test
@@ -498,9 +549,26 @@ class RuleTest {
             Rule<String> rule = Rule.of(s -> true, "msg");
 
             // Act & Assert
-            assertThatCode(() -> rule.fallback(null))
+            assertThatCode(() -> rule.or(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("other rule cannot be null");
+        }
+
+        @Test
+        void or_whenFirstRulePasses_doesNotEvaluateSecondRule() {
+            // Arrange
+            AtomicBoolean secondRuleCalled = new AtomicBoolean(false);
+            Rule<String> firstRule = Rule.of(s -> true, "error.one");
+            Rule<String> secondRule = Rule.of(s -> {
+                secondRuleCalled.set(true);
+                return false;
+            }, "error.two");
+
+            // Act
+            firstRule.or(secondRule).apply("test");
+
+            // Assert
+            assertThat(secondRuleCalled.get()).isFalse();
         }
 
         @Test
@@ -788,10 +856,10 @@ class RuleTest {
     }
 
     @Nested
-    class OrElse {
+    class Fallback {
 
         @Test
-        void orElse_whenFirstRulePasses_returnsFirstResultAndDoesNotCallSecond() {
+        void fallback_whenFirstRulePasses_returnsFirstResultAndDoesNotCallSecond() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
@@ -807,7 +875,7 @@ class RuleTest {
         }
 
         @Test
-        void orElse_whenFirstRuleFailsAndSecondRulePasses_returnsSecondResult() {
+        void fallback_whenFirstRuleFailsAndSecondRulePasses_returnsSecondResult() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 5, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
@@ -823,7 +891,7 @@ class RuleTest {
         }
 
         @Test
-        void orElse_whenBothRulesFail_returnsOnlySecondRuleErrors() {
+        void fallback_whenBothRulesFail_returnsOnlySecondRuleErrors() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 5, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
@@ -842,7 +910,7 @@ class RuleTest {
         }
 
         @Test
-        void orElse_whenOtherRuleIsNull_throwsNullPointerException() {
+        void fallback_whenOtherRuleIsNull_throwsNullPointerException() {
             // Arrange
             Rule<String> rule = Rule.of(s -> true, "msg");
 
@@ -853,7 +921,7 @@ class RuleTest {
         }
 
         @Test
-        void orElse_whenCombiningWithRuleOfSuperType_compilesAndWorks() {
+        void fallback_whenCombiningWithRuleOfSuperType_compilesAndWorks() {
             // Arrange
             Rule<Number> isPositive = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
             Rule<BigDecimal> isMinusFortyTwo = Rule.of(b -> b.compareTo(new BigDecimal("-42")) == 0, "must.be.minus.forty.two");
@@ -876,7 +944,7 @@ class RuleTest {
     }
 
     @Nested
-    class Lift_LiftToList {
+    class LiftToList {
 
         @Test
        void lift_liftToList_whenAllElementsAreValid_returnsValidResult() {
@@ -1067,6 +1135,21 @@ class RuleTest {
             assertThatValidation(result)
                     .isInvalid()
                     .hasErrorMessages("aMap[k10].too.short", "aMap[k20].too.short");
+        }
+
+        @Test
+        void liftToVavrMap_whenMapIsNull_isInvalid() {
+            // Arrange
+            Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
+            Rule<Map<String, String>> mapRule = rule.lift().toVavrMap();
+
+            // Act
+            Validation<Map<String, String>> result = mapRule.apply(null);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("must.not.be.null");
         }
 
         @Test
@@ -1453,7 +1536,7 @@ class RuleTest {
         }
 
         @Test
-        void when_whenConditionIsTrue_appliesRuleReturnsInvalid() {
+        void when_whenConditionIsTrue_andRuleFails_returnsInvalid() {
             // Arrange
             Rule<String> rule = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> conditionalRule = Rule.when(true, rule);

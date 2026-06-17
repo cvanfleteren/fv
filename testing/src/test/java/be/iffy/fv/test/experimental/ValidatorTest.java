@@ -42,7 +42,7 @@ class ValidatorTest {
     }
 
     @Test
-    void validatorBuilder3_shouldHaveConstraintMethods() {
+    void validatorBuilder3_shouldBuildWithThreeFields() {
         MappingRule<String, String> notEmpty = MappingRule.catching(s -> s, "must.not.be.empty");
 
         MappingRule<User, String> validator = validatorFor(User.class)
@@ -54,6 +54,24 @@ class ValidatorTest {
         User validUser = new User("John", "Doe", 30, "john@doe.com");
         assertThatValidation(validator.apply(validUser)).isValid()
                 .isEqualTo("John Doe <john@doe.com>");
+    }
+
+    @Test
+    void validatorBuilder3_whenSomeFieldsAreInvalid_accumulatesErrors() {
+        MappingRule<String, String> notEmpty = MappingRule.catching(s -> {
+            if (s == null || s.isEmpty()) throw new IllegalArgumentException();
+            return s;
+        }, "must.not.be.empty");
+
+        MappingRule<User, String> validator = validatorFor(User.class)
+                .where(User::firstName, notEmpty)
+                .where(User::lastName, notEmpty)
+                .where(User::email, notEmpty)
+                .builds((fn, ln, email) -> fn + " " + ln + " <" + email + ">");
+
+        User invalidUser = new User("", "", 30, "");
+        assertThatValidation(validator.apply(invalidUser)).isInvalid()
+                .hasErrorMessages("firstName.must.not.be.empty", "lastName.must.not.be.empty", "email.must.not.be.empty");
     }
 
     @Test
