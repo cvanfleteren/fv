@@ -423,7 +423,15 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
     //endregion
 
-    //region factory methods for known values
+    //region factory methods
+
+    /**
+     * Creates a {@link Validation} from a {@link Supplier}.
+     * @see ValidationFactory#catching(Supplier)
+     */
+    static <T> Validation<T> catching(Supplier<? extends T> supplier) {
+        return from().catching(supplier);
+    }
 
     /**
      * Construct a Validation by giving you access to the ValidationFactory, allowing you to construct

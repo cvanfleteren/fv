@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Contract;
 
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Entry point for the functional validation API.
@@ -85,6 +86,21 @@ public final class DSL {
     //endregion
 
     //region Other
+
+    /**
+     * Create a Validation from code that might throw {@link ValidationException}.
+     * @see Validation#catching(Supplier)
+     */
+    public static <T> Validation<T> catching(Supplier<T> supplier) {
+        return Validation.catching(supplier);
+    }
+
+    /**
+     * Returns the ValidationFactory, allowing you to create Validations from many other types.
+     */
+    public static ValidationFactory from() {
+        return Validation.from();
+    }
 
     /**
      * A tiny DSL for helping to define Rules that transform their input before running their actual logic on it.

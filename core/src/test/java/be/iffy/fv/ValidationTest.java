@@ -2329,6 +2329,49 @@ public class ValidationTest {
     }
 
     @Nested
+    class Catching {
+
+        @Test
+        void catching_whenSupplierReturnsValue_returnsValidWithThatValue() {
+            // Act
+            Validation<String> result = Validation.catching(() -> "expected");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("expected");
+        }
+
+        @Test
+        void catching_whenSupplierThrowsValidationException_returnsInvalidWithSameErrors() {
+            // Arrange
+            ErrorMessage e1 = ErrorMessage.of("name.too.short");
+            ErrorMessage e2 = ErrorMessage.of("age.too.young");
+
+            // Act
+            Validation<Object> result = Validation.catching(() -> {
+                throw new ValidationException(List.of(e1, e2));
+            });
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("name.too.short", "age.too.young");
+        }
+
+        @Test
+        void catching_whenSupplierThrowsOtherException_rethrows() {
+            // Arrange
+            RuntimeException boom = new RuntimeException("boom");
+
+            // Act & Assert
+            assertThatThrownBy(() -> Validation.catching(() -> {
+                throw boom;
+            })).isSameAs(boom);
+        }
+    }
+
+    @Nested
     class FromCatchingAll {
 
         @Test

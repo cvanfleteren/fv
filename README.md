@@ -309,20 +309,27 @@ if (result.isInvalid()) {
 ## Wrapping other types with `Validation.from()`
 
 When integrating with code that uses `Try`, `Optional`, `Either`, or constructors that throw,
-`Validation.from()` gives you a `ValidationFactory` to bridge those types into a `Validation`:
+`Validation.from()` gives you a `ValidationFactory` to bridge those types into a `Validation`.
+
+The most common case — calling a constructor or factory that throws `ValidationException` on bad input — is
+available directly as `Validation.catching(supplier)`:
 
 ```java
-// From a throwing call — wraps any exception as Invalid with the given error key
+// Validated domain object whose constructor throws ValidationException on bad input
+Validation<Username> u = Validation.catching(() -> new Username(rawInput));
+```
+
+For other cases, `Validation.from()` covers arbitrary-exception suppliers, `Try`, `Optional`, `Option`, and `Either`:
+
+```java
+// Wraps any exception as Invalid with the given error key
 Validation<URL> url = Validation.from().catchingAll(() -> new URL(input), "invalid.url");
 
 // From a Vavr Try you already have
 Validation<Integer> n = Validation.from()._try(Try.of(() -> Integer.parseInt(input)), "invalid.number");
-
-// From a Java Optional (empty → Invalid "must.not.be.empty")
-Validation<String> s = Validation.from().optional(Optional.ofNullable(value), "must.not.be.empty");
 ```
 
-See the [Exception Interop](faq.md#exception-interop) section of the FAQ for all supported types
+See the [Exception Interop](faq.md#exception-interop) section of the FAQ for full details
 (`Option`, `Either`, `catching` vs `catchingAll` vs `_try`, and more).
 
 ---

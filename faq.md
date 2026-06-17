@@ -916,6 +916,18 @@ In this example:
 3. If the `Try` was a `Success`, you get a `Valid<URL>`.
 4. If the `Try` was a `Failure`, you get an `Invalid` result with the error key `"invalid.url"`.
 
+#### When the constructor throws `ValidationException`
+
+If the constructor you're calling is itself a validated domain object (i.e. it throws `ValidationException` on
+bad input), you can use the simpler `Validation.catching(supplier)` shorthand:
+
+```java
+// Username constructor uses assertThat/asserting internally — throws ValidationException on invalid input
+Validation<Username> u = Validation.catching(() -> new Username(rawInput));
+```
+
+This is equivalent to `Validation.from().catching(supplier)` but without the `from()` call.
+
 ---
 
 ### What types can I turn into a Validation?
@@ -939,7 +951,9 @@ These three are easy to confuse because they all deal with "things that might fa
 * **`catching(Supplier<T>)`** takes a `Supplier` and runs it immediately. If it throws a `ValidationException`, that
   exception's errors become the `Invalid` result. Any *other* exception (including a `NullPointerException` from a
   `null` result) is **not caught** and propagates to the caller. Use this when you trust the supplier to either
-  succeed, return non-null, or throw `ValidationException` on purpose.
+  succeed, return non-null, or throw `ValidationException` on purpose. Because this is the most common case when
+  constructing `Validation`s manually (e.g. calling a validated domain-object constructor), it is also available
+  directly as `Validation.catching(supplier)` — a shorthand for `Validation.from().catching(supplier)`.
 * **`catchingAll(Supplier<T>, ...)`** also takes a `Supplier`, but catches *any* `Exception` (not just
   `ValidationException`) and converts it into an `Invalid`, using either a fixed `ErrorMessage`/error key or a
   `Function<Exception, ErrorMessage>` you provide. This is the one to reach for when calling into code you don't

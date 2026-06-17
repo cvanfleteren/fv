@@ -29,6 +29,6 @@ public record Bic(String value) {
     }
 
     public static Validation<Bic> from(String value) {
-        return Validation.from().catching(() -> new Bic(value));
+        return catching(() -> new Bic(value));
     }
 }
