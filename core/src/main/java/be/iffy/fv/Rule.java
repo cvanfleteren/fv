@@ -77,6 +77,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
                 return Invalid.notNull();
             }
             return Validation.narrow(
+                // protect ourselves against misbehaving Rules by returning the input, as per contract.
                 Objects.requireNonNull(ruleLikeFunction.apply(input), "ruleLikeFunction cannot return null Validation").mapTo(input)
             );
         };
@@ -206,21 +207,6 @@ public interface Rule<T> extends Function<T, Validation<T>> {
                 return Validation.invalid(validations.flatMap(Validation::errors).toList());
             }
         };
-    }
-
-    /**
-     * Composes two rules using "non-short-circuiting and" logic.
-     * The combined rule is successful only if both rules are successful.
-     * If both rules fail, the errors are combined.
-     * <p>
-     * Non-short-circuiting, accumulating
-     *
-     * @see #andAlso(Function)
-     */
-    static <T> Rule<T> both(Function<T, Validation<T>> first, Function<T, Validation<T>> second) {
-        Objects.requireNonNull(first, "first rule cannot be null");
-        Objects.requireNonNull(second, "second rule cannot be null");
-        return Rule.of(first).andAlso(second);
     }
 
     /**

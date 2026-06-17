@@ -153,7 +153,6 @@ Rule combinators
 | andAlso(other)         | AND; always runs both                                                           | No               | Accumulating (combine errors)                 |
 | all(rules...)          | AND over many; all must pass                                                    | No               | Accumulating (combine all errors)             |
 | any(rules...)          | OR over many; succeeds on first rule that passes                                | Yes              | Accumulating if all fail                      |
-| both(first, second)    | AND of two; like Rule.of(first).andAlso(second)                                 | No               | Accumulating                                  |
 | fallback(other)        | Fallback; uses other only if this fails; if both fail, keep only other’s errors | Yes              | Not accumulating (only fallback’s errors)     |
 | or(other)              | OR; uses other only if this fails; if both fail, combine errors                 | Yes              | Accumulating                                  |
 | then(ruleLikeFunction) | On success, refine into a MappingRule via ruleLikeFunction                      | Yes              | Not accumulating                              |

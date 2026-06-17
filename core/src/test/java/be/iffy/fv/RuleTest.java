@@ -158,42 +158,6 @@ class RuleTest {
     }
 
     @Nested
-    class Both {
-        @Test
-        void both_static_whenBothRulesFail_returnsInvalidWithBothErrors() {
-            // Arrange
-            Rule<CharSequence> rule1 = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> combined = Rule.both(rule1.narrow(), rule2);
-
-            // Act
-            Validation<String> result = combined.apply("a");
-
-            // Assert
-            assertThatValidation(result)
-                    .isInvalid()
-                    .hasErrorMessages("too.short", "must.start.with.h");
-        }
-
-        @Test
-        void both_static_whenBothRulesPass_returnsValidResult() {
-            // Arrange
-            Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
-            Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> combined = Rule.both(rule1, rule2);
-
-            // Act
-            Validation<String> result = combined.apply("hello");
-
-            // Assert
-            assertThatValidation(result)
-                    .isValid()
-                    .isEqualTo("hello");
-        }
-    }
-
-
-    @Nested
     class All {
 
         @Test

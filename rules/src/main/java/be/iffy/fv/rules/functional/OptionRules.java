@@ -76,7 +76,7 @@ public class OptionRules {
      * Error key: {@code must.not.be.empty} or the key of the passed rule
      */
     public <T> Rule<Option<T>> contains(Rule<T> rule) {
-        return Rule.both(notEmpty(), rule.lift().toOption());
+        return Rule.all(notEmpty(), rule.lift().toOption());
     }
 
     /**

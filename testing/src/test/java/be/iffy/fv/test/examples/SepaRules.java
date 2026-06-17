@@ -13,12 +13,12 @@ public class SepaRules {
 
     public static final Rule<String> noDoubleSlash = Rule.of(input -> input.contains("//"), "double.slash.not.allowed");
 
-    public static final Rule<String> noSlashAtEdges = Rule.both(
+    public static final Rule<String> noSlashAtEdges = Rule.all(
             Rule.of(input -> input.startsWith("/"), "starting.slash.not.allowed"),
             Rule.of(input -> input.endsWith("/"), "ending.slash.not.allowed")
     );
 
-    public static final Rule<String> sepaSafe =after(stringOps.trim()).is(Rule.both(noSlashAtEdges, noDoubleSlash));
+    public static final Rule<String> sepaSafe = after(stringOps.trim()).is(Rule.all(noSlashAtEdges, noDoubleSlash));
 
     public static final Rule<String> sepaSafeId = sepaSafe(35);
 
