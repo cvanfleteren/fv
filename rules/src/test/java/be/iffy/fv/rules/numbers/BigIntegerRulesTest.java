@@ -1,6 +1,7 @@
 package be.iffy.fv.rules.numbers;
 
 import io.vavr.collection.HashMap;
+import io.vavr.collection.HashSet;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -174,7 +175,109 @@ class BigIntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, bigIntegers.between(BigInteger.ONE, new BigInteger("3")), "must.not.be.null");
             invalidTest(BigInteger.ZERO, bigIntegers.between(BigInteger.ONE, new BigInteger("3")), "must.be.between", HashMap.of("min", BigInteger.ONE, "max", new BigInteger("3")));
+        }
+    }
+
+    @Nested
+    class BetweenExclusive {
+        @Test
+        void valid() {
+            validTest(new BigInteger("2"), bigIntegers.betweenExclusive(BigInteger.ONE, new BigInteger("3")));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, bigIntegers.betweenExclusive(BigInteger.ONE, new BigInteger("3")), "must.not.be.null");
+            invalidTest(BigInteger.ONE, bigIntegers.betweenExclusive(BigInteger.ONE, new BigInteger("3")), "must.be.between.exclusive", HashMap.of("min", BigInteger.ONE, "max", new BigInteger("3")));
+            invalidTest(new BigInteger("3"), bigIntegers.betweenExclusive(BigInteger.ONE, new BigInteger("3")), "must.be.between.exclusive", HashMap.of("min", BigInteger.ONE, "max", new BigInteger("3")));
+        }
+    }
+
+    @Nested
+    class GreaterThan {
+        @Test
+        void valid() {
+            validTest(BigInteger.TWO, bigIntegers.greaterThan(BigInteger.ONE));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, bigIntegers.greaterThan(BigInteger.ONE), "must.not.be.null");
+            invalidTest(BigInteger.ONE, bigIntegers.greaterThan(BigInteger.ONE), "must.be.greater.than", HashMap.of("min", BigInteger.ONE));
+        }
+    }
+
+    @Nested
+    class AtLeast {
+        @Test
+        void valid() {
+            validTest(BigInteger.ONE, bigIntegers.atLeast(BigInteger.ONE));
+            validTest(BigInteger.TWO, bigIntegers.atLeast(BigInteger.ONE));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, bigIntegers.atLeast(BigInteger.ONE), "must.not.be.null");
+            invalidTest(BigInteger.ZERO, bigIntegers.atLeast(BigInteger.ONE), "must.be.at.least", HashMap.of("min", BigInteger.ONE));
+        }
+    }
+
+    @Nested
+    class LessThan {
+        @Test
+        void valid() {
+            validTest(BigInteger.ZERO, bigIntegers.lessThan(BigInteger.ONE));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, bigIntegers.lessThan(BigInteger.ONE), "must.not.be.null");
+            invalidTest(BigInteger.ONE, bigIntegers.lessThan(BigInteger.ONE), "must.be.less.than", HashMap.of("max", BigInteger.ONE));
+        }
+    }
+
+    @Nested
+    class AtMost {
+        @Test
+        void valid() {
+            validTest(BigInteger.ONE, bigIntegers.atMost(BigInteger.ONE));
+            validTest(BigInteger.ZERO, bigIntegers.atMost(BigInteger.ONE));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, bigIntegers.atMost(BigInteger.ONE), "must.not.be.null");
+            invalidTest(BigInteger.TWO, bigIntegers.atMost(BigInteger.ONE), "must.be.at.most", HashMap.of("max", BigInteger.ONE));
+        }
+    }
+
+    @Nested
+    class OneOf {
+        @Test
+        void valid() {
+            validTest(BigInteger.ONE, bigIntegers.oneOf(BigInteger.ONE, BigInteger.TWO));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, bigIntegers.oneOf(BigInteger.ONE, BigInteger.TWO), "must.not.be.null");
+            invalidTest(new BigInteger("5"), bigIntegers.oneOf(BigInteger.ONE, BigInteger.TWO), "must.be.one.of", HashMap.of("values", HashSet.of(BigInteger.ONE, BigInteger.TWO)));
+        }
+    }
+
+    @Nested
+    class NotOneOf {
+        @Test
+        void valid() {
+            validTest(BigInteger.ZERO, bigIntegers.notOneOf(BigInteger.ONE, BigInteger.TWO));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, bigIntegers.notOneOf(BigInteger.ONE, BigInteger.TWO), "must.not.be.null");
+            invalidTest(BigInteger.ONE, bigIntegers.notOneOf(BigInteger.ONE, BigInteger.TWO), "must.not.be.one.of", HashMap.of("values", HashSet.of(BigInteger.ONE, BigInteger.TWO)));
         }
     }
 }

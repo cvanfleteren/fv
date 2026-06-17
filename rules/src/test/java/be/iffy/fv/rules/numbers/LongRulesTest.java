@@ -196,6 +196,7 @@ class LongRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, longs.between(1L, 2L), "must.not.be.null");
             invalidTest(0L, longs.between(1L, 2L), "must.be.between", HashMap.of("min", 1L, "max", 2L));
             invalidTest(3L, longs.between(1L, 2L), "must.be.between", HashMap.of("min", 1L, "max", 2L));
         }
@@ -212,6 +213,7 @@ class LongRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, longs.betweenExclusive(1L, 3L), "must.not.be.null");
             invalidTest(1L, longs.betweenExclusive(1L, 3L), "must.be.between.exclusive", HashMap.of("min", 1L, "max", 3L));
             invalidTest(3L, longs.betweenExclusive(1L, 3L), "must.be.between.exclusive", HashMap.of("min", 1L, "max", 3L));
             invalidTest(0L, longs.betweenExclusive(0L, 1L), "must.be.between.exclusive", HashMap.of("min", 0L, "max", 1L));
@@ -229,6 +231,7 @@ class LongRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, longs.greaterThan(1L), "must.not.be.null");
             invalidTest(1L, longs.greaterThan(1L), "must.be.greater.than", HashMap.of("min", 1L));
             invalidTest(0L, longs.greaterThan(1L), "must.be.greater.than", HashMap.of("min", 1L));
         }
@@ -245,6 +248,7 @@ class LongRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, longs.atLeast(1L), "must.not.be.null");
             invalidTest(0L, longs.atLeast(1L), "must.be.at.least", HashMap.of("min", 1L));
             invalidTest(-1L, longs.atLeast(1L), "must.be.at.least", HashMap.of("min", 1L));
         }
@@ -261,6 +265,7 @@ class LongRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, longs.lessThan(1L), "must.not.be.null");
             invalidTest(1L, longs.lessThan(1L), "must.be.less.than", HashMap.of("max", 1L));
             invalidTest(2L, longs.lessThan(1L), "must.be.less.than", HashMap.of("max", 1L));
         }
@@ -278,6 +283,7 @@ class LongRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, longs.atMost(1L), "must.not.be.null");
             invalidTest(2L, longs.atMost(1L), "must.be.at.most", HashMap.of("max", 1L));
             invalidTest(42L, longs.atMost(1L), "must.be.at.most", HashMap.of("max", 1L));
         }
@@ -294,6 +300,7 @@ class LongRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, longs.oneOf(1L, 2L, 3L), "must.not.be.null");
             invalidTest(
                     4L,
                     longs.oneOf(1L, 2L, 3L),
@@ -314,6 +321,7 @@ class LongRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, longs.notOneOf(1L, 2L, 3L), "must.not.be.null");
             invalidTest(
                     2L,
                     longs.notOneOf(1L, 2L, 3L),

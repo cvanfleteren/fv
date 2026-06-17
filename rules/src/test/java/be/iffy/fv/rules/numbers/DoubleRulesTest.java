@@ -1,6 +1,7 @@
 package be.iffy.fv.rules.numbers;
 
 import io.vavr.collection.HashMap;
+import io.vavr.collection.HashSet;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -170,6 +171,129 @@ class DoubleRulesTest {
         void invalid() {
             invalidTest(null, doubles.max(2.0), "must.not.be.null");
             invalidTest(3.0, doubles.max(2.0), "must.be.at.most", HashMap.of("max", 2.0));
+        }
+    }
+
+    @Nested
+    class Between {
+        @Test
+        void valid() {
+            validTest(1.0, doubles.between(1.0, 3.0));
+            validTest(2.0, doubles.between(1.0, 3.0));
+            validTest(3.0, doubles.between(1.0, 3.0));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, doubles.between(1.0, 3.0), "must.not.be.null");
+            invalidTest(0.9, doubles.between(1.0, 3.0), "must.be.between", HashMap.of("min", 1.0, "max", 3.0));
+            invalidTest(3.1, doubles.between(1.0, 3.0), "must.be.between", HashMap.of("min", 1.0, "max", 3.0));
+        }
+    }
+
+    @Nested
+    class BetweenExclusive {
+        @Test
+        void valid() {
+            validTest(1.5, doubles.betweenExclusive(1.0, 3.0));
+            validTest(2.0, doubles.betweenExclusive(1.0, 3.0));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, doubles.betweenExclusive(1.0, 3.0), "must.not.be.null");
+            invalidTest(1.0, doubles.betweenExclusive(1.0, 3.0), "must.be.between.exclusive", HashMap.of("min", 1.0, "max", 3.0));
+            invalidTest(3.0, doubles.betweenExclusive(1.0, 3.0), "must.be.between.exclusive", HashMap.of("min", 1.0, "max", 3.0));
+        }
+    }
+
+    @Nested
+    class GreaterThan {
+        @Test
+        void valid() {
+            validTest(1.5, doubles.greaterThan(1.0));
+            validTest(2.0, doubles.greaterThan(1.0));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, doubles.greaterThan(1.0), "must.not.be.null");
+            invalidTest(1.0, doubles.greaterThan(1.0), "must.be.greater.than", HashMap.of("min", 1.0));
+            invalidTest(0.9, doubles.greaterThan(1.0), "must.be.greater.than", HashMap.of("min", 1.0));
+        }
+    }
+
+    @Nested
+    class AtLeast {
+        @Test
+        void valid() {
+            validTest(1.0, doubles.atLeast(1.0));
+            validTest(2.0, doubles.atLeast(1.0));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, doubles.atLeast(1.0), "must.not.be.null");
+            invalidTest(0.9, doubles.atLeast(1.0), "must.be.at.least", HashMap.of("min", 1.0));
+        }
+    }
+
+    @Nested
+    class LessThan {
+        @Test
+        void valid() {
+            validTest(0.9, doubles.lessThan(1.0));
+            validTest(0.0, doubles.lessThan(1.0));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, doubles.lessThan(1.0), "must.not.be.null");
+            invalidTest(1.0, doubles.lessThan(1.0), "must.be.less.than", HashMap.of("max", 1.0));
+            invalidTest(2.0, doubles.lessThan(1.0), "must.be.less.than", HashMap.of("max", 1.0));
+        }
+    }
+
+    @Nested
+    class AtMost {
+        @Test
+        void valid() {
+            validTest(1.0, doubles.atMost(1.0));
+            validTest(0.9, doubles.atMost(1.0));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, doubles.atMost(1.0), "must.not.be.null");
+            invalidTest(1.1, doubles.atMost(1.0), "must.be.at.most", HashMap.of("max", 1.0));
+        }
+    }
+
+    @Nested
+    class OneOf {
+        @Test
+        void valid() {
+            validTest(1.0, doubles.oneOf(1.0, 2.0, 3.0));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, doubles.oneOf(1.0, 2.0, 3.0), "must.not.be.null");
+            invalidTest(4.0, doubles.oneOf(1.0, 2.0, 3.0), "must.be.one.of", HashMap.of("values", HashSet.of(1.0, 2.0, 3.0)));
+        }
+    }
+
+    @Nested
+    class NotOneOf {
+        @Test
+        void valid() {
+            validTest(4.0, doubles.notOneOf(1.0, 2.0, 3.0));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, doubles.notOneOf(1.0, 2.0, 3.0), "must.not.be.null");
+            invalidTest(1.0, doubles.notOneOf(1.0, 2.0, 3.0), "must.not.be.one.of", HashMap.of("values", HashSet.of(1.0, 2.0, 3.0)));
         }
     }
 }

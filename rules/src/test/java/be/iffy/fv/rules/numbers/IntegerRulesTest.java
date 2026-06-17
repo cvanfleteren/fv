@@ -196,6 +196,7 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, ints.between(1, 2), "must.not.be.null");
             invalidTest(0, ints.between(1, 2), "must.be.between", HashMap.of("min", 1, "max", 2));
             invalidTest(3, ints.between(1, 2), "must.be.between", HashMap.of("min", 1, "max", 2));
         }
@@ -212,6 +213,7 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, ints.betweenExclusive(1, 3), "must.not.be.null");
             invalidTest(1, ints.betweenExclusive(1, 3), "must.be.between.exclusive", HashMap.of("min", 1, "max", 3));
             invalidTest(3, ints.betweenExclusive(1, 3), "must.be.between.exclusive", HashMap.of("min", 1, "max", 3));
             invalidTest(0, ints.betweenExclusive(0, 1), "must.be.between.exclusive", HashMap.of("min", 0, "max", 1));
@@ -229,6 +231,7 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, ints.greaterThan(1), "must.not.be.null");
             invalidTest(1, ints.greaterThan(1), "must.be.greater.than", HashMap.of("min", 1));
             invalidTest(0, ints.greaterThan(1), "must.be.greater.than", HashMap.of("min", 1));
         }
@@ -245,6 +248,7 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, ints.atLeast(1), "must.not.be.null");
             invalidTest(0, ints.atLeast(1), "must.be.at.least", HashMap.of("min", 1));
             invalidTest(-1, ints.atLeast(1), "must.be.at.least", HashMap.of("min", 1));
         }
@@ -261,6 +265,7 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, ints.lessThan(1), "must.not.be.null");
             invalidTest(1, ints.lessThan(1), "must.be.less.than", HashMap.of("max", 1));
             invalidTest(2, ints.lessThan(1), "must.be.less.than", HashMap.of("max", 1));
         }
@@ -278,6 +283,7 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, ints.atMost(1), "must.not.be.null");
             invalidTest(2, ints.atMost(1), "must.be.at.most", HashMap.of("max", 1));
             invalidTest(42, ints.atMost(1), "must.be.at.most", HashMap.of("max", 1));
         }
@@ -294,6 +300,7 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, ints.oneOf(1, 2, 3), "must.not.be.null");
             invalidTest(
                     4,
                     ints.oneOf(1, 2, 3),
@@ -314,6 +321,7 @@ class IntegerRulesTest {
 
         @Test
         void invalid() {
+            invalidTest(null, ints.notOneOf(1, 2, 3), "must.not.be.null");
             invalidTest(
                     2,
                     ints.notOneOf(1, 2, 3),
