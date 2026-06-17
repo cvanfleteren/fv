@@ -100,6 +100,9 @@ public class RuleLifter<T> extends Lifter<T,T> {
     public <K> Rule<Map<K, T>> toVavrMap(Function<K, Object> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
         return map -> {
+            if (map == null) {
+                return Validation.Invalid.notNull();
+            }
             Seq<Tuple2<K, Validation<T>>> validations = map.map(tuple ->
                     Tuple.of(tuple._1, this.test(tuple._2).mapErrors(errors ->
                             errors.map(e -> e.atIndex(keyExtractor.apply(tuple._1)))
