@@ -10,7 +10,12 @@ import java.util.function.Function;
 import static be.iffy.fv.MappingRule.of;
 
 /**
- * Public only because of necessity, is meant to be used from {@link MappingRule#lift()}
+ * A utility class for lifting a {@link MappingRule} from a single element of type {@code T} to a container type.
+ * This allows a rule designed for individual items to be applied to collections, optionals, or maps,
+ * producing a corresponding rule for those container types.
+ *
+ * @param <T> the type of the input element
+ * @param <R> the type of the resulting element
  */
 public class MappingRuleLifter<T, R> extends Lifter<T,R> {
 

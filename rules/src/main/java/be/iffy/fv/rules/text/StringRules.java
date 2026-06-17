@@ -18,7 +18,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
@@ -182,14 +181,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public MappingRule<String, LocalDateTime> asLocalDateTime(String format) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
-        return MappingRule.<String>notNull().then(input -> {
-            try {
-                return Validation.valid(LocalDateTime.parse(input, formatter));
-            } catch (DateTimeParseException e) {
-                return Validation.invalid(ErrorMessage.of("must.be.localdatetime",
-                        HashMap.of("value", input, "format", format)));
-            }
-        });
+        return MappingRule.catching(
+            input -> LocalDateTime.parse(input, formatter),
+            (input, exception) -> ErrorMessage.of("must.be.localdatetime", HashMap.of("value", input, "format", format))
+        );
     }
 
     /**
@@ -206,13 +201,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @see LocalDateTime#parse(CharSequence)
      */
     public MappingRule<String, LocalDateTime> asLocalDateTime() {
-        return MappingRule.<String>notNull().then(input -> {
-            try {
-                return Validation.valid(LocalDateTime.parse(input));
-            } catch (DateTimeParseException e) {
-                return Validation.invalid(ErrorMessage.of("must.be.localdatetime", "value", input));
-            }
-        });
+        return MappingRule.catching(
+            LocalDateTime::parse,
+            (input, exception) -> ErrorMessage.of("must.be.localdatetime", "value", input)
+        );
     }
 
     /**
@@ -231,14 +223,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public MappingRule<String, LocalDate> asLocalDate(String format) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
-        return MappingRule.<String>notNull().then(input -> {
-            try {
-                return Validation.valid(LocalDate.parse(input, formatter));
-            } catch (DateTimeParseException e) {
-                return Validation.invalid(ErrorMessage.of("must.be.localdate",
-                        HashMap.of("value", input, "format", format)));
-            }
-        });
+        return MappingRule.catching(
+            input -> LocalDate.parse(input, formatter),
+            (input, exception) -> ErrorMessage.of("must.be.localdate", HashMap.of("value", input, "format", format))
+        );
     }
 
     /**
@@ -255,13 +243,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @see LocalDateTime#parse(CharSequence)
      */
     public MappingRule<String, LocalDate> asLocalDate() {
-        return MappingRule.<String>notNull().then(input -> {
-            try {
-                return Validation.valid(LocalDate.parse(input));
-            } catch (DateTimeParseException e) {
-                return Validation.invalid(ErrorMessage.of("must.be.localdate", "value", input));
-            }
-        });
+        return MappingRule.catching(
+            LocalDate::parse,
+            (input, exception) -> ErrorMessage.of("must.be.localdate", "value", input)
+        );
     }
 
     /**
@@ -280,14 +265,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public MappingRule<String, Instant> asInstant(String format) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format).withZone(java.time.ZoneOffset.UTC);
-        return MappingRule.<String>notNull().then(input -> {
-            try {
-                return Validation.valid(Instant.from(formatter.parse(input)));
-            } catch (java.time.DateTimeException e) {
-                return Validation.invalid(ErrorMessage.of("must.be.instant",
-                        HashMap.of("value", input, "format", format)));
-            }
-        });
+        return MappingRule.catching(
+            input -> Instant.from(formatter.parse(input)),
+            (input, exception) -> ErrorMessage.of("must.be.instant", HashMap.of("value", input, "format", format))
+        );
     }
 
     /**
@@ -304,13 +285,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @see LocalDateTime#parse(CharSequence)
      */
     public MappingRule<String, Instant> asInstant() {
-        return MappingRule.<String>notNull().then(input -> {
-            try {
-                return Validation.valid(Instant.parse(input));
-            } catch (DateTimeParseException e) {
-                return Validation.invalid(ErrorMessage.of("must.be.instant", "value", input));
-            }
-        });
+        return MappingRule.catching(
+            Instant::parse,
+            (input, exception) -> ErrorMessage.of("must.be.instant", "value", input)
+        );
     }
 
     /**
@@ -324,13 +302,10 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      */
     public MappingRule<String, URI> asURI() {
-        return MappingRule.<String>notNull().then(input -> {
-            try {
-                return Validation.valid(URI.create(input));
-            } catch (IllegalArgumentException e) {
-                return Validation.invalid(ErrorMessage.of("must.be.uri", "value", input));
-            }
-        });
+        return MappingRule.catching(
+            URI::create,
+            (input, exception) -> ErrorMessage.of("must.be.uri", "value", input)
+        );
     }
 
     /**
@@ -344,15 +319,15 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * </ul>
      */
     public <E extends Enum<E>> MappingRule<String, E> asEnum(Class<E> enumClass) {
-        Objects.requireNonNull(enumClass,"enumClass must not be null");
+        Objects.requireNonNull(enumClass, "enumClass must not be null");
         return MappingRule.of(s -> {
-                    for (E constant : enumClass.getEnumConstants()) {
-                        if (constant.name().equalsIgnoreCase(s)) {
-                            return Validation.valid(constant);
-                        }
+                for (E constant : enumClass.getEnumConstants()) {
+                    if (constant.name().equalsIgnoreCase(s)) {
+                        return Validation.valid(constant);
                     }
-                    return Validation.invalid(ErrorMessage.of("must.be.valid.enum.value", "value", s));
                 }
+                return Validation.invalid(ErrorMessage.of("must.be.valid.enum.value", "value", s));
+            }
         );
     }
 
@@ -369,22 +344,22 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      * @param enumProvider A Function used to look up the actual enum corresponding with the String value.
      */
     public <E extends Enum<E>> MappingRule<String, E> asEnum(Class<E> enumClass, Function<String, E> enumProvider) {
-        Objects.requireNonNull(enumClass,"enumClass must not be null");
-        Objects.requireNonNull(enumProvider,"enumProvider must not be null");
+        Objects.requireNonNull(enumClass, "enumClass must not be null");
+        Objects.requireNonNull(enumProvider, "enumProvider must not be null");
         return MappingRule.of(s -> {
-                    try {
-                        return Validation.valid(
-                                Objects.requireNonNull(
-                                        enumProvider.apply(s),
-                                        "enumProvider can not return null"
-                                )
-                        );
-                    } catch (ValidationException e) {
-                        return Validation.invalid(e.errors());
-                    } catch (RuntimeException e) {
-                        return Validation.invalid(ErrorMessage.of("must.be.valid.enum.value", "value", s));
-                    }
+                try {
+                    return Validation.valid(
+                        Objects.requireNonNull(
+                            enumProvider.apply(s),
+                            "enumProvider can not return null"
+                        )
+                    );
+                } catch (ValidationException e) {
+                    return Validation.invalid(e.errors());
+                } catch (RuntimeException e) {
+                    return Validation.invalid(ErrorMessage.of("must.be.valid.enum.value", "value", s));
                 }
+            }
         );
     }
 
@@ -400,17 +375,13 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public <E extends Enum<E>> Rule<String> canBeEnum(Class<E> clazz) {
         Objects.requireNonNull(clazz, "clazz cannot be null");
-        return input -> Try.of(() -> Enum.valueOf(clazz, input))
-                .fold(
-                        f -> Validation.invalid(ErrorMessage.of("must.be.valid.enum.value", "value", input)),
-                        v -> Validation.valid(input)
-                );
+        return input -> asEnum(clazz).apply(input).mapTo(input);
     }
 
     //endregion
 
     // region parts of string
-    
+
     /**
      * Splits the string at the specified index and maps the two parts.
      * Fails if the index is not valid for the input string.
@@ -444,24 +415,24 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      *     <li>{@code index}: the index at which to split ({@link Integer})</li>
      * </ul>
      *
-     * @param index            the index at which to split the string.
-     * @param requireNonEmpty  if true, fails if any of the resulting parts are empty.
-     * @param mapper           a function that takes the two parts and returns a result.
-     * @param <R>              the type of the result.
+     * @param index           the index at which to split the string.
+     * @param requireNonEmpty if true, fails if any of the resulting parts are empty.
+     * @param mapper          a function that takes the two parts and returns a result.
+     * @param <R>             the type of the result.
      * @return a {@link MappingRule} that splits the string.
      */
     public <R> MappingRule<String, R> splitAt(int index, boolean requireNonEmpty, Function2<String, String, R> mapper) {
         return MappingRule.<String>notNull().then(input -> {
             if (index < 0 || index > input.length()) {
                 return Validation.invalid(
-                        ErrorMessage.of("must.be.valid.substring", HashMap.of("index", index))
+                    ErrorMessage.of("must.be.valid.substring", HashMap.of("index", index))
                 );
             }
             String first = input.substring(0, index);
             String second = input.substring(index);
             if (requireNonEmpty && (first.isEmpty() || second.isEmpty())) {
                 return Validation.invalid(
-                        ErrorMessage.of("must.be.valid.substring", HashMap.of("index", index))
+                    ErrorMessage.of("must.be.valid.substring", HashMap.of("index", index))
                 );
             }
             return Validation.valid(mapper.apply(first, second));
@@ -487,7 +458,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         return MappingRule.<String>notNull().then(input -> {
             if (beginIndex < 0 || endIndex > input.length() || beginIndex > endIndex) {
                 return Validation.invalid(
-                        ErrorMessage.of("must.be.valid.substring", HashMap.of("beginIndex", beginIndex, "endIndex", endIndex))
+                    ErrorMessage.of("must.be.valid.substring", HashMap.of("beginIndex", beginIndex, "endIndex", endIndex))
                 );
             }
             return Validation.valid(input.substring(beginIndex, endIndex));
@@ -512,7 +483,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         return MappingRule.<String>notNull().then(input -> {
             if (length < 0 || length > input.length()) {
                 return Validation.invalid(
-                        ErrorMessage.of("must.be.valid.substring", HashMap.of("beginIndex", 0, "endIndex", length))
+                    ErrorMessage.of("must.be.valid.substring", HashMap.of("beginIndex", 0, "endIndex", length))
                 );
             }
             return Validation.valid(input.substring(0, length));
@@ -538,7 +509,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         return MappingRule.<String>notNull().then(input -> {
             if (length < 0 || length > input.length()) {
                 return Validation.invalid(
-                        ErrorMessage.of("must.be.valid.substring", HashMap.of("beginIndex", length))
+                    ErrorMessage.of("must.be.valid.substring", HashMap.of("beginIndex", length))
                 );
             }
             return Validation.valid(input.substring(length));
@@ -564,7 +535,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         return MappingRule.<String>notNull().then(input -> {
             if (length < 0 || length > input.length()) {
                 return Validation.invalid(
-                        ErrorMessage.of("must.be.valid.substring", HashMap.of("length", length))
+                    ErrorMessage.of("must.be.valid.substring", HashMap.of("length", length))
                 );
             }
             return Validation.valid(input.substring(input.length() - length));
@@ -590,7 +561,7 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         return MappingRule.<String>notNull().then(input -> {
             if (length < 0 || length > input.length()) {
                 return Validation.invalid(
-                        ErrorMessage.of("must.be.valid.substring", HashMap.of("length", length))
+                    ErrorMessage.of("must.be.valid.substring", HashMap.of("length", length))
                 );
             }
             return Validation.valid(input.substring(0, input.length() - length));
@@ -611,8 +582,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> singleLine() {
         return Rule.of(
-                s -> !LINE_BREAK.matcher(s).find(),
-                "must.be.single.line"
+            s -> !LINE_BREAK.matcher(s).find(),
+            "must.be.single.line"
         );
     }
 
@@ -623,8 +594,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> notEmpty() {
         return Rule.of(
-                s -> !s.isEmpty(),
-                "must.not.be.empty"
+            s -> !s.isEmpty(),
+            "must.not.be.empty"
         );
     }
 
@@ -635,8 +606,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> notBlank() {
         return Rule.of(
-                s -> !s.isBlank(),
-                "must.not.be.blank"
+            s -> !s.isBlank(),
+            "must.not.be.blank"
         );
     }
 
@@ -647,8 +618,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> trimmed() {
         return Rule.of(
-                s -> s.equals(s.trim()),
-                "must.be.trimmed"
+            s -> s.equals(s.trim()),
+            "must.be.trimmed"
         );
     }
 
@@ -659,8 +630,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> noWhitespace() {
         return Rule.of(
-                s -> s.chars().noneMatch(Character::isWhitespace),
-                "must.not.contain.whitespace"
+            s -> s.chars().noneMatch(Character::isWhitespace),
+            "must.not.contain.whitespace"
         );
     }
     //endregion
@@ -676,8 +647,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> uppercase() {
         return Rule.of(
-                s -> s.equals(s.toUpperCase()),
-                "must.be.uppercase"
+            s -> s.equals(s.toUpperCase()),
+            "must.be.uppercase"
         );
     }
 
@@ -690,8 +661,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> lowercase() {
         return Rule.of(
-                s -> s.equals(s.toLowerCase()),
-                "must.be.lowercase"
+            s -> s.equals(s.toLowerCase()),
+            "must.be.lowercase"
         );
     }
 
@@ -717,8 +688,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
             throw new IllegalArgumentException("minLength must be >= 0");
         }
         return Rule.of(
-                s -> s.length() >= minLength,
-                ErrorMessage.of("must.have.min.length", "min", minLength)
+            s -> s.length() >= minLength,
+            ErrorMessage.of("must.have.min.length", "min", minLength)
         );
     }
 
@@ -740,8 +711,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
             throw new IllegalArgumentException("maxLength must be >= 0");
         }
         return Rule.of(
-                s -> s.length() <= maxLength,
-                ErrorMessage.of("must.have.max.length", "max", maxLength)
+            s -> s.length() <= maxLength,
+            ErrorMessage.of("must.have.max.length", "max", maxLength)
         );
     }
 
@@ -771,8 +742,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
             throw new IllegalArgumentException("maxLength must be >= minLength");
         }
         return Rule.notNull().and(Rule.of(
-                s -> s.length() >= minLength && s.length() <= maxLength,
-                ErrorMessage.of("must.have.length.between", HashMap.of("min", minLength, "max", maxLength))
+            s -> s.length() >= minLength && s.length() <= maxLength,
+            ErrorMessage.of("must.have.length.between", HashMap.of("min", minLength, "max", maxLength))
         ));
     }
 
@@ -794,8 +765,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
             throw new IllegalArgumentException("length must be >= 0");
         }
         return Rule.of(
-                s -> s.length() == length,
-                ErrorMessage.of("must.have.length", "length", length)
+            s -> s.length() == length,
+            ErrorMessage.of("must.have.length", "length", length)
         );
     }
     //endregion
@@ -817,8 +788,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         Objects.requireNonNull(prefixes, "prefixes cannot be null");
 
         return Rule.of(
-                s -> Arrays.stream(prefixes).anyMatch(s::startsWith),
-                ErrorMessage.of("must.start.with", "prefixes", List.of(prefixes))
+            s -> Arrays.stream(prefixes).anyMatch(s::startsWith),
+            ErrorMessage.of("must.start.with", "prefixes", List.of(prefixes))
         );
     }
 
@@ -838,8 +809,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     public Rule<String> startsWithIgnoreCase(String... prefixes) {
         Objects.requireNonNull(prefixes, "prefixes cannot be null");
         return Rule.of(
-                s -> Arrays.stream(prefixes).anyMatch(prefix -> s.regionMatches(true, 0, prefix, 0, prefix.length())),
-                ErrorMessage.of("must.start.with.ignorecase", "prefixes", List.of(prefixes))
+            s -> Arrays.stream(prefixes).anyMatch(prefix -> s.regionMatches(true, 0, prefix, 0, prefix.length())),
+            ErrorMessage.of("must.start.with.ignorecase", "prefixes", List.of(prefixes))
         );
     }
 
@@ -860,8 +831,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         Objects.requireNonNull(suffixes, "suffixes cannot be null");
 
         return Rule.of(
-                s -> Arrays.stream(suffixes).anyMatch(s::endsWith),
-                ErrorMessage.of("must.end.with", "suffixes", List.of(suffixes))
+            s -> Arrays.stream(suffixes).anyMatch(s::endsWith),
+            ErrorMessage.of("must.end.with", "suffixes", List.of(suffixes))
         );
     }
 
@@ -878,9 +849,9 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     public Rule<String> endsWithIgnoreCase(String... suffixes) {
         Objects.requireNonNull(suffixes, "suffixes cannot be null");
         return Rule.of(
-                s -> Arrays.stream(suffixes).anyMatch(suffix -> s.length() >= suffix.length()
-                        && s.regionMatches(true, s.length() - suffix.length(), suffix, 0, suffix.length())),
-                ErrorMessage.of("must.end.with.ignorecase", "suffixes", List.of(suffixes))
+            s -> Arrays.stream(suffixes).anyMatch(suffix -> s.length() >= suffix.length()
+                && s.regionMatches(true, s.length() - suffix.length(), suffix, 0, suffix.length())),
+            ErrorMessage.of("must.end.with.ignorecase", "suffixes", List.of(suffixes))
         );
     }
 
@@ -900,8 +871,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     public Rule<String> contains(String fragment) {
         Objects.requireNonNull(fragment, "fragment cannot be null");
         return Rule.of(
-                s -> s.contains(fragment),
-                ErrorMessage.of("must.contain", "fragment", fragment)
+            s -> s.contains(fragment),
+            ErrorMessage.of("must.contain", "fragment", fragment)
         );
     }
 
@@ -922,25 +893,25 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         Objects.requireNonNull(fragment, "fragment cannot be null");
 
         return Rule.of(
-                s -> {
-                    int needleLen = fragment.length();
-                    if (needleLen == 0) {
-                        return true; // matches String.contains("")
-                    }
+            s -> {
+                int needleLen = fragment.length();
+                if (needleLen == 0) {
+                    return true; // matches String.contains("")
+                }
 
-                    int maxStart = s.length() - needleLen;
-                    if (maxStart < 0) {
-                        return false; // fragment longer than input can never match
-                    }
+                int maxStart = s.length() - needleLen;
+                if (maxStart < 0) {
+                    return false; // fragment longer than input can never match
+                }
 
-                    for (int i = 0; i <= maxStart; i++) {
-                        if (s.regionMatches(true, i, fragment, 0, needleLen)) {
-                            return true;
-                        }
+                for (int i = 0; i <= maxStart; i++) {
+                    if (s.regionMatches(true, i, fragment, 0, needleLen)) {
+                        return true;
                     }
-                    return false;
-                },
-                ErrorMessage.of("must.contain.ignorecase", "fragment", fragment)
+                }
+                return false;
+            },
+            ErrorMessage.of("must.contain.ignorecase", "fragment", fragment)
         );
     }
 
@@ -955,8 +926,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     public Rule<String> containsPattern(Pattern pattern) {
         Objects.requireNonNull(pattern, "pattern cannot be null");
         return Rule.of(
-                s -> pattern.matcher(s).find(),
-                ErrorMessage.of("must.contain.regex", "regex", pattern.pattern())
+            s -> pattern.matcher(s).find(),
+            ErrorMessage.of("must.contain.regex", "regex", pattern.pattern())
         );
     }
 
@@ -976,8 +947,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     public Rule<String> doesNotContain(String fragment) {
         Objects.requireNonNull(fragment, "fragment cannot be null");
         return Rule.of(
-                s -> !s.contains(fragment),
-                ErrorMessage.of("must.not.contain", "fragment", fragment)
+            s -> !s.contains(fragment),
+            ErrorMessage.of("must.not.contain", "fragment", fragment)
         );
     }
 
@@ -997,8 +968,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         Objects.requireNonNull(forbidden, "forbidden cannot be null");
 
         return Rule.of(
-                s -> !forbidden.contains(s),
-                ErrorMessage.of("must.not.be.in", "forbidden", forbidden)
+            s -> !forbidden.contains(s),
+            ErrorMessage.of("must.not.be.in", "forbidden", forbidden)
         );
     }
 
@@ -1017,8 +988,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     public Rule<String> isIn(Set<String> allowed) {
         Objects.requireNonNull(allowed, "allowed cannot be null");
         return Rule.of(
-                allowed::contains,
-                ErrorMessage.of("must.be.in", "allowed", allowed)
+            allowed::contains,
+            ErrorMessage.of("must.be.in", "allowed", allowed)
         );
     }
 
@@ -1038,8 +1009,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
         Objects.requireNonNull(regex, "regex cannot be null");
         Pattern pattern = Pattern.compile(regex);
         return Rule.of(
-                s -> pattern.matcher(s).matches(),
-                ErrorMessage.of("must.match.regex", "regex", regex)
+            s -> pattern.matcher(s).matches(),
+            ErrorMessage.of("must.match.regex", "regex", regex)
         );
     }
 
@@ -1058,8 +1029,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     public Rule<String> matches(Pattern regex) {
         Objects.requireNonNull(regex, "regex cannot be null");
         return Rule.of(
-                s -> regex.matcher(s).matches(),
-                ErrorMessage.of("must.match.regex", "regex", regex)
+            s -> regex.matcher(s).matches(),
+            ErrorMessage.of("must.match.regex", "regex", regex)
         );
     }
 
@@ -1074,8 +1045,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> equalsIgnoreCase(String expected) {
         return Rule.of(
-                s -> s.equalsIgnoreCase(expected),
-                ErrorMessage.of("must.equal.ignoreCase", "value", expected)
+            s -> s.equalsIgnoreCase(expected),
+            ErrorMessage.of("must.equal.ignoreCase", "value", expected)
         );
     }
 
@@ -1091,8 +1062,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
     public Rule<String> notEqualsIgnoreCase(String... forbidden) {
         Objects.requireNonNull(forbidden, "forbidden can not be null");
         return Rule.of(
-                s -> Arrays.stream(forbidden).noneMatch(s::equalsIgnoreCase),
-                ErrorMessage.of("must.not.equal.ignoreCase", "value", List.of(forbidden))
+            s -> Arrays.stream(forbidden).noneMatch(s::equalsIgnoreCase),
+            ErrorMessage.of("must.not.equal.ignoreCase", "value", List.of(forbidden))
         );
     }
 
@@ -1104,8 +1075,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> alpha() {
         return Rule.of(
-                s -> s.codePoints().allMatch(Character::isLetter),
-                "must.be.alpha"
+            s -> s.codePoints().allMatch(Character::isLetter),
+            "must.be.alpha"
         );
     }
 
@@ -1116,15 +1087,15 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> alphaNumeric() {
         return Rule.of(
-                s -> s.codePoints().allMatch(c ->
-                        // ‘0–9’
-                        (c >= 48 && c <= 57) ||
-                                // ‘A–Z’
-                                (c >= 65 && c <= 90) ||
-                                // ‘a–z’
-                                (c >= 97 && c <= 122)
-                ),
-                "must.be.alphanumeric"
+            s -> s.codePoints().allMatch(c ->
+                // ‘0–9’
+                (c >= 48 && c <= 57) ||
+                    // ‘A–Z’
+                    (c >= 65 && c <= 90) ||
+                    // ‘a–z’
+                    (c >= 97 && c <= 122)
+            ),
+            "must.be.alphanumeric"
         );
     }
 
@@ -1136,8 +1107,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> alphaNumericUnicode() {
         return Rule.of(
-                s -> s.codePoints().allMatch(Character::isLetterOrDigit),
-                "must.be.unicode.alphanumeric"
+            s -> s.codePoints().allMatch(Character::isLetterOrDigit),
+            "must.be.unicode.alphanumeric"
         );
     }
 
@@ -1149,8 +1120,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> onlyUnicodeDigits() {
         return Rule.of(
-                s -> s.codePoints().allMatch(Character::isDigit),
-                "must.be.unicode.digits.only"
+            s -> s.codePoints().allMatch(Character::isDigit),
+            "must.be.unicode.digits.only"
         );
     }
 
@@ -1163,11 +1134,11 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> onlyDigits() {
         return Rule.of(
-                s -> s.codePoints().allMatch(c ->
-                        // ‘0–9’
-                        (c >= 48 && c <= 57)
-                ),
-                "must.be.digits.only"
+            s -> s.codePoints().allMatch(c ->
+                // ‘0–9’
+                (c >= 48 && c <= 57)
+            ),
+            "must.be.digits.only"
         );
     }
 
@@ -1182,18 +1153,18 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> hexadecimal() {
         return Rule.of(
-                s -> HEXADECIMAL_PATTERN.matcher(s).matches(),
-                ErrorMessage.of("must.be.hexadecimal")
+            s -> HEXADECIMAL_PATTERN.matcher(s).matches(),
+            ErrorMessage.of("must.be.hexadecimal")
         );
     }
 
     // Regex for standard Base64
     private static final Pattern STANDARD_BASE64_PATTERN =
-            Pattern.compile("^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$");
+        Pattern.compile("^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$");
 
     // Regex for URL-safe Base64 (uses - and _ instead of + and /)
     private static final Pattern URL_SAFE_BASE64_PATTERN =
-            Pattern.compile("^(?:[A-Za-z0-9-_]{4})*(?:[A-Za-z0-9-_]{2}==|[A-Za-z0-9-_]{3}=)?$");
+        Pattern.compile("^(?:[A-Za-z0-9-_]{4})*(?:[A-Za-z0-9-_]{2}==|[A-Za-z0-9-_]{3}=)?$");
 
     /**
      * Fails if the string is not valid Base64.
@@ -1204,8 +1175,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> base64() {
         return Rule.of(
-                s -> STANDARD_BASE64_PATTERN.matcher(s).matches(),
-                ErrorMessage.of("must.be.base64")
+            s -> STANDARD_BASE64_PATTERN.matcher(s).matches(),
+            ErrorMessage.of("must.be.base64")
         );
     }
 
@@ -1218,19 +1189,19 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> base64UrlSafe() {
         return Rule.of(
-                s -> URL_SAFE_BASE64_PATTERN.matcher(s).matches(),
-                ErrorMessage.of("must.be.base64.urlsafe")
+            s -> URL_SAFE_BASE64_PATTERN.matcher(s).matches(),
+            ErrorMessage.of("must.be.base64.urlsafe")
         );
     }
 
     private static final Pattern IS_EMAIL_PATTERN = Pattern.compile(
-            // local part
-            "^[A-Za-z0-9+_.-]+@" +
-                    // domain part = either:
-                    //   (1) a standard domain with at least one dot
-                    //   or
-                    //   (2) a single label that starts with a letter/digit
-                    "([A-Za-z0-9-]+\\.[A-Za-z0-9.-]*|[A-Za-z0-9][A-Za-z0-9-]*)$"
+        // local part
+        "^[A-Za-z0-9+_.-]+@" +
+            // domain part = either:
+            //   (1) a standard domain with at least one dot
+            //   or
+            //   (2) a single label that starts with a letter/digit
+            "([A-Za-z0-9-]+\\.[A-Za-z0-9.-]*|[A-Za-z0-9][A-Za-z0-9-]*)$"
     );
 
     /**
@@ -1241,8 +1212,8 @@ public class StringRules implements ComparableRules<String>, IObjectRules<String
      */
     public Rule<String> looksLikeEmailAddress() {
         return Rule.of(
-                s -> IS_EMAIL_PATTERN.matcher(s).matches(),
-                "must.be.email"
+            s -> IS_EMAIL_PATTERN.matcher(s).matches(),
+            "must.be.email"
         );
     }
 
