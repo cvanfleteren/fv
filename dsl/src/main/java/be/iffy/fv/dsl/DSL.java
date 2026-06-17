@@ -230,39 +230,6 @@ public final class DSL {
     }
 
     /**
-     * Returns a Validation that is invalid if the value is null. Equivalent to:
-     * {@snippet :
-     *  validateThat(value).is(Rule.notNull())
-     * }
-     */
-    @Contract(pure = true)
-    public static <T> Validation<T> notNull(T value) {
-        return validateThat(value).is(Rule.notNull());
-    }
-
-    /**
-     * Returns a Validation that is invalid if the value is null. Equivalent to:
-     * {@snippet :
-     *  validateThat(value, "name").is(Rule.notNull())
-     * }
-     */
-    @Contract(pure = true)
-    public static <T> Validation<T> notNull(T value, String name) {
-        return validateThat(value, name).is(Rule.notNull());
-    }
-
-    /**
-     * Returns a Validation that is invalid if the value is null. Equivalent to:
-     * {@snippet :
-     *  validateThat(value, Field::name).is(Rule.notNull())
-     * }
-     */
-    @Contract(pure = true)
-    public static <T, V> Validation<T> notNull(T value, PropertySelector<V, T> selector) {
-        return validateThat(value, selector).is(Rule.notNull());
-    }
-
-    /**
      * Starts a validation process for a single value.
      */
     @Contract(pure = true)

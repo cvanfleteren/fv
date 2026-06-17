@@ -21,10 +21,10 @@ public class ValidationDSLTest {
 
         public SomeClass {
             asserting(
-                    notNull(status, SomeClass::status),
-                    notNull(errors, SomeClass::errors),
-                    notNull(startedAt, SomeClass::startedAt),
-                    notNull(finishedAt, SomeClass::finishedAt)
+                    validateThat(status, SomeClass::status).isNotNull(),
+                    validateThat(errors, SomeClass::errors).isNotNull(),
+                    validateThat(startedAt, SomeClass::startedAt).isNotNull(),
+                    validateThat(finishedAt, SomeClass::finishedAt).isNotNull()
             );
 
             switch (status) {

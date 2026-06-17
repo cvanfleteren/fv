@@ -71,7 +71,7 @@ class ObjectGraphValidationTest {
 
         static Validation<Address> validateAddress(AddressDTO addressDTO) {
 
-            return notNull(addressDTO).flatMap(dto -> Validations.combine(
+            return validateThat(addressDTO).isNotNull().flatMap(dto -> Validations.combine(
                     validateThat(dto.street, "street").is(strings.minLength(1)),
                     validateThat(dto.city, "city").is(strings.minLength(1)),
                     validateThat(dto.zipCode, "zipCode").is(strings.minLength(4))

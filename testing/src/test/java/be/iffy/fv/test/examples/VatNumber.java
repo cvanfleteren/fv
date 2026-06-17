@@ -10,7 +10,7 @@ public record VatNumber(String value, CountryCode countrycode) {
     public VatNumber {
         value = asserting(
                 validateThat(value,VatNumber::value).is(strings.notBlank().and(strings.alphaNumeric())),
-                notNull(countrycode, VatNumber::countrycode)
+                validateThat(countrycode, VatNumber::countrycode).isNotNull()
         )._1;
     }
 

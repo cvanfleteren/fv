@@ -14,10 +14,10 @@ public record Command(Debtor debtor, KboNumber kboNumber, List<Transaction> tran
                          MandateInfo mandateInfo) {
         public Debtor {
             asserting(
-                    notNull(enterpriseNumber, Debtor::enterpriseNumber),
-                    notNull(bic, Debtor::bic),
-                    notNull(name, Debtor::name),
-                    notNull(address, Debtor::address)
+                validateThat(enterpriseNumber, Debtor::enterpriseNumber).isNotNull(),
+                validateThat(bic, Debtor::bic).isNotNull(),
+                validateThat(name, Debtor::name).isNotNull(),
+                validateThat(address, Debtor::address).isNotNull()
             );
         }
     }
@@ -25,9 +25,9 @@ public record Command(Debtor debtor, KboNumber kboNumber, List<Transaction> tran
     public record Address(String street, String houseNumber, String city) {
         public Address {
             var result = asserting(
-                    validateThat(street, QueueMessage.Address::street).after(stringOps.trim()).is(strings.notBlank()),
-                    validateThat(houseNumber, QueueMessage.Address::houseNumber).after(stringOps.trim()).is(strings.notBlank()),
-                    validateThat(city, QueueMessage.Address::city).after(stringOps.trim()).is(strings.notBlank().and(strings.minLength(2)))
+                validateThat(street, QueueMessage.Address::street).after(stringOps.trim()).is(strings.notBlank()),
+                validateThat(houseNumber, QueueMessage.Address::houseNumber).after(stringOps.trim()).is(strings.notBlank()),
+                validateThat(city, QueueMessage.Address::city).after(stringOps.trim()).is(strings.notBlank().and(strings.minLength(2)))
             );
             street = result._1;
             houseNumber = result._2;
