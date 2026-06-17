@@ -227,7 +227,7 @@ the rule is considered **valid**. If it contains a value, the original rule is a
 
 ```java
 Rule<String> minLengthRule = strings.minLength(5);
-Rule<Optional<String>> optionalRule = minLengthRule.liftToOptional();
+Rule<Optional<String>> optionalRule = minLengthRule.lift().toOptional();
 
 // or alternatively with the OptionalRules:
 Rule<Optional<String>> fromOptionals = optionals.contains(strings.minLength(5));
@@ -484,7 +484,7 @@ Validation<String> nameV = validateThat(dto.name(), Person::name).is(strings.min
 Validation<Integer> ageV = validateThat(dto.age(), Person::age).is(ints.min(18));
 
 // now combine the Validations into a Person if both are Valid 
-Validation<Person> personV = Validations.combine(nameV, ageV).into(Person::new);
+Validation<Person> personV = Validations.combine(nameV, ageV).map(Person::new);
 ```
 
 There is an alternative syntax using `DSL` that looks like this:
@@ -658,7 +658,7 @@ typically use `MappingRule` explicitly.
 Using a MappingRule for this case would look something like this:
 
 ```java
-MappingRule<String, String> trimmedMinLength3 = MappingRule.of(String::trim, "can.not.fail").then(minLength);
+MappingRule<String, String> trimmedMinLength3 = MappingRule.catching(String::trim, "can.not.fail").then(minLength);
 ```
 
 ---
@@ -682,7 +682,7 @@ import io.vavr.control.Try;
 import java.net.URL;
 
 public Validation<URL> validateUrl(String input) {
-    return Validation.from(
+    return Validation.from()._try(
             Try.of(() -> new URL(input)),
             "invalid.url" // Error key to use if Try fails
     );
@@ -829,10 +829,10 @@ Validation<ProcessedUser> processedV = userV.mapCatching(user -> new ProcessedUs
 > Other exceptions (like `RuntimeException` or `NullPointerException`) are **not** caught by these methods and will
 > still be rethrown.
 
-#### `Validation.fromCatchingAll` and `flatMapCatchingAll`
+#### `Validation.from().catchingAll(...)` and `flatMapCatchingAll`
 
-If you need to catch **any** exception (not just `ValidationException`), you can use **`Validation.fromCatchingAll`** (
-static method) or **`flatMapCatchingAll`** (instance method).
+If you need to catch **any** exception (not just `ValidationException`), you can use **`Validation.from().catchingAll(...)`**
+or **`flatMapCatchingAll`** (instance method).
 
 These methods take an additional error message (or an error key) to use when an unexpected `RuntimeException` occurs.
 
@@ -841,8 +841,8 @@ These methods take an additional error message (or an error key) to use when an 
 - If any other `RuntimeException` is thrown, it returns `Invalid` with the provided fallback error message.
 
 ```java
-// Using the static method to create a Validation from a throwing supplier
-Validation<URL> urlV = Validation.fromCatchingAll(
+// Using the factory method to create a Validation from a throwing supplier
+Validation<URL> urlV = Validation.from().catchingAll(
                 () -> new URL(inputString),
                 "invalid.url"
         );
@@ -854,10 +854,10 @@ Validation<Integer> result = someValidation.flatMapCatchingAll(
 );
 ```
 
-#### `MappingRule.ofTry` and `MappingRule.of`
+#### `MappingRule.fromTry` and `MappingRule.catching`
 
-Similar to `mapCatching`, you can create rules that handle exceptions using `MappingRule.ofTry` (for functions returning
-a Vavr `Try`) or `MappingRule.of(throwingMapper, errorMessage)` (for functions that might throw an exception).
+Similar to `mapCatching`, you can create rules that handle exceptions using `MappingRule.fromTry` (for functions returning
+a Vavr `Try`) or `MappingRule.catching(throwingMapper, errorMessage)` (for functions that might throw an exception).
 
 These are useful when you want to encapsulate the exception handling logic directly inside a reusable `Rule` or
 `MappingRule`.
@@ -866,8 +866,8 @@ These are useful when you want to encapsulate the exception handling logic direc
 
 ### If a validation fails, can I provide a fallback value or another rule to try?
 
-Yes! You can use **`recoverWith()`** on a `MappingRule` or **`recoverWithRule()`** on a `Rule`. These methods allow you
-to specify a fallback logic that is only executed if the initial validation fails.
+Yes! You can use **`fallback(other)`** on both `Rule` and `MappingRule`. This method allows you to specify a fallback
+rule (or transformation) that is only executed if the initial one fails.
 
 This is particularly useful for migration scenarios (e.g., trying to parse a new format, then falling back to an old
 one) or for providing default values when an optional field is invalid.
@@ -878,7 +878,7 @@ one) or for providing default values when an optional field is invalid.
 Rule<String> primaryRule = strings.minLength(10);
 Rule<String> fallbackRule = strings.startsWith("D");
 
-Rule<String> combined = primaryRule.recoverWithRule(fallbackRule);
+Rule<String> combined = primaryRule.fallback(fallbackRule);
 
 combined.
 
@@ -893,17 +893,17 @@ test("long enough string"); // Valid
 
 #### Example: Recovering with a transformation
 
-If you are using `MappingRule`, you can use `recoverWith` to provide a fallback transformation:
+If you are using `MappingRule`, you can use `fallback` to provide a fallback transformation:
 
 ```java
 MappingRule<String, Integer> parseNew = strings.asInt(); // parses "123" -> 123
 MappingRule<String, Integer> parseOld = ...; // some other logic
 
-MappingRule<String, Integer> rule = parseNew.recoverWith(parseOld);
+MappingRule<String, Integer> rule = parseNew.fallback(parseOld);
 ```
 
 > [!NOTE]
-> The difference between `recoverWith` and `or()` is that `recoverWith` only returns the errors from the **fallback**
+> The difference between `fallback` and `or()` is that `fallback` only returns the errors from the **fallback**
 > rule if both fail, whereas `or()` combines the errors from both.
 
 ---
@@ -962,12 +962,12 @@ Rule<Period> validPeriod = Rule.of(
 Validation<Period> v = validateThat(period).is(validPeriod);
 ```
 
-#### 2. Using `flatMap` or `refine` on the result of `mapN`
+#### 2. Using `flatMap` or `refine` on the result of `Validations.combine`
 
 After combining multiple validated fields, you can apply an additional check on the resulting object.
 
 ```java
-Validation<Period> periodV = Validation.mapN(startV, endV, Period::new)
+Validation<Period> periodV = Validations.combine(startV, endV).map(Period::new)
         .refine(Rule.of(p -> p.getStart().isBefore(p.getEnd()), "start.must.be.before.end"));
 ```
 
@@ -978,27 +978,16 @@ LocalDate start = LocalDate.now();
 LocalDate end = LocalDate.now().plusDays(1);
 
 validating(
-        validateThat(start).
-
-isNotNull(),
-
-validateThat(end).
-
-isNotNull()
+        validateThat(start).isNotNull(),
+        validateThat(end).isNotNull()
 )
-        .
-
-map(Period::new)
-.
-
-refine(
-        Rule.of(
-                p ->p.start.
-
-isBefore(p.end),
-        "start.must.be.before.end"
-                )
-                );
+.map(Period::new)
+.refine(
+    Rule.of(
+      p -> p.start.isBefore(p.end),
+      "start.must.be.before.end"
+    )
+);
 ```
 
 ---
@@ -1008,9 +997,9 @@ isBefore(p.end),
 The library is built on top of **Vavr**, but it provides excellent support for both standard Java types and Vavr types.
 
 * **Inputs:** Most methods accept standard Java types (e.g., `java.util.List`, `java.util.Optional`).
-* **Transformations:** You can lift rules to work on either type:
-    * Use `liftToList()` for `java.util.List` vs `liftToVavrList()` for `io.vavr.collection.List`.
-    * Use `liftToOptional()` for `java.util.Optional` vs `liftToOption()` for `io.vavr.control.Option`.
+* **Transformations:** You can lift rules to work on either type via `lift()`:
+    * Use `lift().toList()` for `java.util.List` vs `lift().toVavrList()` for `io.vavr.collection.List`.
+    * Use `lift().toOptional()` for `java.util.Optional` vs `lift().toOption()` for `io.vavr.control.Option`.
 * **Results:** The library internally uses Vavr types for error collection (`io.vavr.collection.List<ErrorMessage>`). If
   you need a standard Java list of errors, you can use `javaErrors()`.
 
