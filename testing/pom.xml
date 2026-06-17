@@ -2,44 +2,33 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>be.iffy.fv</groupId>
-        <artifactId>fv-parent</artifactId>
-        <version>${revision}</version>
-    </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>be.iffy.fv</groupId>
+    <artifactId>fv-parent</artifactId>
+    <version>${revision}</version>
+  </parent>
 
-    <artifactId>testing</artifactId>
-    <name>Functional Validation - Testing</name>
+  <artifactId>testing</artifactId>
+  <name>Functional Validation - Testing</name>
 
-    <dependencies>
-      <dependency>
-        <groupId>be.iffy.fv</groupId>
-        <artifactId>dsl</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>be.iffy.fv</groupId>
-        <artifactId>core</artifactId>
-        <version>${revision}</version>
-      </dependency>
-        <dependency>
-            <groupId>be.iffy.fv</groupId>
-            <artifactId>dsl</artifactId>
-            <version>${revision}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>be.iffy.fv</groupId>
-            <artifactId>rules</artifactId>
-            <version>${revision}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>be.iffy.fv</groupId>
-            <artifactId>assertj</artifactId>
-            <version>${revision}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>be.iffy.fv</groupId>
+      <artifactId>dsl</artifactId>
+      <version>${revision}</version>
+    </dependency>
+    <dependency>
+      <groupId>be.iffy.fv</groupId>
+      <artifactId>rules</artifactId>
+      <version>${revision}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>be.iffy.fv</groupId>
+      <artifactId>assertj</artifactId>
+      <version>${revision}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 </project>
