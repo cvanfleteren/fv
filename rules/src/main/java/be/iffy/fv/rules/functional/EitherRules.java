@@ -13,7 +13,7 @@ import java.util.Objects;
  
  
  */
-public class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
+public final class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
 
     /**
      * Singleton instance of {@link EitherRules}.

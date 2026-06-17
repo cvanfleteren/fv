@@ -16,7 +16,7 @@ import java.util.function.Predicate;
 /**
  * Validation rules for {@link Traversable} and {@link Iterable} collections.
  */
-public class VavrListRules {
+public final class VavrListRules {
 
     private static class InnerRules<T> extends BaseCollectionRules<T, List<T>>  {
 

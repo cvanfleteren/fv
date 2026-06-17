@@ -12,7 +12,7 @@ import java.util.function.Predicate;
 /**
  * Validation rules for {@link Collection} values.
  */
-public class CollectionRules {
+public final class CollectionRules {
 
     private static class InnerRules<T>extends BaseCollectionRules<T, Collection<T>>  {
 

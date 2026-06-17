@@ -10,7 +10,7 @@ import java.time.Duration;
 /**
  * Validation rules for {@link Duration} values.
  */
-public class DurationRules implements ComparableRules<Duration>, IObjectRules<Duration> {
+public final class DurationRules implements ComparableRules<Duration>, IObjectRules<Duration> {
 
     /**
      * Singleton instance of {@link DurationRules}.

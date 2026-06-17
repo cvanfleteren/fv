@@ -10,7 +10,7 @@ import io.vavr.collection.Set;
 /**
  * Validation rules for {@link Map} values.
  */
-public class VavrMapRules {
+public final class VavrMapRules {
 
     /**
      * Singleton instance of {@link VavrMapRules}.

@@ -2,7 +2,7 @@ package be.iffy.fv.rules;
 
 import be.iffy.fv.Rule;
 
-public class BooleanRules {
+public final class BooleanRules {
 
     /**
      * Singleton instance of {@link BooleanRules}.

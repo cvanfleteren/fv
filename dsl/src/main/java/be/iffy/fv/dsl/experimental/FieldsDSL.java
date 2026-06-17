@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 
 import static io.vavr.API.Map;
 
-public class FieldsDSL {
+public final class FieldsDSL {
 
     public static <T> RootBuilder<T> ruleFor(Class<T> clazz) {
         return new Fields<>(clazz);

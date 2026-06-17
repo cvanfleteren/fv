@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Validation rules for {@link java.util.Map} values.
  */
-public class MapRules {
+public final class MapRules {
 
     /**
      * Singleton instance of {@link MapRules}.

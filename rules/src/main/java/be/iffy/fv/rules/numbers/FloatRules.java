@@ -10,7 +10,7 @@ import java.util.Objects;
 /**
  * Validation rules for {@link Float} values.
  */
-public class FloatRules implements ComparableRules<Float>, NumberRules<Float>, IObjectRules<Float> {
+public final class FloatRules implements ComparableRules<Float>, NumberRules<Float>, IObjectRules<Float> {
 
     /**
      * Singleton instance of {@link FloatRules}.

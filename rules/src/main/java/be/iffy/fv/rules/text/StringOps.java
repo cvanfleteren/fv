@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-public class StringOps {
+public final class StringOps {
 
     /**
      * Singleton instance of {@link StringRules}.

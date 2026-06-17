@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 /**
  * Validation rules for {@link LocalDateTime} values.
  */
-public class LocalDateTimeRules implements ComparableRules<LocalDateTime>, IObjectRules<LocalDateTime> {
+public final class LocalDateTimeRules implements ComparableRules<LocalDateTime>, IObjectRules<LocalDateTime> {
 
     private final Clock clock;
 

@@ -10,7 +10,7 @@ import java.math.BigInteger;
 /**
  * Validation rules for {@link BigInteger} values.
  */
-public class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules<BigInteger>, IObjectRules<BigInteger> {
+public final class BigIntegerRules implements ComparableRules<BigInteger>, NumberRules<BigInteger>, IObjectRules<BigInteger> {
 
     /**
      * Singleton instance of {@link BigIntegerRules}.

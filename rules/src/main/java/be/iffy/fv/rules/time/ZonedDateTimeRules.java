@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
 /**
  * Validation rules for {@link ZonedDateTime} values.
  */
-public class ZonedDateTimeRules implements ComparableRules<ZonedDateTime>, IObjectRules<ZonedDateTime> {
+public final class ZonedDateTimeRules implements ComparableRules<ZonedDateTime>, IObjectRules<ZonedDateTime> {
 
     private final Clock clock;
 

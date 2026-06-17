@@ -10,7 +10,7 @@ import java.time.LocalTime;
 /**
  * Validation rules for {@link LocalTime} values.
  */
-public class LocalTimeRules implements ComparableRules<LocalTime>, IObjectRules<LocalTime> {
+public final class LocalTimeRules implements ComparableRules<LocalTime>, IObjectRules<LocalTime> {
 
     /**
      * Singleton instance of {@link LocalTimeRules}.

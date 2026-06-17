@@ -10,7 +10,7 @@ import java.util.Objects;
 /**
  * Validation rules for {@link Long} values.
  */
-public class LongRules implements ComparableRules<Long>, NumberRules<Long>, IObjectRules<Long> {
+public final class LongRules implements ComparableRules<Long>, NumberRules<Long>, IObjectRules<Long> {
 
     /**
      * Singleton instance of {@link LongRules}.

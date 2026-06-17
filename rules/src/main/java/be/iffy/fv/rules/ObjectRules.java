@@ -13,7 +13,7 @@ import java.util.function.Function;
 /**
  * Implementation of {@link IObjectRules} for generic {@link Object} validation.
  */
-public class ObjectRules implements IObjectRules<Object> {
+public final class ObjectRules implements IObjectRules<Object> {
 
     /**
      * Singleton instance of {@link ObjectRules}.

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class ListRules {
+public final class ListRules {
 
     private static class InnerRules<T> extends BaseCollectionRules<T, List<T>> {
 

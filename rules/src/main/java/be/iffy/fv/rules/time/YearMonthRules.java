@@ -8,7 +8,7 @@ import be.iffy.fv.rules.IObjectRules;
 import java.time.Clock;
 import java.time.YearMonth;
 
-public class YearMonthRules implements ComparableRules<YearMonth>, IObjectRules<YearMonth> {
+public final class YearMonthRules implements ComparableRules<YearMonth>, IObjectRules<YearMonth> {
 
     private final Clock clock;
 

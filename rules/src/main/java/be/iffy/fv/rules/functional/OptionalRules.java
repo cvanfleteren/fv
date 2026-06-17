@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class OptionalRules {
+public final class OptionalRules {
 
     /**
      * Singleton instance of {@link OptionalRules}.

@@ -10,7 +10,7 @@ import java.util.Objects;
 /**
  * Validation rules for {@link Integer} values.
  */
-public class IntegerRules implements ComparableRules<Integer>, NumberRules<Integer>, IObjectRules<Integer> {
+public final class IntegerRules implements ComparableRules<Integer>, NumberRules<Integer>, IObjectRules<Integer> {
 
     /**
      * Singleton instance of {@link IntegerRules}.

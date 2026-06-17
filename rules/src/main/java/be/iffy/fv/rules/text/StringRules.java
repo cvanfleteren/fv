@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 /**
  * Validation rules for {@link String} values.
  */
-public class StringRules implements ComparableRules<String>, IObjectRules<String> {
+public final class StringRules implements ComparableRules<String>, IObjectRules<String> {
 
     /**
      * Singleton instance of {@link StringRules}.

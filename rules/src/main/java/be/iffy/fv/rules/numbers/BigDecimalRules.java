@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 /**
  * Validation rules for {@link BigDecimal} values.
  */
-public class BigDecimalRules implements ComparableRules<BigDecimal>, NumberRules<BigDecimal>, IObjectRules<BigDecimal> {
+public final class BigDecimalRules implements ComparableRules<BigDecimal>, NumberRules<BigDecimal>, IObjectRules<BigDecimal> {
 
     /**
      * Singleton instance of {@link BigDecimalRules}.

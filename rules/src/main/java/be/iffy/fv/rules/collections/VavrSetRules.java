@@ -15,7 +15,7 @@ import java.util.function.Predicate;
  * the index generated in the errror messages for invalids is not deterministic. Validating the same Set multiple times might lead to
  * different error messages with different indexes.
  */
-public class VavrSetRules {
+public final class VavrSetRules {
 
     private static class InnerRules<T> extends BaseCollectionRules<T, Set<T>> {
 

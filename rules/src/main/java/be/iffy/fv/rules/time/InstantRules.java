@@ -8,7 +8,7 @@ import be.iffy.fv.rules.IObjectRules;
 import java.time.Clock;
 import java.time.Instant;
 
-public class InstantRules implements ComparableRules<Instant>, IObjectRules<Instant> {
+public final class InstantRules implements ComparableRules<Instant>, IObjectRules<Instant> {
 
     private final Clock clock;
 

@@ -8,7 +8,7 @@ import be.iffy.fv.rules.IObjectRules;
 /**
  * Validation rules for {@link Double} values.
  */
-public class DoubleRules implements ComparableRules<Double>, NumberRules<Double>, IObjectRules<Double> {
+public final class DoubleRules implements ComparableRules<Double>, NumberRules<Double>, IObjectRules<Double> {
 
     /**
      * Singleton instance of {@link DoubleRules}.
