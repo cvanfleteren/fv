@@ -13,6 +13,7 @@ import javax.tools.JavaFileObject;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
@@ -630,6 +631,88 @@ class RuleTest {
             assertThatCode(() -> rule.xor(Rule.of(s -> true, "ok"), (String)null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("errorKey cannot be null");
+        }
+    }
+
+    @Nested
+    class ExactlyOne {
+
+        private final Rule<String> startsWithA = Rule.of(s -> s.startsWith("A"), "must.start.with.a");
+        private final Rule<String> endsWithZ = Rule.of(s -> s.endsWith("Z"), "must.end.with.z");
+        private final Rule<String> longerThan3 = Rule.of(s -> s.length() > 3, "must.be.longer.than.3");
+
+        @Test
+        void exactlyOne_whenExactlyOneRulePasses_returnsValidResult() {
+            Rule<String> combined = Rule.exactlyOne("exactly.one.must.match", startsWithA, endsWithZ, longerThan3);
+
+            assertThatValidation(combined.apply("AXY")).isValid().isEqualTo("AXY");
+        }
+
+        @Test
+        void exactlyOne_whenAllRulesFail_returnsInvalidWithErrorKey() {
+            Rule<String> combined = Rule.exactlyOne("exactly.one.must.match", startsWithA, endsWithZ);
+
+            assertThatValidation(combined.apply("boom"))
+                    .isInvalid()
+                    .hasErrorMessage("exactly.one.must.match");
+        }
+
+        @Test
+        void exactlyOne_whenMoreThanOneRulePasses_returnsInvalidWithErrorKey() {
+            Rule<String> combined = Rule.exactlyOne("exactly.one.must.match", startsWithA, endsWithZ, longerThan3);
+
+            assertThatValidation(combined.apply("AlwaysZ"))
+                    .isInvalid()
+                    .hasErrorMessage("exactly.one.must.match");
+        }
+
+        @Test
+        void exactlyOne_whenAllRulesPass_returnsInvalidWithErrorKey() {
+            Rule<String> combined = Rule.exactlyOne("exactly.one.must.match", startsWithA, endsWithZ, longerThan3);
+
+            assertThatValidation(combined.apply("AlphaZ"))
+                    .isInvalid()
+                    .hasErrorMessage("exactly.one.must.match");
+        }
+
+        @Test
+        void exactlyOne_whenValueIsNull_returnsInvalidWithMustNotBeNull() {
+            Rule<String> combined = Rule.exactlyOne("exactly.one.must.match", startsWithA, endsWithZ);
+
+            assertThatValidation(combined.apply(null))
+                    .isInvalid()
+                    .hasErrorMessage("must.not.be.null");
+        }
+
+        @Test
+        void exactlyOne_whenAllRulesEvaluated_isNonShortCircuiting() {
+            AtomicInteger evaluated = new AtomicInteger(0);
+            Rule<String> counting = value -> { evaluated.incrementAndGet(); return Validation.invalid("error"); };
+
+            Rule.exactlyOne("exactly.one.must.match", counting, counting, counting).apply("test");
+
+            assertThat(evaluated.get()).isEqualTo(3);
+        }
+
+        @Test
+        void exactlyOne_whenFewerThanTwoRulesProvided_throwsIllegalArgumentException() {
+            assertThatCode(() -> Rule.exactlyOne("error", startsWithA))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("exactlyOne requires at least 2 rules");
+        }
+
+        @Test
+        void exactlyOne_whenErrorKeyIsNull_throwsNullPointerException() {
+            assertThatCode(() -> Rule.exactlyOne((String) null, startsWithA, endsWithZ))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("errorKey cannot be null");
+        }
+
+        @Test
+        void exactlyOne_whenAnyRuleIsNull_throwsNullPointerException() {
+            assertThatCode(() -> Rule.exactlyOne("error", startsWithA, null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("rule cannot be null");
         }
     }
 

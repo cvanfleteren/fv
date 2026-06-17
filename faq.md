@@ -246,7 +246,8 @@ You can combine rules using several composition methods:
 | fallback(other)        | Fallback; uses other only if this fails; if both fail, keep only other's errors | Yes              | Not accumulating (only fallback's errors)     |
 | or(other)              | OR; uses other only if this fails; if both fail, combine errors                 | Yes              | Accumulating                                  |
 | then(ruleLikeFunction) | On success, refine into a MappingRule via ruleLikeFunction                      | Yes              | Not accumulating                              |
-| xor(other, errorKey)   | Exactly one must pass; evaluates both                                           | No               | Non-accumulating (single errorKey on failure) |
+| xor(other, errorKey)            | Exactly one of two must pass; evaluates both                                    | No               | Non-accumulating (single errorKey on failure) |
+| exactlyOne(errorKey, rules...)  | Exactly one of N must pass; evaluates all                                       | No               | Non-accumulating (single errorKey on failure) |
 
 #### MappingRule combinators
 

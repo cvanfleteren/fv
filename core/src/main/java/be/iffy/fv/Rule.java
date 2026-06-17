@@ -309,7 +309,51 @@ public interface Rule<T> extends Function<T, Validation<T>> {
         };
     }
 
-    //TODO add exactlyOne(String errorKey, Function<? super T, ? extends Validation<T>>... rules)
+    /**
+     * Composes multiple rules using "exactly one" logic.
+     * Successful only if exactly one of the rules is successful.
+     * All rules will always be evaluated.
+     * Requires at least two rules; throws {@link IllegalArgumentException} otherwise.
+     * <p>
+     * Non-short-circuiting, non-accumulating.
+     *
+     * @param errorKey the error key to use if the validation fails.
+     */
+    @SafeVarargs
+    static <T> Rule<T> exactlyOne(String errorKey, Function<? super T, ? extends Validation<T>>... rules) {
+        Objects.requireNonNull(errorKey, "errorKey cannot be null");
+        return exactlyOne(ErrorMessage.of(errorKey), rules);
+    }
+
+    /**
+     * Composes multiple rules using "exactly one" logic.
+     * Successful only if exactly one of the rules is successful.
+     * All rules will always be evaluated.
+     * Requires at least two rules; throws {@link IllegalArgumentException} otherwise.
+     * <p>
+     * Non-short-circuiting, non-accumulating.
+     *
+     * @param errorMessage the error message to use if the validation fails.
+     */
+    @SafeVarargs
+    static <T> Rule<T> exactlyOne(ErrorMessage errorMessage, Function<? super T, ? extends Validation<T>>... rules) {
+        Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
+        Objects.requireNonNull(rules, "rules cannot be null");
+        if (rules.length < 2) {
+            throw new IllegalArgumentException("exactlyOne requires at least 2 rules");
+        }
+        List.of(rules).forEach(rule -> Objects.requireNonNull(rule, "rule cannot be null"));
+
+        return value -> {
+            if (value == null) {
+                return Invalid.notNull();
+            }
+            int validCount = List.of(rules).count(rule -> rule.apply(value).isValid());
+            return validCount == 1
+                ? Validation.valid(value)
+                : Validation.invalid(errorMessage);
+        };
+    }
 
     //endregion
 
