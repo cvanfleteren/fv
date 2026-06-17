@@ -40,7 +40,7 @@
         <url>https://github.com/cvanfleteren/fv</url>
     </scm>
     <properties>
-        <revision>0.0.2-SNAPSHOT</revision>
+        <revision>1.0.0-SNAPSHOT</revision>
         <java.version>21</java.version>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
