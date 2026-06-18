@@ -383,7 +383,25 @@ public final class DSL {
     }
 
     /**
-     * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
+     * Starts a builder for validating a {@link List} of values.
+     * <p>
+     * Unlike {@link #validateThat}, this returns a <em>builder</em>, not a {@link Validation} directly.
+     * Chain {@code .is(...)} to add list-level rules and {@code .eachIs(...)} to validate (and optionally
+     * transform) each element. Always call {@code .validate()} at the end to obtain the
+     * {@code Validation<List<E>>} result:
+     * {@snippet :
+     * Validation<List<Integer>> result = validateThatList(order.lineAmounts(), "lineAmounts")
+     *         .is(vavrLists.notEmpty())
+     *         .eachIs(strings.asInteger().then(ints.positive()))
+     *         .validate();
+     * }
+     * <p>
+     * {@code eachIs} transforms the element type ({@code T → R}), so a subsequent {@code .is()} call
+     * operates on the transformed list type. Compose multiple element-level rules with
+     * {@link MappingRule#then then(...)} rather than chaining separate {@code eachIs} calls.
+     *
+     * @param value the list to validate
+     * @param name  the logical name used as a prefix in error paths (e.g. {@code "lineAmounts"})
      */
     @Contract(pure = true)
     public static <T> VListValidationDSL<T, T> validateThatList(List<T> value, String name) {
@@ -391,7 +409,8 @@ public final class DSL {
     }
 
     /**
-     * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
+     * Like {@link #validateThatList(List, String)} but derives the name from a method reference,
+     * keeping it refactor-safe (e.g. {@code Order::lineAmounts}).
      */
     @Contract(pure = true)
     public static <S, T> VListValidationDSL<T, T> validateThatList(List<T> value, PropertySelector<S, List<T>> name) {
@@ -400,7 +419,7 @@ public final class DSL {
     }
 
     /**
-     * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
+     * Like {@link #validateThatList(List, String)} but for a {@link java.util.List} instead of a Vavr {@link List}.
      */
     @Contract(pure = true)
     public static <T> JListValidationDSL<T, T> validateThatList(java.util.List<T> value, String name) {
@@ -408,7 +427,8 @@ public final class DSL {
     }
 
     /**
-     * Helps with validating a List of values, allowing you to define Rules on the list or in the elements in the list.
+     * Like {@link #validateThatList(java.util.List, String)} but derives the name from a method reference,
+     * keeping it refactor-safe (e.g. {@code Order::lineAmounts}).
      */
     @Contract(pure = true)
     public static <S, T> JListValidationDSL<T, T> validateThatList(java.util.List<T> value, PropertySelector<S, java.util.List<T>> name) {
