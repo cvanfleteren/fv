@@ -5,6 +5,7 @@ import be.iffy.fv.dsl.impl.*;
 import be.iffy.fv.rules.BooleanRules;
 import be.iffy.fv.rules.ObjectRules;
 import be.iffy.fv.rules.collections.*;
+import be.iffy.fv.rules.functional.EitherRules;
 import be.iffy.fv.rules.functional.OptionRules;
 import be.iffy.fv.rules.functional.OptionalRules;
 import be.iffy.fv.rules.numbers.*;
@@ -82,6 +83,10 @@ public final class DSL {
     public static final OptionRules options = OptionRules.options;
 
     public static final OptionalRules optionals = OptionalRules.optionals;
+
+    public static <L,R> EitherRules<L,R> eithers() {
+        return EitherRules.eithers();
+    }
 
     //endregion
 
