@@ -11,6 +11,7 @@
 
   <artifactId>testing</artifactId>
   <name>Functional Validation - Testing</name>
+  <description>Internal testing / experimental code for FV</description>
 
   <properties>
     <maven.deploy.skip>true</maven.deploy.skip>

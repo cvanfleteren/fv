@@ -11,6 +11,7 @@
 
     <artifactId>assertj</artifactId>
     <name>Functional Validation - AssertJ Support</name>
+    <description>Contains AssertJ support classes for easily testing Validations</description>
 
     <dependencies>
         <dependency>
