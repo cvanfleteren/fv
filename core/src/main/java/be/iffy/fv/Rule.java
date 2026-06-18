@@ -3,7 +3,6 @@ package be.iffy.fv;
 import be.iffy.fv.Validation.Invalid;
 import io.vavr.collection.List;
 import io.vavr.collection.Stream;
-import io.vavr.control.Option;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -182,17 +181,23 @@ public interface Rule<T> extends Function<T, Validation<T>> {
         if (rules.length == 0) {
             throw new IllegalArgumentException("rules cannot be empty");
         }
+        Stream.of(rules).forEach(r -> Objects.requireNonNull(r, "rules cannot be null"));
 
         return value -> {
-            // stream because we want to be lazy and only validate the next rule if the current one fails
-            Stream<Validation<T>> validations = Stream.of(rules).map(rule -> rule.apply(value));
-            Option<Validation<T>> firstValid = validations.find(Validation::isValid);
-
-            if (firstValid.isDefined()) {
-                return firstValid.get();
-            } else {
-                return Validation.invalid(validations.flatMap(Validation::errors).toList());
+            if (value == null) {
+                return Invalid.notNull();
             }
+
+            // we use a Stream of Lazy to ensure each rule is applied at most once per validation run
+            Stream<io.vavr.Lazy<Validation<T>>> lazyValidations = Stream.of(rules)
+                    .map(rule -> io.vavr.Lazy.of(() -> rule.apply(value)));
+
+            return lazyValidations
+                    .map(io.vavr.Lazy::get)
+                    .find(Validation::isValid)
+                    .getOrElse(() ->
+                            Validation.invalid(lazyValidations.flatMap(l -> l.get().errors()).toList())
+                    );
         };
     }
 

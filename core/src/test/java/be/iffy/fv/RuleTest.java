@@ -282,6 +282,35 @@ class RuleTest {
             // Assert
             assertThat(secondRuleCalled.get()).isFalse();
         }
+
+        @Test
+        void any_whenAllRulesFail_appliesEachRuleOnlyOncePerRun() {
+            // Arrange
+            AtomicInteger callCount1 = new AtomicInteger(0);
+            AtomicInteger callCount2 = new AtomicInteger(0);
+
+            Rule<String> rule1 = s -> {
+                callCount1.incrementAndGet();
+                return Validation.invalid("error.1");
+            };
+            Rule<String> rule2 = s -> {
+                callCount2.incrementAndGet();
+                return Validation.invalid("error.2");
+            };
+
+            Rule<String> combined = Rule.any(rule1, rule2);
+
+            // Act
+            Validation<String> result = combined.apply("test");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("error.1", "error.2");
+
+            assertThat(callCount1.get()).as("Rule 1 should be called exactly once per apply").isEqualTo(1);
+            assertThat(callCount2.get()).as("Rule 2 should be called exactly once per apply").isEqualTo(1);
+        }
     }
 
     @Nested
