@@ -10,17 +10,46 @@ It's just as useful for validating and mapping incoming data like DTOs or reques
 
 ## Quick start
 
+### Constructor validation — throws on invalid input
+
 ```java
 import static be.iffy.fv.dsl.DSL.*;
 
-Rule<String> validUsername = strings.minLength(3).and(strings.alphaNumeric());
+record Person(String name, int age) {
+    public Person {
+        var v = asserting(
+                validateThat(name, Person::name).after(stringOps.trim()).is(strings.minLength(2)),
+                validateThat(age,  Person::age).is(ints.atLeast(18))
+        );
+        name = v._1;
+    }
+}
 
-Validation<String> result = validUsername.apply("bob");
-result.isValid(); // true
+new Person("  Alice  ", 30);  // name trimmed to "Alice"
+new Person(" A ", 16);
+// throws ValidationException with BOTH:
+//   name.must.have.min.length
+//   age.must.be.at.least
+```
 
-Validation<String> failure = validUsername.apply("!!");
-failure.isInvalid(); // true
-failure.errors();    // List<ErrorMessage>: ["must.have.min.length", "must.be.alphanumeric"]
+### DTO mapping — returns `Validation`, never throws
+
+```java
+record PersonDto(String name, String age) {}
+record Person(String name, int age) {}
+
+Validation<Person> toPerson(PersonDto dto) {
+    return validating(
+            validateThat(dto.name(), "name").after(stringOps.trim()).is(strings.minLength(2)),
+            validateThat(dto.age(),  "age").is(strings.asInteger().then(ints.atLeast(18)))
+    ).map(Person::new);
+}
+
+toPerson(new PersonDto("  Alice  ", "30"));
+// Valid(Person[name=Alice, age=30])
+
+toPerson(new PersonDto(" A ", "16"));
+// Invalid([name.must.have.min.length, age.must.be.at.least])
 ```
 
 ## Table of contents
