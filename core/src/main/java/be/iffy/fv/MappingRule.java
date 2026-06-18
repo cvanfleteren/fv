@@ -306,6 +306,9 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
         return value -> apply(value).isValid();
     }
 
+    /**
+     * Lift a MappingRule by giving you access to the MappingRuleLifter, allowing you to lift this MappingRule into many other types.
+     */
     default MappingRuleLifter<T, R> lift() {
         return new MappingRuleLifter<>(this);
     }

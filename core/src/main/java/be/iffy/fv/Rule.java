@@ -520,10 +520,12 @@ public interface Rule<T> extends Function<T, Validation<T>> {
     //endregion
 
 
+    /**
+     * Lift a Rule by giving you access to the RuleLifter, allowing you to lift this Rule into many other types.
+     */
     default RuleLifter<T> lift() {
         return new RuleLifter<>(this);
     }
-
 
     /**
      * Narrows the current rule to a more specific subtype.
