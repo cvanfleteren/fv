@@ -30,6 +30,7 @@ failure.errors();    // List<ErrorMessage>: ["must.have.min.length", "must.be.al
 - [Core concepts](#core-concepts)
 - [Constructor validation examples](#constructor-validation-examples)
 - [Mapping and validating a DTO into a Domain object with `MappingRule`](#mapping-and-validating-a-dto-into-a-domain-object-with-mappingrule)
+- [`validating` vs `combine` — one-shot result vs reusable rule](#validating-vs-combine--one-shot-result-vs-reusable-rule)
 - [Nested validation paths](#nested-validation-paths)
 - [Available rules](#available-rules)
 - [Inspecting errors](#inspecting-errors)
@@ -192,6 +193,39 @@ toPerson(new PersonDto("Al", "-5"));
 `validating(...).map(...)` never throws: it returns a `Validation<Person>` you can inspect with `isValid()` /
 `errors()`. If you'd rather fail fast with an exception (e.g. inside a constructor), use `asserting(...)` instead
 of `validating(...).map(...)`, exactly as in the constructor examples above.
+
+---
+
+## `validating` vs `combine` — one-shot result vs reusable rule
+
+Both accumulate errors across multiple validations, but they serve different needs:
+
+- **`validating(v1, v2, ...)`** takes already-evaluated `Validation` objects and immediately combines them into a
+  single `Validation<R>`. Use it inline when you are validating a specific value right now.
+- **`combine(fn1, fn2, ...)`** takes functions that each map the same input `T` to a `Validation` (aka Rules and MappingRules), and returns a
+  reusable `MappingRule<T, R>` that can be stored as a constant and applied to any number of inputs.
+
+```java
+record PersonDto(String name, String age) {}
+record Person(String name, int age) {}
+
+// combine → builds a reusable MappingRule; no input consumed yet
+MappingRule<PersonDto, Person> toPersonRule = combine(
+        strings.minLength(3).on(PersonDto::name),
+        strings.asInteger().then(ints.positive()).on(PersonDto::age)
+).map(Person::new);
+
+Validation<Person> result = toPersonRule.apply(dto); // apply as many times as needed
+
+// validating → evaluates immediately; the fields are already in hand
+Validation<Person> result2 = validating(
+        validateThat(dto.name(), "name").is(strings.minLength(3)),
+        validateThat(dto.age(),  "age").is(strings.asInteger().then(ints.positive()))
+).map(Person::new);
+```
+
+`combine` is especially useful when you want to define the full validation for a type once (e.g. as a
+static field or a Spring bean) and reuse it across controllers, tests, and message consumers.
 
 ---
 

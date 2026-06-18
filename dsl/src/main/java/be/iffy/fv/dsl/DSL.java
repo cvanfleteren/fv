@@ -22,11 +22,112 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Entry point for the functional validation API.
- * This class provides static factory methods to create and execute validations.
+ * Entry point for the functional validation DSL.
  * <p>
- * Implementation note: this class mostly acts as entry point to smaller, specialised DSL classes
- * or to delegate to other classes as a way to reduce imports for the library user.
+ * Add a single static import and you have access to all rule namespaces ({@code strings},
+ * {@code ints}, {@code localDates}, …) and all the methods below:
+ * <pre>{@code
+ * import static be.iffy.fv.dsl.DSL.*;
+ * }</pre>
+ *
+ * <h2>Choosing the right method</h2>
+ *
+ * <table border="1">
+ *   <caption>Choosing the right method</caption>
+ *   <tr><th></th><th>Single field</th><th>Multiple fields (accumulates all errors)</th></tr>
+ *   <tr><th>Throws {@link ValidationException} on failure</th>
+ *       <td>{@link #assertThat}</td><td>{@link #asserting}</td></tr>
+ *   <tr><th>Returns {@link Validation} (no throw)</th>
+ *       <td>{@link #validateThat}</td><td>{@link #validating}</td></tr>
+ * </table>
+ *
+ * <h2>{@code assertThat} — single field, throws on invalid</h2>
+ * Use inside a constructor when you want the field to be normalised (e.g. trimmed) before
+ * the check, and you want the constructor to throw if the value is invalid.
+ * {@snippet :
+ * record Username(String value) {
+ *     public Username {
+ *         // trims first, then checks length — throws ValidationException if invalid
+ *         value = assertThat(value, "value")
+ *                 .after(stringOps.trim())
+ *                 .is(strings.minLength(3));
+ *     }
+ * }
+ *}
+ *
+ * <h2>{@code asserting} — multiple fields, throws on invalid</h2>
+ * Use inside a constructor when you need to validate several fields and want
+ * <em>all</em> errors collected before throwing.
+ * {@snippet :
+ * record Person(String name, int age) {
+ *     public Person {
+ *         asserting(
+ *                 validateThat(name, Person::name).is(strings.minLength(3)),
+ *                 validateThat(age,  Person::age).is(ints.atLeast(18))
+ *         );
+ *     }
+ * }
+ * // new Person("Al", 16) throws with BOTH name.must.have.min.length AND age.must.be.at.least
+ *}
+ *
+ * <h2>{@code validateThat} — single field, returns {@link Validation}</h2>
+ * Use in a service or mapper when you want to inspect or combine the result rather than throw.
+ * {@snippet :
+ * Validation<String> result = validateThat(rawName, "name")
+ *         .after(stringOps.trim())
+ *         .is(strings.minLength(3));
+ *
+ * if (result.isInvalid()) {
+ *     result.errors(); // List<ErrorMessage>
+ * }
+ *}
+ *
+ * <h2>{@code validating} — multiple fields, returns {@link Validation}</h2>
+ * Use in a service or mapper to validate and combine several fields without throwing.
+ * {@snippet :
+ * record PersonDto(String name, String age) {}
+ * record Person(String name, int age) {}
+ *
+ * Validation<Person> toPerson(PersonDto dto) {
+ *     return validating(
+ *             validateThat(dto.name(), "name").is(strings.minLength(3)),
+ *             validateThat(dto.age(),  "age").is(strings.asInteger().then(ints.positive()))
+ *     ).map(Person::new);
+ * }
+ * // toPerson(new PersonDto("Al", "-5")) → Invalid([name.must.have.min.length, age.must.be.positive])
+ *}
+ *
+ * <h2>{@code validating} vs {@code combine} — one-shot result vs reusable rule</h2>
+ * Both accumulate errors across multiple validations, but they differ in what they return
+ * and when the input is consumed:
+ * <ul>
+ *   <li>{@link #validating} takes already-evaluated {@link Validation} objects and immediately
+ *       combines them into a single {@link Validation} result. Use it inline when you are
+ *       validating a specific value right now.</li>
+ *   <li>{@link #combine} takes <em>functions</em> that each map the same input {@code T} to a
+ *       {@link Validation}, and returns a reusable {@link MappingRule}{@code <T, R>} that can
+ *       be stored and applied to any number of inputs later. Use it when you want to define a
+ *       composite rule once and apply it in multiple places.</li>
+ * </ul>
+ * {@snippet :
+ * record PersonDto(String name, String age) {}
+ * record Person(String name, int age) {}
+ *
+ *
+ * // combine → builds a reusable MappingRule; the dto is not consumed yet
+ * MappingRule<PersonDto, Person> toPersonRule = combine(
+ *         strings.minLength(3).on(PersonDTO::name),
+ *         strings.asInteger().then(ints.positive()).on(PersonDto::age)
+ * ).map(Person::new);
+ *
+ * Validation<Person> result = toPersonRule.apply(someDto); // apply whenever needed
+ *
+ * // validating → evaluates immediately; the fields are already in hand
+ * Validation<Person> result2 = validating(
+ *         validateThat(someDto.name(), "name").is(strings.minLength(3)),
+ *         validateThat(someDto.age(),  "age").is(strings.asInteger().then(ints.positive()))
+ * ).map(Person::new);
+ *}
  */
 public final class DSL {
 
@@ -189,7 +290,7 @@ public final class DSL {
 
     /**
      * Combines multiple Validations, allowing you to map / flatMap their values if all are Valid.
-     *
+     *<p>
      * {@snippet :
      * Validation<Order> order = validating(
      *         validateThat(name, "name").is(strings.notBlank()),
