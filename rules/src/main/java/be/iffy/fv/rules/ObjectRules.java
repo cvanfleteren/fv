@@ -97,7 +97,7 @@ public final class ObjectRules implements IObjectRules<Object> {
      * Fails if the passed constructor Function doesn't apply successfully.
      * Will catch all possible exceptions thrown by the function.
      * If the function throws ValidationException, its errors will be used.
-     * Error key: {@code could.not.construct}
+     * Error key: {@code could.not.construct} or the errors in the {@link be.iffy.fv.ValidationException}
      */
     public <T,R> MappingRule<T, R> construct(Function<T,R> constructor) {
         return construct(constructor, ErrorMessage.of("could.not.construct"));
