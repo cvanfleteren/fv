@@ -80,7 +80,7 @@ entry points plus the full set of ready-made rules):
 <dependency>
     <groupId>be.iffy.fv</groupId>
     <artifactId>dsl</artifactId>
-    <version>0.9.2</version>
+    <version>0.9.3</version>
 </dependency>
 ```
 
@@ -91,13 +91,13 @@ directly instead, optionally adding `rules` for the prebuilt rule library:
 <dependency>
     <groupId>be.iffy.fv</groupId>
     <artifactId>core</artifactId>
-    <version>0.9.2</version>
+    <version>0.9.3</version>
 </dependency>
 <!-- Optional: a large collection of predefined rules for common types -->
 <dependency>
     <groupId>be.iffy.fv</groupId>
     <artifactId>rules</artifactId>
-    <version>0.9.2</version>
+    <version>0.9.3</version>
 </dependency>
 ```
 
