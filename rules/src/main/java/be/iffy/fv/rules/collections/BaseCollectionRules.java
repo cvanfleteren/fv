@@ -209,7 +209,10 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
      */
     public Rule<C> anyMatch(Predicate<T> predicate, ErrorMessage errorMessage) {
         Objects.requireNonNull(predicate, "predicate cannot be null");
-        return Rule.notNull().and(value -> Iterator.ofAll(value).exists(predicate) ? Validation.valid(value) : Validation.invalid(errorMessage));
+        return Rule.of(
+            value -> Iterator.ofAll(value).exists(predicate),
+            errorMessage
+        );
     }
 
     /**
@@ -293,7 +296,7 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
         Objects.requireNonNull(key, "key cannot be null");
 
-        return Rule.notNull().and(values -> {
+        return Rule.of(values -> {
             // General approach: Iterate through the collection with indices, keeping track of the first occurrence of each key.
             // If a key is encountered again, its index is added to a list of duplicates for that key.
             io.vavr.collection.List<T> list = io.vavr.collection.List.ofAll(values);
@@ -364,7 +367,7 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
      */
     public Rule<C> validateValuesWith(Rule<? super T> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return Rule.notNull().and(collection -> {
+        return Rule.of(collection -> {
             Rule<T> castedRule = rule.narrow();
 
             io.vavr.collection.List<Validation<T>> validations = io.vavr.collection.List.ofAll(collection)

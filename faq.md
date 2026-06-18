@@ -237,17 +237,17 @@ You can combine rules using several composition methods:
 
 #### Rule combinators
 
-| Method                 | Behavior                                                                        | Short-circuiting | Error handling                                |
-|------------------------|:--------------------------------------------------------------------------------|------------------|-----------------------------------------------|
-| and(other)             | AND; runs other only if this is valid                                           | Yes              | Not accumulating                              |
-| andAlso(other)         | AND; always runs both                                                           | No               | Accumulating (combine errors)                 |
-| all(rules...)          | AND over many; all must pass                                                    | No               | Accumulating (combine all errors)             |
-| any(rules...)          | OR over many; succeeds on first rule that passes                                | Yes              | Accumulating if all fail                      |
-| fallback(other)        | Fallback; uses other only if this fails; if both fail, keep only other's errors | Yes              | Not accumulating (only fallback's errors)     |
-| or(other)              | OR; uses other only if this fails; if both fail, combine errors                 | Yes              | Accumulating                                  |
-| then(ruleLikeFunction) | On success, refine into a MappingRule via ruleLikeFunction                      | Yes              | Not accumulating                              |
-| xor(other, errorKey)            | Exactly one of two must pass; evaluates both                                    | No               | Non-accumulating (single errorKey on failure) |
-| exactlyOne(errorKey, rules...)  | Exactly one of N must pass; evaluates all                                       | No               | Non-accumulating (single errorKey on failure) |
+| Method                         | Behavior                                                                            | Short-circuiting | Error handling                                |
+|--------------------------------|:------------------------------------------------------------------------------------|------------------|-----------------------------------------------|
+| and(other)                     | AND; always runs both                                                               | No               | Accumulating (combine errors)                 |
+| all(rules...)                  | AND over many; all must pass                                                        | No               | Accumulating (combine all errors)             |
+| any(rules...)                  | OR over many; succeeds on first rule that passes                                    | Yes              | Accumulating if all fail                      |
+| fallback(other)                | Fallback; uses other only if this fails; if both fail, keep only other's errors     | Yes              | Not accumulating (only fallback's errors)     |
+| or(other)                      | OR; uses other only if this fails; if both fail, combine errors                     | Yes              | Accumulating                                  |
+| then(rule)                     | AND in sequence; applies rule to the valid value; returns `Rule<T>`                 | Yes              | Not accumulating                              |
+| then(mappingRule)              | AND in sequence; applies mappingRule to the valid value; returns `MappingRule<T,R>` | Yes              | Not accumulating                              |
+| xor(other, errorKey)           | Exactly one of two must pass; evaluates both                                        | No               | Non-accumulating (single errorKey on failure) |
+| exactlyOne(errorKey, rules...) | Exactly one of N must pass; evaluates all                                           | No               | Non-accumulating (single errorKey on failure) |
 
 #### MappingRule combinators
 
@@ -258,23 +258,32 @@ You can combine rules using several composition methods:
 | or(other)          | OR; uses other only if this fails; if both fail, combine errors                       | Yes              | Accumulating                              |
 | combine(other)     | Start builder to combine multiple MappingRules                                        | No               | Accumulating across combined results      |
 
-#### What is the difference between `and()`, `andAlso()`, and `Rule.all()`?
+#### What is the difference between `and()`, `then(rule)`, and `Rule.all()`?
 
-These three all express "both rules must pass", but they differ in execution flow and error collection:
+These all express "both rules must pass", but differ in how errors are collected and whether both rules always run:
 
-1. **`ruleA.and(ruleB)` (Short-circuiting):**
-    * If `ruleA` fails, `ruleB` is **not executed**.
-    * The result contains only the errors from `ruleA`.
-    * Use this when `ruleB` depends on `ruleA` (e.g., `notNull().and(minLength(5))`).
-
-2. **`ruleA.andAlso(ruleB)` (Non-short-circuiting):**
+1. **`ruleA.and(ruleB)` (accumulating):**
     * Both rules are **always executed**.
     * If both fail, the result contains **all errors** from both.
-    * Use this when you want to report as many problems as possible to the user at once.
+    * Use this for independent rules where you want to report as many problems as possible at once.
+
+2. **`ruleA.then(ruleB)` (short-circuiting):**
+    * If `ruleA` fails, `ruleB` is **not executed**.
+    * The result contains only the errors from `ruleA`.
+    * Use this in two situations:
+        1. `ruleB` *depends on* `ruleA` succeeding — e.g. `notNull().then(minLength(5))` (calling `minLength` on `null` would throw).
+        2. `ruleA` failing makes `ruleB`'s error *redundant or confusing* — even if `ruleB` could technically run, its error adds no useful signal when `ruleA` already failed.
+           For example, a BIC code with the wrong length will also fail a format regex, but telling the user both at once is noise. Once the length is correct, the format check becomes meaningful:
+           ```java
+           Rule<String> validBic = any(length(8), length(11))
+               .withErrorKey("length.must.be.8.or.11")
+               .then(followsBicPattern);
+           ```
+    * Returns a `Rule<T>`, unlike `.then(mappingRule)` which returns a `MappingRule<T, R>`.
 
 3. **`Rule.all(ruleA, ruleB, ...)`:**
-    * Similar to `andAlso()`, it executes all rules and collects all errors.
-    * It is often more readable when combining more than two rules.
+    * Like `and()`, executes all rules and collects all errors.
+    * More readable when combining three or more rules.
 
 ---
 

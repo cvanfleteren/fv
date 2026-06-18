@@ -117,29 +117,16 @@ public interface Rule<T> extends Function<T, Validation<T>> {
     //region combinators
 
     /**
-     * Composes this rule with another rule using "short-circuiting and" logic.
-     * The combined rule is successful only if both this and the other rule are successful.
-     * If this rule fails, the evaluation stops and the other rule is not evaluated.
-     * <p>
-     * Short-circuiting, not accumulating.
-     */
-    default <S extends T> Rule<S> and(Function<? super S, ? extends Validation<?>> other) {
-        Objects.requireNonNull(other, "other rule cannot be null");
-        return input ->
-            apply(input).flatMap(v ->
-                // map back to original input so we're protected against other returning an incompatible value
-                other.apply(input).map(ignored -> input)
-            );
-    }
-
-    /**
      * Composes this rule with another rule using "non-short-circuiting and" logic.
      * The combined rule is successful only if both this and the other rule are successful.
      * If both rules fail, their errors are combined.
      * <p>
+     * Use this for independent rules where you want all errors reported at once.
+     * Use {@link #then(Rule)} instead when the second rule depends on the first succeeding.
+     * <p>
      * Non-short-circuiting, accumulating.
      */
-    default <S extends T> Rule<S> andAlso(Function<? super S, ? extends Validation<?>> other) {
+    default <S extends T> Rule<S> and(Function<? super S, ? extends Validation<?>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         // map back to original input so we're protected against other returning an incompatible value
         return input ->
@@ -263,7 +250,25 @@ public interface Rule<T> extends Function<T, Validation<T>> {
     }
 
     /**
-     * Pass the result of this Rule to the pass validation function.
+     * Composes this rule with another rule in sequence, short-circuiting on failure.
+     * The combined rule succeeds only if both pass. If this rule fails, {@code other} is not evaluated.
+     * <p>
+     * Use this when {@code other} depends on this rule succeeding first (e.g. {@code notNull().then(minLength(3))}).
+     * Use {@link #and(Function)} instead when the two rules are independent and you want all errors reported.
+     * <p>
+     * Short-circuiting, not accumulating. Returns a {@link Rule} (not a {@link MappingRule}).
+     */
+    default Rule<T> then(Rule<? super T> other) {
+        Objects.requireNonNull(other, "other rule cannot be null");
+        return input ->
+            apply(input).flatMap(v ->
+                // map back to original input so we're protected against other returning an incompatible value
+                other.apply(input).map(ignored -> input)
+            );
+    }
+
+    /**
+     * Pass the result of this Rule to the given mapping function.
      * <p>
      * Short-circuiting, not accumulating.
      */

@@ -26,7 +26,7 @@ public final class MapRules {
      * @return a {@link Rule} checking if the map is not empty.
      */
     public <K, V> Rule<Map<K, V>> notEmpty() {
-        return Rule.notNull().and(map -> {
+        return Rule.of((Map<K, V> map) -> {
             if (map.isEmpty()) {
                 return Validation.invalid(ErrorMessage.of("must.not.be.empty"));
             } else {
@@ -49,7 +49,7 @@ public final class MapRules {
      * @return a {@link Rule} checking for the presence of the key.
      */
     public <K, V> Rule<Map<K, V>> containsKey(K key) {
-        return Rule.notNull().and(map -> {
+        return Rule.of((Map<K, V> map) -> {
             if (map.containsKey(key)) {
                 return Validation.valid(map);
             } else {
@@ -73,7 +73,7 @@ public final class MapRules {
      */
     public <K, V> Rule<Map<K, V>> containsKeys(K... keys) {
         Set<K> keySet = HashSet.of(keys);
-        return Rule.notNull().and(map -> {
+        return Rule.of((Map<K, V> map) -> {
             if (map.keySet().containsAll(keySet.toJavaSet())) {
                 return Validation.valid(map);
             } else {
@@ -93,7 +93,7 @@ public final class MapRules {
      * </ul>
      */
     public <K, V> Rule<Map<K, V>> valuesNotNull() {
-        return Rule.notNull().and(map -> {
+        return Rule.of((Map<K, V> map) -> {
             Set<K> keysWithNulls = HashSet.ofAll(
                     map.entrySet()
                             .stream()
@@ -113,7 +113,7 @@ public final class MapRules {
      * Fails if not all values pass the {@code rule}.
      */
     public <K, V> Rule<Map<K, V>> validateValuesWith(Rule<? super V> rule) {
-        return Rule.notNull().and(map -> {
+        return Rule.of((Map<K, V> map) -> {
             Rule<V> castedRule = rule.narrow();
             Rule<Map<K, V>> rule2 = castedRule.lift().toMap();
             return rule2.apply(map);

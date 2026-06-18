@@ -285,13 +285,13 @@ class RuleTest {
     }
 
     @Nested
-    class AndAlso {
+    class And {
         @Test
-        void andAlso_whenBothRulesFail_returnsInvalidWithBothErrors() {
+        void and_whenBothRulesFail_returnsInvalidWithBothErrors() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> combined = rule1.andAlso(rule2);
+            Rule<String> combined = rule1.and(rule2);
 
             // Act
             Validation<String> result = combined.apply("a");
@@ -303,11 +303,11 @@ class RuleTest {
         }
 
         @Test
-        void andAlso_whenFirstRuleFailsAndSecondRulePasses_returnsInvalidWithFirstErrorOnly() {
+        void and_whenFirstRuleFailsAndSecondRulePasses_returnsInvalidWithFirstErrorOnly() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> combined = rule1.andAlso(rule2);
+            Rule<String> combined = rule1.and(rule2);
 
             // Act
             Validation<String> result = combined.apply("hi"); // length 2, starts with h
@@ -320,11 +320,11 @@ class RuleTest {
         }
 
         @Test
-        void andAlso_whenFirstRulePassesAndSecondRuleFails_returnsInvalidWithSecondErrorOnly() {
+        void and_whenFirstRulePassesAndSecondRuleFails_returnsInvalidWithSecondErrorOnly() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> combined = rule1.andAlso(rule2);
+            Rule<String> combined = rule1.and(rule2);
 
             // Act
             Validation<String> result = combined.apply("apple"); // length 5, doesn't start with h
@@ -337,11 +337,11 @@ class RuleTest {
         }
 
         @Test
-        void andAlso_whenBothRulesPass_returnsValidResult() {
+        void and_whenBothRulesPass_returnsValidResult() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> combined = rule1.andAlso(rule2);
+            Rule<String> combined = rule1.and(rule2);
 
             // Act
             Validation<String> result = combined.apply("hello");
@@ -351,47 +351,63 @@ class RuleTest {
                     .isValid()
                     .isEqualTo("hello");
         }
+
+        @Test
+        void and_whenBothRulesFail_evaluatesBothRules() {
+            // Arrange
+            AtomicBoolean secondRuleCalled = new AtomicBoolean(false);
+            Rule<String> firstRule = Rule.of(s -> false, "error.one");
+            Rule<String> secondRule = Rule.of(s -> {
+                secondRuleCalled.set(true);
+                return false;
+            }, "error.two");
+
+            // Act
+            firstRule.and(secondRule).apply("test");
+
+            // Assert
+            assertThat(secondRuleCalled.get()).isTrue();
+        }
     }
 
     @Nested
-    class And {
+    class ThenRule {
 
         @Test
-        void and_withMisbehavingRule_returnsValueOfFirstRule() {
+        void then_withMisbehavingRule_returnsValueOfFirstRule() {
             // 1. A well-behaved Rule<String>
             Rule<String> stringRule = s -> Validation.valid(s);
 
-            // 2. A "sneaky" Rule<Object> that is allowed by the 'and' signature
+            // 2. A "sneaky" Rule<Object> that is allowed by the 'then' signature
             // Because S is String, 'other' can be Rule<Object> (since Object is a supertype of String)
             Rule<Object> sneakyRule = obj -> Validation.valid(123);
 
             // 3. The Composition
-            // The 'and' method takes the Validation<Object> from sneakyRule
-            // and casts it to Validation<String> via (Validation<S>)
-            Rule<String> combinedRule = stringRule.and(sneakyRule);
+            // then maps the result of the second Rule back to the value of the first Rule,
+            // protecting us from the misbehaving second rule
+            Rule<String> combinedRule = stringRule.then(sneakyRule);
 
-            // 4. The result: since and maps the result of the second Rule back to the value of the first Rule,
-            // we're protected from the misbehaving second rule
+            // 4. The result: the original input is returned, not the value from the sneaky rule
             String result = combinedRule.apply("some input").getOrElseThrow();
             assertThat(result).isEqualTo("some input");
         }
 
         @Test
-        void and_whenCombinedWithSuperRule_orderDoesntMatter() {
+        void then_whenCombiningWithSuperRule_compilesAndWorks() {
             Rule<Number> numberRule = Rule.of(o -> true, "msg");
             Rule<BigDecimal> decimalRule = Rule.of(o -> true, "msg");
 
-
-            Rule<BigDecimal> and = decimalRule.and(numberRule);
-            Rule<BigDecimal> and2 = numberRule.and(decimalRule);
+            // a more specific Rule can chain to a less specific Rule (BigDecimal → Number)
+            Rule<BigDecimal> then1 = decimalRule.then(numberRule);
+            assertThatValidation(then1.apply(BigDecimal.ONE)).isValid();
         }
 
         @Test
-        void and_whenBothRulesMatch_returnsValidResult() {
+        void then_whenBothRulesMatch_returnsValidResult() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> combined = rule1.and(rule2);
+            Rule<String> combined = rule1.then(rule2);
 
             // Act
             Validation<String> result = combined.apply("hello");
@@ -403,11 +419,11 @@ class RuleTest {
         }
 
         @Test
-        void and_whenFirstRuleFails_returnsInvalidWithFirstErrorMessage() {
+        void then_whenFirstRuleFails_returnsInvalidWithFirstErrorMessage() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> combined = rule1.and(rule2);
+            Rule<String> combined = rule1.then(rule2);
 
             // Act
             Validation<String> result = combined.apply("hi");
@@ -419,11 +435,11 @@ class RuleTest {
         }
 
         @Test
-        void and_whenSecondRuleFails_returnsInvalidWithSecondErrorMessage() {
+        void then_whenSecondRuleFails_returnsInvalidWithSecondErrorMessage() {
             // Arrange
             Rule<String> rule1 = Rule.of(s -> s.length() > 3, "too.short");
             Rule<String> rule2 = Rule.of(s -> s.startsWith("h"), "must.start.with.h");
-            Rule<String> combined = rule1.and(rule2);
+            Rule<String> combined = rule1.then(rule2);
 
             // Act
             Validation<String> result = combined.apply("apple");
@@ -435,7 +451,7 @@ class RuleTest {
         }
 
         @Test
-        void and_whenFirstRuleFails_doesNotEvaluateSecondRule() {
+        void then_whenFirstRuleFails_doesNotEvaluateSecondRule() {
             // Arrange
             AtomicBoolean secondRuleCalled = new AtomicBoolean(false);
             Rule<String> firstRule = Rule.of(s -> false, "error.one");
@@ -445,31 +461,31 @@ class RuleTest {
             }, "error.two");
 
             // Act
-            firstRule.and(secondRule).apply("test");
+            firstRule.then(secondRule).apply("test");
 
             // Assert
             assertThat(secondRuleCalled.get()).isFalse();
         }
 
         @Test
-        void and_whenOtherRuleIsNull_throwsNullPointerException() {
+        void then_whenOtherRuleIsNull_throwsNullPointerException() {
             // Arrange
             Rule<String> rule = Rule.of(s -> true, "msg");
 
             // Act & Assert
-            assertThatCode(() -> rule.and(null))
+            assertThatCode(() -> rule.then((Rule<? super String>) null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("other rule cannot be null");
         }
 
         @Test
-        void and_whenCombiningWithRuleOfSuperType_compilesAndWorks() {
+        void then_whenCombiningWithRuleOfSuperType_compilesAndWorks() {
             // Arrange
             Rule<Number> isPositive = Rule.of(n -> n.doubleValue() > 0, "must.be.positive");
             Rule<BigDecimal> isLessThan1000 = Rule.of(b -> b.compareTo(new BigDecimal("1000")) < 0, "must.be.less.than.1000");
 
             // Act
-            Rule<BigDecimal> combined = isLessThan1000.and(isPositive);
+            Rule<BigDecimal> combined = isLessThan1000.then(isPositive);
 
             // Assert
             assertThatValidation(combined.apply(new BigDecimal("500")))

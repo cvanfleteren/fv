@@ -22,7 +22,7 @@ public record Bic(String value) {
                     strings.length(11)
             )
             .withErrorKey("length.must.be.8.or.11")
-            .and(followsBicPattern);
+            .then(followsBicPattern);
 
     public Bic {
         value = assertThat(value, Bic::value).after(stringOps.stripWhitespace()).is(validBic);

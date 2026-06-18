@@ -120,10 +120,10 @@ class ExceptionHandlingTest {
         }
 
         @Test
-        void andAlso_whenBothThrow_propagatesFirstException() {
+        void and_whenBothThrow_propagatesFirstException() {
             Rule<String> rule1 = s -> { throw new RuntimeException("boom1"); };
             Rule<String> rule2 = s -> { throw new RuntimeException("boom2"); };
-            Rule<String> combined = rule1.andAlso(rule2);
+            Rule<String> combined = rule1.and(rule2);
 
             assertThatThrownBy(() -> combined.apply("test")).isInstanceOf(RuntimeException.class).hasMessage("boom1");
         }

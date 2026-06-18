@@ -20,7 +20,7 @@ result.isValid(); // true
 
 Validation<String> failure = validUsername.apply("!!");
 failure.isInvalid(); // true
-failure.errors();    // List<ErrorMessage>: "must.have.min.length"
+failure.errors();    // List<ErrorMessage>: ["must.have.min.length", "must.be.alphanumeric"]
 ```
 
 ## Table of contents
@@ -363,7 +363,7 @@ more targeted assertions.
 ## More recipes
 
 This README only scratches the surface. See **[faq.md](faq.md)** for recipes covering rule composition
-(`and`, `andAlso`, `or`, `xor`, `fallback`), null-safety, validating `Optional`/`Option`/lists/maps, enums,
+(`and`, `then`, `or`, `xor`, `fallback`), null-safety, validating `Optional`/`Option`/lists/maps, enums,
 cross-field validation, exception handling (`Validation.from()`, `mapCatching`, `flatMapCatchingAll`), and more.
 
 ---

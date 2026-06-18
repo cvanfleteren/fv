@@ -150,8 +150,8 @@ public class RuleLifter<T> extends Lifter<T,T> {
     @Override
     public <K> Rule<java.util.Map<K, T>> toMap(Function<K, Object> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
-        return Rule.notNull().and(
-                map -> {
+        return Rule.of(
+                (java.util.Map<K, T> map) -> {
                     Seq<Tuple2<K, Validation<T>>> validations = HashMap.ofAll(map).map(tuple ->
                             Tuple.of(tuple._1, this.test(tuple._2).mapErrors(errors ->
                                     errors.map(e -> e.atIndex(keyExtractor.apply(tuple._1)))

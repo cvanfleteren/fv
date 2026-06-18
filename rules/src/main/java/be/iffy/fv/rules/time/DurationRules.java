@@ -68,10 +68,10 @@ public final class DurationRules implements ComparableRules<Duration>, IObjectRu
      * @param limit the limit.
      */
     public Rule<Duration> isShorterThan(Duration limit) {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 d -> d.compareTo(limit) < 0,
                 ErrorMessage.of("must.be.shorter", "limit", limit)
-        ));
+        );
     }
 
     /**
@@ -87,10 +87,10 @@ public final class DurationRules implements ComparableRules<Duration>, IObjectRu
      * @param limit the limit.
      */
     public Rule<Duration> isLongerThan(Duration limit) {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 d -> d.compareTo(limit) > 0,
                 ErrorMessage.of("must.be.longer", "limit", limit)
-        ));
+        );
     }
 
     /**
@@ -101,10 +101,10 @@ public final class DurationRules implements ComparableRules<Duration>, IObjectRu
      * @return a {@link Rule} checking if the duration is positive.
      */
     public Rule<Duration> isPositive() {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 d -> d.compareTo(Duration.ZERO) > 0,
                 ErrorMessage.of("must.be.positive")
-        ));
+        );
     }
 
     /**
@@ -115,9 +115,9 @@ public final class DurationRules implements ComparableRules<Duration>, IObjectRu
      * @return a {@link Rule} checking if the duration is negative.
      */
     public Rule<Duration> isNegative() {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 d -> d.compareTo(Duration.ZERO) < 0,
                 ErrorMessage.of("must.be.negative")
-        ));
+        );
     }
 }

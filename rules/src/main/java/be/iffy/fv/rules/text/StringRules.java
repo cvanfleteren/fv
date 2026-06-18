@@ -741,10 +741,10 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
         if (maxLength < minLength) {
             throw new IllegalArgumentException("maxLength must be >= minLength");
         }
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
             s -> s.length() >= minLength && s.length() <= maxLength,
             ErrorMessage.of("must.have.length.between", HashMap.of("min", minLength, "max", maxLength))
-        ));
+        );
     }
 
     /**

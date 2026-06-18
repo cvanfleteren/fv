@@ -37,9 +37,9 @@ This file contains standards and patterns established during the development of 
      * @return a {@link Rule} checking the minimum value.
      */
     public Rule<BigDecimal> min(BigDecimal minInclusive) {
-        return Rule.notNull().and(Rule.of(
+        return Rule.of(
                 b -> b.compareTo(minInclusive) >= 0,
                 ErrorMessage.of("must.be.at.least", "min", minInclusive)
-        ));
+        );
     }
 ```

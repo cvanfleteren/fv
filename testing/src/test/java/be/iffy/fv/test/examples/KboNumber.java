@@ -7,7 +7,7 @@ import static be.iffy.fv.dsl.DSL.*;
 public record KboNumber(String value) {
 
     static final Rule<String> validKbo = after(stringOps.keepDigits()).is(
-            strings.length(10).andAlso(strings.startsWith("0","1"))
+            strings.length(10).and(strings.startsWith("0","1"))
     );
 
     public KboNumber {

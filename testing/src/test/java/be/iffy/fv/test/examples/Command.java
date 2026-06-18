@@ -27,7 +27,7 @@ public record Command(Debtor debtor, KboNumber kboNumber, List<Transaction> tran
             var result = asserting(
                 validateThat(street, QueueMessage.Address::street).after(stringOps.trim()).is(strings.notBlank()),
                 validateThat(houseNumber, QueueMessage.Address::houseNumber).after(stringOps.trim()).is(strings.notBlank()),
-                validateThat(city, QueueMessage.Address::city).after(stringOps.trim()).is(strings.notBlank().and(strings.minLength(2)))
+                validateThat(city, QueueMessage.Address::city).after(stringOps.trim()).is(strings.notBlank().then(strings.minLength(2)))
             );
             street = result._1;
             houseNumber = result._2;

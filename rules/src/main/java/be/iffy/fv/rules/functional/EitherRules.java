@@ -1,17 +1,15 @@
 package be.iffy.fv.rules.functional;
 
-import be.iffy.fv.Validation;
-import io.vavr.control.Either;
 import be.iffy.fv.Rule;
+import be.iffy.fv.Validation;
 import be.iffy.fv.rules.IObjectRules;
+import io.vavr.control.Either;
 
 import java.util.Objects;
 
 /**
  * Validation rules for {@link Either} values.
  *
- 
- 
  */
 public final class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
 
@@ -25,8 +23,6 @@ public final class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
     /**
      * Returns the singleton instance of {@link EitherRules}.
      *
-     
-     
      */
     @SuppressWarnings("unchecked")
     public static <L, R> EitherRules<L, R> eithers() {
@@ -41,7 +37,7 @@ public final class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
      * @return a {@link Rule} checking if the either is a right.
      */
     public Rule<Either<L, R>> isRight() {
-        return Rule.notNull().and(Rule.of(Either::isRight, "must.be.right"));
+        return Rule.of(Either::isRight, "must.be.right");
     }
 
     /**
@@ -54,7 +50,7 @@ public final class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
      */
     public Rule<Either<L, R>> isRight(Rule<? super R> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return isRight().and(validateRightWith(rule));
+        return isRight().then(validateRightWith(rule));
     }
 
     /**
@@ -79,7 +75,7 @@ public final class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
      */
     public Rule<Either<L, R>> isLeft(Rule<? super L> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return isLeft().and(validateLeftWith(rule));
+        return isLeft().then(validateLeftWith(rule));
     }
 
     /**
@@ -91,7 +87,7 @@ public final class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
      */
     public Rule<Either<L, R>> validateLeftWith(Rule<? super L> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return Rule.notNull().and(either -> {
+        return Rule.of((Either<L,R> either) -> {
             if (either.isLeft()) {
                 return rule.apply(either.getLeft()).map(ignore -> either);
             }
@@ -108,7 +104,7 @@ public final class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
      */
     public Rule<Either<L, R>> validateRightWith(Rule<? super R> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return Rule.notNull().and(either -> {
+        return Rule.of(either -> {
             if (either.isRight()) {
                 return rule.apply(either.get()).map(ignore -> either);
             }
