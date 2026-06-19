@@ -304,7 +304,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      */
     default <S extends T> Rule<S> xor(Function<? super S, ? extends Validation<?>> other, ErrorMessage errorMessage) {
         Objects.requireNonNull(other, "other cannot be null");
-        Objects.requireNonNull(errorMessage, "errorKey cannot be null");
+        Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return input -> {
             if (input == null) {
                 return Invalid.notNull();
