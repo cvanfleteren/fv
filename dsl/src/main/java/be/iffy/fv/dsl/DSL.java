@@ -134,62 +134,91 @@ public final class DSL {
 
     //region Rules
 
+    /** Rules for validating any {@link Object}. */
     public static final ObjectRules objects = ObjectRules.objects;
 
+    /** Rules for validating {@link Boolean} values. */
     public static final BooleanRules booleans = BooleanRules.booleans;
 
+    /** Rules for validating {@link String} values. */
     public static final StringRules strings = StringRules.strings;
 
+    /** Transformations for {@link String} values (trim, casing, parsing, etc.). */
     public static final StringOps stringOps = StringOps.stringOps;
 
+    /** Rules for validating {@link java.math.BigDecimal} values. */
     public static final BigDecimalRules bigDecimals = BigDecimalRules.bigDecimals;
 
+    /** Rules for validating {@link java.math.BigInteger} values. */
     public static final BigIntegerRules bigIntegers = BigIntegerRules.bigIntegers;
 
+    /** Rules for validating {@link Double} values. */
     public static final DoubleRules doubles = DoubleRules.doubles;
 
+    /** Rules for validating {@link Float} values. */
     public static final FloatRules floats = FloatRules.floats;
 
+    /** Rules for validating {@link Integer} values. */
     public static final IntegerRules ints = IntegerRules.ints;
 
+    /** Rules for validating {@link Long} values. */
     public static final LongRules longs = LongRules.longs;
 
+    /** Rules for validating {@link java.time.Duration} values. */
     public static final DurationRules durations = DurationRules.durations;
 
+    /** Rules for validating {@link java.time.Instant} values. */
     public static final InstantRules instants = InstantRules.instants;
 
+    /** Rules for validating {@link java.time.LocalDate} values. */
     public static final LocalDateRules localDates = LocalDateRules.localDates;
 
+    /** Rules for validating {@link java.time.LocalDateTime} values. */
     public static final LocalDateTimeRules localDateTimes = LocalDateTimeRules.localDateTimes;
 
+    /** Rules for validating {@link java.time.OffsetDateTime} values. */
     public static final OffsetDateTimeRules offsetDateTimes = OffsetDateTimeRules.offsetDateTimes;
 
+    /** Rules for validating {@link java.time.OffsetTime} values. */
     public static final OffsetTimeRules offsetTimes = OffsetTimeRules.offsetTimes;
 
+    /** Rules for validating {@link java.time.LocalTime} values. */
     public static final LocalTimeRules localTimes = LocalTimeRules.localTimes;
 
+    /** Rules for validating {@link java.time.Year} values. */
     public static final YearRules years = YearRules.years;
 
+    /** Rules for validating {@link java.time.YearMonth} values. */
     public static final YearMonthRules yearMonths = YearMonthRules.yearMonths;
 
+    /** Rules for validating {@link java.time.ZonedDateTime} values. */
     public static final ZonedDateTimeRules zonedDateTimes = ZonedDateTimeRules.zonedDateTimes;
 
+    /** Rules for validating Vavr {@link io.vavr.collection.List} values. */
     public static final VavrListRules vavrLists = VavrListRules.vavrLists;
 
+    /** Rules for validating {@link java.util.List} values. */
     public static final ListRules lists = ListRules.lists;
 
+    /** Rules for validating {@link java.util.Collection} values. */
     public static final CollectionRules collections = CollectionRules.collections;
 
+    /** Rules for validating {@link java.util.Set} values. */
     public static final SetRules sets = SetRules.sets;
 
+    /** Rules for validating Vavr {@link io.vavr.collection.Set} values. */
     public static final VavrSetRules vavrSets = VavrSetRules.vavrSets;
 
+    /** Rules for validating Vavr {@link io.vavr.collection.Map} values. */
     public static final VavrMapRules vavrMaps = VavrMapRules.vavrMaps;
 
+    /** Rules for validating {@link java.util.Map} values. */
     public static final MapRules maps = MapRules.maps;
 
+    /** Rules for validating Vavr {@link io.vavr.control.Option} values. */
     public static final OptionRules options = OptionRules.options;
 
+    /** Rules for validating {@link java.util.Optional} values. */
     public static final OptionalRules optionals = OptionalRules.optionals;
 
     public static <L,R> EitherRules<L,R> eithers() {
