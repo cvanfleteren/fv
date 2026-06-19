@@ -260,7 +260,7 @@ class StringOpsTest {
 
         @Test
         void stripDigits_keepsOnlyNonDigits_endsUpEmpty() {
-            transform("abcdef\uD83D\uDE19", "abcdef\uD83D\uDE19", stringOps.stripDigits());
+            transform("123456", "", stringOps.stripDigits());
         }
 
         @Test
