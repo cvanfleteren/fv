@@ -13,6 +13,7 @@ import be.iffy.fv.rules.text.StringOps;
 import be.iffy.fv.rules.text.StringRules;
 import be.iffy.fv.rules.time.*;
 import io.vavr.*;
+import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import org.jetbrains.annotations.Contract;
@@ -469,6 +470,26 @@ public final class DSL {
     public static <T, Z> AssertDSL<T> assertThat(T value, PropertySelector<Z, T> selector) {
         Objects.requireNonNull(selector, "selector cannot be null");
         return new AssertDSL<>(value, Option.of(selector.getPropertyName()));
+    }
+
+    /**
+     * Asserts the provided validations and throws a ValidationException if any errors are found.
+     * This method iterates through the given validations, collects their error messages,
+     * and ensures that all validations are non-null.
+     *
+     * @throws ValidationException if any validation is invalid.
+     */
+    public static void asserting(Validation<?>... validations) throws ValidationException {
+        Objects.requireNonNull(validations, "validations is required");
+
+        List<ErrorMessage> errors = Iterator.of(validations)
+            .map(v -> Objects.requireNonNull(v, "each validation is required"))
+            .flatMap(Validation::errors)
+            .toList();
+
+        if (!errors.isEmpty()) {
+            throw new ValidationException(errors);
+        }
     }
 
     /**

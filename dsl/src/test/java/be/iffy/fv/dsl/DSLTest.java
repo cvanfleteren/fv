@@ -473,6 +473,64 @@ public class DSLTest {
     }
 
     @Nested
+    class AssertingVarargs {
+
+        @Test
+        void asserting_whenAllValid_doesNotThrow() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("ok");
+            Validation<Integer> v2 = Validation.valid(123);
+
+            // Act & Assert
+            assertThatCode(() -> DSL.asserting(new Validation<?>[]{v1, v2}))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        void asserting_whenSomeInvalid_throwsValidationExceptionWithAllErrors() {
+            // Arrange
+            Validation<String> v1 = Validation.invalid("error1");
+            Validation<Integer> v2 = Validation.valid(123);
+            Validation<String> v3 = Validation.invalid("error2");
+
+            // Act & Assert
+            assertThatThrownBy(() -> DSL.asserting(v1, v2, v3))
+                    .isInstanceOf(ValidationException.class)
+                    .satisfies(ex -> {
+                        ValidationException ve = (ValidationException) ex;
+                        assertThat(ve.errors())
+                                .containsExactly(ErrorMessage.of("error1"), ErrorMessage.of("error2"));
+                    });
+        }
+
+        @Test
+        void asserting_whenEmpty_doesNotThrow() {
+            // Act & Assert
+            assertThatCode(() -> DSL.asserting())
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        void asserting_whenNullArray_throwsNullPointerException() {
+            // Act & Assert
+            assertThatThrownBy(() -> DSL.asserting((Validation<?>[]) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("validations is required");
+        }
+
+        @Test
+        void asserting_whenArrayContainsNull_throwsNullPointerException() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("ok");
+
+            // Act & Assert
+            assertThatThrownBy(() -> DSL.asserting(new Validation<?>[]{v1, null}))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("each validation is required");
+        }
+    }
+
+    @Nested
     class AssertAllValid {
 
         @Test
