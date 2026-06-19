@@ -39,7 +39,7 @@ class OptionalRulesTest {
         @Test
         void invalid() {
             invalidTest(Optional.empty(), optionals.required(strings.notBlank()), "must.not.be.empty");
-            invalidTest(Optional.empty(), optionals.required(strings.notBlank()), "must.not.be.empty");
+            invalidTest(Optional.of(""), optionals.required(strings.notBlank()), "must.not.be.blank");
             invalidTest(null, optionals.required(), "must.not.be.null");
         }
     }
