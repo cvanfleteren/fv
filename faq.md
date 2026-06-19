@@ -10,6 +10,7 @@ feel free to open an issue or reach out to the maintainers.
 - [Whats with the Function<? super T, ? extends Validation<R>> signatures?](#whats-with-the-function-super-t--extends-validationr-signatures)
 - [Do I need to use Strings to name the values I'm validating?](#do-i-need-to-use-strings-to-name-the-values-im-validating)
 - [Are rules null-safe by default?](#are-rules-null-safe-by-default)
+- [How do I create a Validation directly from a nullable value?](#how-do-i-create-a-validation-directly-from-a-nullable-value)
 
 **Errors and Diagnostics**
 - [I have an Invalid validation, how can I know what was wrong?](#i-have-an-invalid-validation-how-can-i-know-what-was-wrong)
@@ -23,15 +24,20 @@ feel free to open an issue or reach out to the maintainers.
 - [How can I apply a rule only if a certain condition is met?](#how-can-i-apply-a-rule-only-if-a-certain-condition-is-met)
 - [If I have for example a Rule for Number, can I use it to also validate a subtype like BigDecimal?](#if-i-have-for-example-a-rule-for-number-can-i-use-it-to-also-validate-a-subtype-like-bigdecimal)
 - [I have a Rule for a certain type (e.g., Amount), and now I have another type Transaction that wraps Amount, can I reuse the Amount rule?](#i-have-a-rule-for-a-certain-type-eg-amount-and-now-i-have-another-type-transaction-that-wraps-amount-can-i-reuse-the-amount-rule)
+- [I want a single reusable rule that validates and transforms the same input in multiple ways — how?](#i-want-a-single-reusable-rule-that-validates-and-transforms-the-same-input-in-multiple-ways--how)
+- [How do I transform the result of a MappingRule?](#how-do-i-transform-the-result-of-a-mappingrule)
+- [How do I get a standard Java `Predicate` from a `Rule`?](#how-do-i-get-a-standard-java-predicate-from-a-rule)
 
-**Containers: Optional, List, Map**
+**Containers: Optional, List, Set, Map**
 - [How can I check that my optional value meets a Rule when it is not empty (but empty is also allowed)?](#how-can-i-check-that-my-optional-value-meets-a-rule-when-it-is-not-empty-but-empty-is-also-allowed)
 - [How can I check that my optional value meets a Rule when it is not empty (but this time empty is NOT allowed)?](#how-can-i-check-that-my-optional-value-meets-a-rule-when-it-is-not-empty-but-this-time-empty-is-not-allowed)
 - [I have a List of things, and I want to check that each entry meets a Rule](#i-have-a-list-of-things-and-i-want-to-check-that-each-entry-meets-a-rule)
+- [Can I also validate Sets?](#can-i-also-validate-sets)
 - [Can I also validate Maps?](#can-i-also-validate-maps)
 - [I have a List<Validation<T>>, how can I turn it into a Validation<List<T>>?](#i-have-a-listvalidationt-how-can-i-turn-it-into-a-validationlistt)
 - [I have a String, and want to make sure it's a valid value for a given Enum](#i-have-a-string-and-want-to-make-sure-its-a-valid-value-for-a-given-enum)
 - [How does this library work with standard Java collections vs Vavr collections?](#how-does-this-library-work-with-standard-java-collections-vs-vavr-collections)
+- [Can I validate Vavr `Either` values?](#can-i-validate-vavr-either-values)
 
 **Building Validated Objects**
 - [How can I make sure my record or class is created with valid values?](#how-can-i-make-sure-my-record-or-class-is-created-with-valid-values)
@@ -47,7 +53,21 @@ feel free to open an issue or reach out to the maintainers.
 **Working with Validation Results**
 - [I have a Validation, but I want to add an extra check on the value](#i-have-a-validation-but-i-want-to-add-an-extra-check-on-the-value)
 - [I want to perform a side effect (like logging) only if a validation is successful.](#i-want-to-perform-a-side-effect-like-logging-only-if-a-validation-is-successful)
+- [How do I consume a Validation result into a plain value or handle both branches?](#how-do-i-consume-a-validation-result-into-a-plain-value-or-handle-both-branches)
 - [How do I perform cross-field validation where one field's validation depends on another?](#how-do-i-perform-cross-field-validation-where-one-field-s-validation-depends-on-another)
+
+**Time and Date Validation**
+- [What date and time rule namespaces are available?](#what-date-and-time-rule-namespaces-are-available)
+- [How do I control "now" in time rules (e.g., in tests)?](#how-do-i-control-now-in-time-rules-eg-in-tests)
+
+**String Transformations (`stringOps`)**
+- [What string transformations are available to use with `after()`?](#what-string-transformations-are-available-to-use-with-after)
+
+**Testing**
+- [How do I write clean assertions on Validation results in tests?](#how-do-i-write-clean-assertions-on-validation-results-in-tests)
+
+**Pattern Matching**
+- [Can I use Java pattern matching (switch) on a Validation?](#can-i-use-java-pattern-matching-switch-on-a-validation)
 
 ---
 
@@ -145,6 +165,21 @@ Most factory methods like `Rule.of(Predicate, ...)` include a null check. If the
 
 However, if you implement the `Rule` interface directly or use certain combinators, you should be aware of nullability.
 It is generally recommended to start your validation chain with `Rule.notNull()` if you expect a non-null value.
+
+---
+
+### How do I create a Validation directly from a nullable value?
+
+Use `Validation.fromNullable(value)`. It returns `Valid(value)` if the value is non-null, or
+`Invalid("must.not.be.null")` if it is null:
+
+```java
+Validation<String> v1 = Validation.fromNullable("hello"); // Valid("hello")
+Validation<String> v2 = Validation.fromNullable(null);    // Invalid([must.not.be.null])
+```
+
+This is a convenient shorthand for bridging nullable APIs into the validation world without having to write your own
+null check.
 
 ---
 
@@ -430,7 +465,70 @@ to it. If the validation fails, the error will be reported at the `amount` path 
 
 ---
 
-## Containers: Optional, List, Map
+### I want a single reusable rule that validates and transforms the same input in multiple ways — how?
+
+Use `DSL.combine(rule1, rule2, ...).map(mapper)`. It takes multiple rule functions that all accept the same input type
+`T`, accumulates their results (like `validating`), and combines the successful values via the mapper into a reusable
+`MappingRule<T, R>`.
+
+Unlike `validating(...)`, which evaluates immediately on values you already have, `combine(...)` builds a **reusable
+rule** you can store and apply later:
+
+```java
+record PersonDto(String name, String age) {}
+record Person(String name, int age) {}
+
+// Define the rule once
+MappingRule<PersonDto, Person> toPersonRule = combine(
+        strings.minLength(3).on(PersonDto::name),
+        strings.asInteger().then(ints.positive()).on(PersonDto::age)
+).map(Person::new);
+
+// Apply wherever needed
+Validation<Person> result = toPersonRule.apply(dto);
+```
+
+If any rule fails, errors from all failing rules are accumulated into a single `Invalid`. See the
+[`validating` vs `combine` section](#what-is-the-difference-between-validatethat-assertthat-validating-and-asserting)
+for a full comparison.
+
+---
+
+### How do I transform the result of a MappingRule?
+
+Use `MappingRule.map(Function)` to post-map the successful output type. This is useful for chaining transformations
+after validation:
+
+```java
+MappingRule<String, Integer> doubled = strings.asInteger().map(i -> i * 2);
+
+doubled.apply("5");   // Valid(10)
+doubled.apply("abc"); // Invalid (must.be.integer)
+```
+
+You can also use `mapTo(constant)` to replace the successful result with a fixed value regardless of what the rule
+produced.
+
+---
+
+### How do I get a standard Java `Predicate` from a `Rule`?
+
+Use `rule.toPredicate()`. This bridges a `Rule<T>` into a standard Java `Predicate<T>`, which is useful when
+integrating with APIs that expect a predicate (e.g., stream filters):
+
+```java
+Predicate<String> nonEmpty = strings.notEmpty().toPredicate();
+
+List.of("hello", "", "world").stream()
+        .filter(nonEmpty)
+        .toList(); // ["hello", "world"]
+```
+
+`MappingRule` also has `toPredicate()`, returning `true` when the rule produces a `Valid` result.
+
+---
+
+## Containers: Optional, List, Set, Map
 
 ### How can I check that my optional value meets a Rule when it is not empty (but empty is also allowed)?
 
@@ -518,6 +616,28 @@ Rule<List<String>> allNotEmpty = lists.allMatchRule(strings.notEmpty());
 ```
 
 All these approaches are equivalent, as they are convenience wrappers around `lift().toList()`.
+
+---
+
+### Can I also validate Sets?
+
+Yes! The `sets` namespace (for `java.util.Set`) and `vavrSets` (for Vavr `io.vavr.collection.Set`) offer the same
+rules as `lists`: `notEmpty()`, `empty()`, `minSize(n)`, `maxSize(n)`, `sizeEquals(n)`, `sizeBetween(min, max)`,
+`noNullElements()`, `allMatch(Predicate)`, `allMatchRule(Rule)`, `noneMatch(Predicate)`, `anyMatch(Predicate)`,
+`contains(element)`, `containsAll(elements)`, `containsAnyOf(candidates)`, `uniqueBy(keyExtractor, label)`, and
+`validateValuesWith(Rule)`.
+
+```java
+Rule<Set<String>> atLeastTwo = sets.minSize(2);
+Rule<Set<String>> allNonBlank = sets.allMatchRule(strings.notBlank());
+
+atLeastTwo.apply(Set.of("a"));       // Invalid (must.have.min.size)
+atLeastTwo.apply(Set.of("a", "b"));  // Valid
+```
+
+> [!NOTE]
+> If your `Set` does not have a fixed iteration order (e.g. a plain `HashSet`), the index in error path segments is
+> non-deterministic across runs. Use a `LinkedHashSet` or `TreeSet` if you need stable error paths.
 
 ---
 
@@ -660,6 +780,38 @@ The library is built on top of **Vavr**, but it provides excellent support for b
 
 We recommend using Vavr collections in your domain logic where possible for better functional integration, but the
 library does not force you to do so in your APIs.
+
+---
+
+### Can I validate Vavr `Either` values?
+
+Yes! Use the `eithers()` method (note: it is a method, not a field, because it is generic over `L` and `R`). It
+returns an `EitherRules<L, R>` with the following rules:
+
+| Method | Behaviour |
+|--------|-----------|
+| `isRight()` | Fails if the Either is Left |
+| `isLeft()` | Fails if the Either is Right |
+| `isRight(rule)` | Fails if Left, or if Right but the right value fails the rule |
+| `isLeft(rule)` | Fails if Right, or if Left but the left value fails the rule |
+| `validateRightWith(rule)` | Applies rule to the Right value; passes silently if it is Left |
+| `validateLeftWith(rule)` | Applies rule to the Left value; passes silently if it is Right |
+
+```java
+import static be.iffy.fv.dsl.DSL.*;
+import io.vavr.control.Either;
+
+Either<String, Integer> right = Either.right(42);
+Either<String, Integer> left  = Either.left("error");
+
+eithers().isRight().apply(right); // Valid
+eithers().isRight().apply(left);  // Invalid (must.be.right)
+
+Rule<Either<String, Integer>> positiveRight = eithers().isRight(ints.positive());
+positiveRight.apply(Either.right(-1)); // Invalid (must.be.positive)
+positiveRight.apply(Either.right(5));  // Valid
+positiveRight.apply(Either.left("x")); // Invalid (must.be.right)
+```
 
 ---
 
@@ -1119,6 +1271,51 @@ If you want to perform actions in both cases (success and failure), you can use 
 
 ---
 
+### How do I consume a Validation result into a plain value or handle both branches?
+
+There are several ways to extract a value or act on the result of a `Validation<T>`.
+
+#### `fold(whenInvalid, whenValid)` — handle both branches in one call
+
+`fold` takes a function for the invalid case and a function for the valid case, and always returns a plain value `R`:
+
+```java
+String message = validateThat(input, "name").is(strings.minLength(3))
+        .fold(
+                errors -> "Validation failed: " + errors.map(ErrorMessage::errorKey).mkString(", "),
+                name   -> "Hello, " + name + "!"
+        );
+```
+
+#### `getOrElse(default)` — unwrap with a fallback
+
+Returns the valid value, or the provided default if invalid:
+
+```java
+String value = validateThat(input, "name").is(strings.notEmpty())
+        .getOrElse("anonymous");
+```
+
+#### `orElse(otherValidation)` — substitute another Validation on failure
+
+If the current Validation is `Invalid`, `orElse` returns the alternative `Validation` instead:
+
+```java
+Validation<String> result = validateThat(input, "name").is(strings.notBlank())
+        .orElse(Validation.valid("default"));
+```
+
+#### `toOptional()` / `toOption()` — convert to Optional / Option
+
+Returns `Optional.of(value)` / `Option.of(value)` on success, and `Optional.empty()` / `Option.none()` on failure:
+
+```java
+Optional<String> opt = validateThat(input, "name").is(strings.notEmpty()).toOptional();
+opt.ifPresent(name -> System.out.println("Got: " + name));
+```
+
+---
+
 ### How do I perform cross-field validation where one field's validation depends on another?
 
 For cross-field validation, you typically have two options:
@@ -1160,4 +1357,215 @@ validating(
                 p -> p.start.isBefore(p.end),
                 "start.must.be.before.end"
         ));
+```
+
+---
+
+## Time and Date Validation
+
+### What date and time rule namespaces are available?
+
+The DSL exposes a rule namespace for each major `java.time` type:
+
+| Namespace        | Validates                       |
+|------------------|---------------------------------|
+| `localDates`     | `java.time.LocalDate`           |
+| `localDateTimes` | `java.time.LocalDateTime`       |
+| `localTimes`     | `java.time.LocalTime`           |
+| `zonedDateTimes` | `java.time.ZonedDateTime`       |
+| `instants`       | `java.time.Instant`             |
+| `yearMonths`     | `java.time.YearMonth`           |
+| `durations`      | `java.time.Duration`            |
+
+All namespaces provide the standard comparable operations shared with the numeric rules: `between(min, max)`,
+`betweenExclusive(min, max)`, `greaterThan(limit)`, `atLeast(limit)`, `lessThan(limit)`, `atMost(limit)`.
+
+For types that have a notion of "now" (`localDates`, `localDateTimes`, `zonedDateTimes`, `instants`) you also get
+temporal checks:
+
+```java
+localDates.isBefore(LocalDate.of(2030, 1, 1))   // must.be.before
+localDates.isAfter(LocalDate.of(2000, 1, 1))    // must.be.after
+localDates.isPast()                              // must be before today
+localDates.isFuture()                            // must be after today
+localDates.isToday()                             // must equal today (localDates only)
+localDates.isLeapYear()                          // must be a leap year (localDates only)
+```
+
+---
+
+### How do I control "now" in time rules (e.g., in tests)?
+
+By default, the singleton fields (`localDates`, `localDateTimes`, `instants`, etc.) use the JVM system clock. To
+override "now" — useful in tests — call the static factory method with a `java.time.Clock`:
+
+```java
+Clock fixed = Clock.fixed(Instant.parse("2024-01-15T12:00:00Z"), ZoneOffset.UTC);
+
+LocalDateRules testDates = LocalDateRules.localDates(fixed);
+// Same pattern for the other namespaces:
+// LocalDateTimeRules.localDateTimes(fixed), InstantRules.instants(fixed), etc.
+
+Rule<LocalDate> mustBePast = testDates.isPast();
+mustBePast.apply(LocalDate.of(2023, 6, 1)); // Valid   (before 2024-01-15)
+mustBePast.apply(LocalDate.of(2025, 1, 1)); // Invalid (after 2024-01-15)
+```
+
+---
+
+## String Transformations (`stringOps`)
+
+### What string transformations are available to use with `after()`?
+
+The `stringOps` namespace contains pre-built `Transformation<String>` functions. They are all null-safe: a `null`
+input passes through as `null` without throwing.
+
+| Method | Example |
+|--------|---------|
+| `trim()` | `" hello " → "hello"` |
+| `stripNewlines()` | `"hello\nworld" → "hello world"` |
+| `collapseWhitespace()` | `"a \n\t b" → "a b"` |
+| `normalizeSpace()` | `"  a \n\t b  " → "a b"` |
+| `stripWhitespace()` | `" a b c " → "abc"` |
+| `keepDigits()` | `"abc123def" → "123"` |
+| `stripDigits()` | `"abc123" → "abc"` |
+| `keepAlphanumeric()` | `"abc@#123" → "abc123"` |
+| `keepLettersOnly()` | `"H3llo, 世界!" → "Hllo世界"` |
+| `keepLettersAndSpacesOnly()` | `"Hello, 世界! 123" → "Hello 世界"` |
+| `toLowercase()` | `"HeLLo" → "hello"` (Locale.ROOT) |
+| `toLowercase(locale)` | locale-aware lowercase |
+| `toUppercase()` | `"HeLLo" → "HELLO"` (Locale.ROOT) |
+| `toUppercase(locale)` | locale-aware uppercase |
+| `removeCharacters(chars)` | `removeCharacters("-").apply("a-b-c") → "abc"` |
+| `replaceAll(regex, replacement)` | standard regex replacement |
+| `keepChars(allowed)` | `keepChars("abc").apply("xaxbxc") → "abc"` |
+| `stripDiacritics()` | `"Café" → "Cafe"` |
+| `stripControlChars()` | removes ` `, zero-width spaces, BOM, etc. |
+| `truncate(maxLen)` | hard cut, surrogate-pair safe |
+| `truncateWithEllipsis(maxLen)` | cut + append `…` |
+
+Use them with `after()` in both the DSL and when defining reusable rules:
+
+```java
+// Inline in a constructor
+value = assertThat(value, "value")
+        .after(stringOps.normalizeSpace())
+        .is(strings.minLength(3));
+
+// As a reusable Rule
+Rule<String> cleanName = after(stringOps.normalizeSpace()).is(strings.minLength(3));
+```
+
+#### Using your own transformation functions
+
+`Transformation<T>` is just a `@FunctionalInterface` — any method reference or lambda that takes a `T` and returns a
+`T` works. The only requirement is that it is **null-safe**: when the input is `null`, the function must return `null`
+rather than throw (null-checking is handled by the rule that follows, not by the transformation).
+
+For example, most methods in Apache Commons Lang's `StringUtils` are already null-safe and slot in directly:
+
+```java
+import org.apache.commons.lang3.StringUtils;
+
+value = assertThat(value, "value")
+        .after(StringUtils::stripAccents)
+        .is(strings.minLength(3));
+
+Rule<String> abbreviate = after(s -> StringUtils.abbreviate(s, 20)).is(strings.notBlank());
+```
+
+---
+
+## Testing
+
+### How do I write clean assertions on Validation results in tests?
+
+Add the `assertj` module to your test dependencies:
+
+```xml
+<dependency>
+    <groupId>be.iffy</groupId>
+    <artifactId>functional-validation-assertj</artifactId>
+    <version>...</version>
+    <scope>test</scope>
+</dependency>
+```
+
+Then static-import the entry points:
+
+```java
+import static be.iffy.fv.assertj.ValidationAssert.*;
+```
+
+#### Asserting a valid result
+
+`assertThatValidation(v).isValid()` returns an AssertJ `ObjectAssert<T>` so you can chain further checks on the
+unwrapped value:
+
+```java
+assertThatValidation(strings.minLength(3).apply("hello"))
+        .isValid()
+        .isEqualTo("hello");
+```
+
+Or use the static shorthand `assertValid(v)` which goes straight to the `ObjectAssert<T>`.
+
+#### Asserting an invalid result
+
+`assertThatValidation(v).isInvalid()` returns an `InvalidValidationAssert` with dedicated helpers:
+
+```java
+assertThatValidation(strings.minLength(5).apply("hi"))
+        .isInvalid()
+        .hasErrorKeys("must.have.min.length")
+        .hasErrorCount(1);
+```
+
+Available methods on `InvalidValidationAssert`:
+
+| Method | Description |
+|--------|-------------|
+| `hasErrorKeys(String...)` | checks that the given error keys are present |
+| `hasErrorMessages(String...)` | checks full path-qualified error messages |
+| `hasErrorCount(int)` | exact number of errors |
+| `hasFormattedMessage(String)` | checks a specific `formatted()` string |
+| `errorKeys()` | returns `ListAssert<String>` for custom assertions on keys |
+| `errorMessages()` | returns `ListAssert<String>` for custom assertions on messages |
+| `formattedMessages()` | returns `ListAssert<String>` on `formatted()` strings |
+| `errors()` | returns `ListAssert<ErrorMessage>` for full control |
+
+#### Asserting that a constructor throws `ValidationException`
+
+When the code under test uses `assertThat` / `asserting` internally and throws on bad input:
+
+```java
+assertInvalid(() -> new Username(""))
+        .hasErrorKeys("must.not.be.empty");
+```
+
+---
+
+## Pattern Matching
+
+### Can I use Java pattern matching (switch) on a Validation?
+
+Yes. `Validation<T>` is a `sealed interface` with exactly two implementations — `Validation.Valid<T>` and
+`Validation.Invalid<T>` — both of which are Java `record`s. Java 21 pattern-matching switch works directly and the
+compiler knows the two cases are exhaustive, so no `default` branch is needed:
+
+```java
+String message = switch (validation) {
+    case Validation.Valid<String>(var value) ->
+            "Hello, " + value + "!";
+    case Validation.Invalid<String>(var errors) ->
+            "Errors: " + errors.map(ErrorMessage::errorKey).mkString(", ");
+};
+```
+
+You can also use `instanceof` for a simple type check without deconstruction:
+
+```java
+if (validation instanceof Validation.Valid<String> v) {
+    process(v.value());
+}
 ```
