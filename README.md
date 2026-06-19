@@ -1,4 +1,4 @@
-[![Maven Central](https://img.shields.io/maven-central/v/be.iffy.fv/fv-parent.svg?label=Maven%20Central)](https://central.sonatype.com/search?q=be.iffy.fv)
+[![Maven Central](https://img.shields.io/maven-central/v/be.iffy.fv/core.svg?label=Maven%20Central)](https://central.sonatype.com/search?q=be.iffy.fv)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 # FV — Functional Validation
@@ -345,7 +345,7 @@ error handling).
 `required`, `matches`, `contains`, `notEmpty` / `empty` (for `Optional`/`Option`); `isRight` / `isLeft`,
 `validateLeftWith` / `validateRightWith` (for `Either`).
 
-### Time (`localDates`, `localDateTimes`, `localTimes`, `zonedDateTimes`, `instants`, `yearMonths`, `durations`)
+### Time (`localDates`, `localDateTimes`, `localTimes`, `offsetDateTimes`, `offsetTimes`, `zonedDateTimes`, `instants`, `yearMonths`, `years`, `durations`)
 `isBefore`, `isAfter`, `isPast`, `isFuture`, `isToday` (where applicable to the type), plus the shared comparable
 range checks listed under Numbers above. `isPast`/`isFuture`/`isToday` are evaluated against a `java.time.Clock`
 (defaulting to the system clock), and each time-rules class exposes a factory taking a custom `Clock` (e.g.
@@ -354,7 +354,7 @@ range checks listed under Numbers above. `isPast`/`isFuture`/`isToday` are evalu
 ---
 
 ## Inspecting errors
-
+  
 Every `Invalid` result carries a `List<ErrorMessage>`. Each `ErrorMessage` has an `errorKey`, a `path`, and a map
 of `parameters` you can use to build a localized message. For quick debugging, use `formatted()`:
 
