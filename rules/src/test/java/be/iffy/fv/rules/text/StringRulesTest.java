@@ -530,7 +530,7 @@ class StringRulesTest {
         @Test
         void invalid_pattern() {
             Pattern pattern = Pattern.compile("\\d+");
-            invalidTest("12a", strings.matches(pattern), "must.match.regex", HashMap.of("regex", pattern));
+            invalidTest("12a", strings.matches(pattern), "must.match.regex", HashMap.of("regex", pattern.pattern()));
             invalidTest(null, strings.matches(pattern), "must.not.be.null");
         }
 

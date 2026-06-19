@@ -1030,7 +1030,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
         Objects.requireNonNull(regex, "regex cannot be null");
         return Rule.of(
             s -> regex.matcher(s).matches(),
-            ErrorMessage.of("must.match.regex", "regex", regex)
+            ErrorMessage.of("must.match.regex", "regex", regex.pattern())
         );
     }
 
