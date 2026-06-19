@@ -1,6 +1,3 @@
-- check javadoc for DSL
-- more DSL examples
-
 Longer term:
 
 - spring integration
