@@ -161,7 +161,13 @@ public final class DSL {
 
     public static final LocalDateTimeRules localDateTimes = LocalDateTimeRules.localDateTimes;
 
+    public static final OffsetDateTimeRules offsetDateTimes = OffsetDateTimeRules.offsetDateTimes;
+
+    public static final OffsetTimeRules offsetTimes = OffsetTimeRules.offsetTimes;
+
     public static final LocalTimeRules localTimes = LocalTimeRules.localTimes;
+
+    public static final YearRules years = YearRules.years;
 
     public static final YearMonthRules yearMonths = YearMonthRules.yearMonths;
 

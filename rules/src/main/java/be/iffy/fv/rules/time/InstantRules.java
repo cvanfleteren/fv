@@ -37,8 +37,6 @@ public final class InstantRules implements ComparableRules<Instant>, IObjectRule
      * <ul>
      *     <li>{@code limit}: the limit ({@link Instant})</li>
      * </ul>
-     *
-     * @param limit the limit.
      */
     public Rule<Instant> isBefore(Instant limit) {
         return Rule.of(
@@ -56,8 +54,6 @@ public final class InstantRules implements ComparableRules<Instant>, IObjectRule
      * <ul>
      *     <li>{@code limit}: the limit ({@link Instant})</li>
      * </ul>
-     *
-     * @param limit the limit.
      */
     public Rule<Instant> isAfter(Instant limit) {
         return Rule.of(

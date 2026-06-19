@@ -26,9 +26,6 @@ public final class LocalTimeRules implements ComparableRules<LocalTime>, IObject
      * <ul>
      *     <li>{@code limit}: the limit ({@link LocalTime})</li>
      * </ul>
-     *
-     * @param limit the limit.
-     * @return a {@link Rule} checking if the time is before the limit.
      */
     public Rule<LocalTime> isBefore(LocalTime limit) {
         return Rule.of(
@@ -46,9 +43,6 @@ public final class LocalTimeRules implements ComparableRules<LocalTime>, IObject
      * <ul>
      *     <li>{@code limit}: the limit ({@link LocalTime})</li>
      * </ul>
-     *
-     * @param limit the limit.
-     * @return a {@link Rule} checking if the time is after the limit.
      */
     public Rule<LocalTime> isAfter(LocalTime limit) {
         return Rule.of(
@@ -61,8 +55,6 @@ public final class LocalTimeRules implements ComparableRules<LocalTime>, IObject
      * Fails if the time is not in the AM (before noon).
      * <p>
      * Error key: {@code must.be.am}
-     *
-     * @return a {@link Rule} checking if the time is in the AM.
      */
     public Rule<LocalTime> isAm() {
         return Rule.of(
@@ -75,8 +67,6 @@ public final class LocalTimeRules implements ComparableRules<LocalTime>, IObject
      * Fails if the time is not in the PM (noon or later).
      * <p>
      * Error key: {@code must.be.pm}
-     *
-     * @return a {@link Rule} checking if the time is in the PM.
      */
     public Rule<LocalTime> isPm() {
         return Rule.of(

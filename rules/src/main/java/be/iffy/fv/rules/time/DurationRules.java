@@ -26,8 +26,6 @@ public final class DurationRules implements ComparableRules<Duration>, IObjectRu
      * <ul>
      *     <li>{@code min}: the minimum allowed duration ({@link Duration})</li>
      * </ul>
-     *
-     * @param min the minimum duration (inclusive).
      */
     public Rule<Duration> isAtLeast(Duration min) {
         return Rule.of(
@@ -45,8 +43,6 @@ public final class DurationRules implements ComparableRules<Duration>, IObjectRu
      * <ul>
      *     <li>{@code max}: the maximum allowed duration ({@link Duration})</li>
      * </ul>
-     *
-     * @param max the maximum duration (inclusive).
      */
     public Rule<Duration> isAtMost(Duration max) {
         return Rule.of(
@@ -64,8 +60,6 @@ public final class DurationRules implements ComparableRules<Duration>, IObjectRu
      * <ul>
      *     <li>{@code limit}: the limit ({@link Duration})</li>
      * </ul>
-     *
-     * @param limit the limit.
      */
     public Rule<Duration> isShorterThan(Duration limit) {
         return Rule.of(
@@ -83,8 +77,6 @@ public final class DurationRules implements ComparableRules<Duration>, IObjectRu
      * <ul>
      *     <li>{@code limit}: the limit ({@link Duration})</li>
      * </ul>
-     *
-     * @param limit the limit.
      */
     public Rule<Duration> isLongerThan(Duration limit) {
         return Rule.of(
@@ -97,8 +89,6 @@ public final class DurationRules implements ComparableRules<Duration>, IObjectRu
      * Fails if the duration is not positive.
      * <p>
      * Error key: {@code must.be.positive}
-     *
-     * @return a {@link Rule} checking if the duration is positive.
      */
     public Rule<Duration> isPositive() {
         return Rule.of(
@@ -111,8 +101,6 @@ public final class DurationRules implements ComparableRules<Duration>, IObjectRu
      * Fails if the duration is not negative.
      * <p>
      * Error key: {@code must.be.negative}
-     *
-     * @return a {@link Rule} checking if the duration is negative.
      */
     public Rule<Duration> isNegative() {
         return Rule.of(

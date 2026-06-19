@@ -37,9 +37,6 @@ public final class YearMonthRules implements ComparableRules<YearMonth>, IObject
      * <ul>
      *     <li>{@code limit}: the limit ({@link YearMonth})</li>
      * </ul>
-     *
-     * @param limit the limit.
-     * @return a {@link Rule} checking if the YearMonth is before the limit.
      */
     public Rule<YearMonth> isBefore(YearMonth limit) {
         return Rule.of(
@@ -57,9 +54,6 @@ public final class YearMonthRules implements ComparableRules<YearMonth>, IObject
      * <ul>
      *     <li>{@code limit}: the limit ({@link YearMonth})</li>
      * </ul>
-     *
-     * @param limit the limit.
-     * @return a {@link Rule} checking if the YearMonth is after the limit.
      */
     public Rule<YearMonth> isAfter(YearMonth limit) {
         return Rule.of(
@@ -72,8 +66,6 @@ public final class YearMonthRules implements ComparableRules<YearMonth>, IObject
      * Fails if the YearMonth is not in the past.
      * <p>
      * Error key: {@code must.be.past}
-     *
-     * @return a {@link Rule} checking if the YearMonth is in the past.
      */
     public Rule<YearMonth> isPast() {
         return Rule.of(
@@ -86,8 +78,6 @@ public final class YearMonthRules implements ComparableRules<YearMonth>, IObject
      * Fails if the YearMonth is not in the future.
      * <p>
      * Error key: {@code must.be.future}
-     *
-     * @return a {@link Rule} checking if the YearMonth is in the future.
      */
     public Rule<YearMonth> isFuture() {
         return Rule.of(

@@ -40,9 +40,6 @@ public final class ZonedDateTimeRules implements ComparableRules<ZonedDateTime>,
      * <ul>
      *     <li>{@code limit}: the limit ({@link ZonedDateTime})</li>
      * </ul>
-     *
-     * @param limit the limit.
-     * @return a {@link Rule} checking if the date-time is before the limit.
      */
     public Rule<ZonedDateTime> isBefore(ZonedDateTime limit) {
         return Rule.of(
@@ -60,9 +57,6 @@ public final class ZonedDateTimeRules implements ComparableRules<ZonedDateTime>,
      * <ul>
      *     <li>{@code limit}: the limit ({@link ZonedDateTime})</li>
      * </ul>
-     *
-     * @param limit the limit.
-     * @return a {@link Rule} checking if the date-time is after the limit.
      */
     public Rule<ZonedDateTime> isAfter(ZonedDateTime limit) {
         return Rule.of(
@@ -75,8 +69,6 @@ public final class ZonedDateTimeRules implements ComparableRules<ZonedDateTime>,
      * Fails if the date-time is not in the past according to the provided {@link Clock}..
      * <p>
      * Error key: {@code must.be.past}
-     *
-     * @return a {@link Rule} checking if the date-time is in the past.
      */
     public Rule<ZonedDateTime> isPast() {
         return Rule.of(
@@ -89,8 +81,6 @@ public final class ZonedDateTimeRules implements ComparableRules<ZonedDateTime>,
      * Fails if the date-time is not in the future according to the provided {@link Clock}..
      * <p>
      * Error key: {@code must.be.future}
-     *
-     * @return a {@link Rule} checking if the date-time is in the future.
      */
     public Rule<ZonedDateTime> isFuture() {
         return Rule.of(
