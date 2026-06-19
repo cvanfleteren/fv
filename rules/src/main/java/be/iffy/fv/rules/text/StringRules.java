@@ -3,7 +3,6 @@ package be.iffy.fv.rules.text;
 import be.iffy.fv.*;
 import be.iffy.fv.rules.ComparableRules;
 import be.iffy.fv.rules.IObjectRules;
-import io.vavr.Function2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
@@ -386,8 +385,8 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
     /**
      * Splits the string at the specified index and maps the two parts.
      * Fails if the index is not valid for the input string.
-     * Strings passed to the mapper are not guaranteed to be non-empty, use the {@link #splitAt(int, boolean, Function2)} w
-     * ith true variant if you want empty parts to be considered Invalid.
+     * Strings passed to the mapper are not guaranteed to be non-empty, use the {@link #splitAt(int, boolean, BiFunction)}
+     * with true variant if you want empty parts to be considered Invalid.
      * <p>
      * Error key: {@code must.be.valid.substring}
      * <p>
