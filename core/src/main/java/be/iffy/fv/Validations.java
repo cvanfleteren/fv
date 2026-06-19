@@ -9,6 +9,16 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
+/**
+ * Utility class providing static factory methods for combining and sequencing {@link Validation} instances.
+ *
+ * <p>The two main operations are:
+ * <ul>
+ *   <li>{@code sequence} — collapses a collection or optional of validations into a single validation of a collection or optional.</li>
+ *   <li>{@code combine} — zips two to eight independent validations into a {@code CombineBuilder} that applies a mapper
+ *       when all are valid, or accumulates all errors when any are invalid.</li>
+ * </ul>
+ */
 public class Validations {
 
     private Validations() {}
