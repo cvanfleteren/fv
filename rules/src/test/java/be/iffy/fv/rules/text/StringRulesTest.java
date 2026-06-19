@@ -130,7 +130,7 @@ class StringRulesTest {
 
         @Test
         void invalid() {
-            invalidTest("abc", strings.take(10), "must.be.valid.substring", HashMap.of("beginIndex", 0, "endIndex", 10));
+            invalidTest("abc", strings.take(10), "must.have.min.length", HashMap.of("length", 10));
         }
     }
 
@@ -145,7 +145,7 @@ class StringRulesTest {
 
         @Test
         void invalid() {
-            invalidTest("abc", strings.drop(10), "must.be.valid.substring", HashMap.of("beginIndex", 10));
+            invalidTest("abc", strings.drop(10), "must.have.min.length", HashMap.of("length", 10));
         }
     }
 
@@ -160,7 +160,7 @@ class StringRulesTest {
 
         @Test
         void invalid() {
-            invalidTest("abc", strings.takeRight(10), "must.be.valid.substring", HashMap.of("length", 10));
+            invalidTest("abc", strings.takeRight(10), "must.have.min.length", HashMap.of("length", 10));
         }
     }
 
@@ -175,7 +175,7 @@ class StringRulesTest {
 
         @Test
         void invalid() {
-            invalidTest("abc", strings.dropRight(10), "must.be.valid.substring", HashMap.of("length", 10));
+            invalidTest("abc", strings.dropRight(10), "must.have.min.length", HashMap.of("length", 10));
         }
     }
 

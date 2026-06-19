@@ -470,7 +470,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
      * So "12345" take(2) is "12".
      * Fails if the string length is less than the requested length.
      * <p>
-     * Error key: {@code must.be.valid.substring}
+     * Error key: {@code must.have.min.length}
      * <p>
      * Parameters:
      * <ul>
@@ -483,7 +483,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
         return MappingRule.<String>notNull().then(input -> {
             if (length < 0 || length > input.length()) {
                 return Validation.invalid(
-                    ErrorMessage.of("must.be.valid.substring", HashMap.of("beginIndex", 0, "endIndex", length))
+                    ErrorMessage.of("must.have.min.length", "length", length)
                 );
             }
             return Validation.valid(input.substring(0, length));
@@ -495,7 +495,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
      * So "12345" drop(2) is "345".
      * Fails if the string length is less than the requested length.
      * <p>
-     * Error key: {@code must.be.valid.substring}
+     * Error key: {@code must.have.min.length}
      * <p>
      * Parameters:
      * <ul>
@@ -509,7 +509,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
         return MappingRule.<String>notNull().then(input -> {
             if (length < 0 || length > input.length()) {
                 return Validation.invalid(
-                    ErrorMessage.of("must.be.valid.substring", HashMap.of("beginIndex", length))
+                    ErrorMessage.of("must.have.min.length","length", length)
                 );
             }
             return Validation.valid(input.substring(length));
@@ -521,7 +521,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
      * So "12345" takeRight(2) is "45".
      * Fails if the string length is less than the requested length.
      * <p>
-     * Error key: {@code must.be.valid.substring}
+     * Error key: {@code must.have.min.length}
      * <p>
      * Parameters:
      * <ul>
@@ -535,7 +535,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
         return MappingRule.<String>notNull().then(input -> {
             if (length < 0 || length > input.length()) {
                 return Validation.invalid(
-                    ErrorMessage.of("must.be.valid.substring", HashMap.of("length", length))
+                    ErrorMessage.of("must.have.min.length", "length", length)
                 );
             }
             return Validation.valid(input.substring(input.length() - length));
@@ -547,7 +547,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
      * So "12345" dropRight(2) is "123".
      * Fails if the string length is less than the requested length.
      * <p>
-     * Error key: {@code must.be.valid.substring}
+     * Error key: {@code must.have.min.length}
      * <p>
      * Parameters:
      * <ul>
@@ -561,7 +561,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
         return MappingRule.<String>notNull().then(input -> {
             if (length < 0 || length > input.length()) {
                 return Validation.invalid(
-                    ErrorMessage.of("must.be.valid.substring", HashMap.of("length", length))
+                    ErrorMessage.of("must.have.min.length", "length", length)
                 );
             }
             return Validation.valid(input.substring(0, input.length() - length));
@@ -1146,6 +1146,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
 
     /**
      * Fails if the string contains anything other than hexadecimal characters.
+     * Empty is considered to be valid.
      * <p>
      * Error key: {@code must.be.hexadecimal}
      *
@@ -1168,6 +1169,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
 
     /**
      * Fails if the string is not valid Base64.
+     * Empty is considered to be valid.
      * <p>
      * Error key: {@code must.be.base64}
      *
@@ -1182,6 +1184,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
 
     /**
      * Fails if the string is not valid URL-safe Base64.
+     * Empty is considered to be valid.
      * <p>
      * Error key: {@code must.be.base64.urlsafe}
      *
