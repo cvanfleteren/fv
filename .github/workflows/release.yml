@@ -71,5 +71,4 @@ jobs:
         if: steps.vars.outputs.is_semver == 'true'
         run: |
           echo "✅ Successfully released tag ${{ github.ref_name }} (version ${{ steps.vars.outputs.version }})"
-          echo "✅ GitHub Release created with artifacts"
           echo "✅ Published to Maven Central"
