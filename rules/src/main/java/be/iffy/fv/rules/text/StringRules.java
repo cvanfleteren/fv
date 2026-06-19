@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -400,7 +401,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
      * @param <R>    the type of the result.
      * @return a {@link MappingRule} that splits the string.
      */
-    public <R> MappingRule<String, R> splitAt(int index, Function2<String, String, R> mapper) {
+    public <R> MappingRule<String, R> splitAt(int index, BiFunction<String, String, R> mapper) {
         return splitAt(index, false, mapper);
     }
 
@@ -421,7 +422,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
      * @param <R>             the type of the result.
      * @return a {@link MappingRule} that splits the string.
      */
-    public <R> MappingRule<String, R> splitAt(int index, boolean requireNonEmpty, Function2<String, String, R> mapper) {
+    public <R> MappingRule<String, R> splitAt(int index, boolean requireNonEmpty, BiFunction<String, String, R> mapper) {
         return MappingRule.<String>notNull().then(input -> {
             if (index < 0 || index > input.length()) {
                 return Validation.invalid(
