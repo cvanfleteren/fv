@@ -48,6 +48,17 @@ public record ErrorMessage(String errorKey, List<Path> paths, Map<String, @Nulla
         return new ErrorMessage(message, List.of(), parameters);
     }
 
+
+    /**
+     * Creates an {@link ErrorMessage} with the given key and parameters.
+     *
+     * @param message    the error message key.
+     * @param parameters the dynamic parameters.
+     */
+    public static ErrorMessage of(String message, java.util.Map<String, Object> parameters) {
+        return new ErrorMessage(message, List.of(), HashMap.ofAll(parameters));
+    }
+
     /**
      * Creates an {@link ErrorMessage} with the given key and a single parameter.
      *
