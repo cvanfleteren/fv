@@ -11,6 +11,8 @@ import java.util.function.Function;
 
 public class Validations {
 
+    private Validations() {}
+
     /**
      * Transforms a {@link Seq} of {@link Validation}s into a single {@code Validation} of a {@link List}.
      * If any validation is invalid, the result will contain all accumulated errors.

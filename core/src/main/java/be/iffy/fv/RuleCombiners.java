@@ -6,6 +6,8 @@ import java.util.function.Function;
 
 public class RuleCombiners {
 
+    private RuleCombiners() {}
+
     /**
      * Combines two mapping rules into a builder that can map all valid values or accumulate all errors.
      */
