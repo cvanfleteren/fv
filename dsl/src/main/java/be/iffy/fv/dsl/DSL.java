@@ -117,7 +117,7 @@ import java.util.function.Supplier;
  *
  * // combine → builds a reusable MappingRule; the dto is not consumed yet
  * MappingRule<PersonDto, Person> toPersonRule = combine(
- *         strings.minLength(3).on(PersonDTO::name),
+ *         strings.minLength(3).on(PersonDto::name),
  *         strings.asInteger().then(ints.positive()).on(PersonDto::age)
  * ).map(Person::new);
  *
@@ -331,7 +331,7 @@ public final class DSL {
      * Validation<Order> order = validating(
      *         validateThat(name, "name").is(strings.notBlank()),
      *         validateThat(price, "price").is(bigDecimals.positive())
-     *     ).mapTo((n, p) -> new Order(n, p));
+     *     ).map((n, p) -> new Order(n, p));
      * }
      */
     @Contract(pure = true)

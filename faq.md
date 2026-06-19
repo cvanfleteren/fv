@@ -363,7 +363,7 @@ combined.apply("long enough string"); // Valid
 If you are using `MappingRule`, you can use `fallback` to provide a fallback transformation:
 
 ```java
-MappingRule<String, Integer> parseNew = strings.asInt(); // parses "123" -> 123
+MappingRule<String, Integer> parseNew = strings.asInteger(); // parses "123" -> 123
 MappingRule<String, Integer> parseOld = ...; // some other logic
 
 MappingRule<String, Integer> rule = parseNew.fallback(parseOld);
@@ -926,7 +926,7 @@ record User(String username, String email) {
         // using a var makes this better :)
         Tuple2<String, String> values = asserting(
                 validateThat(username, "username").after(stringOps.trim()).is(strings.minLength(3)),
-                validateThat(email, "email").after(stringOps.toLowerCase()).is(strings.email())
+                validateThat(email, "email").after(stringOps.toLowerCase()).is(strings.looksLikeEmailAddress())
         );
 
         username = values._1; // is trimmed
@@ -1484,8 +1484,8 @@ Add the `assertj` module to your test dependencies:
 
 ```xml
 <dependency>
-    <groupId>be.iffy</groupId>
-    <artifactId>functional-validation-assertj</artifactId>
+    <groupId>be.iffy.fv</groupId>
+    <artifactId>assertj</artifactId>
     <version>...</version>
     <scope>test</scope>
 </dependency>

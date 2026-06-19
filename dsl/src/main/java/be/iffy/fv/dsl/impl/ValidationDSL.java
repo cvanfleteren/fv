@@ -18,7 +18,7 @@ import java.util.function.Predicate;
  *
  *    public Record {
  *        value = assertValid(
- *             valdateThat(value,"value").after(stringOps.trim()).is(strings.minLength(2)),
+ *             validateThat(value,"value").after(stringOps.trim()).is(strings.minLength(2)),
  *             validateThat(number,"number").is(ints.positive())
  *        )._1;
  *    }
