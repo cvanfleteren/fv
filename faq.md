@@ -1367,20 +1367,23 @@ validating(
 
 The DSL exposes a rule namespace for each major `java.time` type:
 
-| Namespace        | Validates                       |
-|------------------|---------------------------------|
-| `localDates`     | `java.time.LocalDate`           |
-| `localDateTimes` | `java.time.LocalDateTime`       |
-| `localTimes`     | `java.time.LocalTime`           |
-| `zonedDateTimes` | `java.time.ZonedDateTime`       |
-| `instants`       | `java.time.Instant`             |
-| `yearMonths`     | `java.time.YearMonth`           |
-| `durations`      | `java.time.Duration`            |
+| Namespace         | Validates                  |
+|-------------------|----------------------------|
+| `localDates`      | `java.time.LocalDate`      |
+| `localDateTimes`  | `java.time.LocalDateTime`  |
+| `localTimes`      | `java.time.LocalTime`      |
+| `offsetDateTimes` | `java.time.OffsetDateTime` |
+| `offsetTimes`     | `java.time.OffsetTime`     |
+| `zonedDateTimes`  | `java.time.ZonedDateTime`  |
+| `instants`        | `java.time.Instant`        |
+| `years`           | `java.time.Year`           |
+| `yearMonths`      | `java.time.YearMonth`      |
+| `durations`       | `java.time.Duration`       |
 
 All namespaces provide the standard comparable operations shared with the numeric rules: `between(min, max)`,
 `betweenExclusive(min, max)`, `greaterThan(limit)`, `atLeast(limit)`, `lessThan(limit)`, `atMost(limit)`.
 
-For types that have a notion of "now" (`localDates`, `localDateTimes`, `zonedDateTimes`, `instants`) you also get
+For types that have a notion of "now" (`localDates`, `localDateTimes`, `offsetDateTimes`, `offsetTimes`, `zonedDateTimes`, `instants`) you also get
 temporal checks:
 
 ```java
