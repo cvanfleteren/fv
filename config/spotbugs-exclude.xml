@@ -20,4 +20,15 @@
         </Or>
     </Match>
 
+    <!--
+        EI_EXPOSE_REP / EI_EXPOSE_REP2: ValidationErrorMessage is a response-only DTO
+        created exclusively via its from() factory. The parameters map is converted from
+        an immutable Vavr Map and never held by any caller; ownership transfers immediately
+        to Jackson for serialization.
+    -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+        <Class name="be.iffy.fv.spring.ValidationErrorMessage"/>
+    </Match>
+
 </FindBugsFilter>
