@@ -20,6 +20,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -107,6 +108,34 @@ class ValidationExceptionHandlerIntTest {
                     .andExpect(jsonPath("$.errors[0].path").value("name"))
                     .andExpect(jsonPath("$.errors[1].key").value("must.not.be.blank"))
                     .andExpect(jsonPath("$.errors[1].path").value("email"));
+        }
+    }
+
+    @Nested
+    class WhenRequestBodyDeserializationFails {
+
+        @Test
+        void selfValidatingConstructorFails_returns422WithProblemDetail() throws Exception {
+            mockMvc.perform(post("/post-self-validating")
+                            .contentType("application/json")
+                            .content("""
+                                    {"name": "Al", "email": ""}
+                                    """))
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.title").value("Validation Failed"))
+                    .andExpect(jsonPath("$.errors.length()").value(2))
+                    .andExpect(jsonPath("$.errors[0].key").value("min.length"))
+                    .andExpect(jsonPath("$.errors[0].path").value("name"))
+                    .andExpect(jsonPath("$.errors[1].key").value("must.not.be.blank"))
+                    .andExpect(jsonPath("$.errors[1].path").value("email"));
+        }
+
+        @Test
+        void malformedJson_returns400() throws Exception {
+            mockMvc.perform(post("/post-self-validating")
+                            .contentType("application/json")
+                            .content("not json at all"))
+                    .andExpect(status().isBadRequest());
         }
     }
 
