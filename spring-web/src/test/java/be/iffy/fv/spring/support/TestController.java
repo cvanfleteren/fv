@@ -34,6 +34,13 @@ public class TestController {
         return body;
     }
 
+    record OuterBody(String outerName, SelfValidatingBody inner) {}
+
+    @PostMapping("/post-with-nested-self-validating")
+    public OuterBody postWithNestedSelfValidating(@RequestBody OuterBody body) {
+        return body;
+    }
+
     @GetMapping("/throw-single")
     public String throwSingle() {
         throw new ValidationException("must.not.be.blank");

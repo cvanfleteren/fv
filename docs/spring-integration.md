@@ -76,7 +76,7 @@ Each entry in `errors` has three fields:
 | `path`       | Dot-separated path to the invalid field (e.g. `"order.customer.name"`, or `"items[2].price"` for list elements). Empty string when the error is not attached to a specific field. |
 | `parameters` | Constraint values that were part of the rule, if any (e.g. `{"min": 3, "max": 100}`). Useful for building user-facing messages without hardcoding values.                         |
 
-All errors across the entire payload are collected at once — no stopping at the first failure.
+All errors across the entire payload are accumulated., as is the default behavior for FV.
 
 ## End-to-end example
 
@@ -187,7 +187,7 @@ class UserController {
 ```
 
 A `Valid<User>` response serializes the `User` as JSON with HTTP 200. An `Invalid` response
-produces the same HTTP 422 Problem Details body shown above — the return value handler converts
+produces the same HTTP 422 Problem Details body shown above. The return value handler converts
 it before Spring attempts to serialize the `Validation` wrapper itself.
 
 ## Customizing the exception handler
@@ -208,7 +208,7 @@ public class MyValidationExceptionHandler extends ResponseEntityExceptionHandler
 
 If you only want to change the Problem Details shape while keeping the 422 status and the
 deserialization-unwrapping behaviour, extend `ValidationExceptionHandler` and override
-`toProblemDetail`. Both the direct-throw path and the deserialization-unwrap path go through it.
+`toProblemDetail`. Both the direct-throw path and the deserialization-unwrap path call it.
 
 ```java
 @Bean

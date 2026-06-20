@@ -32,7 +32,7 @@ public class ValidationExceptionHandler extends ResponseEntityExceptionHandler {
      * The case when a {@link ValidationException} is directly thrown through a controller method.
      */
     @ExceptionHandler(ValidationException.class)
-    public ProblemDetail handleValidationException(ValidationException ex) {
+    public final ProblemDetail handleValidationException(ValidationException ex) {
         return toProblemDetail(ex);
     }
 
@@ -72,7 +72,7 @@ public class ValidationExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     private static ValidationException findValidationException(HttpMessageNotReadableException ex) {
-        // this is very implementation dependent
+        // this is very implementation-dependent
         // the alternative would be to search every exception for a ValidationException in the cause chain,
         // but then programmer-declared exceptions that purposefully wrapped ValidationException would still get
         // handled by this code, which probably would be surprising for the programmer.

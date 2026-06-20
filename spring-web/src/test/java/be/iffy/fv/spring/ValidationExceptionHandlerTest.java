@@ -139,5 +139,19 @@ class ValidationExceptionHandlerTest {
                             .content("not json at all"))
                     .andExpect(status().isBadRequest());
         }
+
+        @Test
+        void nestedSelfValidatingConstructorFails_returns422() throws Exception {
+            // ValidationException from a nested record's constructor; Jackson propagates the
+            // ValueInstantiationException without re-wrapping, so the cause chain is still 2 levels
+            // deep and findValidationException unwraps it correctly.
+            mockMvc.perform(post("/post-with-nested-self-validating")
+                            .contentType("application/json")
+                            .content("""
+                                    {"outerName": "valid", "inner": {"name": "Al", "email": ""}}
+                                    """))
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.errors.length()").value(2));
+        }
     }
 }
