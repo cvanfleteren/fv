@@ -11,6 +11,8 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;
 
+import java.util.List;
+
 /**
  * Handles controller methods that return {@link Validation}{@code <T>}:
  * <ul>
@@ -21,7 +23,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBody
  *         Problem Details body shape.</li>
  * </ul>
  *
- * <p>Registered automatically via Spring Boot auto-configuration when this module is on the
+ * <p>Registered automatically via Spring Boot autoconfiguration when this module is on the
  * classpath. Override by defining your own {@link ValidationReturnValueHandler} bean.
  */
 public class ValidationReturnValueHandler implements HandlerMethodReturnValueHandler {
@@ -29,8 +31,27 @@ public class ValidationReturnValueHandler implements HandlerMethodReturnValueHan
     private final Lazy<RequestResponseBodyMethodProcessor> delegate;
 
     ValidationReturnValueHandler(RequestMappingHandlerAdapter handlerAdapter) {
-        // make sure we don't try to use the handlerAdapter before we're fully initialized
-        this.delegate = Lazy.of(() -> new RequestResponseBodyMethodProcessor(handlerAdapter.getMessageConverters()));
+        // Resolve lazily so we don't touch the adapter until it is fully initialized.
+        // Reusing the existing processor preserves ResponseBodyAdvice configured on the adapter.
+        this.delegate = Lazy.of(() -> resolveDelegate(handlerAdapter));
+    }
+
+    /**
+     * Reuses the {@link RequestResponseBodyMethodProcessor} already in the adapter's handler chain
+     * so that {@code ResponseBodyAdvice} beans apply to the {@code Valid<T>} path the same way
+     * they do for a plain {@code @ResponseBody} return. Falls back to a fresh processor (converters
+     * only, no advice) if none is found.
+     */
+    private static RequestResponseBodyMethodProcessor resolveDelegate(RequestMappingHandlerAdapter handlerAdapter) {
+        List<HandlerMethodReturnValueHandler> handlers = handlerAdapter.getReturnValueHandlers();
+        if (handlers != null) {
+            for (HandlerMethodReturnValueHandler handler : handlers) {
+                if (handler instanceof RequestResponseBodyMethodProcessor processor) {
+                    return processor;
+                }
+            }
+        }
+        return new RequestResponseBodyMethodProcessor(handlerAdapter.getMessageConverters());
     }
 
     @Override

@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Spring Boot auto-configuration that registers {@link ValidationExceptionHandler} and
+ * Spring Boot autoconfiguration that registers {@link ValidationExceptionHandler} and
  * {@link ValidationReturnValueHandler} when:
  * <ul>
  *     <li>The application is a Servlet-based web application.</li>
