@@ -66,6 +66,7 @@ toPerson(new PersonDto(" A ", "16"));
 - [Wrapping other types with `Validation.from()`](#wrapping-other-types-with-validationfrom)
 - [Testing with `assertThatValidation`](#testing-with-assertthatvalidation)
 - [More recipes](#more-recipes)
+- [Spring Boot integration](docs/spring-integration.md)
 - [License](#license)
 
 ---
@@ -103,12 +104,13 @@ directly instead, optionally adding `rules` for the prebuilt rule library:
 
 The project is split into several modules, so you only pull in what you need:
 
-| Module    | Purpose                                                                                  |
-|-----------|-------------------------------------------------------------------------------------------|
-| `core`    | Core datatypes: `Validation`, `Rule`, `MappingRule`, `ErrorMessage`. Minimal dependencies (Vavr only). |
-| `rules`   | A large set of ready-made `Rule`/`MappingRule` instances for Strings, numbers, collections, dates, `Optional`/`Option`/`Either`, etc. |
-| `dsl`     | The fluent `DSL` class (`validateThat`, `assertThat`, `asserting`, `validating`, ...) for readable validation code. Depends on `core` and `rules`. |
-| `assertj` | AssertJ integration (`assertThatValidation(...)`) for clean test assertions.             |
+| Module       | Purpose                                                                                  |
+|--------------|-------------------------------------------------------------------------------------------|
+| `core`       | Core datatypes: `Validation`, `Rule`, `MappingRule`, `ErrorMessage`. Minimal dependencies (Vavr only). |
+| `rules`      | A large set of ready-made `Rule`/`MappingRule` instances for Strings, numbers, collections, dates, `Optional`/`Option`/`Either`, etc. |
+| `dsl`        | The fluent `DSL` class (`validateThat`, `assertThat`, `asserting`, `validating`, ...) for readable validation code. Depends on `core` and `rules`. |
+| `assertj`    | AssertJ integration (`assertThatValidation(...)`) for clean test assertions.             |
+| `spring-web` | Spring Boot integration: auto-registers a `@ControllerAdvice` that maps `ValidationException` to HTTP 422 Problem Details responses. See [Spring Boot integration](docs/spring-integration.md). |
 
 ---
 
@@ -392,7 +394,7 @@ Validation<URL> url = Validation.from().catchingAll(() -> new URL(input), "inval
 Validation<Integer> n = Validation.from()._try(Try.of(() -> Integer.parseInt(input)), "invalid.number");
 ```
 
-See the [Exception Interop](faq.md#exception-interop) section of the FAQ for full details
+See the [Exception Interop](docs/faq.md#exception-interop) section of the FAQ for full details
 (`Option`, `Either`, `catching` vs `catchingAll` vs `_try`, and more).
 
 ---
@@ -425,7 +427,7 @@ more targeted assertions.
 
 ## More recipes
 
-This README only scratches the surface. See **[faq.md](faq.md)** for recipes covering rule composition
+This README only scratches the surface. See **[faq.md](docs/faq.md)** for recipes covering rule composition
 (`and`, `then`, `or`, `xor`, `fallback`), null-safety, validating `Optional`/`Option`/lists/maps, enums,
 cross-field validation, exception handling (`Validation.from()`, `mapCatching`, `flatMapCatchingAll`), and more.
 

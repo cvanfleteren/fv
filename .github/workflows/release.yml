@@ -61,10 +61,12 @@ jobs:
         if: steps.vars.outputs.is_semver == 'true'
         run: |
           sed -i 's|<version>.*</version>|<version>'"${{ steps.vars.outputs.version }}"'</version>|g' README.md
+          sed -i 's|<version>.*</version>|<version>'"${{ steps.vars.outputs.version }}"'</version>|g' docs/spring-integration.md
+          sed -i 's|<version>.*</version>|<version>'"${{ steps.vars.outputs.version }}"'</version>|g' docs/faq.md
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add README.md
-          git commit -m "chore: update latest version in README to ${{ steps.vars.outputs.version }} [skip ci]"
+          git commit -m "chore: update latest version in docs to ${{ steps.vars.outputs.version }} [skip ci]"
           git push origin HEAD:main
 
       - name: Print success message

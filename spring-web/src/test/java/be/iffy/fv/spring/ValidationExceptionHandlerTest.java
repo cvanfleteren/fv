@@ -1,13 +1,9 @@
 package be.iffy.fv.spring;
 
-import be.iffy.fv.ErrorMessage;
-import be.iffy.fv.ValidationException;
 import be.iffy.fv.spring.support.TestController;
-import io.vavr.collection.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
