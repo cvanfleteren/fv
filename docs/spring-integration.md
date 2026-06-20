@@ -30,6 +30,13 @@ controller method, a service, a validated domain constructor, ...) is caught and
 HTTP **422 Unprocessable Entity** response in [Problem Details](https://www.rfc-editor.org/rfc/rfc9457)
 format (`application/problem+json`).
 
+**Deserialization unwrapping** - when a self-validating domain object is used directly as a
+`@RequestBody` parameter, its constructor runs during Jackson deserialization before the controller
+method is entered. The `ValidationException` gets wrapped by Jackson and rethrown by Spring as an
+`HttpMessageNotReadableException`. The exception handler unwraps it so you still get the same
+422 Problem Details body. Genuinely malformed requests (bad JSON, wrong type, etc.) are unaffected
+and still produce a 400.
+
 **Return value handler** - controller methods that return `Validation<T>` are handled natively.
 A `Valid<T>` result serializes `T` as the normal response body (as if the method had declared `T`
 directly). An `Invalid` result produces the same HTTP 422 Problem Details body as the exception
@@ -134,6 +141,33 @@ The same approach works when using `validating(...)` in a service layer and call
 `getOrElseThrow()` on the result — any `ValidationException` that propagates up to the
 dispatcher is caught by the handler.
 
+If the domain type validates its own constructor you can also use it directly as the `@RequestBody`
+type, removing the separate DTO entirely:
+
+```java
+record User(String name, String email) {
+  public User {
+    asserting(
+      validateThat(name, User::name).is(strings.minLength(3)),
+      validateThat(email, User::email).is(strings.notBlank())
+    );
+  }
+}
+
+@RestController
+@RequestMapping("/users")
+class UserController {
+
+  @PostMapping
+  public User create(@RequestBody User user) {  // constructor runs during deserialization
+    return userRepository.save(user);
+  }
+}
+```
+
+Jackson calls the constructor while deserializing the request body. If it throws, the handler
+unwraps the exception and returns the same 422 Problem Details response shown above.
+
 Alternatively, you can return `Validation<T>` directly from the controller without calling
 `getOrElseThrow()`:
 
@@ -172,15 +206,16 @@ public class MyValidationExceptionHandler extends ResponseEntityExceptionHandler
 }
 ```
 
-If you only want to change the HTTP status code or add headers while keeping the Problem Details
-format, extend `ValidationExceptionHandler` and override `handleValidationException`.
+If you only want to change the Problem Details shape while keeping the 422 status and the
+deserialization-unwrapping behaviour, extend `ValidationExceptionHandler` and override
+`toProblemDetail`. Both the direct-throw path and the deserialization-unwrap path go through it.
 
 ```java
 @Bean
 public ValidationExceptionHandler validationExceptionHandler() {
   return new ValidationExceptionHandler() {
     @Override
-    public ProblemDetail handleValidationException(ValidationException ex) {
+    protected ProblemDetail toProblemDetail(ValidationException ex) {
       ProblemDetail pd = ProblemDetail.forStatus(400);
       pd.setTitle("Bad Request");
       // more custom mapping ...
