@@ -33,6 +33,11 @@ class ValidationExceptionHandlerIntTest {
         }
 
         @Test
+        void autoConfiguration_registersValidationReturnValueHandlerBean() {
+            assertThat(applicationContext.getBean(ValidationReturnValueHandler.class)).isNotNull();
+        }
+
+        @Test
         void throwSingle_returns422WithProblemDetail() throws Exception {
             mockMvc.perform(get("/throw-single"))
                     .andExpect(status().isUnprocessableEntity())
@@ -54,6 +59,38 @@ class ValidationExceptionHandlerIntTest {
         @Test
         void throwMultiple_returnsAllErrorsWithPaths() throws Exception {
             mockMvc.perform(get("/throw-multiple"))
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.errors.length()").value(2))
+                    .andExpect(jsonPath("$.errors[0].key").value("min.length"))
+                    .andExpect(jsonPath("$.errors[0].path").value("name"))
+                    .andExpect(jsonPath("$.errors[1].key").value("must.not.be.blank"))
+                    .andExpect(jsonPath("$.errors[1].path").value("email"));
+        }
+    }
+
+    @Nested
+    class WhenValidationIsReturnedFromController {
+
+        @Test
+        void returnValid_returns200WithSerializedValue() throws Exception {
+            mockMvc.perform(get("/return-valid"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.message").value("hello"));
+        }
+
+        @Test
+        void returnInvalid_returns422WithSameProblemDetailFormat() throws Exception {
+            mockMvc.perform(get("/return-invalid"))
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.status").value(422))
+                    .andExpect(jsonPath("$.title").value("Validation Failed"))
+                    .andExpect(jsonPath("$.errors[0].key").value("must.not.be.blank"))
+                    .andExpect(jsonPath("$.errors[0].path").value("email"));
+        }
+
+        @Test
+        void returnInvalidMultiple_returnsAllErrors() throws Exception {
+            mockMvc.perform(get("/return-invalid-multiple"))
                     .andExpect(status().isUnprocessableEntity())
                     .andExpect(jsonPath("$.errors.length()").value(2))
                     .andExpect(jsonPath("$.errors[0].key").value("min.length"))
