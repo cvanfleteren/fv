@@ -8,6 +8,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -100,6 +101,43 @@ class ValidationExceptionHandlerTest {
             mockMvc.perform(get("/throw-multiple"))
                     .andExpect(jsonPath("$.errors[1].key").value("must.not.be.blank"))
                     .andExpect(jsonPath("$.errors[1].path").value("email"));
+        }
+    }
+
+    @Nested
+    class WhenRequestBodyDeserializationFails {
+
+        @Test
+        void selfValidatingConstructorFails_returns422() throws Exception {
+            mockMvc.perform(post("/post-self-validating")
+                            .contentType("application/json")
+                            .content("""
+                                    {"name": "Al", "email": ""}
+                                    """))
+                    .andExpect(status().isUnprocessableEntity());
+        }
+
+        @Test
+        void selfValidatingConstructorFails_returnsProblemDetail() throws Exception {
+            mockMvc.perform(post("/post-self-validating")
+                            .contentType("application/json")
+                            .content("""
+                                    {"name": "Al", "email": ""}
+                                    """))
+                    .andExpect(jsonPath("$.title").value("Validation Failed"))
+                    .andExpect(jsonPath("$.errors.length()").value(2))
+                    .andExpect(jsonPath("$.errors[0].key").value("min.length"))
+                    .andExpect(jsonPath("$.errors[0].path").value("name"))
+                    .andExpect(jsonPath("$.errors[1].key").value("must.not.be.blank"))
+                    .andExpect(jsonPath("$.errors[1].path").value("email"));
+        }
+
+        @Test
+        void malformedJson_returns400() throws Exception {
+            mockMvc.perform(post("/post-self-validating")
+                            .contentType("application/json")
+                            .content("not json at all"))
+                    .andExpect(status().isBadRequest());
         }
     }
 }

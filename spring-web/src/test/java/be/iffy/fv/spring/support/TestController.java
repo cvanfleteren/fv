@@ -5,12 +5,34 @@ import be.iffy.fv.Validation;
 import be.iffy.fv.ValidationException;
 import io.vavr.collection.List;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
 @RestController
 public class TestController {
+
+    record SelfValidatingBody(String name, String email) {
+        SelfValidatingBody {
+            List<ErrorMessage> errors = List.empty();
+            if (name == null || name.length() < 3) {
+                errors = errors.append(ErrorMessage.of("min.length", "min", 3).prepend(ErrorMessage.Path.of("name")));
+            }
+            if (email == null || email.isBlank()) {
+                errors = errors.append(ErrorMessage.of("must.not.be.blank").prepend(ErrorMessage.Path.of("email")));
+            }
+            if (!errors.isEmpty()) {
+                throw new ValidationException(errors);
+            }
+        }
+    }
+
+    @PostMapping("/post-self-validating")
+    public SelfValidatingBody postSelfValidating(@RequestBody SelfValidatingBody body) {
+        return body;
+    }
 
     @GetMapping("/throw-single")
     public String throwSingle() {
