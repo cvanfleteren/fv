@@ -12,7 +12,6 @@ The `spring-web` module integrates FV with Spring Boot. It:
 Add the `spring-web` dependency to your project:
 
 ```xml
-
 <dependency>
   <groupId>be.iffy.fv</groupId>
   <artifactId>spring-web</artifactId>
@@ -95,7 +94,6 @@ record User(String name, String email) {
 A controller that constructs the domain object from the request body:
 
 ```java
-
 @RestController
 @RequestMapping("/users")
 class UserController {
@@ -140,7 +138,6 @@ Alternatively, you can return `Validation<T>` directly from the controller witho
 `getOrElseThrow()`:
 
 ```java
-
 @RestController
 @RequestMapping("/users")
 class UserController {
@@ -165,7 +162,6 @@ Because the exception handler is registered with `@ConditionalOnMissingBean`, yo
 by defining your own bean. The autoconfigured one is then skipped:
 
 ```java
-
 @RestControllerAdvice
 public class MyValidationExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -180,7 +176,6 @@ If you only want to change the HTTP status code or add headers while keeping the
 format, extend `ValidationExceptionHandler` and override `handleValidationException`.
 
 ```java
-
 @Bean
 public ValidationExceptionHandler validationExceptionHandler() {
   return new ValidationExceptionHandler() {
