@@ -33,6 +33,7 @@
         <module>testing</module>
         <module>assertj</module>
         <module>spring-web</module>
+        <module>jakarta-validation</module>
     </modules>
     <scm>
         <connection>scm:git:https://github.com/cvanfleteren/fv.git</connection>
