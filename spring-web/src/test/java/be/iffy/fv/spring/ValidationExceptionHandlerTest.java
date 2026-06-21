@@ -18,9 +18,10 @@ class ValidationExceptionHandlerTest {
 
     @BeforeEach
     void setUp() {
+        FvSpringWebProperties props = FvSpringWebProperties.defaultProperties();
         mockMvc = MockMvcBuilders
                 .standaloneSetup(new TestController())
-                .setControllerAdvice(new ValidationExceptionHandler())
+                .setControllerAdvice(new ValidationExceptionHandler(props, new DefaultValidationResponseFactory(props)))
                 .build();
     }
 
@@ -109,9 +110,10 @@ class ValidationExceptionHandlerTest {
 
         @BeforeEach
         void setUp() {
+            FvSpringWebProperties props = new FvSpringWebProperties(400, true);
             mockMvc = MockMvcBuilders
                     .standaloneSetup(new TestController())
-                    .setControllerAdvice(new ValidationExceptionHandler(new FvSpringWebProperties(400, true)))
+                    .setControllerAdvice(new ValidationExceptionHandler(props, new DefaultValidationResponseFactory(props)))
                     .build();
         }
 

@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 ### Added
+- `spring-web` module: Spring Boot autoconfiguration that maps `ValidationException` to HTTP 422
+  Problem Details responses, handles `@RequestBody` constructor failures and `@RequestParam`/`@PathVariable`
+  converter type mismatches, and supports returning `Validation<T>` directly from controller methods.
 
 ### Changed,
 

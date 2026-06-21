@@ -1,0 +1,16 @@
+{
+  "properties": [
+    {
+      "name": "fv.spring.status-code",
+      "type": "java.lang.Integer",
+      "description": "HTTP status code returned for all validation failures (directly thrown ValidationException, @RequestBody constructor failures, @RequestParam/@PathVariable converter failures, and Validation.Invalid return values). Defaults to 422 Unprocessable Entity.",
+      "defaultValue": 422
+    },
+    {
+      "name": "fv.spring.handle-type-mismatch",
+      "type": "java.lang.Boolean",
+      "description": "When true (the default), @RequestParam and @PathVariable converter failures that wrap a ValidationException are unwrapped and returned as a Problem Details body using fv.spring.status-code. When false, such failures fall through to Spring MVC's default 400 handling.",
+      "defaultValue": true
+    }
+  ]
+}

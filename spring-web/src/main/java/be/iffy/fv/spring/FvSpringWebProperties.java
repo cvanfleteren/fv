@@ -30,4 +30,10 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 public record FvSpringWebProperties(
         @DefaultValue("422") int statusCode,
         @DefaultValue("true") boolean handleTypeMismatch
-) {}
+) {
+
+    public static FvSpringWebProperties defaultProperties() {
+        return new FvSpringWebProperties(422, true);
+    }
+
+}

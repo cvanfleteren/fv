@@ -40,7 +40,7 @@ and still produce a 400.
 [`Converter`](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/core/convert/converter/Converter.html)
 that throws `ValidationException`, Spring wraps it in a `TypeMismatchException`. The exception
 handler unwraps it and returns the same 422 Problem Details body. Both parameter kinds behave
-identically.
+identically. See [Using validated types as request parameters](#using-validated-types-as-request-parameters) for setup.
 
 **Return value handler** - controller methods that return `Validation<T>` are handled natively.
 A `Valid<T>` result serializes `T` as the normal response body (as if the method had declared `T`
@@ -58,7 +58,7 @@ handles Controllers that return `Optional<T>`.
   "detail": "Validation failed with 2 error(s)",
   "errors": [
     {
-      "key": "min.length",
+      "key": "must.have.min.length",
       "path": "name",
       "parameters": {
         "min": 3
@@ -81,7 +81,7 @@ Each entry in `errors` has three fields:
 | `path`       | Dot-separated path to the invalid field (e.g. `"order.customer.name"`, or `"items[2].price"` for list elements). Empty string when the error is not attached to a specific field. |
 | `parameters` | Constraint values that were part of the rule, if any (e.g. `{"min": 3, "max": 100}`). Useful for building user-facing messages without hardcoding values.                         |
 
-All errors across the entire payload are accumulated., as is the default behavior for FV.
+All errors across the entire payload are accumulated, as is the default behavior for FV.
 
 ## End-to-end example
 
@@ -195,6 +195,40 @@ A `Valid<User>` response serializes the `User` as JSON with HTTP 200. An `Invali
 produces the same HTTP 422 Problem Details body shown above. The return value handler converts
 it before Spring attempts to serialize the `Validation` wrapper itself.
 
+## Using validated types as request parameters
+
+To use a validated type as a `@RequestParam` or `@PathVariable`, Spring needs a registered
+`Converter<String, YourType>`. Implement the interface and annotate the converter with `@Component`
+— Spring Boot picks it up automatically:
+
+```java
+@Component
+class ValidatedIdConverter implements Converter<String, ValidatedId> {
+    @Override
+    public ValidatedId convert(String source) {
+        return new ValidatedId(source);  // throws ValidationException if invalid
+    }
+}
+```
+
+The `ValidatedId` constructor throws `ValidationException` when the value is invalid. Spring catches
+that and rethrows it as a `TypeMismatchException`, which the exception handler unwraps into the
+same 422 Problem Details response.
+
+Your controller declares the parameter as the validated type directly; Spring resolves the converter
+automatically:
+
+```java
+@GetMapping("/things/{id}")
+public Thing get(@PathVariable ValidatedId id) { ... }
+
+@GetMapping("/things")
+public List<Thing> search(@RequestParam ValidatedId id) { ... }
+```
+
+Passing an invalid value (e.g. `GET /things/x`) produces the same 422 Problem Details body as any
+other validation failure. To opt out of this unwrapping, set `fv.spring.handle-type-mismatch=false`.
+
 ## Configuration
 
 | Property | Default | Description |
@@ -215,40 +249,46 @@ fv.spring.handle-type-mismatch=false
 
 ## Customizing the exception handler
 
-Because the exception handler is registered with `@ConditionalOnMissingBean`, you can replace it entirely
-by defining your own bean. The autoconfigured one is then skipped:
+There are two levels of customization, from lightest to heaviest:
 
-```java
-@RestControllerAdvice
-public class MyValidationExceptionHandler extends ResponseEntityExceptionHandler {
+**1. Change the status code only** — use `fv.spring.status-code`. No Java needed.
 
-  @ExceptionHandler(ValidationException.class)
-  public ResponseEntity<MyErrorBody> handle(ValidationException ex) {
-    // your own response shape, status code, headers, etc.
-  }
-}
-```
+**2. Change the response body, headers, or status code** — provide a `ValidationResponseFactory`
+bean. It is called by all four error paths:
+- `ValidationException` thrown directly from a controller or service
+- `@RequestBody` constructor failures (Jackson deserialization unwrapping)
+- `@RequestParam` / `@PathVariable` converter type-mismatch unwrapping
+- `Validation.Invalid` return values from controller methods
 
-If you only want to change the status code, use `fv.spring.status-code` instead of replacing the bean.
-
-If you want to change the Problem Details shape while keeping the deserialization-unwrapping
-behaviour, extend `ValidationExceptionHandler` and override `toProblemDetail`. Both the
-direct-throw path and the deserialization-unwrap path call it.
+Define a `@Bean` anywhere in your application context (a `@Configuration` class, a
+`@SpringBootApplication`, etc.):
 
 ```java
 @Bean
-public ValidationExceptionHandler validationExceptionHandler() {
-  return new ValidationExceptionHandler() {
-    @Override
-    protected ProblemDetail toProblemDetail(ValidationException ex) {
-      ProblemDetail pd = ProblemDetail.forStatus(400);
-      pd.setTitle("Bad Request");
-      // more custom mapping ...
-      return pd;
-    }
+ValidationResponseFactory validationResponseFactory() {
+  return (ex, headers, request) -> ResponseEntity
+      .unprocessableEntity()
+      .body(Map.of("violations", ex.errors().map(e -> e.key()).toJavaList()));
+}
+```
+
+Because `ValidationResponseFactory` is a `@FunctionalInterface`, a lambda is enough for simple
+cases. For access to the configured status code or other Spring beans, use a regular method:
+
+```java
+@Bean
+ValidationResponseFactory validationResponseFactory(FvSpringWebProperties properties) {
+  return (ex, headers, request) -> {
+    Map<String, Object> body = Map.of(
+        "status", properties.statusCode(),
+        "violations", ex.errors().map(e -> e.key()).toJavaList()
+    );
+    return ResponseEntity.status(properties.statusCode()).body(body);
   };
 }
 ```
+
+Providing this bean suppresses the autoconfigured `DefaultValidationResponseFactory`.
 
 ## WebFlux
 

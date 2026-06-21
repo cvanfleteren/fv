@@ -18,8 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Spring Boot autoconfiguration that registers {@link ValidationExceptionHandler} and
- * {@link ValidationReturnValueHandler} when:
+ * Spring Boot autoconfiguration that registers {@link ValidationExceptionHandler},
+ * {@link DefaultValidationResponseFactory} and {@link ValidationReturnValueHandler} when:
  * <ul>
  *     <li>The application is a Servlet-based web application.</li>
  *     <li>{@link ValidationException} is on the classpath.</li>
@@ -33,9 +33,16 @@ import java.util.List;
 public class FvSpringWebAutoConfiguration {
 
     @Bean
+    @ConditionalOnMissingBean(ValidationResponseFactory.class)
+    public DefaultValidationResponseFactory defaultValidationResponseFactory(FvSpringWebProperties properties) {
+        return new DefaultValidationResponseFactory(properties);
+    }
+
+    @Bean
     @ConditionalOnMissingBean
-    public ValidationExceptionHandler validationExceptionHandler(FvSpringWebProperties properties) {
-        return new ValidationExceptionHandler(properties);
+    public ValidationExceptionHandler validationExceptionHandler(
+            FvSpringWebProperties properties, ValidationResponseFactory responseFactory) {
+        return new ValidationExceptionHandler(properties, responseFactory);
     }
 
     @Bean

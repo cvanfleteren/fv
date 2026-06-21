@@ -47,33 +47,42 @@ class ValidationExceptionHandlerIntTest {
         }
 
         @Test
+        void autoConfiguration_registersDefaultValidationResponseFactoryBean() {
+            assertThat(applicationContext.getBean(ValidationResponseFactory.class))
+                .isInstanceOf(DefaultValidationResponseFactory.class);
+        }
+
+        @Test
         void throwSingle_returns422WithProblemDetail() throws Exception {
             mockMvc.perform(get("/throw-single"))
-                    .andExpect(status().isUnprocessableContent())
-                    .andExpect(jsonPath("$.status").value(422))
-                    .andExpect(jsonPath("$.title").value("Validation Failed"))
-                    .andExpect(jsonPath("$.errors[0].key").value("must.not.be.blank"))
-                    .andExpect(jsonPath("$.errors[0].path").value(""));
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(content().contentType("application/problem+json"))
+                .andExpect(jsonPath("$.status").value(422))
+                .andExpect(jsonPath("$.title").value("Validation Failed"))
+                .andExpect(jsonPath("$.errors[0].key").value("must.not.be.blank"))
+                .andExpect(jsonPath("$.errors[0].path").value(""));
         }
 
         @Test
         void throwWithPathAndParams_mapsPathAndParametersCorrectly() throws Exception {
             mockMvc.perform(get("/throw-with-path-and-params"))
-                    .andExpect(status().isUnprocessableContent())
-                    .andExpect(jsonPath("$.errors[0].key").value("min.length"))
-                    .andExpect(jsonPath("$.errors[0].path").value("name"))
-                    .andExpect(jsonPath("$.errors[0].parameters.min").value(3));
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(content().contentType("application/problem+json"))
+                .andExpect(jsonPath("$.errors[0].key").value("min.length"))
+                .andExpect(jsonPath("$.errors[0].path").value("name"))
+                .andExpect(jsonPath("$.errors[0].parameters.min").value(3));
         }
 
         @Test
         void throwMultiple_returnsAllErrorsWithPaths() throws Exception {
             mockMvc.perform(get("/throw-multiple"))
-                    .andExpect(status().isUnprocessableContent())
-                    .andExpect(jsonPath("$.errors.length()").value(2))
-                    .andExpect(jsonPath("$.errors[0].key").value("min.length"))
-                    .andExpect(jsonPath("$.errors[0].path").value("name"))
-                    .andExpect(jsonPath("$.errors[1].key").value("must.not.be.blank"))
-                    .andExpect(jsonPath("$.errors[1].path").value("email"));
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(content().contentType("application/problem+json"))
+                .andExpect(jsonPath("$.errors.length()").value(2))
+                .andExpect(jsonPath("$.errors[0].key").value("min.length"))
+                .andExpect(jsonPath("$.errors[0].path").value("name"))
+                .andExpect(jsonPath("$.errors[1].key").value("must.not.be.blank"))
+                .andExpect(jsonPath("$.errors[1].path").value("email"));
         }
     }
 
@@ -83,29 +92,29 @@ class ValidationExceptionHandlerIntTest {
         @Test
         void returnValid_returns200WithSerializedValue() throws Exception {
             mockMvc.perform(get("/return-valid"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.message").value("hello"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("hello"));
         }
 
         @Test
         void returnInvalid_returns422WithSameProblemDetailFormat() throws Exception {
             mockMvc.perform(get("/return-invalid"))
-                    .andExpect(status().isUnprocessableContent())
-                    .andExpect(jsonPath("$.status").value(422))
-                    .andExpect(jsonPath("$.title").value("Validation Failed"))
-                    .andExpect(jsonPath("$.errors[0].key").value("must.not.be.blank"))
-                    .andExpect(jsonPath("$.errors[0].path").value("email"));
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(jsonPath("$.status").value(422))
+                .andExpect(jsonPath("$.title").value("Validation Failed"))
+                .andExpect(jsonPath("$.errors[0].key").value("must.not.be.blank"))
+                .andExpect(jsonPath("$.errors[0].path").value("email"));
         }
 
         @Test
         void returnInvalidMultiple_returnsAllErrors() throws Exception {
             mockMvc.perform(get("/return-invalid-multiple"))
-                    .andExpect(status().isUnprocessableContent())
-                    .andExpect(jsonPath("$.errors.length()").value(2))
-                    .andExpect(jsonPath("$.errors[0].key").value("min.length"))
-                    .andExpect(jsonPath("$.errors[0].path").value("name"))
-                    .andExpect(jsonPath("$.errors[1].key").value("must.not.be.blank"))
-                    .andExpect(jsonPath("$.errors[1].path").value("email"));
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(jsonPath("$.errors.length()").value(2))
+                .andExpect(jsonPath("$.errors[0].key").value("min.length"))
+                .andExpect(jsonPath("$.errors[0].path").value("name"))
+                .andExpect(jsonPath("$.errors[1].key").value("must.not.be.blank"))
+                .andExpect(jsonPath("$.errors[1].path").value("email"));
         }
     }
 
@@ -115,25 +124,27 @@ class ValidationExceptionHandlerIntTest {
         @Test
         void selfValidatingConstructorFails_returns422WithProblemDetail() throws Exception {
             mockMvc.perform(post("/post-self-validating")
-                            .contentType("application/json")
-                            .content("""
-                                    {"name": "Al", "email": ""}
-                                    """))
-                    .andExpect(status().isUnprocessableContent())
-                    .andExpect(jsonPath("$.title").value("Validation Failed"))
-                    .andExpect(jsonPath("$.errors.length()").value(2))
-                    .andExpect(jsonPath("$.errors[0].key").value("min.length"))
-                    .andExpect(jsonPath("$.errors[0].path").value("name"))
-                    .andExpect(jsonPath("$.errors[1].key").value("must.not.be.blank"))
-                    .andExpect(jsonPath("$.errors[1].path").value("email"));
+                    .contentType("application/json")
+                    .content("""
+                        {"name": "Al", "email": ""}
+                        """)
+                )
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(content().contentType("application/problem+json"))
+                .andExpect(jsonPath("$.title").value("Validation Failed"))
+                .andExpect(jsonPath("$.errors.length()").value(2))
+                .andExpect(jsonPath("$.errors[0].key").value("min.length"))
+                .andExpect(jsonPath("$.errors[0].path").value("name"))
+                .andExpect(jsonPath("$.errors[1].key").value("must.not.be.blank"))
+                .andExpect(jsonPath("$.errors[1].path").value("email"));
         }
 
         @Test
         void malformedJson_returns400() throws Exception {
             mockMvc.perform(post("/post-self-validating")
-                            .contentType("application/json")
-                            .content("not json at all"))
-                    .andExpect(status().isBadRequest());
+                    .contentType("application/json")
+                    .content("not json at all"))
+                .andExpect(status().isBadRequest());
         }
     }
 
@@ -143,11 +154,11 @@ class ValidationExceptionHandlerIntTest {
         @Test
         void validationExceptionInConverter_returns422WithProblemDetail() throws Exception {
             mockMvc.perform(get("/get-with-validated-param").param("id", "ab"))
-                    .andExpect(status().isUnprocessableContent())
-                    .andExpect(jsonPath("$.status").value(422))
-                    .andExpect(jsonPath("$.title").value("Validation Failed"))
-                    .andExpect(jsonPath("$.errors[0].key").value("must.have.min.length"))
-                    .andExpect(jsonPath("$.errors[0].path").value("value"));
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(jsonPath("$.status").value(422))
+                .andExpect(jsonPath("$.title").value("Validation Failed"))
+                .andExpect(jsonPath("$.errors[0].key").value("must.have.min.length"))
+                .andExpect(jsonPath("$.errors[0].path").value("value"));
         }
     }
 
@@ -157,18 +168,18 @@ class ValidationExceptionHandlerIntTest {
         @Test
         void validationExceptionInConverter_returns422WithProblemDetail() throws Exception {
             mockMvc.perform(get("/get-with-validated-path/ab"))
-                    .andExpect(status().isUnprocessableContent())
-                    .andExpect(jsonPath("$.status").value(422))
-                    .andExpect(jsonPath("$.title").value("Validation Failed"))
-                    .andExpect(jsonPath("$.errors[0].key").value("must.have.min.length"))
-                    .andExpect(jsonPath("$.errors[0].path").value("value"));
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(jsonPath("$.status").value(422))
+                .andExpect(jsonPath("$.title").value("Validation Failed"))
+                .andExpect(jsonPath("$.errors[0].key").value("must.have.min.length"))
+                .andExpect(jsonPath("$.errors[0].path").value("value"));
         }
 
         @Test
         void validPathVariable_returns200() throws Exception {
             mockMvc.perform(get("/get-with-validated-path/abc"))
-                    .andExpect(status().isOk())
-                    .andExpect(content().string("ok: abc"));
+                .andExpect(status().isOk())
+                .andExpect(content().string("ok: abc"));
         }
     }
 
@@ -183,15 +194,15 @@ class ValidationExceptionHandlerIntTest {
         @Test
         void throwSingle_returnsConfiguredStatusCode() throws Exception {
             mockMvc.perform(get("/throw-single"))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.status").value(400));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400));
         }
 
         @Test
         void requestParamConverterFailure_returnsConfiguredStatusCode() throws Exception {
             mockMvc.perform(get("/get-with-validated-param").param("id", "ab"))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.status").value(400));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400));
         }
     }
 
@@ -206,19 +217,19 @@ class ValidationExceptionHandlerIntTest {
         @Test
         void requestParamConverterFailure_fallsThroughToDefault400() throws Exception {
             mockMvc.perform(get("/get-with-validated-param").param("id", "ab"))
-                    .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest());
         }
 
         @Test
         void pathVariableConverterFailure_fallsThroughToDefault400() throws Exception {
             mockMvc.perform(get("/get-with-validated-path/ab"))
-                    .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest());
         }
 
         @Test
         void directlyThrownValidationException_stillReturns422() throws Exception {
             mockMvc.perform(get("/throw-single"))
-                    .andExpect(status().isUnprocessableContent());
+                .andExpect(status().isUnprocessableContent());
         }
     }
 
@@ -233,8 +244,8 @@ class ValidationExceptionHandlerIntTest {
         @Test
         void returnValid_invokesResponseBodyAdvice() throws Exception {
             mockMvc.perform(get("/return-valid"))
-                    .andExpect(status().isOk())
-                    .andExpect(header().string("X-Advice-Applied", "true"));
+                .andExpect(status().isOk())
+                .andExpect(header().string("X-Advice-Applied", "true"));
         }
 
         @TestConfiguration

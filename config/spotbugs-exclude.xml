@@ -1,45 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FindBugsFilter>
 
-    <!-- Suppress warnings in generated/experimental test code -->
-    <Match>
-        <Package name="~be\.iffy\.fv\.test\..*"/>
-    </Match>
+  <!-- Suppress warnings in generated/experimental test code -->
+  <Match>
+    <Package name="~be\.iffy\.fv\.test\..*"/>
+  </Match>
 
-    <!--
-        EI_EXPOSE_REP / EI_EXPOSE_REP2: false positives for Vavr immutable collections.
-        io.vavr.collection.List and io.vavr.collection.Map are structurally immutable;
-        SpotBugs cannot verify this and flags their use as mutable representation exposure.
-    -->
-    <Match>
-        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
-        <Or>
-            <Class name="be.iffy.fv.ErrorMessage"/>
-            <Class name="be.iffy.fv.Validation$Invalid"/>
-            <Class name="be.iffy.fv.ValidationException"/>
-        </Or>
-    </Match>
+  <!--
+      EI_EXPOSE_REP / EI_EXPOSE_REP2: false positives for Vavr immutable collections.
+      io.vavr.collection.List and io.vavr.collection.Map are structurally immutable;
+      SpotBugs cannot verify this and flags their use as mutable representation exposure.
+  -->
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    <Or>
+      <Class name="be.iffy.fv.ErrorMessage"/>
+      <Class name="be.iffy.fv.Validation$Invalid"/>
+      <Class name="be.iffy.fv.ValidationException"/>
+    </Or>
+  </Match>
 
-    <!--
-        EI_EXPOSE_REP / EI_EXPOSE_REP2: ValidationErrorMessage is a response-only DTO
-        created exclusively via its from() factory. The parameters map is converted from
-        an immutable Vavr Map and never held by any caller; ownership transfers immediately
-        to Jackson for serialization.
-    -->
-    <Match>
-        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
-        <Class name="be.iffy.fv.spring.ValidationErrorMessage"/>
-    </Match>
+  <!--
+      EI_EXPOSE_REP / EI_EXPOSE_REP2: ValidationErrorMessage is a response-only DTO
+      created exclusively via its from() factory. The parameters map is converted from
+      an immutable Vavr Map and never held by any caller; ownership transfers immediately
+      to Jackson for serialization.
+  -->
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    <Class name="be.iffy.fv.spring.ValidationErrorMessage"/>
+  </Match>
 
-    <!--
-        NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION: false positive caused by annotation-package
-        mismatch. Spring 7 uses org.jspecify.annotations.Nullable on HandlerMethodReturnValueHandler
-        while SpotBugs resolves nullability through its own annotation set. The null check in
-        the implementation is correct and handles the nullable contract at runtime.
-    -->
-    <Match>
-        <Bug pattern="NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION"/>
-        <Class name="be.iffy.fv.spring.ValidationReturnValueHandler"/>
-    </Match>
+  <!--
+      NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION: false positive caused by annotation-package
+      mismatch. Spring 7 uses org.jspecify.annotations.Nullable on HandlerMethodReturnValueHandler
+      while SpotBugs resolves nullability through its own annotation set. The null check in
+      the implementation is correct and handles the nullable contract at runtime.
+  -->
+  <Match>
+    <Bug pattern="NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION"/>
+    <Class name="be.iffy.fv.spring.ValidationReturnValueHandler"/>
+  </Match>
+
+  <Match>
+    <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    <Or>
+      <Class name="be.iffy.fv.spring.ValidationExceptionHandler"/>
+      <Class name="be.iffy.fv.spring.DefaultValidationResponseFactory"/>
+    </Or>
+  </Match>
 
 </FindBugsFilter>

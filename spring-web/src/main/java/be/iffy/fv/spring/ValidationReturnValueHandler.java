@@ -30,7 +30,7 @@ public class ValidationReturnValueHandler implements HandlerMethodReturnValueHan
 
     private final Lazy<RequestResponseBodyMethodProcessor> delegate;
 
-    ValidationReturnValueHandler(RequestMappingHandlerAdapter handlerAdapter) {
+    public ValidationReturnValueHandler(RequestMappingHandlerAdapter handlerAdapter) {
         // Resolve lazily so we don't touch the adapter until it is fully initialized.
         // Reusing the existing processor preserves ResponseBodyAdvice configured on the adapter.
         this.delegate = Lazy.of(() -> resolveDelegate(handlerAdapter));
