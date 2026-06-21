@@ -29,7 +29,7 @@
   <dependencies>
     <dependency>
       <groupId>be.iffy.fv</groupId>
-      <artifactId>core</artifactId>
+      <artifactId>dsl</artifactId>
       <version>${revision}</version>
     </dependency>
     <dependency>

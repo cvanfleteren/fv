@@ -4,15 +4,31 @@ import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Validation;
 import be.iffy.fv.ValidationException;
 import io.vavr.collection.List;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+import static be.iffy.fv.dsl.DSL.assertThat;
+import static be.iffy.fv.dsl.DSL.strings;
+
 @RestController
 public class TestController {
+
+    public record ValidatedId(String value) {
+        public ValidatedId {
+            assertThat(value,"value").is(strings.minLength(3));
+        }
+    }
+
+    @GetMapping("/get-with-validated-param")
+    public String getWithValidatedParam(@RequestParam("id") ValidatedId id) {
+        return "ok: " + id.value();
+    }
+
+    @GetMapping("/get-with-validated-path/{id}")
+    public String getWithValidatedPathVariable(@PathVariable("id") ValidatedId id) {
+        return "ok: " + id.value();
+    }
 
     record SelfValidatingBody(String name, String email) {
         SelfValidatingBody {

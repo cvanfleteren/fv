@@ -21,9 +21,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -51,7 +49,7 @@ class ValidationExceptionHandlerIntTest {
         @Test
         void throwSingle_returns422WithProblemDetail() throws Exception {
             mockMvc.perform(get("/throw-single"))
-                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(status().isUnprocessableContent())
                     .andExpect(jsonPath("$.status").value(422))
                     .andExpect(jsonPath("$.title").value("Validation Failed"))
                     .andExpect(jsonPath("$.errors[0].key").value("must.not.be.blank"))
@@ -61,7 +59,7 @@ class ValidationExceptionHandlerIntTest {
         @Test
         void throwWithPathAndParams_mapsPathAndParametersCorrectly() throws Exception {
             mockMvc.perform(get("/throw-with-path-and-params"))
-                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(status().isUnprocessableContent())
                     .andExpect(jsonPath("$.errors[0].key").value("min.length"))
                     .andExpect(jsonPath("$.errors[0].path").value("name"))
                     .andExpect(jsonPath("$.errors[0].parameters.min").value(3));
@@ -70,7 +68,7 @@ class ValidationExceptionHandlerIntTest {
         @Test
         void throwMultiple_returnsAllErrorsWithPaths() throws Exception {
             mockMvc.perform(get("/throw-multiple"))
-                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(status().isUnprocessableContent())
                     .andExpect(jsonPath("$.errors.length()").value(2))
                     .andExpect(jsonPath("$.errors[0].key").value("min.length"))
                     .andExpect(jsonPath("$.errors[0].path").value("name"))
@@ -92,7 +90,7 @@ class ValidationExceptionHandlerIntTest {
         @Test
         void returnInvalid_returns422WithSameProblemDetailFormat() throws Exception {
             mockMvc.perform(get("/return-invalid"))
-                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(status().isUnprocessableContent())
                     .andExpect(jsonPath("$.status").value(422))
                     .andExpect(jsonPath("$.title").value("Validation Failed"))
                     .andExpect(jsonPath("$.errors[0].key").value("must.not.be.blank"))
@@ -102,7 +100,7 @@ class ValidationExceptionHandlerIntTest {
         @Test
         void returnInvalidMultiple_returnsAllErrors() throws Exception {
             mockMvc.perform(get("/return-invalid-multiple"))
-                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(status().isUnprocessableContent())
                     .andExpect(jsonPath("$.errors.length()").value(2))
                     .andExpect(jsonPath("$.errors[0].key").value("min.length"))
                     .andExpect(jsonPath("$.errors[0].path").value("name"))
@@ -121,7 +119,7 @@ class ValidationExceptionHandlerIntTest {
                             .content("""
                                     {"name": "Al", "email": ""}
                                     """))
-                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(status().isUnprocessableContent())
                     .andExpect(jsonPath("$.title").value("Validation Failed"))
                     .andExpect(jsonPath("$.errors.length()").value(2))
                     .andExpect(jsonPath("$.errors[0].key").value("min.length"))
@@ -136,6 +134,41 @@ class ValidationExceptionHandlerIntTest {
                             .contentType("application/json")
                             .content("not json at all"))
                     .andExpect(status().isBadRequest());
+        }
+    }
+
+    @Nested
+    class WhenRequestParamConverterThrowsValidationException {
+
+        @Test
+        void validationExceptionInConverter_returns422WithProblemDetail() throws Exception {
+            mockMvc.perform(get("/get-with-validated-param").param("id", "ab"))
+                    .andExpect(status().isUnprocessableContent())
+                    .andExpect(jsonPath("$.status").value(422))
+                    .andExpect(jsonPath("$.title").value("Validation Failed"))
+                    .andExpect(jsonPath("$.errors[0].key").value("must.have.min.length"))
+                    .andExpect(jsonPath("$.errors[0].path").value("value"));
+        }
+    }
+
+    @Nested
+    class WhenPathVariableConverterThrowsValidationException {
+
+        @Test
+        void validationExceptionInConverter_returns422WithProblemDetail() throws Exception {
+            mockMvc.perform(get("/get-with-validated-path/ab"))
+                    .andExpect(status().isUnprocessableContent())
+                    .andExpect(jsonPath("$.status").value(422))
+                    .andExpect(jsonPath("$.title").value("Validation Failed"))
+                    .andExpect(jsonPath("$.errors[0].key").value("must.have.min.length"))
+                    .andExpect(jsonPath("$.errors[0].path").value("value"));
+        }
+
+        @Test
+        void validPathVariable_returns200() throws Exception {
+            mockMvc.perform(get("/get-with-validated-path/abc"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string("ok: abc"));
         }
     }
 

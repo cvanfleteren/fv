@@ -1,8 +1,10 @@
 # Spring Boot Integration
 
 The `spring-web` module integrates FV with Spring Boot by:
-- Automatically translating ValidationException into a consistent, machine-readable HTTP error response, without requiring controller boilerplate—whether the exception originates within your controller or from an @RequestBody constructor.
-- Seamlessly handling controllers that return `Validation<T>`: `Valid<T>` produces a standard response body, while `Invalid` results yield the same structured problem details as a thrown ValidationException.
+- Automatically translating ValidationException into a consistent, machine-readable HTTP error response, without requiring 
+controller boilerplate—whether the exception originates within your controller or from an @RequestBody constructor.
+- Seamlessly handling controllers that return `Validation<T>`: `Valid<T>` produces a standard response body, while `Invalid` 
+results yield the same structured problem details as a thrown ValidationException.
 
 ## Getting started
 
@@ -33,6 +35,12 @@ method is entered. The `ValidationException` gets wrapped by Jackson and rethrow
 `HttpMessageNotReadableException`. The exception handler unwraps it so you still get the same
 422 Problem Details body. Genuinely malformed requests (bad JSON, wrong type, etc.) are unaffected
 and still produce a 400.
+
+**Converter unwrapping** - when a `@RequestParam` or `@PathVariable` uses a custom Spring
+[`Converter`](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/core/convert/converter/Converter.html)
+that throws `ValidationException`, Spring wraps it in a `TypeMismatchException`. The exception
+handler unwraps it and returns the same 422 Problem Details body. Both parameter kinds behave
+identically.
 
 **Return value handler** - controller methods that return `Validation<T>` are handled natively.
 A `Valid<T>` result serializes `T` as the normal response body (as if the method had declared `T`
