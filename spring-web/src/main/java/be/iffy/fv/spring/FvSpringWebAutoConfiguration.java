@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
@@ -28,12 +29,13 @@ import java.util.List;
 @AutoConfiguration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @ConditionalOnClass({DispatcherServlet.class, ValidationException.class})
+@EnableConfigurationProperties(FvSpringWebProperties.class)
 public class FvSpringWebAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ValidationExceptionHandler validationExceptionHandler() {
-        return new ValidationExceptionHandler();
+    public ValidationExceptionHandler validationExceptionHandler(FvSpringWebProperties properties) {
+        return new ValidationExceptionHandler(properties);
     }
 
     @Bean

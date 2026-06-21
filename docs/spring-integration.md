@@ -18,7 +18,7 @@ Add the `spring-web` dependency to your project:
 </dependency>
 ```
 
-That's all. Spring Boot's autoconfiguration picks up the exception and return value handlers automatically.
+That's all. Spring Boot's autoconfiguration picks up the exception and returns value handlers automatically.
 
 ## What you get
 
@@ -195,6 +195,24 @@ A `Valid<User>` response serializes the `User` as JSON with HTTP 200. An `Invali
 produces the same HTTP 422 Problem Details body shown above. The return value handler converts
 it before Spring attempts to serialize the `Validation` wrapper itself.
 
+## Configuration
+
+| Property | Default | Description |
+|---|---|---|
+| `fv.spring.status-code` | `422` | HTTP status code returned for all validation failures. |
+| `fv.spring.handle-type-mismatch` | `true` | When `false`, `@RequestParam` and `@PathVariable` converter failures that wrap a `ValidationException` fall through to Spring's default 400 handling instead of producing a Problem Details body. |
+
+```properties
+# Use 400 Bad Request instead of 422 for validation errors
+fv.spring.status-code=400
+
+# Opt out of unwrapping ValidationException from converter type mismatches, so ValidationExceptions that happen with
+# @PathVariable or @RequestParam will revert back to default Spring behavior. @RequestBody that throw will still 
+# result in a ProblemDetail with a statusCode of `fv.spring.status-code`.
+
+fv.spring.handle-type-mismatch=false
+```
+
 ## Customizing the exception handler
 
 Because the exception handler is registered with `@ConditionalOnMissingBean`, you can replace it entirely
@@ -211,9 +229,11 @@ public class MyValidationExceptionHandler extends ResponseEntityExceptionHandler
 }
 ```
 
-If you only want to change the Problem Details shape while keeping the 422 status and the
-deserialization-unwrapping behaviour, extend `ValidationExceptionHandler` and override
-`toProblemDetail`. Both the direct-throw path and the deserialization-unwrap path call it.
+If you only want to change the status code, use `fv.spring.status-code` instead of replacing the bean.
+
+If you want to change the Problem Details shape while keeping the deserialization-unwrapping
+behaviour, extend `ValidationExceptionHandler` and override `toProblemDetail`. Both the
+direct-throw path and the deserialization-unwrap path call it.
 
 ```java
 @Bean

@@ -11,7 +11,7 @@
 
   <artifactId>spring-web</artifactId>
   <name>Functional Validation - Spring Web Support</name>
-  <description>Spring Web MVC exception handling for ValidationException, with Spring Boot auto-configuration.
+  <description>Spring Web MVC exception handling for ValidationException, with Spring Boot autoconfiguration.
   </description>
 
   <dependencyManagement>
@@ -82,6 +82,7 @@
         <groupId>com.github.siom79.japicmp</groupId>
         <artifactId>japicmp-maven-plugin</artifactId>
         <configuration>
+          <!-- TODO no longer skip this once release in 1.1 -->
           <skip>true</skip>
         </configuration>
       </plugin>

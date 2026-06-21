@@ -3,7 +3,10 @@ package be.iffy.fv.spring;
 import be.iffy.fv.ValidationException;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.TypeMismatchException;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -12,6 +15,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.net.URI;
 import java.util.List;
+
+import static org.springframework.http.HttpStatus.valueOf;
 
 /**
  * Catches {@link ValidationException} thrown from Spring MVC controllers and converts it to an
@@ -28,6 +33,16 @@ public class ValidationExceptionHandler extends ResponseEntityExceptionHandler {
 
     static final URI PROBLEM_TYPE =
             URI.create("https://github.com/cvanfleteren/fv/problems/validation-failed");
+
+    private final FvSpringWebProperties properties;
+
+    public ValidationExceptionHandler() {
+        this(new FvSpringWebProperties(422, true));
+    }
+
+    public ValidationExceptionHandler(FvSpringWebProperties properties) {
+        this.properties = properties;
+    }
 
     /**
      * The case when a {@link ValidationException} is directly thrown through a controller method.
@@ -52,7 +67,7 @@ public class ValidationExceptionHandler extends ResponseEntityExceptionHandler {
         ValidationException ve = findValidationException(ex);
         if (ve != null) {
             return handleExceptionInternal(
-                    ex, toProblemDetail(ve), headers, HttpStatus.UNPROCESSABLE_ENTITY, request);
+                    ex, toProblemDetail(ve), headers, valueOf(properties.statusCode()), request);
         }
         return super.handleHttpMessageNotReadable(ex, headers, status, request);
     }
@@ -63,22 +78,25 @@ public class ValidationExceptionHandler extends ResponseEntityExceptionHandler {
      * (via {@link org.springframework.core.convert.ConversionFailedException}).
      * We unwrap the cause chain to produce the same 422 Problem Details body.
      * Other type-mismatch failures fall through to the default 400.
+     * Same goes when {@code fv.spring.handleTypeMismatch} is set to false.
      */
     @Override
     protected @Nullable ResponseEntity<Object> handleTypeMismatch(
             TypeMismatchException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 
-        ValidationException ve = findValidationExceptionFromTypeMismatch(ex);
-        if (ve != null) {
-            return handleExceptionInternal(
-                    ex, toProblemDetail(ve), headers, HttpStatus.UNPROCESSABLE_ENTITY, request);
+        if (properties.handleTypeMismatch()) {
+            ValidationException ve = findValidationExceptionFromTypeMismatch(ex);
+            if (ve != null) {
+                return handleExceptionInternal(
+                        ex, toProblemDetail(ve), headers, valueOf(properties.statusCode()), request);
+            }
         }
         return super.handleTypeMismatch(ex, headers, status, request);
     }
 
     protected ProblemDetail toProblemDetail(ValidationException ex) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-                HttpStatus.UNPROCESSABLE_ENTITY,
+                valueOf(properties.statusCode()),
                 "Validation failed with " + ex.errors().size() + " error(s)"
         );
         problem.setType(PROBLEM_TYPE);

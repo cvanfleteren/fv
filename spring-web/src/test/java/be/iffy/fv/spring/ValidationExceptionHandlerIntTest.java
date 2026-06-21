@@ -173,6 +173,56 @@ class ValidationExceptionHandlerIntTest {
     }
 
     @Nested
+    @SpringBootTest(classes = TestApplication.class, properties = "fv.spring.status-code=400")
+    @AutoConfigureMockMvc
+    class WhenStatusCodeIsConfiguredTo400 {
+
+        @Autowired
+        private MockMvc mockMvc;
+
+        @Test
+        void throwSingle_returnsConfiguredStatusCode() throws Exception {
+            mockMvc.perform(get("/throw-single"))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.status").value(400));
+        }
+
+        @Test
+        void requestParamConverterFailure_returnsConfiguredStatusCode() throws Exception {
+            mockMvc.perform(get("/get-with-validated-param").param("id", "ab"))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.status").value(400));
+        }
+    }
+
+    @Nested
+    @SpringBootTest(classes = TestApplication.class, properties = "fv.spring.handle-type-mismatch=false")
+    @AutoConfigureMockMvc
+    class WhenTypeMismatchHandlingIsDisabled {
+
+        @Autowired
+        private MockMvc mockMvc;
+
+        @Test
+        void requestParamConverterFailure_fallsThroughToDefault400() throws Exception {
+            mockMvc.perform(get("/get-with-validated-param").param("id", "ab"))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void pathVariableConverterFailure_fallsThroughToDefault400() throws Exception {
+            mockMvc.perform(get("/get-with-validated-path/ab"))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void directlyThrownValidationException_stillReturns422() throws Exception {
+            mockMvc.perform(get("/throw-single"))
+                    .andExpect(status().isUnprocessableContent());
+        }
+    }
+
+    @Nested
     @SpringBootTest(classes = {TestApplication.class, WhenResponseBodyAdviceIsConfigured.Config.class})
     @AutoConfigureMockMvc
     class WhenResponseBodyAdviceIsConfigured {

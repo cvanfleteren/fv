@@ -105,6 +105,30 @@ class ValidationExceptionHandlerTest {
     }
 
     @Nested
+    class WhenStatusCodeIsCustomized {
+
+        @BeforeEach
+        void setUp() {
+            mockMvc = MockMvcBuilders
+                    .standaloneSetup(new TestController())
+                    .setControllerAdvice(new ValidationExceptionHandler(new FvSpringWebProperties(400, true)))
+                    .build();
+        }
+
+        @Test
+        void handleValidationException_returnsConfiguredStatusCode() throws Exception {
+            mockMvc.perform(get("/throw-single"))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void handleValidationException_setsStatusFieldInBody() throws Exception {
+            mockMvc.perform(get("/throw-single"))
+                    .andExpect(jsonPath("$.status").value(400));
+        }
+    }
+
+    @Nested
     class WhenRequestBodyDeserializationFails {
 
         @Test
