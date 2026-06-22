@@ -24,15 +24,6 @@
 `Transformation#sequence(Transformation<T>... )` method, allowing you to combine multiple Transformations sequentially.
 - Support for defining multiple Transformations in the assertThat/validateThat/after DSL classes.
 
-### Changed,
-
-### Deprecated,
-
-### Removed,
-
-### Fixed,
-
-### Security
 
 ## [1.0.0] - 2026-06-19
 ### Added
