@@ -309,7 +309,8 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
     }
 
     /**
-     * Fails if the input string is not a valid enum value for the given enum class while mapping to the enum. Is NOT case-sensitive.
+     * Fails if the input string is not a valid enum value for the given enum class while mapping to the enum.
+     * Case-sensitive: the string must match the enum constant name exactly.
      * <p>
      * Error key: {@code must.be.valid.enum.value}
      * <p>
@@ -319,6 +320,28 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
      * </ul>
      */
     public <E extends Enum<E>> MappingRule<String, E> asEnum(Class<E> enumClass) {
+        Objects.requireNonNull(enumClass, "enumClass must not be null");
+        return MappingRule.of(s -> {
+                try {
+                    return Validation.valid(Enum.valueOf(enumClass, s));
+                } catch (IllegalArgumentException e) {
+                    return Validation.invalid(ErrorMessage.of("must.be.valid.enum.value", "value", s));
+                }
+            }
+        );
+    }
+
+    /**
+     * Fails if the input string is not a valid enum value, ignoring case, for the given enum class while mapping to the enum.
+     * <p>
+     * Error key: {@code must.be.valid.enum.value}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
+     */
+    public <E extends Enum<E>> MappingRule<String, E> asEnumIgnoreCase(Class<E> enumClass) {
         Objects.requireNonNull(enumClass, "enumClass must not be null");
         return MappingRule.of(s -> {
                 for (E constant : enumClass.getEnumConstants()) {
@@ -365,6 +388,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
 
     /**
      * Fails if the input string is not a valid enum value for the given enum class.
+     * Case-sensitive: the string must match the enum constant name exactly.
      * <p>
      * Error key: {@code must.be.valid.enum.value}
      * <p>
@@ -375,7 +399,30 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
      */
     public <E extends Enum<E>> Rule<String> canBeEnum(Class<E> clazz) {
         Objects.requireNonNull(clazz, "clazz cannot be null");
-        return input -> asEnum(clazz).apply(input).mapTo(input);
+        MappingRule<String, E> rule = asEnum(clazz);
+        return input -> {
+            if (input == null) return Validation.Invalid.notNull();
+            return rule.apply(input).mapTo(input);
+        };
+    }
+
+    /**
+     * Fails if the input string is not a valid enum value, ignoring case, for the given enum class.
+     * <p>
+     * Error key: {@code must.be.valid.enum.value}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code value}: the input string ({@link String})</li>
+     * </ul>
+     */
+    public <E extends Enum<E>> Rule<String> canBeEnumIgnoreCase(Class<E> clazz) {
+        Objects.requireNonNull(clazz, "clazz cannot be null");
+        MappingRule<String, E> rule = asEnumIgnoreCase(clazz);
+        return input -> {
+            if (input == null) return Validation.Invalid.notNull();
+            return rule.apply(input).mapTo(input);
+        };
     }
 
     //endregion
@@ -509,7 +556,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
         return MappingRule.<String>notNull().then(input -> {
             if (length < 0 || length > input.length()) {
                 return Validation.invalid(
-                    ErrorMessage.of("must.have.min.length","length", length)
+                    ErrorMessage.of("must.have.min.length", "length", length)
                 );
             }
             return Validation.valid(input.substring(length));

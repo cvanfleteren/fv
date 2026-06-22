@@ -1108,17 +1108,65 @@ class StringRulesTest {
         }
 
         @Test
-        void isEnum_whenValidEnumValue_returnsValid() {
+        void asEnum_whenValidEnumValue_returnsValid() {
             assertThatValidation(strings.asEnum(TestEnum.class).apply("A"))
                     .isValid()
                     .isEqualTo(TestEnum.A);
         }
 
         @Test
-        void isEnum_whenInvalidEnumValue_returnsInvalid() {
+        void asEnum_whenInvalidEnumValue_returnsInvalid() {
             assertThatValidation(strings.asEnum(TestEnum.class).apply("C"))
                     .isInvalid()
                     .hasErrorMessage("must.be.valid.enum.value", HashMap.of("value", "C"));
+        }
+
+        @Test
+        void asEnum_whenWrongCase_returnsInvalid() {
+            assertThatValidation(strings.asEnum(TestEnum.class).apply("a"))
+                    .isInvalid()
+                    .hasErrorMessage("must.be.valid.enum.value", HashMap.of("value", "a"));
+        }
+    }
+
+    @Nested
+    class AsEnumIgnoreCase {
+
+        enum TestEnum {
+            FOO, BAR
+        }
+
+        @Test
+        void asEnumIgnoreCase_whenExactCase_returnsValid() {
+            assertThatValidation(strings.asEnumIgnoreCase(TestEnum.class).apply("FOO"))
+                    .isValid()
+                    .isEqualTo(TestEnum.FOO);
+        }
+
+        @Test
+        void asEnumIgnoreCase_whenLowerCase_returnsValid() {
+            assertThatValidation(strings.asEnumIgnoreCase(TestEnum.class).apply("foo"))
+                    .isValid()
+                    .isEqualTo(TestEnum.FOO);
+        }
+
+        @Test
+        void asEnumIgnoreCase_whenMixedCase_returnsValid() {
+            assertThatValidation(strings.asEnumIgnoreCase(TestEnum.class).apply("Bar"))
+                    .isValid()
+                    .isEqualTo(TestEnum.BAR);
+        }
+
+        @Test
+        void asEnumIgnoreCase_whenInvalidValue_returnsInvalid() {
+            assertThatValidation(strings.asEnumIgnoreCase(TestEnum.class).apply("BAZ"))
+                    .isInvalid()
+                    .hasErrorMessage("must.be.valid.enum.value", HashMap.of("value", "BAZ"));
+        }
+
+        @Test
+        void asEnumIgnoreCase_whenNull_returnsInvalid() {
+            invalidTest(null, strings.asEnumIgnoreCase(TestEnum.class), "must.not.be.null");
         }
     }
 
@@ -1197,6 +1245,59 @@ class StringRulesTest {
             assertThatValidation(strings.canBeEnum(TestEnum.class).apply("C"))
                     .isInvalid()
                     .hasErrorMessage("must.be.valid.enum.value", HashMap.of("value", "C"));
+        }
+
+        @Test
+        void canBeEnum_whenWrongCase_returnsInvalid() {
+            assertThatValidation(strings.canBeEnum(TestEnum.class).apply("a"))
+                    .isInvalid()
+                    .hasErrorMessage("must.be.valid.enum.value", HashMap.of("value", "a"));
+        }
+
+        @Test
+        void canBeEnum_whenNull_returnsInvalid() {
+            invalidTest(null, strings.canBeEnum(TestEnum.class), "must.not.be.null");
+        }
+    }
+
+    @Nested
+    class CanBeEnumIgnoreCase {
+
+        enum TestEnum {
+            FOO, BAR
+        }
+
+        @Test
+        void canBeEnumIgnoreCase_whenExactCase_returnsValid() {
+            assertThatValidation(strings.canBeEnumIgnoreCase(TestEnum.class).apply("FOO"))
+                    .isValid()
+                    .isEqualTo("FOO");
+        }
+
+        @Test
+        void canBeEnumIgnoreCase_whenLowerCase_returnsValid() {
+            assertThatValidation(strings.canBeEnumIgnoreCase(TestEnum.class).apply("foo"))
+                    .isValid()
+                    .isEqualTo("foo");
+        }
+
+        @Test
+        void canBeEnumIgnoreCase_whenMixedCase_returnsValid() {
+            assertThatValidation(strings.canBeEnumIgnoreCase(TestEnum.class).apply("Bar"))
+                    .isValid()
+                    .isEqualTo("Bar");
+        }
+
+        @Test
+        void canBeEnumIgnoreCase_whenInvalidValue_returnsInvalid() {
+            assertThatValidation(strings.canBeEnumIgnoreCase(TestEnum.class).apply("BAZ"))
+                    .isInvalid()
+                    .hasErrorMessage("must.be.valid.enum.value", HashMap.of("value", "BAZ"));
+        }
+
+        @Test
+        void canBeEnumIgnoreCase_whenNull_returnsInvalid() {
+            invalidTest(null, strings.canBeEnumIgnoreCase(TestEnum.class), "must.not.be.null");
         }
     }
 
