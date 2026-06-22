@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>jakarta-validation</artifactId>
-  <name>Functional Validation - Jakarta Bean Validation Support</name>
+  <name>FV - Jakarta Bean Validation Support</name>
   <description>
     Bridges FV Rule&lt;T&gt; into Jakarta Bean Validation (BV) via @FvRule, so BV-aware frameworks
     (Spring @Validated, JPA, etc.) can trigger FV rules through the standard @Valid mechanism.
