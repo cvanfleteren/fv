@@ -15,11 +15,9 @@ import static be.iffy.fv.Validation.invalid;
  * Represents a rule for mapping an input of type T to an output of type R,
  * with built-in validation support.
  * The mapping can either succeed (producing a {@link Validation.Valid} R) or fail (producing an {@link Invalid} with error details).
- *
- *
  */
 @FunctionalInterface
-public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
+public interface MappingRule<T, R> extends  RuleLike<T, Validation<R>> {
 
     /**
      * Evaluates the input against this rule, transforming it from type T to type R.
@@ -38,7 +36,7 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
      * Creates an explicit {@link MappingRule} from a function that has the same signature.
      * Use this to easily treat existing functions as Validations.
      */
-    static <T, R> MappingRule<T, R> of(Function<? super T, ? extends Validation<? extends R>> validationFunction) {
+    static <T, R> MappingRule<T, R> of(RuleLike<? super T, ? extends Validation<? extends R>> validationFunction) {
         Objects.requireNonNull(validationFunction, "validationFunction cannot be null");
         return input -> {
             if(input == null) {
@@ -179,7 +177,7 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
      * <p>
      * Short-circuiting, not accumulating.
      */
-    default MappingRule<T, R> fallback(Function<? super T, ? extends Validation<R>> fallback) {
+    default MappingRule<T, R> fallback(RuleLike<? super T, ? extends Validation<R>> fallback) {
         Objects.requireNonNull(fallback, "fallback rule cannot be null");
         return input -> {
             Validation<R> first = this.apply(input);
@@ -201,7 +199,7 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
      * <p>
      * Short-circuiting, not accumulating.
      */
-    default <Z> MappingRule<T, Z> then(Function<? super R, ? extends Validation<? extends Z>> rule) {
+    default <Z> MappingRule<T, Z> then(RuleLike<? super R, ? extends Validation<? extends Z>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
         return (T input) -> this.apply(input).flatMap(rule);
     }
@@ -215,7 +213,7 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
      * Short-circuiting, accumulating.
      */
     @SuppressWarnings("unchecked")
-    default MappingRule<T, R> or(Function<? super T, ? extends Validation<? extends R>> other) {
+    default MappingRule<T, R> or(RuleLike<? super T, ? extends Validation<? extends R>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input -> {
             Validation<R> first = this.apply(input);
@@ -232,7 +230,7 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
         };
     }
 
-    default <R2> RuleCombiners.CombineBuilder2<T, R, R2> combine(Function<? super T, Validation<R2>> other) {
+    default <R2> RuleCombiners.CombineBuilder2<T, R, R2> combine(RuleLike<? super T, Validation<R2>> other) {
         return RuleCombiners.combine(this, other);
     }
 
@@ -257,7 +255,7 @@ public interface MappingRule<T, R> extends  Function<T, Validation<R>> {
      * @param rule     the rule to be applied to the extracted value
      * @return a new {@link MappingRule} that tests the applied selector and rule combination
      */
-    static <T, V, R> MappingRule<T, R> on(PropertySelector<? super T, ? extends V> selector, Function<? super V, ? extends Validation<? extends R>> rule) {
+    static <T, V, R> MappingRule<T, R> on(PropertySelector<? super T, ? extends V> selector, RuleLike<? super V, ? extends Validation<? extends R>> rule) {
         Objects.requireNonNull(selector, "selector cannot be null");
         Objects.requireNonNull(rule, "rule cannot be null");
         return input -> Validation.narrow(

@@ -1,13 +1,9 @@
 package be.iffy.fv.dsl.impl;
 
-import be.iffy.fv.MappingRule;
-import be.iffy.fv.Rule;
-import be.iffy.fv.Transformation;
-import be.iffy.fv.Validation;
+import be.iffy.fv.*;
 import org.jetbrains.annotations.Contract;
 
 import java.util.Objects;
-import java.util.function.Function;
 
 
 /**
@@ -53,7 +49,7 @@ public final class AfterDSL<T> {
      * Creates a mapping rule that applies the transformation to the input before applying the provided rule function.
      */
     @Contract(pure = true)
-    public <R> MappingRule<T, R> is(Function<? super T, ? extends Validation<R>> ruleFunction) {
+    public <R> MappingRule<T, R> is(RuleLike<? super T, ? extends Validation<R>> ruleFunction) {
         Objects.requireNonNull(ruleFunction, "ruleFunction cannot be null");
         return input -> {
             T transformed = transformer.apply(input);

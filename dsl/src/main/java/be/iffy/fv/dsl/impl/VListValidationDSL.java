@@ -1,6 +1,7 @@
 package be.iffy.fv.dsl.impl;
 
 import be.iffy.fv.MappingRule;
+import be.iffy.fv.RuleLike;
 import be.iffy.fv.Validation;
 import be.iffy.fv.Validations;
 import io.vavr.collection.List;
@@ -8,7 +9,6 @@ import io.vavr.control.Option;
 import org.jetbrains.annotations.Contract;
 
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -53,7 +53,7 @@ public final class VListValidationDSL<L, E> {
      * Applies the given validation rule to each element in the list.
      */
     @Contract(pure = true)
-    public <R> VListValidationDSL<R, R> eachIs(Function<E, Validation<R>> rule) {
+    public <R> VListValidationDSL<R, R> eachIs(RuleLike<E, Validation<R>> rule) {
         Validation<List<R>> newElements = elementValidation.refine(list -> MappingRule.of(rule).lift().toVavrList().apply(list));
         Validation<List<R>> newList = listValidation.flatMap(ignore -> newElements);
         return new VListValidationDSL<>(
@@ -68,7 +68,7 @@ public final class VListValidationDSL<L, E> {
      * This method is non-short-circuiting and will collect errors even if the list is already invalid.
      */
     @Contract(pure = true)
-    public VListValidationDSL<L, E> is(Function<List<L>, Validation<List<L>>> rule) {
+    public VListValidationDSL<L, E> is(RuleLike<List<L>, Validation<List<L>>> rule) {
         Validation<List<L>> ruleValidation = Validation.narrowSuper(listValidation.refine(MappingRule.of(rule)));
         return new VListValidationDSL<>(ruleValidation, elementValidation, name);
     }

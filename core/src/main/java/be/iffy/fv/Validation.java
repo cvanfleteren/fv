@@ -49,7 +49,7 @@ import java.util.function.Supplier;
  * <h2>Exception handling</h2>
  *
  * <p>Most {@code Validation} operations do not catch unexpected runtime exceptions.
- * Methods such as {@link #map(Function)}, {@link #flatMap(Function)},
+ * Methods such as {@link #map(Function)}, {@link #flatMap(RuleLike)},
  * {@code mapN(...)} and {@code flatMapN(...)} are intended for regular functional
  * composition. If a mapper throws, the exception is propagated.
  * <p>
@@ -257,9 +257,9 @@ public sealed interface Validation<T> extends Iterable<T> {
 
     /**
      * Maps a valid value to a new validation, or returns this if invalid.  If the mapper throws any {@link RuntimeException}s, they will be rethrown.
-     * Use {@link #flatMapCatching(Function)} if you want to handle {@link ValidationException}s thrown by the mapper.
+     * Use {@link #flatMapCatching(RuleLike)} if you want to handle {@link ValidationException}s thrown by the mapper.
      */
-    default <R> Validation<R> flatMap(Function<? super T, ? extends Validation<? extends R>> flatMapper) {
+    default <R> Validation<R> flatMap(RuleLike<? super T, ? extends Validation<? extends R>> flatMapper) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
         return switch (this) {
             case Valid(var value) -> Validation.narrow(
@@ -270,9 +270,9 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
-     * Like {@link #flatMap(Function)}, but catches {@link ValidationException}s thrown by the mapper and turns them into an invalid validation.
+     * Like {@link #flatMap(RuleLike)}, but catches {@link ValidationException}s thrown by the mapper and turns them into an invalid validation.
      */
-    default <R> Validation<R> flatMapCatching(Function<? super T, ? extends Validation<? extends R>> flatMapper) {
+    default <R> Validation<R> flatMapCatching(RuleLike<? super T, ? extends Validation<? extends R>> flatMapper) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
         return switch (this) {
             case Valid(var value) -> {
@@ -289,27 +289,27 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
-     * Like {@link #flatMap(Function)}, but catches all {@link Exception}s thrown by the mapper and turns them into an invalid validation.
-     * Like {@link #flatMapCatching(Function)}, if a {@link ValidationException} is thrown, its errors are used for the resulting Invalid.
+     * Like {@link #flatMap(RuleLike)}, but catches all {@link Exception}s thrown by the mapper and turns them into an invalid validation.
+     * Like {@link #flatMapCatching(RuleLike)}, if a {@link ValidationException} is thrown, its errors are used for the resulting Invalid.
      * If an exception other than {@link ValidationException} is thrown, the provided {@link ErrorMessage} is used.
      * Does not catch {@link Error}s.
      */
-    default <R> Validation<R> flatMapCatchingAll(Function<? super T, ? extends Validation<? extends R>> flatMapper, ErrorMessage errorMessage) {
+    default <R> Validation<R> flatMapCatchingAll(RuleLike<? super T, ? extends Validation<? extends R>> flatMapper, ErrorMessage errorMessage) {
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return flatMapCatchingAll(flatMapper, e -> errorMessage);
     }
 
     /**
-     * Like {@link #flatMapCatchingAll(Function, ErrorMessage)}, but uses the provided error key.
+     * Like {@link #flatMapCatchingAll(RuleLike, ErrorMessage)}, but uses the provided error key.
      */
-    default <R> Validation<R> flatMapCatchingAll(Function<? super T, ? extends Validation<? extends R>> flatMapper, String errorKey) {
+    default <R> Validation<R> flatMapCatchingAll(RuleLike<? super T, ? extends Validation<? extends R>> flatMapper, String errorKey) {
         return flatMapCatchingAll(flatMapper, ErrorMessage.of(errorKey));
     }
 
     /**
-     * Like {@link #flatMapCatchingAll(Function, ErrorMessage)}, but uses the provided mapper to create an {@link ErrorMessage}.
+     * Like {@link #flatMapCatchingAll(RuleLike, ErrorMessage)}, but uses the provided mapper to create an {@link ErrorMessage}.
      */
-    default <R> Validation<R> flatMapCatchingAll(Function<? super T, ? extends Validation<? extends R>> flatMapper, Function<Exception, ErrorMessage> errorMessageMaker) {
+    default <R> Validation<R> flatMapCatchingAll(RuleLike<? super T, ? extends Validation<? extends R>> flatMapper, Function<Exception, ErrorMessage> errorMessageMaker) {
         Objects.requireNonNull(flatMapper, "flatMapper cannot be null");
         Objects.requireNonNull(errorMessageMaker, "errorMessageMaker cannot be null");
         return switch (this) {
@@ -343,9 +343,9 @@ public sealed interface Validation<T> extends Iterable<T> {
     }
 
     /**
-     * Alias for {@link #flatMap(Function)}.
+     * Alias for {@link #flatMap(RuleLike)}.
      */
-    default <R> Validation<R> refine(Function<? super T, ? extends Validation<? extends R>> refinement) {
+    default <R> Validation<R> refine(RuleLike<? super T, ? extends Validation<? extends R>> refinement) {
         Objects.requireNonNull(refinement, "refinement cannot be null");
         return this.flatMap(refinement);
     }

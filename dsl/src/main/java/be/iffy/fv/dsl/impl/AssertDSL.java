@@ -1,13 +1,8 @@
 package be.iffy.fv.dsl.impl;
 
-import be.iffy.fv.MappingRule;
-import be.iffy.fv.Transformation;
-import be.iffy.fv.Validation;
-import be.iffy.fv.ValidationException;
+import be.iffy.fv.*;
 import io.vavr.control.Option;
 import org.jetbrains.annotations.Contract;
-
-import java.util.function.Function;
 
 /**
  * A fluent API for performing assertions on a value.
@@ -69,7 +64,7 @@ public final class AssertDSL<T> {
     /**
      * Asserts that the value satisfies the given rule.
      */
-    public <R> R is(Function<? super T, ? extends Validation<R>> rule) throws ValidationException {
+    public <R> R is(RuleLike<? super T, ? extends Validation<R>> rule) throws ValidationException {
         return validationDSL.is(rule).getOrElseThrow();
     }
 

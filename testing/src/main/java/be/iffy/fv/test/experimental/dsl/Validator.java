@@ -1,9 +1,6 @@
 package be.iffy.fv.test.experimental.dsl;
 
-import be.iffy.fv.MappingRule;
-import be.iffy.fv.PropertySelector;
-import be.iffy.fv.Validation;
-import be.iffy.fv.Validations;
+import be.iffy.fv.*;
 import io.vavr.*;
 
 import java.util.function.Function;
@@ -22,7 +19,7 @@ public class Validator {
             this.propertySelector = propertySelector;
         }
 
-        public <R> MappingRule<T, R> is(Function<V, Validation<R>> rule) {
+        public <R> MappingRule<T, R> is(RuleLike<V, Validation<R>> rule) {
             return input -> rule.apply(propertySelector.apply(input)).at(propertySelector.getPropertyName());
         }
     }
@@ -56,7 +53,7 @@ public class Validator {
             return new ValidatorBuilder<>(predicate);
         }
 
-        public <R, V> ValidatorBuilder1<T, R> where(PropertySelector<T, V> selector, Function<V, Validation<R>> rule) {
+        public <R, V> ValidatorBuilder1<T, R> where(PropertySelector<T, V> selector, RuleLike<V, Validation<R>> rule) {
             return new ValidatorBuilder1<>(predicate, property(selector).is(rule));
         }
 
@@ -100,7 +97,7 @@ public class Validator {
             this.rule2 = rule2;
         }
 
-        public <R3, V> ValidatorBuilder3<T, R1, R2, R3> where(PropertySelector<T, V> selector, Function<V, Validation<R3>> rule) {
+        public <R3, V> ValidatorBuilder3<T, R1, R2, R3> where(PropertySelector<T, V> selector, RuleLike<V, Validation<R3>> rule) {
             return new ValidatorBuilder3<>(predicate, rule1, rule2, property(selector).is(rule));
         }
 

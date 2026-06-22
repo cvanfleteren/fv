@@ -5,8 +5,6 @@ import be.iffy.fv.dsl.DSL;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.function.Function;
-
 import static be.iffy.fv.dsl.DSL.assertThat;
 import static be.iffy.fv.dsl.DSL.stringOps;
 import static be.iffy.fv.dsl.DSL.strings;
@@ -20,8 +18,11 @@ class AssertDSLTest {
 
         @Test
         void nullInput_noNullOk_throws() {
-            assertThatThrownBy(()  -> DSL.assertThat((String)null, "field").after(stringOps.trim()).is(strings.minLength(4)))
-                    .isInstanceOf(ValidationException.class).hasMessage("field.must.not.be.null");
+            assertThatThrownBy(()  ->
+                DSL.assertThat((String)null, "field")
+                    .after(stringOps.trim())
+                    .is(strings.minLength(4))
+            ).isInstanceOf(ValidationException.class).hasMessage("field.must.not.be.null");
         }
     }
 
@@ -53,7 +54,7 @@ class AssertDSLTest {
 
         @Test
         void is_whenFunctionMatches_returnsMappedValue() {
-            Function<String, Validation<Integer>> functionRule = (String s) -> Validation.valid(s.length());
+            RuleLike<String, Validation<Integer>> functionRule = (String s) -> Validation.valid(s.length());
             Integer result = assertThat("abc", "field").is(functionRule);
             assertThat(result).isEqualTo(3);
         }

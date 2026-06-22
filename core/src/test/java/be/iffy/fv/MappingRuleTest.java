@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
@@ -942,7 +941,7 @@ class MappingRuleTest {
         void of_whenFunctionReturnsInvalid_returnsInvalidResult() {
             // Arrange
             ErrorMessage error = ErrorMessage.of("invalid.input");
-            Function<String, Validation<Integer>> func = s -> Validation.invalid(error);
+            RuleLike<String, Validation<Integer>> func = s -> Validation.invalid(error);
             MappingRule<String, Integer> rule = MappingRule.of(func);
 
             // Act

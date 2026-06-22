@@ -1,11 +1,8 @@
 package be.iffy.fv.dsl.impl;
 
 import be.iffy.fv.*;
-import be.iffy.fv.Validation;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import java.util.function.Function;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static be.iffy.fv.dsl.DSL.validateThat;
@@ -54,7 +51,7 @@ class ValidationDSLTest {
 
         @Test
         void is_whenFunctionMatches_returnsValidWithMappedValue() {
-            Function<String, Validation<Integer>> functionRule = s -> Validation.valid(s.length());
+            RuleLike<String, Validation<Integer>> functionRule = s -> Validation.valid(s.length());
 
             Validation<Integer> result = validateThat("abc", "field").is(functionRule);
 
@@ -64,7 +61,7 @@ class ValidationDSLTest {
         @Test
         void is_whenFunctionReturnsInvalid_returnsInvalid() {
             ErrorMessage error = ErrorMessage.of("invalid.input");
-            Function<String, Validation<Integer>> func = s -> Validation.invalid(error);
+            RuleLike<String, Validation<Integer>> func = s -> Validation.invalid(error);
 
             Validation<Integer> result = validateThat("abc").is(func);
 

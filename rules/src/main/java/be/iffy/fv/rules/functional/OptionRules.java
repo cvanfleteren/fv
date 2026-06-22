@@ -1,15 +1,11 @@
 package be.iffy.fv.rules.functional;
 
-import be.iffy.fv.MappingRule;
-import be.iffy.fv.Rule;
-import be.iffy.fv.Validation;
+import be.iffy.fv.*;
 import be.iffy.fv.Validation.Invalid;
-import be.iffy.fv.Validations;
 import io.vavr.control.Option;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 
 public final class OptionRules {
 
@@ -34,12 +30,12 @@ public final class OptionRules {
      * Applies the given MappingRule to the {@link Option} if it is present. If the Option is empty, the result
      * is considered to be valid.
      */
-    public <T, R> MappingRule<Option<T>, Option<R>> matches(Function<? super T, Validation<R>> mappingRuleLike) {
+    public <T, R> MappingRule<Option<T>, Option<R>> matches(RuleLike<? super T, Validation<R>> mappingRuleLike) {
         return input -> {
             if(input == null) {
                 return Invalid.notNull();
             }
-            Option<Validation<R>> res = input.map(mappingRuleLike);
+            Option<Validation<R>> res = input.map(mappingRuleLike::apply);
             return Validations.sequence(res);
         };
     }
@@ -62,11 +58,11 @@ public final class OptionRules {
      *
      * @param rule the rule to apply to the value inside the {@link Option}
      */
-    public <T, R> MappingRule<Option<T>, R> required(Function<? super T, ? extends Validation<R>> rule) {
+    public <T, R> MappingRule<Option<T>, R> required(RuleLike<? super T, ? extends Validation<R>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
         return input -> input.fold(
                 () -> Validation.invalid("must.not.be.empty"),
-                rule
+                rule::apply
         );
     }
 

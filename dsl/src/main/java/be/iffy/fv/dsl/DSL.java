@@ -19,7 +19,6 @@ import io.vavr.control.Option;
 import org.jetbrains.annotations.Contract;
 
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -276,7 +275,7 @@ public final class DSL {
      * Combines two Rules into a builder that can map all valid values or accumulate all errors.
      */
     @Contract(pure = true)
-    public static <T, R1, R2> RuleCombiners.CombineBuilder2<T, R1, R2> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2) {
+    public static <T, R1, R2> RuleCombiners.CombineBuilder2<T, R1, R2> combine(RuleLike<? super T, Validation<R1>> r1, RuleLike<? super T, Validation<R2>> r2) {
         return RuleCombiners.combine(r1, r2);
     }
 
@@ -284,7 +283,7 @@ public final class DSL {
      * Combines three Rules into a builder that can map all valid values or accumulate all errors.
      */
     @Contract(pure = true)
-    public static <T, R1, R2, R3> RuleCombiners.CombineBuilder3<T, R1, R2, R3> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2, Function<? super T, Validation<R3>> r3) {
+    public static <T, R1, R2, R3> RuleCombiners.CombineBuilder3<T, R1, R2, R3> combine(RuleLike<? super T, Validation<R1>> r1, RuleLike<? super T, Validation<R2>> r2, RuleLike<? super T, Validation<R3>> r3) {
         return RuleCombiners.combine(r1, r2, r3);
     }
 
@@ -292,7 +291,7 @@ public final class DSL {
      * Combines four Rules into a builder that can map all valid values or accumulate all errors.
      */
     @Contract(pure = true)
-    public static <T, R1, R2, R3, R4> RuleCombiners.CombineBuilder4<T, R1, R2, R3, R4> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2, Function<? super T, Validation<R3>> r3, Function<? super T, Validation<R4>> r4) {
+    public static <T, R1, R2, R3, R4> RuleCombiners.CombineBuilder4<T, R1, R2, R3, R4> combine(RuleLike<? super T, Validation<R1>> r1, RuleLike<? super T, Validation<R2>> r2, RuleLike<? super T, Validation<R3>> r3, RuleLike<? super T, Validation<R4>> r4) {
         return RuleCombiners.combine(r1, r2, r3, r4);
     }
 
@@ -300,7 +299,7 @@ public final class DSL {
      * Combines five Rules into a builder that can map all valid values or accumulate all errors.
      */
     @Contract(pure = true)
-    public static <T, R1, R2, R3, R4, R5> RuleCombiners.CombineBuilder5<T, R1, R2, R3, R4, R5> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2, Function<? super T, Validation<R3>> r3, Function<? super T, Validation<R4>> r4, Function<? super T, Validation<R5>> r5) {
+    public static <T, R1, R2, R3, R4, R5> RuleCombiners.CombineBuilder5<T, R1, R2, R3, R4, R5> combine(RuleLike<? super T, Validation<R1>> r1, RuleLike<? super T, Validation<R2>> r2, RuleLike<? super T, Validation<R3>> r3, RuleLike<? super T, Validation<R4>> r4, RuleLike<? super T, Validation<R5>> r5) {
         return RuleCombiners.combine(r1, r2, r3, r4, r5);
     }
 
@@ -308,7 +307,7 @@ public final class DSL {
      * Combines six Rules into a builder that can map all valid values or accumulate all errors.
      */
     @Contract(pure = true)
-    public static <T, R1, R2, R3, R4, R5, R6> RuleCombiners.CombineBuilder6<T, R1, R2, R3, R4, R5, R6> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2, Function<? super T, Validation<R3>> r3, Function<? super T, Validation<R4>> r4, Function<? super T, Validation<R5>> r5, Function<? super T, Validation<R6>> r6) {
+    public static <T, R1, R2, R3, R4, R5, R6> RuleCombiners.CombineBuilder6<T, R1, R2, R3, R4, R5, R6> combine(RuleLike<? super T, Validation<R1>> r1, RuleLike<? super T, Validation<R2>> r2, RuleLike<? super T, Validation<R3>> r3, RuleLike<? super T, Validation<R4>> r4, RuleLike<? super T, Validation<R5>> r5, RuleLike<? super T, Validation<R6>> r6) {
         return RuleCombiners.combine(r1, r2, r3, r4, r5, r6);
     }
 
@@ -316,7 +315,7 @@ public final class DSL {
      * Combines seven Rules into a builder that can map all valid values or accumulate all errors.
      */
     @Contract(pure = true)
-    public static <T, R1, R2, R3, R4, R5, R6, R7> RuleCombiners.CombineBuilder7<T, R1, R2, R3, R4, R5, R6, R7> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2, Function<? super T, Validation<R3>> r3, Function<? super T, Validation<R4>> r4, Function<? super T, Validation<R5>> r5, Function<? super T, Validation<R6>> r6, Function<? super T, Validation<R7>> r7) {
+    public static <T, R1, R2, R3, R4, R5, R6, R7> RuleCombiners.CombineBuilder7<T, R1, R2, R3, R4, R5, R6, R7> combine(RuleLike<? super T, Validation<R1>> r1, RuleLike<? super T, Validation<R2>> r2, RuleLike<? super T, Validation<R3>> r3, RuleLike<? super T, Validation<R4>> r4, RuleLike<? super T, Validation<R5>> r5, RuleLike<? super T, Validation<R6>> r6, RuleLike<? super T, Validation<R7>> r7) {
         return RuleCombiners.combine(r1, r2, r3, r4, r5, r6, r7);
     }
 
@@ -324,7 +323,7 @@ public final class DSL {
      * Combines eight Rules into a builder that can map all valid values or accumulate all errors.
      */
     @Contract(pure = true)
-    public static <T, R1, R2, R3, R4, R5, R6, R7, R8> RuleCombiners.CombineBuilder8<T, R1, R2, R3, R4, R5, R6, R7, R8> combine(Function<? super T, Validation<R1>> r1, Function<? super T, Validation<R2>> r2, Function<? super T, Validation<R3>> r3, Function<? super T, Validation<R4>> r4, Function<? super T, Validation<R5>> r5, Function<? super T, Validation<R6>> r6, Function<? super T, Validation<R7>> r7, Function<? super T, Validation<R8>> r8) {
+    public static <T, R1, R2, R3, R4, R5, R6, R7, R8> RuleCombiners.CombineBuilder8<T, R1, R2, R3, R4, R5, R6, R7, R8> combine(RuleLike<? super T, Validation<R1>> r1, RuleLike<? super T, Validation<R2>> r2, RuleLike<? super T, Validation<R3>> r3, RuleLike<? super T, Validation<R4>> r4, RuleLike<? super T, Validation<R5>> r5, RuleLike<? super T, Validation<R6>> r6, RuleLike<? super T, Validation<R7>> r7, RuleLike<? super T, Validation<R8>> r8) {
         return RuleCombiners.combine(r1, r2, r3, r4, r5, r6, r7, r8);
     }
 

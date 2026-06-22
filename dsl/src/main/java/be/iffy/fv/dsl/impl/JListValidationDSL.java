@@ -1,15 +1,11 @@
 package be.iffy.fv.dsl.impl;
 
-import be.iffy.fv.MappingRule;
-import be.iffy.fv.Rule;
-import be.iffy.fv.Validation;
-import be.iffy.fv.Validations;
+import be.iffy.fv.*;
 import io.vavr.control.Option;
 import org.jetbrains.annotations.Contract;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -54,7 +50,7 @@ public final class JListValidationDSL<L, E> {
      * Applies the given validation rule to each element in the list.
      */
     @Contract(pure = true)
-    public <R> JListValidationDSL<R, R> eachIs(Function<E, Validation<R>> rule) {
+    public <R> JListValidationDSL<R, R> eachIs(RuleLike<E, Validation<R>> rule) {
         Validation<List<R>> newElements = elementValidation.refine(list -> MappingRule.of(rule).lift().toList().apply(list));
         Validation<List<R>> newList = listValidation.flatMap(ignore -> newElements);
         return new JListValidationDSL<>(

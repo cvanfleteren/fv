@@ -1,12 +1,14 @@
 package be.iffy.fv.rules.functional;
 
+import be.iffy.fv.RuleLike;
 import be.iffy.fv.Validation;
 import io.vavr.control.Option;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static be.iffy.fv.rules.RulesTest.invalidTest;
+import static be.iffy.fv.rules.RulesTest.validTest;
 import static be.iffy.fv.rules.functional.OptionRules.options;
-import static be.iffy.fv.rules.RulesTest.*;
 import static be.iffy.fv.rules.text.StringRules.strings;
 
 class OptionRulesTest {
@@ -62,7 +64,7 @@ class OptionRulesTest {
 
         @Test
         void validFunction() {
-            java.util.function.Function<String, Validation<Integer>> ruleLike = s -> Validation.valid(Integer.parseInt(s));
+           RuleLike<String, Validation<Integer>> ruleLike = s -> Validation.valid(Integer.parseInt(s));
             validTest(Option.of("123"), Option.of(123), options.matches(ruleLike));
         }
     }

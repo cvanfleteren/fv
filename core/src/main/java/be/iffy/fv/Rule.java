@@ -5,7 +5,6 @@ import io.vavr.collection.List;
 import io.vavr.collection.Stream;
 
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -35,7 +34,7 @@ import java.util.function.Supplier;
  *
  */
 @FunctionalInterface
-public interface Rule<T> extends Function<T, Validation<T>> {
+public interface Rule<T> extends RuleLike<T, Validation<T>> {
 
     /**
      * Tests the given value against the rule. If the value passes the test,
@@ -61,7 +60,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      * Make a {@code Rule<T>} from a function that shares the same signature.
      * Rule semantics will be enforced, so the ruleLikeFunction won't be able to return another value.
      */
-    static <T> Rule<T> of(Function<? super T, ? extends Validation<? extends T>> ruleLikeFunction) {
+    static <T> Rule<T> of(RuleLike<? super T, ? extends Validation<? extends T>> ruleLikeFunction) {
         Objects.requireNonNull(ruleLikeFunction, "ruleLikeFunction cannot be null");
 
         if (ruleLikeFunction instanceof Rule) {
@@ -125,7 +124,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      * <p>
      * Non-short-circuiting, accumulating.
      */
-    default <S extends T> Rule<S> and(Function<? super S, ? extends Validation<?>> other) {
+    default <S extends T> Rule<S> and(RuleLike<? super S, ? extends Validation<?>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         // map back to original input so we're protected against other returning an incompatible value
         return input ->
@@ -145,7 +144,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      * Non-short-circuiting, accumulating.
      */
     @SafeVarargs
-    static <T> Rule<T> all(Function<? super T, ? extends Validation<T>>... rules) {
+    static <T> Rule<T> all(RuleLike<? super T, ? extends Validation<T>>... rules) {
         Objects.requireNonNull(rules, "rules cannot be null");
         List.of(rules).forEach(rule -> Objects.requireNonNull(rule,"rule cannot be null"));
 
@@ -176,7 +175,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      * Short-circuiting, accumulating.
      */
     @SafeVarargs
-    static <T> Rule<T> any(Function<? super T, ? extends Validation<T>>... rules) {
+    static <T> Rule<T> any(RuleLike<? super T, ? extends Validation<T>>... rules) {
         Objects.requireNonNull(rules, "rules cannot be null");
         if (rules.length == 0) {
             throw new IllegalArgumentException("rules cannot be empty");
@@ -203,12 +202,12 @@ public interface Rule<T> extends Function<T, Validation<T>> {
 
     /**
      * Returns a new {@link Rule} that first applies this rule, and if the input is invalid, falls back to the {@code other} rule.
-     * The difference with {@link #or(Function)} is that only the errors of the {@code other} Rule will be returned if both fail.
+     * The difference with {@link #or(RuleLike)} is that only the errors of the {@code other} Rule will be returned if both fail.
      * The fallback rule is evaluated only when this rule fails.
      * <p>
      * Short-circuiting, not accumulating.
      */
-    default Rule<T> fallback(Function<? super T, ? extends Validation<T>> other) {
+    default Rule<T> fallback(RuleLike<? super T, ? extends Validation<T>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input -> {
             if (input == null) {
@@ -233,7 +232,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      * <p>
      * Short-circuiting, accumulating
      */
-    default <S extends T> Rule<S> or(Function<? super S, ? extends Validation<?>> other) {
+    default <S extends T> Rule<S> or(RuleLike<? super S, ? extends Validation<?>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
         return input -> {
             if (input == null) {
@@ -259,7 +258,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      * The combined rule succeeds only if both pass. If this rule fails, {@code other} is not evaluated.
      * <p>
      * Use this when {@code other} depends on this rule succeeding first (e.g. {@code notNull().then(minLength(3))}).
-     * Use {@link #and(Function)} instead when the two rules are independent and you want all errors reported.
+     * Use {@link #and(RuleLike)} instead when the two rules are independent and you want all errors reported.
      * <p>
      * Short-circuiting, not accumulating. Returns a {@link Rule} (not a {@link MappingRule}).
      */
@@ -277,7 +276,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      * <p>
      * Short-circuiting, not accumulating.
      */
-    default <R> MappingRule<T, R> then(Function<? super T, ? extends Validation<? extends R>> ruleLikeFunction) {
+    default <R> MappingRule<T, R> then(RuleLike<? super T, ? extends Validation<? extends R>> ruleLikeFunction) {
         return input ->
             apply(input)
                 .refine(MappingRule.of(ruleLikeFunction));
@@ -290,7 +289,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      * <p>
      * Non-short-circuiting, non-accumulating
      */
-    default <S extends T> Rule<S> xor(Function<? super S, ? extends Validation<?>> other, String errorKey) {
+    default <S extends T> Rule<S> xor(RuleLike<? super S, ? extends Validation<?>> other, String errorKey) {
         Objects.requireNonNull(errorKey, "errorKey cannot be null");
         return xor(other, ErrorMessage.of(errorKey));
     }
@@ -302,7 +301,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      * <p>
      * Non-short-circuiting, non-accumulating
      */
-    default <S extends T> Rule<S> xor(Function<? super S, ? extends Validation<?>> other, ErrorMessage errorMessage) {
+    default <S extends T> Rule<S> xor(RuleLike<? super S, ? extends Validation<?>> other, ErrorMessage errorMessage) {
         Objects.requireNonNull(other, "other cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return input -> {
@@ -330,7 +329,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      * @param errorKey the error key to use if the validation fails.
      */
     @SafeVarargs
-    static <T> Rule<T> exactlyOne(String errorKey, Function<? super T, ? extends Validation<T>>... rules) {
+    static <T> Rule<T> exactlyOne(String errorKey, RuleLike<? super T, ? extends Validation<T>>... rules) {
         Objects.requireNonNull(errorKey, "errorKey cannot be null");
         return exactlyOne(ErrorMessage.of(errorKey), rules);
     }
@@ -346,7 +345,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      * @param errorMessage the error message to use if the validation fails.
      */
     @SafeVarargs
-    static <T> Rule<T> exactlyOne(ErrorMessage errorMessage, Function<? super T, ? extends Validation<T>>... rules) {
+    static <T> Rule<T> exactlyOne(ErrorMessage errorMessage, RuleLike<? super T, ? extends Validation<T>>... rules) {
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         Objects.requireNonNull(rules, "rules cannot be null");
         if (rules.length < 2) {
@@ -485,7 +484,7 @@ public interface Rule<T> extends Function<T, Validation<T>> {
      *
      * @param selector a function that extracts a value of type V from an input of type T
      */
-    static <T, V> Rule<T> on(PropertySelector<? super T, ? extends V> selector, Function<? super V, ? extends Validation<? extends V>> rule) {
+    static <T, V> Rule<T> on(PropertySelector<? super T, ? extends V> selector, RuleLike<? super V, ? extends Validation<? extends V>> rule) {
         Objects.requireNonNull(selector, "selector cannot be null");
         Objects.requireNonNull(rule, "rule cannot be null");
         return input ->
@@ -500,18 +499,18 @@ public interface Rule<T> extends Function<T, Validation<T>> {
     /**
      * Only apply the Rule when condition evaluates to {@code true}, return a Valid otherwise without evaluating the Rule.
      */
-    static <T> Rule<T> when(boolean condition, Function<? super T, ? extends Validation<T>> rule) {
+    static <T> Rule<T> when(boolean condition, RuleLike<? super T, ? extends Validation<T>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
         return Rule.of(rule).onlyIf(() -> condition);
     }
 
     /**
-     * Selects and returns one of the provided rules based on the given condition. As opposed to {@link #when(boolean, Function)}, there's always
+     * Selects and returns one of the provided rules based on the given condition. As opposed to {@link #when(boolean, RuleLike)}, there's always
      * a Rule being applied.
      *
      * @param condition a boolean determining which rule to select; if true, the first rule is chosen, otherwise the second rule
      */
-    static <T> Rule<T> choose(boolean condition, Function<? super T, ? extends Validation<T>> first, Function<? super T, ? extends Validation<T>> second) {
+    static <T> Rule<T> choose(boolean condition, RuleLike<? super T, ? extends Validation<T>> first, RuleLike<? super T, ? extends Validation<T>> second) {
         Objects.requireNonNull(first, "first cannot be null");
         Objects.requireNonNull(second, "second cannot be null");
         return condition ? Rule.of(first) : Rule.of(second);

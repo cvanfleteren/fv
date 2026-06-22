@@ -7,7 +7,7 @@ feel free to open an issue or reach out to the maintainers.
 
 **Core Concepts**
 - [What is the difference between a `Rule` and a `MappingRule`?](#what-is-the-difference-between-a-rule-and-a-mappingrule)
-- [Whats with the Function<? super T, ? extends Validation<R>> signatures?](#whats-with-the-function-super-t--extends-validationr-signatures)
+- [Whats with the RuleLike<? super T, ? extends Validation<R>> signatures?](#whats-with-the-function-super-t--extends-validationr-signatures)
 - [Do I need to use Strings to name the values I'm validating?](#do-i-need-to-use-strings-to-name-the-values-im-validating)
 - [Are rules null-safe by default?](#are-rules-null-safe-by-default)
 - [How do I create a Validation directly from a nullable value?](#how-do-i-create-a-validation-directly-from-a-nullable-value)
@@ -95,12 +95,12 @@ transforms it into another type or value.
 Use a `Rule` for simple checks on a value. Use a `MappingRule` when you need to change the type of the value or when you
 want to "materialize" a validated object from a raw input.
 
-You'll notice that lots of methods take functions with a signature like `Function<? super T, ? extends Validation<R>>`.
+You'll notice that lots of methods take functions with a signature like `RuleLike<? super T, ? extends Validation<R>>`.
 This is the generalized signature for both `Rule` and `MappingRule`, but for Rule T and R are the same type.
 
 ---
 
-### Whats with the Function<? super T, ? extends Validation<R>> signatures?
+### Whats with the RuleLike<? super T, ? extends Validation<R>> signatures?
 
 That signature is the more generic signature of a `Rule<T>` or `MappingRule<T, R>`.  
 By using this generic function signature in the DSL and other composition methods, the library becomes much more

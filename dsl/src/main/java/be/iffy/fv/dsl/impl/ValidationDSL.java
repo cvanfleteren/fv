@@ -1,14 +1,10 @@
 package be.iffy.fv.dsl.impl;
 
-import be.iffy.fv.MappingRule;
-import be.iffy.fv.Rule;
-import be.iffy.fv.Transformation;
-import be.iffy.fv.Validation;
+import be.iffy.fv.*;
 import io.vavr.control.Option;
 import org.jetbrains.annotations.Contract;
 
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -89,7 +85,7 @@ public final class ValidationDSL<T> {
      * Validates that the value satisfies the given rule.
      */
     @Contract(pure = true)
-    public <R> Validation<R> is(Function<? super T, ? extends Validation<? extends R>> rule) {
+    public <R> Validation<R> is(RuleLike<? super T, ? extends Validation<? extends R>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
 
         Validation<R> refined = validation.flatMap(value ->

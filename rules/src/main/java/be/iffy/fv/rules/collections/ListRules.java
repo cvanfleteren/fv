@@ -1,15 +1,11 @@
 package be.iffy.fv.rules.collections;
 
-import be.iffy.fv.ErrorMessage;
-import be.iffy.fv.MappingRule;
-import be.iffy.fv.Rule;
-import be.iffy.fv.Validation;
+import be.iffy.fv.*;
 import io.vavr.Function1;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 public final class ListRules {
@@ -273,8 +269,8 @@ public final class ListRules {
      *
      * @see MappingRule#lift()
      */
-    public <T, R> MappingRule<List<T>, List<R>> map(Function<T, ? extends Validation<? extends R>> mappingRule) {
-        return MappingRule.of(mappingRule).lift().toList();
+    public <T, R> MappingRule<List<T>, List<R>> map(RuleLike<T, ? extends Validation<? extends R>> mappingRule) {
+        return MappingRule.of(mappingRule::apply).lift().toList();
     }
 
     /**
