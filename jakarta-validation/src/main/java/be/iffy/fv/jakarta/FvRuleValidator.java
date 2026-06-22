@@ -9,13 +9,14 @@ import jakarta.validation.ConstraintValidatorContext.ConstraintViolationBuilder.
 import jakarta.validation.ConstraintValidatorContext.ConstraintViolationBuilder.NodeBuilderDefinedContext;
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 /**
  * BV {@link ConstraintValidator} that delegates to an FV {@link Rule}.
  *
  * <p>Instantiated by the BV runtime for each {@link FvRule}-annotated element.
- * The rule class is instantiated once per validator lifecycle via its public no-arg constructor.
+ * Supports three rule-resolution modes; see {@link FvRule} for details.
  */
 public class FvRuleValidator implements ConstraintValidator<FvRule, Object> {
 
@@ -24,14 +25,29 @@ public class FvRuleValidator implements ConstraintValidator<FvRule, Object> {
     @Override
     @SuppressWarnings("unchecked")
     public void initialize(FvRule annotation) {
-        try {
-            rule = (Rule<Object>) annotation.value().getDeclaredConstructor().newInstance();
-        } catch (ReflectiveOperationException e) {
+        boolean hasValue    = annotation.value()    != NoneRule.class;
+        boolean hasProvider = annotation.provider() != NoneRuleProvider.class;
+        boolean hasField    = annotation.on() != Void.class || !annotation.field().isEmpty();
+
+        int modeCount = (hasValue ? 1 : 0) + (hasProvider ? 1 : 0) + (hasField ? 1 : 0);
+        if (modeCount != 1) {
             throw new IllegalArgumentException(
-                "Cannot instantiate Rule class " + annotation.value().getName()
-                + " — ensure it has a public no-arg constructor.",
-                e
+                "@FvRule requires exactly one of: value, provider, or on+field — got " + modeCount
             );
+        }
+
+        if (hasValue) {
+            rule = (Rule<Object>) instantiate(annotation.value(), "Rule");
+        } else if (hasProvider) {
+            RuleProvider<Object> p = (RuleProvider<Object>) instantiate(annotation.provider(), "RuleProvider");
+            rule = (Rule<Object>) p.provide();
+            if (rule == null) {
+                throw new IllegalArgumentException(
+                    annotation.provider().getName() + ".provide() returned null"
+                );
+            }
+        } else {
+            rule = (Rule<Object>) resolveStaticField(annotation.on(), annotation.field());
         }
     }
 
@@ -45,6 +61,54 @@ public class FvRuleValidator implements ConstraintValidator<FvRule, Object> {
         context.disableDefaultConstraintViolation();
         result.errors().forEach(error -> addViolation(error, context));
         return false;
+    }
+
+    private static Object instantiate(Class<?> cls, String kind) {
+        try {
+            return cls.getDeclaredConstructor().newInstance();
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalArgumentException(
+                "Cannot instantiate " + kind + " class " + cls.getName()
+                + " — ensure it has a public no-arg constructor.",
+                e
+            );
+        }
+    }
+
+    private static Rule<?> resolveStaticField(Class<?> holder, String fieldName) {
+        if (holder == Void.class || fieldName.isEmpty()) {
+            throw new IllegalArgumentException(
+                "@FvRule static-field mode requires both on and field to be set"
+            );
+        }
+        Field f;
+        try {
+            f = holder.getDeclaredField(fieldName);
+        } catch (NoSuchFieldException e) {
+            throw new IllegalArgumentException(
+                "No field '" + fieldName + "' found on " + holder.getName(), e
+            );
+        }
+        f.setAccessible(true);
+        Object value;
+        try {
+            value = f.get(null);
+        } catch (IllegalAccessException e) {
+            throw new IllegalArgumentException(
+                "Cannot read field '" + fieldName + "' on " + holder.getName(), e
+            );
+        }
+        if (value == null) {
+            throw new IllegalArgumentException(
+                holder.getName() + "." + fieldName + " is null"
+            );
+        }
+        if (!(value instanceof Rule)) {
+            throw new IllegalArgumentException(
+                holder.getName() + "." + fieldName + " is not a Rule (found: " + value.getClass().getName() + ")"
+            );
+        }
+        return (Rule<?>) value;
     }
 
     private void addViolation(ErrorMessage error, ConstraintValidatorContext context) {

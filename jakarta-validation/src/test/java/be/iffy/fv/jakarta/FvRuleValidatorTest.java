@@ -1,7 +1,9 @@
 package be.iffy.fv.jakarta;
 
+import be.iffy.fv.jakarta.support.Gadget;
 import be.iffy.fv.jakarta.support.Order;
 import be.iffy.fv.jakarta.support.Person;
+import be.iffy.fv.jakarta.support.Widget;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Unit tests for {@link FvRuleValidator} using Hibernate Validator directly (no Spring).
@@ -118,6 +121,107 @@ class FvRuleValidatorTest {
             assertThat(violations)
                 .extracting(v -> v.getPropertyPath().toString())
                 .containsExactlyInAnyOrder("amounts[0]", "amounts[1]");
+        }
+    }
+
+    @Nested
+    class WhenRuleProviderModeIsUsed {
+
+        @Test
+        void validWidget_noViolations() {
+            assertThat(validator.validate(new Widget("Cog", 5))).isEmpty();
+        }
+
+        @Test
+        void nameTooShort_violation() {
+            Set<ConstraintViolation<Widget>> violations = validator.validate(new Widget("Co", 5));
+
+            assertThat(violations).hasSize(1);
+            assertThat(violations.iterator().next().getPropertyPath().toString()).isEqualTo("name");
+        }
+
+        @Test
+        void multipleInvalid_allViolationsReported() {
+            Set<ConstraintViolation<Widget>> violations = validator.validate(new Widget("Co", 0));
+
+            assertThat(violations).hasSize(2);
+            assertThat(violations)
+                .extracting(v -> v.getPropertyPath().toString())
+                .containsExactlyInAnyOrder("name", "weight");
+        }
+    }
+
+    @Nested
+    class WhenStaticFieldModeIsUsed {
+
+        @Test
+        void validGadget_noViolations() {
+            assertThat(validator.validate(new Gadget("ABC", 3))).isEmpty();
+        }
+
+        @Test
+        void codeTooShort_violation() {
+            Set<ConstraintViolation<Gadget>> violations = validator.validate(new Gadget("AB", 3));
+
+            assertThat(violations).hasSize(1);
+            assertThat(violations.iterator().next().getPropertyPath().toString()).isEqualTo("code");
+        }
+
+        @Test
+        void multipleInvalid_allViolationsReported() {
+            Set<ConstraintViolation<Gadget>> violations = validator.validate(new Gadget("AB", 0));
+
+            assertThat(violations).hasSize(2);
+            assertThat(violations)
+                .extracting(v -> v.getPropertyPath().toString())
+                .containsExactlyInAnyOrder("code", "quantity");
+        }
+    }
+
+    @Nested
+    class WhenAnnotationConfigurationIsInvalid {
+
+        @Test
+        void noModeSpecified_throwsOnInitialization() {
+            @FvRule
+            record Empty(String x) {}
+
+            assertThatThrownBy(() -> validator.validate(new Empty("hi")))
+                .cause()
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("exactly one");
+        }
+
+        @Test
+        void bothValueAndProvider_throwsOnInitialization() {
+            @FvRule(value = Person.Validator.class, provider = Widget.Rules.class)
+            record Conflicting(String x) {}
+
+            assertThatThrownBy(() -> validator.validate(new Conflicting("hi")))
+                .cause()
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("exactly one");
+        }
+
+        @Test
+        void onWithoutField_throwsOnInitialization() {
+            @FvRule(on = Gadget.class)
+            record MissingField(String x) {}
+
+            assertThatThrownBy(() -> validator.validate(new MissingField("hi")))
+                .cause()
+                .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        @Test
+        void fieldWithUnknownName_throwsOnInitialization() {
+            @FvRule(on = Gadget.class, field = "NONEXISTENT")
+            record BadField(String x) {}
+
+            assertThatThrownBy(() -> validator.validate(new BadField("hi")))
+                .cause()
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("NONEXISTENT");
         }
     }
 
