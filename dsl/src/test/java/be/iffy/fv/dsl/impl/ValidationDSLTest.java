@@ -60,6 +60,25 @@ class ValidationDSLTest {
 
             assertThatValidation(result).isValid().isEqualTo(3);
         }
+
+        @Test
+        void is_whenFunctionReturnsInvalid_returnsInvalid() {
+            ErrorMessage error = ErrorMessage.of("invalid.input");
+            Function<String, Validation<Integer>> func = s -> Validation.invalid(error);
+
+            Validation<Integer> result = validateThat("abc").is(func);
+
+            assertThatValidation(result).isInvalid().hasErrorKeys("invalid.input");
+        }
+
+        @Test
+        void is_whenNonNullValueFailsRule_returnsInvalidWithFieldPrefixedError() {
+            Rule<String> minLength = Rule.of(s -> s.length() >= 3, "too.short");
+
+            Validation<String> result = validateThat("ab", "field").is(minLength);
+
+            assertThatValidation(result).isInvalid().hasErrorMessages("field.too.short");
+        }
     }
 
     @Nested
