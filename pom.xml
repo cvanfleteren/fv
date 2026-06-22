@@ -252,6 +252,8 @@
                 <groupId>com.github.siom79.japicmp</groupId>
                 <artifactId>japicmp-maven-plugin</artifactId>
                 <configuration>
+                    <!-- TODO reenable this after 2.0 -->
+                    <skip>true</skip>
                     <oldVersion>
                         <dependency>
                             <groupId>${project.groupId}</groupId>
