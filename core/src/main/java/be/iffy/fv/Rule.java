@@ -279,7 +279,7 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
     default <R> MappingRule<T, R> then(RuleLike<? super T, ? extends Validation<? extends R>> ruleLikeFunction) {
         return input ->
             apply(input)
-                .refine(MappingRule.of(ruleLikeFunction));
+                .flatMap(ruleLikeFunction);
     }
 
     /**

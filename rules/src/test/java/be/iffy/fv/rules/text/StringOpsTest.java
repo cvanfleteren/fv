@@ -477,12 +477,6 @@ class StringOpsTest {
             // ZWJ \u200D, ZWNJ \u200C, WORD JOINER \u2060, BOM \uFEFF
             transform("ab\u200Dcd\u200Cef\u2060gh\uFEFFij", "abcdefghij", stringOps.stripControlChars());
         }
-//
-//        @Test
-//        void stripControlChars_idempotentOnSecondApplication() {
-//            var rule = stripControlChars();
-//            transform("a\u0000b\u200Bc", "abc", rule.andThen(rule));
-//        }
 
         @Test
         void stripControlChars_noControlsUnchanged() {

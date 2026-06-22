@@ -7,12 +7,12 @@ import java.util.Objects;
 
 
 /**
- * A tiny DSL for helping to define Rules that transform their input before running their actual logic on it.
+ * A tiny DSL for helping to define MappingRules that transform their input before running their actual logic on it.
  * Usage would look like this:
  * <pre>
  *{@code
  * ...
- * Rule<String> originalRule = after(StringOps.trim()).is(strings.length(5));
+ * MappingRule<String, String> originalRule = after(StringOps.trim()).is(strings.length(5));
  * ...
  * }
  * </pre>
@@ -34,10 +34,10 @@ public final class AfterDSL<T> {
     }
 
     /**
-     * Creates a rule that applies the transformation to the input before evaluating it against the specified rule.
+     * Creates a MappingRule that applies the transformation to the input before evaluating it against the specified rule.
      */
     @Contract(pure = true)
-    public Rule<T> is(Rule<T> rule) {
+    public MappingRule<T, T> is(Rule<T> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
         return input -> {
             T transformed = transformer.apply(input);
@@ -46,7 +46,7 @@ public final class AfterDSL<T> {
     }
 
     /**
-     * Creates a mapping rule that applies the transformation to the input before applying the provided rule function.
+     * Creates a MappingRule that applies the transformation to the input before applying the provided rule function.
      */
     @Contract(pure = true)
     public <R> MappingRule<T, R> is(RuleLike<? super T, ? extends Validation<R>> ruleFunction) {

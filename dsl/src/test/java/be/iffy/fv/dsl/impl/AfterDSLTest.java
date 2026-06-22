@@ -1,7 +1,6 @@
 package be.iffy.fv.dsl.impl;
 
 import be.iffy.fv.MappingRule;
-import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,7 +15,7 @@ class AfterDSLTest {
 
         @Test
         void is_whenTransformedInputIsValid_returnsValid() {
-            Rule<String> rule = after(stringOps.trim()).is(strings.maxLength(3));
+            MappingRule<String, String> rule = after(stringOps.trim()).is(strings.maxLength(3));
 
             Validation<String> result = rule.apply(" abc ");
 
@@ -25,7 +24,7 @@ class AfterDSLTest {
 
         @Test
         void is_whenTransformedInputIsInvalid_returnsInvalid() {
-            Rule<String> rule = after(stringOps.trim()).is(strings.maxLength(3));
+            MappingRule<String, String> rule = after(stringOps.trim()).is(strings.maxLength(3));
 
             Validation<String> result = rule.apply(" abcd ");
 
@@ -34,7 +33,7 @@ class AfterDSLTest {
 
         @Test
         void is_whenInputIsNull_handlesNullSafely() {
-            Rule<String> rule = after(stringOps.trim()).is(strings.maxLength(3));
+            MappingRule<String, String> rule = after(stringOps.trim()).is(strings.maxLength(3));
 
             Validation<String> result = rule.apply(null);
 
