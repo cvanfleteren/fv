@@ -1,6 +1,7 @@
 package be.iffy.fv.dsl.impl;
 
 import be.iffy.fv.MappingRule;
+import be.iffy.fv.Transformation;
 import be.iffy.fv.Validation;
 import be.iffy.fv.ValidationException;
 import io.vavr.control.Option;
@@ -46,6 +47,15 @@ public final class AssertDSL<T> {
     @Contract(pure = true)
     public AssertDSL<T> after(be.iffy.fv.Transformation<T> transformation) {
         return new AssertDSL<>(validationDSL.after(transformation));
+    }
+
+    /**
+     * Like {@link #after(Transformation)}, but takes multiple Transformations and applies them in sequence.
+     */
+    @SafeVarargs
+    @Contract(pure = true)
+    public final AssertDSL<T> after(be.iffy.fv.Transformation<T> first, be.iffy.fv.Transformation<T>... rest) {
+        return new AssertDSL<>(validationDSL.after(first, rest));
     }
 
     /**

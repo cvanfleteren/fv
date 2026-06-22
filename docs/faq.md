@@ -1477,6 +1477,30 @@ value = assertThat(value, "value")
 Rule<String> abbreviate = after(s -> StringUtils.abbreviate(s, 20)).is(strings.notBlank());
 ```
 
+#### Combining multiple transformations
+
+You can apply several transformations in sequence using the `after()` varargs overload, `Transformation.sequence()`, or the `andThen()` method:
+
+```java
+// Varargs in the DSL (most common)
+value = assertThat(value, "value")
+        .after(stringOps.normalizeSpace(), stringOps.toLowercase())
+        .is(strings.minLength(3));
+
+// Build a reusable composed Transformation
+Transformation<String> normalize = Transformation.sequence(
+    stringOps.normalizeSpace(),
+    stringOps.toLowercase(),
+    StringUtils::stripAccents
+);
+
+// Or chain with andThen
+Transformation<String> normalize = stringOps.normalizeSpace()
+        .andThen(stringOps.toLowercase());
+```
+
+Null-safety is preserved: if the input is `null`, all transformations pass `null` through without throwing.
+
 ---
 
 ## Testing
