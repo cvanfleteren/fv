@@ -74,7 +74,7 @@ class VatNumberTest {
         @Test
         void constructor_whenValueBlank_isInvalid() {
             assertThatValidation(
-                    Validation.from()._try(Try.of(() -> new VatNumber("", CountryCode.BE)))
+                    Validation.from().attempt(Try.of(() -> new VatNumber("", CountryCode.BE)))
             )
                     .isInvalid()
                     .hasErrorMessages("value.must.not.be.blank");
@@ -83,7 +83,7 @@ class VatNumberTest {
         @Test
         void constructor_whenValueNotAlphaNumeric_isInvalid() {
             assertThatValidation(
-                    Validation.from()._try(Try.of(() -> new VatNumber("123-456", CountryCode.BE)))
+                    Validation.from().attempt(Try.of(() -> new VatNumber("123-456", CountryCode.BE)))
             )
                     .isInvalid()
                     .hasErrorMessages("value.must.be.alphanumeric");
@@ -92,7 +92,7 @@ class VatNumberTest {
         @Test
         void constructor_whenCountryCodeNull_isInvalid() {
             assertThatValidation(
-                    Validation.from()._try(Try.of(() -> new VatNumber("12345678", null)))
+                    Validation.from().attempt(Try.of(() -> new VatNumber("12345678", null)))
             )
                     .isInvalid()
                     .hasErrorMessages("countrycode.must.not.be.null");

@@ -12,7 +12,7 @@ class KboNumberTest {
     void constructor_whenNull_invalid() {
 
         assertThatValidation(
-                Validation.from()._try(Try.of(() -> new KboNumber(null)))
+                Validation.from().attempt(Try.of(() -> new KboNumber(null)))
         )
                 .isInvalid()
                 .hasErrorMessages("value.must.not.be.null");

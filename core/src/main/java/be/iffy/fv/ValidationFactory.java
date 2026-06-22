@@ -24,7 +24,7 @@ public class ValidationFactory {
      * If the supplier returns null, NullPointerException is thrown.
      * Use {@link #catchingAll(Supplier, ErrorMessage)} when you intentionally want
      * to convert other exceptions into validation errors, or create a {@link Try}
-     * yourself and pass it to {@link #_try(Try, ErrorMessage)}.
+     * yourself and pass it to {@link #attempt(Try, ErrorMessage)}.
      */
     public <T> Validation<T> catching(Supplier<? extends T> supplier) {
         Objects.requireNonNull(supplier, "supplier cannot be null");
@@ -91,7 +91,7 @@ public class ValidationFactory {
      * If the {@link Try} is successful, the returned validation will be valid with the value.
      * If the {@link Try} is failed, the returned validation will be invalid with the provided error message.
      */
-    public <T> Validation<T> _try(Try<? extends T> _try, ErrorMessage errorMessage) {
+    public <T> Validation<T> attempt(Try<? extends T> _try, ErrorMessage errorMessage) {
         Objects.requireNonNull(_try, "_try cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
         return _try.fold(
@@ -105,8 +105,8 @@ public class ValidationFactory {
      * If the {@link Try} is successful, the returned validation will be valid with the value.
      * If the {@link Try} is failed, the returned validation will be invalid with the provided error message.
      */
-    public <T> Validation<T> _try(Try<? extends T> _try, String errorKey) {
-        return _try(_try, ErrorMessage.of(errorKey));
+    public <T> Validation<T> attempt(Try<? extends T> _try, String errorKey) {
+        return attempt(_try, ErrorMessage.of(errorKey));
     }
 
     /**
@@ -120,7 +120,7 @@ public class ValidationFactory {
      * <p>
      * Error key: {@code failed.from.try}
      */
-    public <T> Validation<T> _try(Try<? extends T> _try) {
+    public <T> Validation<T> attempt(Try<? extends T> _try) {
         Objects.requireNonNull(_try, "_try cannot be null");
         return _try.fold(
                 e -> e instanceof ValidationException ve

@@ -2485,7 +2485,7 @@ public class ValidationTest {
     }
 
     @Nested
-    class FromTry {
+    class Attempt {
 
         private <T> Try<T> success(T value) {
             return Try.success(value);
@@ -2498,7 +2498,7 @@ public class ValidationTest {
         @Test
         void from_whenTrySucceeds_returnsValidValidation() {
             Try<String> tryVal = success("hello");
-            Validation<String> v = Validation.from()._try(tryVal, ErrorMessage.of("oops"));
+            Validation<String> v = Validation.from().attempt(tryVal, ErrorMessage.of("oops"));
 
             assertThatValidation(v)
                     .isValid()
@@ -2510,7 +2510,7 @@ public class ValidationTest {
             Try<String> tryVal = failure(new IllegalStateException());
             ErrorMessage e1 = ErrorMessage.of("first.fault");
 
-            Validation<Object> v = Validation.from()._try(tryVal, e1);
+            Validation<Object> v = Validation.from().attempt(tryVal, e1);
 
             assertThatValidation(v)
                     .isInvalid()
@@ -2521,7 +2521,7 @@ public class ValidationTest {
         void from_whenTryFails_andNoMessages_presentedErrorListIsEmpty() {
             Try<String> tryVal = failure(new IllegalStateException("foo"));
 
-            Validation<Object> v = Validation.from()._try(tryVal);
+            Validation<Object> v = Validation.from().attempt(tryVal);
 
             assertThatValidation(v)
                     .isInvalid()
@@ -2532,7 +2532,7 @@ public class ValidationTest {
         void from_whenTryFails_takesErrorMessagesFromValidationException() {
             Try<String> tryVal = failure(new ValidationException(List.of(ErrorMessage.of("foo"), ErrorMessage.of("bar"))));
 
-            Validation<Object> v = Validation.from()._try(tryVal);
+            Validation<Object> v = Validation.from().attempt(tryVal);
 
             assertThatValidation(v)
                     .isInvalid()

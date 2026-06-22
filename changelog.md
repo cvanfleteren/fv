@@ -8,6 +8,16 @@
 
 ### Changed,
 
+- Breaking: MappingRule and Rule no longer extend Function, but RuleLike. This removes the inherited `andThen` method, 
+that was very confusing if you called it expecting to be able to combine with a Rule/MappingRule.
+- Breaking: the `after(Transformation)` methods no longer return a Rule, but a MappingRule. The previous behavior was 
+misleading at best, wrong at worst. Combining Rules created with after would in some cases lead to the result of the 
+transformation not being passed further.
+- Breaking: `strings.asEnum` is no longer case-insensitive, but now behaves the same as the Enum.valueOf method. Use 
+`strings.asEnumIgnoreCase` if you want to ignore case. The same applies to `strings.canBeEnum`.
+- Breaking: `ValidationFactory#_try` is renamed to `attempt`.
+
+
 ### Deprecated,
 
 ### Removed,
