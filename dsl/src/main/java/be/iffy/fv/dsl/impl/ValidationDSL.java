@@ -2,6 +2,7 @@ package be.iffy.fv.dsl.impl;
 
 import be.iffy.fv.MappingRule;
 import be.iffy.fv.Rule;
+import be.iffy.fv.Transformation;
 import be.iffy.fv.Validation;
 import io.vavr.control.Option;
 import org.jetbrains.annotations.Contract;
@@ -50,6 +51,18 @@ public final class ValidationDSL<T> {
     public ValidationDSL<T> after(be.iffy.fv.Transformation<T> transformation) {
         Objects.requireNonNull(transformation, "transformation cannot be null");
         return new ValidationDSL<>(validation.map(transformation::apply), name);
+    }
+
+    /**
+     * Like {@link #after(Transformation)}, but takes multiple Transformations and applies them in sequence.
+     */
+    @SafeVarargs
+    @Contract(pure = true)
+    public final ValidationDSL<T> after(be.iffy.fv.Transformation<T> first, be.iffy.fv.Transformation<T>... rest) {
+        return new ValidationDSL<>(
+            validation.map(Transformation.sequence(first, rest)::apply),
+            name
+        );
     }
 
     /**

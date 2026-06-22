@@ -98,4 +98,16 @@ class AssertDSLTest {
                     .isInstanceOf(IllegalArgumentException.class);
         }
     }
+
+    @Nested
+    class After {
+
+        @Test
+        void after_varargs_appliesAllTransformationsInOrder() {
+            String result = assertThat("  hello  ", "field")
+                    .after(String::trim, String::toUpperCase, s -> s + "!")
+                    .isNotNull();
+            assertThat(result).isEqualTo("HELLO!");
+        }
+    }
 }
