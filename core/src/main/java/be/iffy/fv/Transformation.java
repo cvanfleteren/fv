@@ -1,6 +1,7 @@
 package be.iffy.fv;
 
 import org.jetbrains.annotations.Contract;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -15,13 +16,12 @@ import java.util.Objects;
  * <p>
  * A good example of a Transformation is String.toUpperCase on a non-null String, or most of the commons-lang StringUtils
  * methods.
- * </p>
  */
 @FunctionalInterface
 public interface Transformation<T> {
 
     @Contract(pure = true)
-    T apply(T value);
+    T apply(@Nullable T value);
 
     /**
      * Apply another {@link Transformation} after this {@link Transformation}
