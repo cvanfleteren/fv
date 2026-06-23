@@ -4,10 +4,12 @@ import be.iffy.fv.MappingRule;
 import be.iffy.fv.Transformation;
 
 import java.text.Normalizer;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public final class StringOps {
 
@@ -37,7 +39,7 @@ public final class StringOps {
      * Collapses any consecutive whitespace (spaces, tabs, newlines, etc.) to a single space.
      * This method does not trim leading or trailing spaces.
      * <p>
-     * Example: {@code "a \n\t b" -> "a b"}.
+     * Example: {@code " a \n\t b" -> " a b"}.
      */
     public Transformation<String> collapseWhitespace() {
         // Collapse any consecutive whitespace (including newlines and tabs) to a single space
@@ -51,69 +53,43 @@ public final class StringOps {
      * Example: {@code "  a \n\t b  " -> "a b"}.
      */
     public Transformation<String> normalizeSpace() {
-        return nullSafe(s -> s.replaceAll("\\s+", " ").trim());
+        return collapseWhitespace().andThen(trim());
     }
 
     /**
-     * Removes all whitespace characters from the input (spaces, tabs, newlines, etc.).
+     * Keeps only characters belonging to the given categories, removing everything else.
      * <p>
-     * Example: {@code " a b c " -> "abc"}.
-     */
-    public Transformation<String> stripWhitespace() {
-        return nullSafe(s -> s.replaceAll("\\s+", ""));
-    }
-
-    /**
-     * Keeps only digit characters (0-9) and removes all others.
-     * <p>
-     * Example: {@code "abc123def456" -> "123456"}.
-     */
-    public Transformation<String> keepDigits() {
-        return nullSafe(s -> s.replaceAll("\\D+", ""));
-    }
-
-    /**
-     * Removes all digit characters (0-9), keeping only non-digits.
-     * <p>
-     * Example: {@code "abc123def456" -> "abcdef"}.
+     * Examples:
+     * <ul>
+     *   <li>{@code keep(ASCII_DIGITS)} → keeps only 0–9</li>
+     *   <li>{@code keep(LETTERS, SPACE)} → keeps Unicode letters and U+0020</li>
+     *   <li>{@code keep(ASCII_LETTERS, ASCII_DIGITS)} → keeps ASCII alphanumeric only</li>
+     * </ul>
      *
-     * @return a {@link MappingRule} that removes digits from the input.
+     * @see CharCategory
      */
-    public Transformation<String> stripDigits() {
-        return nullSafe(s -> s.replaceAll("\\d+", ""));
+    public Transformation<String> keep(CharCategory... categories) {
+        String joined = Arrays.stream(categories).map(c -> c.fragment).collect(Collectors.joining());
+        Pattern pattern = Pattern.compile("[^" + joined + "]+");
+        return nullSafe(s -> pattern.matcher(s).replaceAll(""));
     }
 
     /**
-     * Keeps only alphanumeric ASCII characters (letters A-Z/a-z and digits 0-9).
+     * Removes all characters belonging to the given categories, keeping everything else.
      * <p>
-     * Example: {@code "abc@#123" -> "abc123"}.
+     * Examples:
+     * <ul>
+     *   <li>{@code strip(ASCII_DIGITS)} → removes 0–9, keeps Unicode digits</li>
+     *   <li>{@code strip(WHITESPACE)} → removes all Unicode whitespace</li>
+     *   <li>{@code strip(DIGITS, LETTERS)} → removes all Unicode digits and letters</li>
+     * </ul>
+     *
+     * @see CharCategory
      */
-    public Transformation<String> keepAlphanumeric() {
-        return nullSafe(s -> s.replaceAll("[^A-Za-z0-9]+", ""));
-    }
-
-    /**
-     * Keeps only Unicode letters and removes everything else (digits, punctuation, symbols, whitespace, etc.).
-     * <p>
-     * Uses the Unicode category {@code \p{L}} to detect letters across all scripts.
-     * <p>
-     * Example: {@code "H3llo, 世界!" -> "Hllo世界"}.
-     */
-    public Transformation<String> keepLettersOnly() {
-        return nullSafe(s -> s.replaceAll("[^\\p{L}]+", ""));
-    }
-
-    /**
-     * Keeps only Unicode letters and regular spaces (U+0020), removing all other characters including
-     * digits, punctuation, symbols, and other kinds of whitespace (tabs, newlines, etc.).
-     * <p>
-     * Example: {@code "Hello, 世界! 123" -> "Hello 世界"}.
-     * <p>
-     * Note: This preserves existing spacing but does not trim. Use {@link #trim()} or {@link #collapseWhitespace()} if needed.
-     */
-    public Transformation<String> keepLettersAndSpacesOnly() {
-        // Preserve only \p{L} (letters) and literal space. Remove everything else, including other whitespace kinds.
-        return nullSafe(s -> s.replaceAll("[^\\p{L} ]+", ""));
+    public Transformation<String> strip(CharCategory... categories) {
+        String joined = Arrays.stream(categories).map(c -> c.fragment).collect(Collectors.joining());
+        Pattern pattern = Pattern.compile("[" + joined + "]+");
+        return nullSafe(s -> pattern.matcher(s).replaceAll(""));
     }
 
     /**
@@ -214,7 +190,7 @@ public final class StringOps {
     /**
      * Keeps only the characters that are present in the supplied {@code allowed} set and removes all others.
      * <p>
-     * The {@code allowed} string is treated as a literal set of characters (not a regex). Internally it is escaped
+     * The {@code allowed} string is treated as a literal set of characters (not a regex). Internally, it is escaped
      * to form a character class. If {@code allowed} is {@code null} or empty, the result will always be the empty
      * string for non-null inputs.
      * <p>

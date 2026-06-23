@@ -560,62 +560,43 @@ class StringRulesTest {
     }
 
     @Nested
+    class AlphaNumericAscii {
+
+        @Test
+        void valid() {
+            validTest("", strings.alphaNumericAscii());
+            validTest("abcz", strings.alphaNumericAscii());
+            validTest("abc12390", strings.alphaNumericAscii());
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("a_b", strings.alphaNumericAscii(), "must.be.ascii.alphanumeric");
+            invalidTest("a b", strings.alphaNumericAscii(), "must.be.ascii.alphanumeric");
+            invalidTest("ë", strings.alphaNumericAscii(), "must.be.ascii.alphanumeric");
+            invalidTest("!", strings.alphaNumericAscii(), "must.be.ascii.alphanumeric");
+            invalidTest("Åß١٢3", strings.alphaNumericAscii(), "must.be.ascii.alphanumeric");
+            invalidTest(null, strings.alphaNumericAscii(), "must.not.be.null");
+        }
+    }
+
+    @Nested
     class AlphaNumeric {
 
         @Test
         void valid() {
             validTest("", strings.alphaNumeric());
-            validTest("abcz", strings.alphaNumeric());
-            validTest("abc12390", strings.alphaNumeric());
+            validTest("abc", strings.alphaNumeric());
+            validTest("abc123", strings.alphaNumeric());
+            validTest("Åß١٢3", strings.alphaNumeric()); // letters + digits (unicode digits too)
         }
 
         @Test
         void invalid() {
             invalidTest("a_b", strings.alphaNumeric(), "must.be.alphanumeric");
             invalidTest("a b", strings.alphaNumeric(), "must.be.alphanumeric");
-            invalidTest("ë", strings.alphaNumeric(), "must.be.alphanumeric");
             invalidTest("!", strings.alphaNumeric(), "must.be.alphanumeric");
-            invalidTest("Åß١٢3", strings.alphaNumeric(), "must.be.alphanumeric");
             invalidTest(null, strings.alphaNumeric(), "must.not.be.null");
-        }
-    }
-
-    @Nested
-    class AlphaNumericUnicode {
-
-        @Test
-        void valid() {
-            validTest("", strings.alphaNumericUnicode());
-            validTest("abc", strings.alphaNumericUnicode());
-            validTest("abc123", strings.alphaNumericUnicode());
-            validTest("Åß١٢3", strings.alphaNumericUnicode()); // letters + digits (unicode digits too)
-        }
-
-        @Test
-        void invalid() {
-            invalidTest("a_b", strings.alphaNumericUnicode(), "must.be.unicode.alphanumeric");
-            invalidTest("a b", strings.alphaNumericUnicode(), "must.be.unicode.alphanumeric");
-            invalidTest("!", strings.alphaNumericUnicode(), "must.be.unicode.alphanumeric");
-            invalidTest(null, strings.alphaNumericUnicode(), "must.not.be.null");
-        }
-    }
-
-    @Nested
-    class OnlyUnicodeDigits {
-
-        @Test
-        void valid() {
-            validTest("", strings.onlyUnicodeDigits());
-            validTest("0123", strings.onlyUnicodeDigits());
-            validTest("١٢٣", strings.onlyUnicodeDigits()); // unicode digits are allowed by Character.isDigit
-        }
-
-        @Test
-        void invalid() {
-            invalidTest("12a", strings.onlyUnicodeDigits(), "must.be.unicode.digits.only");
-            invalidTest("12 3", strings.onlyUnicodeDigits(), "must.be.unicode.digits.only");
-            invalidTest("-", strings.onlyUnicodeDigits(), "must.be.unicode.digits.only");
-            invalidTest(null, strings.onlyUnicodeDigits(), "must.not.be.null");
         }
     }
 
@@ -626,13 +607,32 @@ class StringRulesTest {
         void valid() {
             validTest("", strings.onlyDigits());
             validTest("0123", strings.onlyDigits());
+            validTest("١٢٣", strings.onlyDigits()); // unicode digits are allowed by Character.isDigit
         }
 
         @Test
         void invalid() {
-            invalidTest("١٢٣", strings.onlyDigits(), "must.be.digits.only");
             invalidTest("12a", strings.onlyDigits(), "must.be.digits.only");
+            invalidTest("12 3", strings.onlyDigits(), "must.be.digits.only");
+            invalidTest("-", strings.onlyDigits(), "must.be.digits.only");
             invalidTest(null, strings.onlyDigits(), "must.not.be.null");
+        }
+    }
+
+    @Nested
+    class OnlyAsciiDigits {
+
+        @Test
+        void valid() {
+            validTest("", strings.onlyAsciiDigits());
+            validTest("0123", strings.onlyAsciiDigits());
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("١٢٣", strings.onlyAsciiDigits(), "must.be.ascii.digits.only");
+            invalidTest("12a", strings.onlyAsciiDigits(), "must.be.ascii.digits.only");
+            invalidTest(null, strings.onlyAsciiDigits(), "must.not.be.null");
         }
     }
 

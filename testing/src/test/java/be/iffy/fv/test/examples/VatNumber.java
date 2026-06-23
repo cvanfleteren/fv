@@ -4,12 +4,13 @@ import be.iffy.fv.MappingRule;
 import be.iffy.fv.Validation;
 
 import static be.iffy.fv.dsl.DSL.*;
+import static be.iffy.fv.rules.text.CharCategory.*;
 
 public record VatNumber(String value, CountryCode countrycode) {
 
     public VatNumber {
         value = asserting(
-                validateThat(value,VatNumber::value).is(strings.notBlank().and(strings.alphaNumeric())),
+                validateThat(value,VatNumber::value).is(strings.notBlank().and(strings.alphaNumericAscii())),
                 validateThat(countrycode, VatNumber::countrycode).isNotNull()
         )._1;
     }
@@ -21,7 +22,7 @@ public record VatNumber(String value, CountryCode countrycode) {
         MappingRule<String, CountryCode> countryRule = strings.take(2).then(strings.asEnum(CountryCode.class));
         MappingRule<String, String> numberRule = strings.drop(2).then(strings.minLength(2));
 
-        MappingRule<String, VatNumber> valid = after(stringOps.keepAlphanumeric()).is(
+        MappingRule<String, VatNumber> valid = after(stringOps.keep(ASCII_LETTERS, ASCII_DIGITS)).is(
                 strings.minLength(4).then(
                         //numberRule.combine(countryRule).into(VatNumber::new) or
                         combine(numberRule, countryRule).into(VatNumber::new)

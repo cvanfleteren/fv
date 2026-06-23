@@ -5,6 +5,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static be.iffy.fv.dsl.DSL.stringOps;
+import static be.iffy.fv.rules.text.CharCategory.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BicTest {
@@ -15,7 +16,7 @@ public class BicTest {
 
         assertThat( new Bic(validBic))
                 .extracting(Bic::value)
-                .isEqualTo(stringOps.stripWhitespace().apply(validBic));
+                .isEqualTo(stringOps.strip(ASCII_WHITESPACE).apply(validBic));
     }
 
 }

@@ -86,7 +86,7 @@ class VatNumberTest {
                     Validation.from().attempt(Try.of(() -> new VatNumber("123-456", CountryCode.BE)))
             )
                     .isInvalid()
-                    .hasErrorMessages("value.must.be.alphanumeric");
+                    .hasErrorMessages("value.must.be.ascii.alphanumeric");
         }
 
         @Test

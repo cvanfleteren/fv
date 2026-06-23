@@ -1128,11 +1128,11 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
     }
 
     /**
-     * Fails if the string contains anything other than letters or digits (ASCII).
+     * Fails if the string contains anything other than ASCII letters or digits (A-Z, a-z, 0-9).
      * <p>
-     * Error key: {@code must.be.alphanumeric}
+     * Error key: {@code must.be.ascii.alphanumeric}
      */
-    public Rule<String> alphaNumeric() {
+    public Rule<String> alphaNumericAscii() {
         return Rule.of(
             s -> s.codePoints().allMatch(c ->
                 // ‘0–9’
@@ -1142,7 +1142,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
                     // ‘a–z’
                     (c >= 97 && c <= 122)
             ),
-            "must.be.alphanumeric"
+            "must.be.ascii.alphanumeric"
         );
     }
 
@@ -1150,12 +1150,12 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
      * Fails if the string contains anything other than letters or digits (Unicode).
      * Uses {@link Character#isLetterOrDigit(int)} so it supports Unicode letters/digits.
      * <p>
-     * Error key: {@code must.be.unicode.alphanumeric}
+     * Error key: {@code must.be.alphanumeric}
      */
-    public Rule<String> alphaNumericUnicode() {
+    public Rule<String> alphaNumeric() {
         return Rule.of(
             s -> s.codePoints().allMatch(Character::isLetterOrDigit),
-            "must.be.unicode.alphanumeric"
+            "must.be.alphanumeric"
         );
     }
 
@@ -1163,29 +1163,29 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
      * Fails if the string contains anything other than digits (Unicode).
      * Note: this accepts Unicode digits too (e.g. Arabic-Indic digits).
      * <p>
-     * Error key: {@code must.be.unicode.digits.only}
+     * Error key: {@code must.be.digits.only}
      */
-    public Rule<String> onlyUnicodeDigits() {
+    public Rule<String> onlyDigits() {
         return Rule.of(
             s -> s.codePoints().allMatch(Character::isDigit),
-            "must.be.unicode.digits.only"
+            "must.be.digits.only"
         );
     }
 
     /**
-     * Fails if the string contains anything other than digits (0-9).
+     * Fails if the string contains anything other than ASCII digits (0-9).
      * <p>
-     * Error key: {@code must.be.digits.only}
+     * Error key: {@code must.be.ascii.digits.only}
      *
-     * @return a {@link Rule} checking if the string contains only digits.
+     * @return a {@link Rule} checking if the string contains only ASCII digits.
      */
-    public Rule<String> onlyDigits() {
+    public Rule<String> onlyAsciiDigits() {
         return Rule.of(
             s -> s.codePoints().allMatch(c ->
                 // ‘0–9’
                 (c >= 48 && c <= 57)
             ),
-            "must.be.digits.only"
+            "must.be.ascii.digits.only"
         );
     }
 

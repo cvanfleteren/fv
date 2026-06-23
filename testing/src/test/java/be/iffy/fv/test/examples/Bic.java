@@ -6,6 +6,7 @@ import be.iffy.fv.Validation;
 import java.util.regex.Pattern;
 
 import static be.iffy.fv.dsl.DSL.*;
+import static be.iffy.fv.rules.text.CharCategory.*;
 
 public record Bic(String value) {
 
@@ -25,7 +26,7 @@ public record Bic(String value) {
             .then(followsBicPattern);
 
     public Bic {
-        value = assertThat(value, Bic::value).after(stringOps.stripWhitespace()).is(validBic);
+        value = assertThat(value, Bic::value).after(stringOps.strip(ASCII_WHITESPACE)).is(validBic);
     }
 
     public static Validation<Bic> from(String value) {

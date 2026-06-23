@@ -12,6 +12,7 @@ import java.util.Arrays;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static be.iffy.fv.dsl.DSL.*;
+import static be.iffy.fv.rules.text.CharCategory.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -207,7 +208,7 @@ public class DSLTest {
         @Test
         void map_whenMappingToDifferentType_worksCorrectly() {
             var result = validateThat(" 123a ")
-                    .after(stringOps.keepDigits())
+                    .after(stringOps.keep(ASCII_DIGITS))
                     .map(strings.asInteger())
                     .is(Rule.of(i -> i > 100, "must.be.greater.than.100"));
 

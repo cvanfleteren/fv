@@ -4,8 +4,12 @@ import be.iffy.fv.Transformation;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.text.Normalizer;
+
+import static be.iffy.fv.rules.text.CharCategory.*;
 import static be.iffy.fv.rules.text.StringOps.stringOps;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 class StringOpsTest {
 
@@ -118,8 +122,8 @@ class StringOpsTest {
         @Test
         void truncateWithEllipsis_unicodeEdgeCases_combiningAndCJK() {
             // Combining mark: e + acute combining; cutting should keep base at boundary
-            String combining = "Cafe\u0301 noir"; // Café as decomposed
-            transform(combining, "Cafe\u0301…", stringOps.truncateWithEllipsis(6));
+            String combining = "Café noir"; // Café as decomposed
+            transform(combining, "Café…", stringOps.truncateWithEllipsis(6));
 
             // CJK characters
             String cjk = "世界您好"; // 4 chars
@@ -218,124 +222,164 @@ class StringOpsTest {
     }
 
     @Nested
-    class StripWhitespace {
+    class Keep {
 
         @Test
-        void removeWhitespace_removesAllWhitespace() {
-            transform(" a b c ", "abc", stringOps.stripWhitespace());
+        void keep_asciiDigits_onlyKeeps0to9() {
+            transform("abc١٢٣123def456", "123456", stringOps.keep(ASCII_DIGITS));
         }
 
         @Test
-        void removeWhitespace_nullInputReturnsNull() {
-            whenNull(stringOps.stripWhitespace());
-        }
-    }
-
-    @Nested
-    class KeepDigits {
-
-        @Test
-        void digits_keepsOnlyDigits() {
-            transform("abc123def456", "123456", stringOps.keepDigits());
+        void keep_digits_keepsUnicodeDigitsToo() {
+            transform("abc١٢٣123def", "١٢٣123", stringOps.keep(DIGITS));
         }
 
         @Test
-        void digits_keepsOnlyDigits_endsUpEmpty() {
-            transform("abcdef", "", stringOps.keepDigits());
+        void keep_asciiLetters_excludesAccented() {
+            transform("abc@#123ë", "abc", stringOps.keep(ASCII_LETTERS));
         }
 
         @Test
-        void digits_nullInputReturnsNull() {
-            whenNull(stringOps.keepDigits());
-        }
-    }
-
-    @Nested
-    class StripDigits {
-
-        @Test
-        void stripDigits_keepsOnlyNonDigits() {
-            transform("abc123def456", "abcdef", stringOps.stripDigits());
+        void keep_letters_keepsUnicodeLetters() {
+            transform("H3llo, 世界!", "Hllo世界", stringOps.keep(LETTERS));
         }
 
         @Test
-        void stripDigits_keepsOnlyNonDigits_endsUpEmpty() {
-            transform("123456", "", stringOps.stripDigits());
+        void keep_letters_handlesAccentsAndCombiningMarks() {
+            // e + combining acute; combining mark should be removed
+            transform("Café and naïve", "Cafeandnaïve", stringOps.keep(LETTERS));
+            // Precomposed accents are letters and should be preserved; spaces are removed
+            transform("Café naïve", "Cafénaïve", stringOps.keep(LETTERS));
         }
 
         @Test
-        void stripDigits_nullInputReturnsNull() {
-            whenNull(stringOps.stripDigits());
-        }
-    }
-
-    @Nested
-    class KeepAlphanumeric {
-
-        @Test
-        void alphanumeric_keepsLettersAndDigitsOnly() {
-            transform("abc@#123ë", "abc123", stringOps.keepAlphanumeric());
+        void keep_lettersAndSpace_keepsOnlyLettersAndU0020() {
+            transform("Hello, 世界! 123", "Hello 世界 ", stringOps.keep(LETTERS, SPACE));
+            transform("A\tB\nC D", "ABC D", stringOps.keep(LETTERS, SPACE));
+            transform("Hi,  there!", "Hi  there", stringOps.keep(LETTERS, SPACE));
         }
 
         @Test
-        void alphanumeric_nullInputReturnsNull() {
-            whenNull(stringOps.keepAlphanumeric());
-        }
-    }
-
-    @Nested
-    class KeepLettersOnly {
-
-        @Test
-        void lettersOnly_keepsOnlyUnicodeLetters() {
-            transform("H3llo, 世界!", "Hllo世界", stringOps.keepLettersOnly());
+        void keep_asciiLettersAndDigits_keepsAsciiAlphanumeric() {
+            transform("abc@#123ë", "abc123", stringOps.keep(ASCII_LETTERS, ASCII_DIGITS));
         }
 
         @Test
-        void lettersOnly_handlesAccentsAndCombiningMarks() {
-            // "e\u0301" is e + combining acute; combining mark should be removed
-            transform("Cafe\u0301 and naïve", "Cafeandnaïve", stringOps.keepLettersOnly());
-            // Precomposed accents (like é, ï) are letters and should be preserved; spaces are removed
-            transform("Café naïve", "Cafénaïve", stringOps.keepLettersOnly());
+        void keep_multipleCategories_combinesCorrectly() {
+            transform("abc١٢٣123 def!", "abc١٢٣123def", stringOps.keep(LETTERS, DIGITS));
         }
 
         @Test
-        void lettersOnly_returnsEmptyWhenNoLetters() {
-            transform("1234 !?", "", stringOps.keepLettersOnly());
+        void keep_asciiPunctuation_keepsAsciiPunctOnly() {
+            transform("Hello, world! 123", ",!", stringOps.keep(ASCII_PUNCTUATION));
         }
 
         @Test
-        void lettersOnly_nullInputReturnsNull() {
-            whenNull(stringOps.keepLettersOnly());
+        void keep_punctuation_keepsUnicodePunctuation() {
+            // guillemets «» are \p{P} but not \p{Punct}
+            transform("Hello, «world»! 123", ",«»!", stringOps.keep(PUNCTUATION));
+        }
+
+        @Test
+        void keep_marks_keepsOnlyCombiningMarks() {
+            // NFD-decomposed "Café" has a combining acute after 'e'
+            String nfd = Normalizer.normalize("Café", Normalizer.Form.NFD);
+            transform(nfd, "́", stringOps.keep(MARKS));
+        }
+
+        @Test
+        void keep_nullInputReturnsNull() {
+            whenNull(stringOps.keep(ASCII_DIGITS));
+            whenNull(stringOps.keep(LETTERS, SPACE));
         }
     }
 
     @Nested
-    class KeepLettersAndSpacesOnly {
+    class Strip {
 
         @Test
-        void lettersAndSpacesOnly_keepsLettersAndSpacesOnly() {
-            transform("Hello, 世界! 123", "Hello 世界 ", stringOps.keepLettersAndSpacesOnly());
+        void strip_asciiDigits_leavesUnicodeDigitsIntact() {
+            transform("abc١٢٣123def456", "abc١٢٣def", stringOps.strip(ASCII_DIGITS));
         }
 
         @Test
-        void lettersAndSpacesOnly_preservesRegularSpacesButRemovesOtherWhitespace() {
-            transform("A\tB\nC D", "ABC D", stringOps.keepLettersAndSpacesOnly());
+        void strip_digits_removesAllUnicodeDigits() {
+            transform("abc١٢٣123def456", "abcdef", stringOps.strip(DIGITS));
         }
 
         @Test
-        void lettersAndSpacesOnly_allowsMultipleSpacesAndDoesNotTrim() {
-            transform("Hi,  there!", "Hi  there", stringOps.keepLettersAndSpacesOnly());
+        void strip_asciiWhitespace_removesCommonWhitespace() {
+            transform(" a b c ", "abc", stringOps.strip(ASCII_WHITESPACE));
         }
 
         @Test
-        void lettersAndSpacesOnly_emptyWhenNoLettersOrSpaces() {
-            transform("\t\n123,!", "", stringOps.keepLettersAndSpacesOnly());
+        void strip_whitespace_removesUnicodeWhitespace() {
+            // no-break space (U+00A0) and em space (U+2003)
+            transform("a b c", "abc", stringOps.strip(WHITESPACE));
+        }
+
+
+        @Test
+        void strip_asciiPunctuation_removesAsciiPunct() {
+            transform("Hello, world! 123", "Hello world 123", stringOps.strip(ASCII_PUNCTUATION));
         }
 
         @Test
-        void lettersAndSpacesOnly_nullInputReturnsNull() {
-            whenNull(stringOps.keepLettersAndSpacesOnly());
+        void strip_punctuation_removesUnicodePunctuation() {
+            transform("Hello, «world»! 123", "Hello world 123", stringOps.strip(PUNCTUATION));
+        }
+
+        @Test
+        void strip_marks_removesCombiningMarks() {
+            // strip(MARKS) on NFD input removes diacritics — equivalent to the NFD step inside stripDiacritics()
+            String nfd = Normalizer.normalize("Café naïve", Normalizer.Form.NFD);
+            transform(nfd, "Cafe naive", stringOps.strip(MARKS));
+        }
+
+        @Test
+        void strip_multipleCategories_combinesCorrectly() {
+            transform("abc 123", "abc", stringOps.strip(ASCII_DIGITS, ASCII_WHITESPACE));
+        }
+
+        @Test
+        void strip_nullInputReturnsNull() {
+            whenNull(stringOps.strip(DIGITS));
+            whenNull(stringOps.strip(WHITESPACE));
+        }
+    }
+
+    @Nested
+    class CharCategoryRegexSafety {
+
+        @Test
+        void eachCategory_compilesInKeepAndStrip() {
+            for (CharCategory category : CharCategory.values()) {
+                assertThatCode(() -> stringOps.keep(category))
+                    .as("keep(%s) must compile without PatternSyntaxException", category)
+                    .doesNotThrowAnyException();
+                assertThatCode(() -> stringOps.strip(category))
+                    .as("strip(%s) must compile without PatternSyntaxException", category)
+                    .doesNotThrowAnyException();
+            }
+        }
+
+        @Test
+        void representativeCombinations_compile() {
+            assertThatCode(() -> stringOps.keep(LETTERS, SPACE)).doesNotThrowAnyException();
+            assertThatCode(() -> stringOps.keep(ASCII_LETTERS, ASCII_DIGITS)).doesNotThrowAnyException();
+            assertThatCode(() -> stringOps.keep(DIGITS, LETTERS)).doesNotThrowAnyException();
+            assertThatCode(() -> stringOps.keep(ASCII_PUNCTUATION, SPACE)).doesNotThrowAnyException();
+            assertThatCode(() -> stringOps.keep(PUNCTUATION, LETTERS)).doesNotThrowAnyException();
+            assertThatCode(() -> stringOps.keep(WHITESPACE, LETTERS)).doesNotThrowAnyException();
+            assertThatCode(() -> stringOps.strip(WHITESPACE, ASCII_PUNCTUATION)).doesNotThrowAnyException();
+        }
+
+        @Test
+        void whitespace_unicodePropertyDistinguishedFromAscii() {
+            // \p{IsWhite_Space} must match no-break space (U+00A0) and em space (U+2003) — Unicode White_Space property
+            transform("a b c", "abc", stringOps.strip(WHITESPACE));
+            // \s must NOT match no-break space
+            transform("a b", "a b", stringOps.strip(ASCII_WHITESPACE));
         }
     }
 
@@ -410,14 +454,14 @@ class StringOpsTest {
 
         @Test
         void stripDiacritics_handlesPrecomposedAndCombiningForms() {
-            // "e\u0301" is e + combining acute
-            transform("Cafe\u0301", "Cafe", stringOps.stripDiacritics());
+            // "é" is e + combining acute
+            transform("Café", "Cafe", stringOps.stripDiacritics());
         }
 
         @Test
         void stripDiacritics_multipleCombiningMarks() {
             // a + combining ring + combining acute
-            transform("a\u030A\u0301", "a", stringOps.stripDiacritics());
+            transform("ǻ", "a", stringOps.stripDiacritics());
         }
 
         @Test
@@ -452,7 +496,7 @@ class StringOpsTest {
         @Test
         void stripControlChars_removesCcAndZeroWidth() {
             // contains NUL and ZERO WIDTH SPACE between letters
-            transform("A\u0000B\u200BC", "ABC", stringOps.stripControlChars());
+            transform("A B​C", "ABC", stringOps.stripControlChars());
         }
 
         @Test
@@ -474,8 +518,8 @@ class StringOpsTest {
 
         @Test
         void stripControlChars_removesZeroWidthJoinersAndBom() {
-            // ZWJ \u200D, ZWNJ \u200C, WORD JOINER \u2060, BOM \uFEFF
-            transform("ab\u200Dcd\u200Cef\u2060gh\uFEFFij", "abcdefghij", stringOps.stripControlChars());
+            // ZWJ ‍, ZWNJ ‌, WORD JOINER ⁠, BOM
+            transform("ab‍cd‌ef⁠gh﻿ij", "abcdefghij", stringOps.stripControlChars());
         }
 
         @Test
