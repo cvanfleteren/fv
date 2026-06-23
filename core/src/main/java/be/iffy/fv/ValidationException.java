@@ -11,9 +11,29 @@ public final class ValidationException extends RuntimeException {
     private final List<ErrorMessage> errors;
 
     /**
+     * Creates a new {@link ValidationException} with the given {@link ErrorMessage}.
+     */
+    public ValidationException(ErrorMessage error) {
+        this(List.of(error));
+    }
+
+    /**
+     * Creates a new {@link ValidationException} with the given {@link ErrorMessage}.
+     */
+    public ValidationException(java.util.List<ErrorMessage> errors) {
+        this(List.ofAll(errors));
+    }
+
+    /**
+     * Constructs a new {@link ValidationException} based on the provided error key.
+     * The error key is used to create a single {@link ErrorMessage}.
+     */
+    public ValidationException(String errorKey) {
+        this(List.of(ErrorMessage.of(errorKey)));
+    }
+
+    /**
      * Creates a new {@link ValidationException} with the given list of errors.
-     *
-     * @param errors the list of validation errors.
      */
     public ValidationException(List<ErrorMessage> errors) {
         // we don't use the formattedMessage because that could potentially become very big
@@ -27,11 +47,6 @@ public final class ValidationException extends RuntimeException {
             throw new IllegalArgumentException("Errors must be non-empty");
         }
         return errors;
-    }
-
-    public ValidationException(String errorKey) {
-        super(errorKey);
-        this.errors = List.of(ErrorMessage.of(errorKey));
     }
 
     /**
