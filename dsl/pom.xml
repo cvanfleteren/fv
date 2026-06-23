@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>dsl</artifactId>
-    <name>Functional Validation - DSL</name>
+    <name>FV - DSL</name>
     <description>Main entrypoint for using FV</description>
 
     <dependencies>

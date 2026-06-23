@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>rules</artifactId>
-    <name>Functional Validation - Rules</name>
+    <name>FV - Rules</name>
     <description>Default rules for validating JDK types</description>
 
     <dependencies>

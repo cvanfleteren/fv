@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>spring-web</artifactId>
-  <name>Functional Validation - Spring Web Support</name>
+  <name>FV - Spring Web Support</name>
   <description>Spring Web MVC exception handling for ValidationException, with Spring Boot autoconfiguration.
   </description>
 

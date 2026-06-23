@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>assertj</artifactId>
-    <name>Functional Validation - AssertJ Support</name>
+    <name>FV - AssertJ Support</name>
     <description>Contains AssertJ support classes for easily testing Validations</description>
 
     <dependencies>

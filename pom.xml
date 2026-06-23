@@ -5,8 +5,8 @@
     <artifactId>fv-parent</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
-    <name>FV - Functional Validation (Parent POM)</name>
-    <description>Parent/aggregator POM for the FV - Functional Validation project.</description>
+    <name>FV - Parent POM</name>
+    <description>Parent/aggregator POM for the FV - FV project.</description>
     <url>https://github.com/cvanfleteren/fv</url>
     <licenses>
         <license>
@@ -41,7 +41,7 @@
         <url>https://github.com/cvanfleteren/fv</url>
     </scm>
     <properties>
-        <revision>1.1.0-SNAPSHOT</revision>
+        <revision>2.0.0-SNAPSHOT</revision>
         <java.version>21</java.version>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

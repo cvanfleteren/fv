@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>testing</artifactId>
-  <name>Functional Validation - Testing</name>
+  <name>FV - Testing</name>
   <description>Internal testing / experimental code for FV</description>
 
   <properties>
