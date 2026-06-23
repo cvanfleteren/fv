@@ -106,7 +106,7 @@ public final class StringOps {
      * <p>
      * Example: {@code "HeLLo" -> "hello"} (actual output may depend on the locale).
      */
-    public Transformation<String> lowercase(Locale locale) {
+    public Transformation<String> toLowercase(Locale locale) {
         return nullSafe(s -> s.toLowerCase(locale));
     }
 

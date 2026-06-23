@@ -1423,29 +1423,27 @@ mustBePast.apply(LocalDate.of(2025, 1, 1)); // Invalid (after 2024-01-15)
 The `stringOps` namespace contains pre-built `Transformation<String>` functions. They are all null-safe: a `null`
 input passes through as `null` without throwing.
 
-| Method | Example |
-|--------|---------|
-| `trim()` | `" hello " → "hello"` |
-| `stripNewlines()` | `"hello\nworld" → "hello world"` |
-| `collapseWhitespace()` | `"a \n\t b" → "a b"` |
-| `normalizeSpace()` | `"  a \n\t b  " → "a b"` |
-| `stripWhitespace()` | `" a b c " → "abc"` |
-| `keepDigits()` | `"abc123def" → "123"` |
-| `stripDigits()` | `"abc123" → "abc"` |
-| `keepAlphanumeric()` | `"abc@#123" → "abc123"` |
-| `keepLettersOnly()` | `"H3llo, 世界!" → "Hllo世界"` |
-| `keepLettersAndSpacesOnly()` | `"Hello, 世界! 123" → "Hello 世界"` |
-| `toLowercase()` | `"HeLLo" → "hello"` (Locale.ROOT) |
-| `toLowercase(locale)` | locale-aware lowercase |
-| `toUppercase()` | `"HeLLo" → "HELLO"` (Locale.ROOT) |
-| `toUppercase(locale)` | locale-aware uppercase |
-| `removeCharacters(chars)` | `removeCharacters("-").apply("a-b-c") → "abc"` |
-| `replaceAll(regex, replacement)` | standard regex replacement |
-| `keepChars(allowed)` | `keepChars("abc").apply("xaxbxc") → "abc"` |
-| `stripDiacritics()` | `"Café" → "Cafe"` |
-| `stripControlChars()` | removes ` `, zero-width spaces, BOM, etc. |
-| `truncate(maxLen)` | hard cut, surrogate-pair safe |
-| `truncateWithEllipsis(maxLen)` | cut + append `…` |
+| Method                            | Example                                                                                            |
+|-----------------------------------|----------------------------------------------------------------------------------------------------|
+| `trim()`                          | `" hello " → "hello"`                                                                              |
+| `stripNewlines()`                 | `"hello\nworld" → "hello world"`                                                                   |
+| `collapseWhitespace()`            | `" a \n\t b" → " a b"`                                                                             |
+| `normalizeSpace()`                | `"  a \n\t b  " → "a b"`                                                                           |
+| `keep(CharCategory...)`           | `keep(ASCII_DIGITS).apply("abc123") → "123"`, `keep(LETTERS, SPACE).apply("Hello 42!") → "Hello "` |
+| `strip(CharCategory...)`          | `strip(ASCII_DIGITS).apply("abc123") → "abc"`, `strip(WHITESPACE).apply(" a b ") → "ab"`           |
+| `toLowercase()`                   | `"HeLLo" → "hello"` (Locale.ROOT)                                                                  |
+| `toLowercase(locale)`             | locale-aware lowercase                                                                             |
+| `toUppercase()`                   | `"HeLLo" → "HELLO"` (Locale.ROOT)                                                                  |
+| `toUppercase(locale)`             | locale-aware uppercase                                                                             |
+| `removeCharacters(chars)`         | `removeCharacters("-").apply("a-b-c") → "abc"`                                                     |
+| `replaceAll(regex, replacement)`  | standard regex replacement                                                                         |
+| `keepChars(allowed)`              | `keepChars("abc").apply("xaxbxc") → "abc"`                                                         |
+| `stripDiacritics()`               | `"Café" → "Cafe"`                                                                                  |
+| `stripControlChars()`             | removes control chars, zero-width spaces, BOM, etc.                                                |
+| `truncate(maxLen)`                | hard cut, surrogate-pair safe                                                                      |
+| `truncateWithEllipsis(maxLen)`    | cut + append `…`                                                                                   |
+
+Available `CharCategory` values: `ASCII_DIGITS`, `ASCII_LETTERS`, `ASCII_WHITESPACE`, `DIGITS`, `LETTERS`, `MARKS`, `ASCII_PUNCTUATION`, `PUNCTUATION`, `SPACE`, `WHITESPACE`.
 
 Use them with `after()` in both the DSL and when defining reusable rules:
 
@@ -1456,7 +1454,7 @@ value = assertThat(value, "value")
         .is(strings.minLength(3));
 
 // As a reusable Rule
-Rule<String> cleanName = after(stringOps.normalizeSpace()).is(strings.minLength(3));
+MappingRule<String,String> cleanName = after(stringOps.normalizeSpace()).is(strings.minLength(3));
 ```
 
 #### Using your own transformation functions
@@ -1474,7 +1472,7 @@ value = assertThat(value, "value")
         .after(StringUtils::stripAccents)
         .is(strings.minLength(3));
 
-Rule<String> abbreviate = after(s -> StringUtils.abbreviate(s, 20)).is(strings.notBlank());
+MappingRule<String,String> abbreviate = after(s -> StringUtils.abbreviate(s, 20)).is(strings.notBlank());
 ```
 
 #### Combining multiple transformations
