@@ -32,6 +32,13 @@ public record FvSpringWebProperties(
         @DefaultValue("true") boolean handleTypeMismatch
 ) {
 
+    public FvSpringWebProperties {
+        if (statusCode < 100 || statusCode > 599) {
+            throw new IllegalArgumentException(
+                    "fv.spring.status-code must be a valid HTTP status code (100–599), got: " + statusCode);
+        }
+    }
+
     public static FvSpringWebProperties defaultProperties() {
         return new FvSpringWebProperties(422, true);
     }
