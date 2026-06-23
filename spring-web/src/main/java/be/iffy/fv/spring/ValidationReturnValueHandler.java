@@ -64,8 +64,8 @@ public class ValidationReturnValueHandler implements HandlerMethodReturnValueHan
                                   ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest) throws Exception {
         if (returnValue == null) {
-            mavContainer.setRequestHandled(true);
-            return;
+            throw new IllegalStateException(
+                    "Controller method returned null for a Validation<T> return type — return Validation.valid(value) or Validation.invalid(errors) instead");
         }
 
         Validation<?> validation = (Validation<?>) returnValue;

@@ -116,6 +116,7 @@ class ValidationExceptionHandlerIntTest {
                 .andExpect(jsonPath("$.errors[1].key").value("must.not.be.blank"))
                 .andExpect(jsonPath("$.errors[1].path").value("email"));
         }
+
     }
 
     @Nested
