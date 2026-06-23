@@ -12,7 +12,7 @@ import java.lang.annotation.*;
  * <p>Annotate a type with {@code @FvRule} and specify the rule using <em>exactly one</em> of the
  * three supported modes:
  *
- * <h3>1. Rule class (original mode)</h3>
+ * <p><b>1. Rule class</b>
  * <p>Point to a class that directly implements {@link Rule} and has a public no-arg constructor:
  * <pre>{@code
  * @FvRule(Person.Validator.class)
@@ -29,7 +29,7 @@ import java.lang.annotation.*;
  * }
  * }</pre>
  *
- * <h3>2. RuleProvider class</h3>
+ * <p><b>2. RuleProvider class</b>
  * <p>Point to a class that implements {@link RuleProvider} and has a public no-arg constructor.
  * The class does not need to implement {@link Rule} itself:
  * <pre>{@code
@@ -47,7 +47,7 @@ import java.lang.annotation.*;
  * }
  * }</pre>
  *
- * <h3>3. Static field reference</h3>
+ * <p><b>3. Static field reference</b>
  * <p>Point directly to a {@code public static} field of type {@link Rule} on any class.
  * This is the most concise option when rules are already defined as static constants:
  * <pre>{@code
@@ -100,7 +100,13 @@ public @interface FvRule {
     String field() default "";
 
     //region properties required by bean validation
-    /** Unused — violations use the FV error key as their message directly. */
+    /**
+     * Required by the Bean Validation spec but intentionally not honored.
+     *
+     * <p>{@code @FvRule} maps one annotation to <em>N</em> violations with <em>N</em> distinct
+     * error keys, so a single template here cannot cover them individually. Override messages
+     * per error key via {@code ValidationMessages.properties} instead — see the module docs.
+     */
     String message() default "";
 
     Class<?>[] groups() default {};

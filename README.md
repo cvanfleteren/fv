@@ -3,10 +3,11 @@
 
 # FV — Functional Validation
 
-FV is a lightweight, type-safe, functional library for validating and transforming data in Java 21+. It lets you both check that a value meets your rules and turn it into something else (e.g., parsing a String into a LocalDate), with a focus on immutability, side-effect-free functions, and seamless integration with [Vavr](https://www.vavr.io/).
+FV is a Java 21+ library for validating and transforming data that collects **all** errors in a single pass, never just the first.
 
-The library encourages **"Validation at the Edge"**: your domain objects (like Java Records) are always in a valid state because they validate and convert their inputs during construction. 
-It's just as useful for validating and mapping incoming data like DTOs or request payloads into trusted domain objects, or for checking business rules later on, independently of object construction.
+You get composable, type-safe `Rule<T>` and `MappingRule<T, R>` objects that validate, normalise, and convert values: trimming a string, parsing a `String` into a `LocalDate`, checking that a list element is positive. All expressed as small reusable pieces of plain java code that you can combine, test independently, and name. Results come back as a `Validation<T>`: either the valid (possibly transformed) value, or the full set of errors accumulated across every field.
+
+FV encourages **validation at the edge**: domain objects like Java Records are always in a valid state because they validate and normalise their inputs at construction time. FV is equally at home validating incoming DTOs and request payloads into trusted domain objects, checking business rules independently of object construction, or bridging into BV-aware frameworks (Spring `@Validated`, JPA, Quarkus) via the `jakarta-validation` module. Spring MVC error mapping and AssertJ test assertions are included as optional modules.
 
 ## Quick start
 
@@ -26,10 +27,11 @@ record Person(String name, int age) {
 }
 
 new Person("  Alice  ", 30);  // name trimmed to "Alice"
-new Person(" A ", 16);
-// throws ValidationException with BOTH:
-//   name.must.have.min.length
-//   age.must.be.at.least
+
+// using the asserrtJ support:
+assertInvalid(() -> new Person(" A ", 16)).hasErrorMessages(
+  "name.must.have.min.length", "age.must.be.at.least"
+);
 ```
 
 ### DTO mapping — returns `Validation`, never throws
@@ -67,6 +69,7 @@ toPerson(new PersonDto(" A ", "16"));
 - [Testing with `assertThatValidation`](#testing-with-assertthatvalidation)
 - [More recipes](#more-recipes)
 - [Spring Boot integration](docs/spring-integration.md)
+- [Jakarta Bean Validation integration](docs/bean-validation.md)
 - [License](#license)
 
 ---
@@ -111,6 +114,7 @@ The project is split into several modules, so you only pull in what you need:
 | `dsl`        | The fluent `DSL` class (`validateThat`, `assertThat`, `asserting`, `validating`, ...) for readable validation code. Depends on `core` and `rules`. |
 | `assertj`    | AssertJ integration (`assertThatValidation(...)`) for clean test assertions.             |
 | `spring-web` | Spring Boot integration: auto-registers a `@ControllerAdvice` that maps `ValidationException` to HTTP 422 Problem Details responses. See [Spring Boot integration](docs/spring-integration.md). |
+| `jakarta-validation` | Jakarta Bean Validation bridge: `@FvRule` constraint annotation that plugs any FV `Rule<T>` into BV-aware frameworks (Spring `@Validated`, JPA, Quarkus, etc.). See [Jakarta Bean Validation integration](docs/bean-validation.md). |
 
 ---
 
