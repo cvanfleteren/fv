@@ -37,6 +37,9 @@ public interface MappingRule<T, R> extends  RuleLike<T, Validation<R>> {
      * Use this to easily treat existing functions as Validations.
      */
     static <T, R> MappingRule<T, R> of(RuleLike<? super T, ? extends Validation<? extends R>> validationFunction) {
+        if(validationFunction instanceof MappingRule) {
+            return (MappingRule<T, R>) validationFunction;
+        }
         Objects.requireNonNull(validationFunction, "validationFunction cannot be null");
         return input -> {
             if(input == null) {

@@ -270,7 +270,7 @@ public final class ListRules {
      * @see MappingRule#lift()
      */
     public <T, R> MappingRule<List<T>, List<R>> map(RuleLike<T, ? extends Validation<? extends R>> mappingRule) {
-        return MappingRule.of(mappingRule::apply).lift().toList();
+        return MappingRule.of(mappingRule).lift().toList();
     }
 
     /**
