@@ -23,6 +23,7 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Validation rules for {@link String} values.
@@ -1118,21 +1119,33 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
      * Fails if the string contains anything other than letters.
      * Uses {@link Character#isLetter(int)} so it supports Unicode letters (not just A-Z).
      * <p>
-     * Error key: {@code must.be.alpha}
+     * Error key: {@code must.be.letters.only}
      */
-    public Rule<String> alpha() {
+    public Rule<String> onlyLetters() {
         return Rule.of(
             s -> s.codePoints().allMatch(Character::isLetter),
-            "must.be.alpha"
+            "must.be.letters.only"
+        );
+    }
+
+    /**
+     * Fails if the string contains anything other than ASCII letters (A-Z, a-z).
+     * <p>
+     * Error key: {@code must.be.ascii.letters.only}
+     */
+    public Rule<String> onlyLettersAscii() {
+        return Rule.of(
+            s -> s.codePoints().allMatch(c -> (c >= 65 && c <= 90) || (c >= 97 && c <= 122)),
+            "must.be.ascii.letters.only"
         );
     }
 
     /**
      * Fails if the string contains anything other than ASCII letters or digits (A-Z, a-z, 0-9).
      * <p>
-     * Error key: {@code must.be.ascii.alphanumeric}
+     * Error key: {@code must.be.ascii.alphanumeric.only}
      */
-    public Rule<String> alphaNumericAscii() {
+    public Rule<String> onlyAlphaNumericAscii() {
         return Rule.of(
             s -> s.codePoints().allMatch(c ->
                 // ‘0–9’
@@ -1142,7 +1155,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
                     // ‘a–z’
                     (c >= 97 && c <= 122)
             ),
-            "must.be.ascii.alphanumeric"
+            "must.be.ascii.alphanumeric.only"
         );
     }
 
@@ -1150,12 +1163,12 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
      * Fails if the string contains anything other than letters or digits (Unicode).
      * Uses {@link Character#isLetterOrDigit(int)} so it supports Unicode letters/digits.
      * <p>
-     * Error key: {@code must.be.alphanumeric}
+     * Error key: {@code must.be.alphanumeric.only}
      */
-    public Rule<String> alphaNumeric() {
+    public Rule<String> onlyAlphaNumeric() {
         return Rule.of(
             s -> s.codePoints().allMatch(Character::isLetterOrDigit),
-            "must.be.alphanumeric"
+            "must.be.alphanumeric.only"
         );
     }
 
@@ -1179,13 +1192,34 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
      *
      * @return a {@link Rule} checking if the string contains only ASCII digits.
      */
-    public Rule<String> onlyAsciiDigits() {
+    public Rule<String> onlyDigitsAscii() {
         return Rule.of(
             s -> s.codePoints().allMatch(c ->
                 // ‘0–9’
                 (c >= 48 && c <= 57)
             ),
             "must.be.ascii.digits.only"
+        );
+    }
+
+    /**
+     * Fails if the string contains any character not matched by the given categories.
+     * Empty strings pass — combine with {@link #notEmpty()} or {@link #notBlank()} if needed.
+     * <p>
+     * Error key: {@code must.contain.only.allowed.characters}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code categories}: the names of the allowed categories ({@link List})</li>
+     * </ul>
+     */
+    public Rule<String> containsOnly(CharCategory... categories) {
+        String joined = Arrays.stream(categories).map(c -> c.fragment).collect(Collectors.joining());
+        Pattern pattern = Pattern.compile("[" + joined + "]*");
+        return Rule.of(
+            s -> pattern.matcher(s).matches(),
+            ErrorMessage.of("must.contain.only.allowed.characters", "categories",
+                List.of(categories).map(Enum::name))
         );
     }
 

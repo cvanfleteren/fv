@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.text.Normalizer;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,7 +23,9 @@ import java.util.regex.Pattern;
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
+import static be.iffy.fv.rules.text.CharCategory.*;
 import static be.iffy.fv.rules.text.StringRules.strings;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class StringRulesTest {
@@ -541,62 +544,81 @@ class StringRulesTest {
     }
 
     @Nested
-    class Alpha {
+    class OnlyLetters {
 
         @Test
         void valid() {
-            validTest("", strings.alpha());          // empty is ok; combine with notEmpty if you need non-empty
-            validTest("abc", strings.alpha());
-            validTest("Åß", strings.alpha());        // unicode letters are allowed
+            validTest("", strings.onlyLetters());          // empty is ok; combine with notEmpty if you need non-empty
+            validTest("abc", strings.onlyLetters());
+            validTest("Åß", strings.onlyLetters());        // unicode letters are allowed
         }
 
         @Test
         void invalid() {
-            invalidTest("abc1", strings.alpha(), "must.be.alpha");
-            invalidTest("a b", strings.alpha(), "must.be.alpha");
-            invalidTest("-", strings.alpha(), "must.be.alpha");
-            invalidTest(null, strings.alpha(), "must.not.be.null");
+            invalidTest("abc1", strings.onlyLetters(), "must.be.letters.only");
+            invalidTest("a b", strings.onlyLetters(), "must.be.letters.only");
+            invalidTest("-", strings.onlyLetters(), "must.be.letters.only");
+            invalidTest(null, strings.onlyLetters(), "must.not.be.null");
         }
     }
 
     @Nested
-    class AlphaNumericAscii {
+    class OnlyLettersAscii {
 
         @Test
         void valid() {
-            validTest("", strings.alphaNumericAscii());
-            validTest("abcz", strings.alphaNumericAscii());
-            validTest("abc12390", strings.alphaNumericAscii());
+            validTest("", strings.onlyLettersAscii());
+            validTest("abc", strings.onlyLettersAscii());
+            validTest("ABCxyz", strings.onlyLettersAscii());
         }
 
         @Test
         void invalid() {
-            invalidTest("a_b", strings.alphaNumericAscii(), "must.be.ascii.alphanumeric");
-            invalidTest("a b", strings.alphaNumericAscii(), "must.be.ascii.alphanumeric");
-            invalidTest("ë", strings.alphaNumericAscii(), "must.be.ascii.alphanumeric");
-            invalidTest("!", strings.alphaNumericAscii(), "must.be.ascii.alphanumeric");
-            invalidTest("Åß١٢3", strings.alphaNumericAscii(), "must.be.ascii.alphanumeric");
-            invalidTest(null, strings.alphaNumericAscii(), "must.not.be.null");
+            invalidTest("abc1", strings.onlyLettersAscii(), "must.be.ascii.letters.only");
+            invalidTest("Åß", strings.onlyLettersAscii(), "must.be.ascii.letters.only"); // unicode letters rejected
+            invalidTest("a b", strings.onlyLettersAscii(), "must.be.ascii.letters.only");
+            invalidTest(null, strings.onlyLettersAscii(), "must.not.be.null");
         }
     }
 
     @Nested
-    class AlphaNumeric {
+    class OnlyAlphaNumericAscii {
 
         @Test
         void valid() {
-            validTest("", strings.alphaNumeric());
-            validTest("abc", strings.alphaNumeric());
-            validTest("abc123", strings.alphaNumeric());
-            validTest("Åß١٢3", strings.alphaNumeric()); // letters + digits (unicode digits too)
+            validTest("", strings.onlyAlphaNumericAscii());
+            validTest("abcz", strings.onlyAlphaNumericAscii());
+            validTest("abc12390", strings.onlyAlphaNumericAscii());
         }
 
         @Test
         void invalid() {
-            invalidTest("a_b", strings.alphaNumeric(), "must.be.alphanumeric");
-            invalidTest("a b", strings.alphaNumeric(), "must.be.alphanumeric");
-            invalidTest("!", strings.alphaNumeric(), "must.be.alphanumeric");
-            invalidTest(null, strings.alphaNumeric(), "must.not.be.null");
+            invalidTest("a_b", strings.onlyAlphaNumericAscii(), "must.be.ascii.alphanumeric.only");
+            invalidTest("a b", strings.onlyAlphaNumericAscii(), "must.be.ascii.alphanumeric.only");
+            invalidTest("ë", strings.onlyAlphaNumericAscii(), "must.be.ascii.alphanumeric.only");
+            invalidTest("!", strings.onlyAlphaNumericAscii(), "must.be.ascii.alphanumeric.only");
+            invalidTest("Åß١٢3", strings.onlyAlphaNumericAscii(), "must.be.ascii.alphanumeric.only");
+            invalidTest(null, strings.onlyAlphaNumericAscii(), "must.not.be.null");
+        }
+    }
+
+    @Nested
+    class OnlyAlphaNumeric {
+
+        @Test
+        void valid() {
+            validTest("", strings.onlyAlphaNumeric());
+            validTest("abc", strings.onlyAlphaNumeric());
+            validTest("abc123", strings.onlyAlphaNumeric());
+            validTest("Åß١٢3", strings.onlyAlphaNumeric()); // letters + digits (unicode digits too)
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("a_b", strings.onlyAlphaNumeric(), "must.be.alphanumeric.only");
+            invalidTest("a b", strings.onlyAlphaNumeric(), "must.be.alphanumeric.only");
+            invalidTest("!", strings.onlyAlphaNumeric(), "must.be.alphanumeric.only");
+            invalidTest(null, strings.onlyAlphaNumeric(), "must.not.be.null");
         }
     }
 
@@ -620,19 +642,108 @@ class StringRulesTest {
     }
 
     @Nested
-    class OnlyAsciiDigits {
+    class OnlyDigitsAscii {
 
         @Test
         void valid() {
-            validTest("", strings.onlyAsciiDigits());
-            validTest("0123", strings.onlyAsciiDigits());
+            validTest("", strings.onlyDigitsAscii());
+            validTest("0123", strings.onlyDigitsAscii());
         }
 
         @Test
         void invalid() {
-            invalidTest("١٢٣", strings.onlyAsciiDigits(), "must.be.ascii.digits.only");
-            invalidTest("12a", strings.onlyAsciiDigits(), "must.be.ascii.digits.only");
-            invalidTest(null, strings.onlyAsciiDigits(), "must.not.be.null");
+            invalidTest("١٢٣", strings.onlyDigitsAscii(), "must.be.ascii.digits.only");
+            invalidTest("12a", strings.onlyDigitsAscii(), "must.be.ascii.digits.only");
+            invalidTest(null, strings.onlyDigitsAscii(), "must.not.be.null");
+        }
+    }
+
+    @Nested
+    class ContainsOnly {
+
+        @Test
+        void valid() {
+            validTest("123", strings.containsOnly(ASCII_DIGITS));
+            validTest("Héllo", strings.containsOnly(LETTERS));
+            validTest("Hello World", strings.containsOnly(LETTERS, SPACE));
+            validTest("", strings.containsOnly(ASCII_DIGITS));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("١٢٣", strings.containsOnly(ASCII_DIGITS), "must.contain.only.allowed.characters");
+            invalidTest("Hello!", strings.containsOnly(LETTERS), "must.contain.only.allowed.characters");
+            invalidTest(null, strings.containsOnly(ASCII_DIGITS), "must.not.be.null");
+        }
+
+        @Test
+        void invalid_errorMessageIncludesCategories() {
+            assertThatValidation(strings.containsOnly(LETTERS, SPACE).apply("Hello!"))
+                .isInvalid()
+                .hasErrorMessage("must.contain.only.allowed.characters",
+                    HashMap.of("categories", List.of("LETTERS", "SPACE")));
+        }
+
+        @Test
+        void valid_unicodeDigits() {
+            validTest("١٢٣123", strings.containsOnly(DIGITS));
+        }
+
+        @Test
+        void valid_asciiLetters() {
+            validTest("AbcXYZ", strings.containsOnly(ASCII_LETTERS));
+        }
+
+        @Test
+        void valid_asciiWhitespace() {
+            validTest(" \t\n\r", strings.containsOnly(ASCII_WHITESPACE));
+        }
+
+        @Test
+        void valid_unicodeWhitespace() {
+            // no-break space (U+00A0) and em space (U+2003) are Unicode White_Space but not ASCII \s
+            validTest("   ", strings.containsOnly(WHITESPACE));
+        }
+
+        @Test
+        void valid_asciiPunctuation() {
+            validTest(",!?.", strings.containsOnly(ASCII_PUNCTUATION));
+        }
+
+        @Test
+        void valid_unicodePunctuation() {
+            // «» are Unicode P-category but not POSIX Punct
+            validTest(",«»!", strings.containsOnly(PUNCTUATION));
+        }
+
+        @Test
+        void valid_marks_inNfdInput() {
+            String onlyCombiningAcute = Normalizer.normalize("é", Normalizer.Form.NFD).substring(1);
+            validTest(onlyCombiningAcute, strings.containsOnly(MARKS));
+        }
+
+        @Test
+        void invalid_unicodeDigitsRejectedByAsciiDigitsOnly() {
+            invalidTest("١٢٣", strings.containsOnly(ASCII_DIGITS), "must.contain.only.allowed.characters");
+        }
+
+        @Test
+        void invalid_noBreakSpaceRejectedByAsciiWhitespaceOnly() {
+            invalidTest(" ", strings.containsOnly(ASCII_WHITESPACE), "must.contain.only.allowed.characters");
+        }
+
+        @Test
+        void invalid_guillemetsRejectedByAsciiPunctuationOnly() {
+            invalidTest("«»", strings.containsOnly(ASCII_PUNCTUATION), "must.contain.only.allowed.characters");
+        }
+
+        @Test
+        void allCategories_compileWithoutException() {
+            for (CharCategory category : CharCategory.values()) {
+                assertThatCode(() -> strings.containsOnly(category))
+                    .as("containsOnly(%s) must compile without PatternSyntaxException", category)
+                    .doesNotThrowAnyException();
+            }
         }
     }
 
