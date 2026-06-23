@@ -46,6 +46,13 @@
       <artifactId>hibernate-validator</artifactId>
       <optional>true</optional>
     </dependency>
+    <!-- Optional: provides Spring Boot autoconfiguration for startup @FvRule scanning.
+         Has no effect when Spring Boot is absent from the runtime classpath. -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-autoconfigure</artifactId>
+      <optional>true</optional>
+    </dependency>
 
     <!-- Provides Hibernate Validator + EL, used for both unit tests and Spring integration tests -->
     <dependency>

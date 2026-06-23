@@ -25,6 +25,18 @@ public class FvRuleValidator implements ConstraintValidator<FvRule, Object> {
     @Override
     @SuppressWarnings("unchecked")
     public void initialize(FvRule annotation) {
+        rule = (Rule<Object>) resolveRule(annotation);
+    }
+
+    /**
+     * Resolves the {@link Rule} described by the annotation, applying the same validation that
+     * {@link #initialize} uses. Package-private so {@link FvRuleStartupValidator} can call it
+     * during startup scanning without instantiating a full validator.
+     *
+     * @throws IllegalArgumentException if the annotation is misconfigured or the rule cannot be resolved
+     */
+    @SuppressWarnings("unchecked")
+    static Rule<?> resolveRule(FvRule annotation) {
         boolean hasValue    = annotation.value()    != NoneRule.class;
         boolean hasProvider = annotation.provider() != NoneRuleProvider.class;
         boolean hasField    = annotation.on() != Void.class || !annotation.field().isEmpty();
@@ -37,17 +49,18 @@ public class FvRuleValidator implements ConstraintValidator<FvRule, Object> {
         }
 
         if (hasValue) {
-            rule = (Rule<Object>) instantiate(annotation.value(), "Rule");
+            return (Rule<?>) instantiate(annotation.value(), "Rule");
         } else if (hasProvider) {
-            RuleProvider<Object> p = (RuleProvider<Object>) instantiate(annotation.provider(), "RuleProvider");
-            rule = (Rule<Object>) p.provide();
-            if (rule == null) {
+            RuleProvider<?> p = (RuleProvider<?>) instantiate(annotation.provider(), "RuleProvider");
+            Rule<?> r = p.provide();
+            if (r == null) {
                 throw new IllegalArgumentException(
                     annotation.provider().getName() + ".provide() returned null"
                 );
             }
+            return r;
         } else {
-            rule = (Rule<Object>) resolveStaticField(annotation.on(), annotation.field());
+            return resolveStaticField(annotation.on(), annotation.field());
         }
     }
 
