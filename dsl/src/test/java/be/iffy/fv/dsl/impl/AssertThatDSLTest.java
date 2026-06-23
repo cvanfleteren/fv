@@ -11,7 +11,7 @@ import static be.iffy.fv.dsl.DSL.strings;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class AssertDSLTest {
+class AssertThatDSLTest {
 
     @Nested
     class NullInput {

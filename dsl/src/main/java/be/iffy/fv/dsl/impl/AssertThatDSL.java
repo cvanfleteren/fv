@@ -20,18 +20,18 @@ import org.jetbrains.annotations.Contract;
  *}
  *
  */
-public final class AssertDSL<T> {
+public final class AssertThatDSL<T> {
 
     // since AssertDSL mirrors ValidationsDSL, but returning the T instead of Validation<T>
     // delegate all methods to a ValidationDSL and just call .getOrElseThrow
-    private final ValidationDSL<T> validationDSL;
+    private final ValidateThatDSL<T> validateThatDSL;
 
-    public AssertDSL(T value, Option<String> name) {
-        this.validationDSL = new ValidationDSL<>(value, name);
+    public AssertThatDSL(T value, Option<String> name) {
+        this.validateThatDSL = new ValidateThatDSL<>(value, name);
     }
 
-    private AssertDSL(ValidationDSL<T> validationDSL) {
-        this.validationDSL = validationDSL;
+    private AssertThatDSL(ValidateThatDSL<T> validateThatDSL) {
+        this.validateThatDSL = validateThatDSL;
     }
 
     /**
@@ -40,8 +40,8 @@ public final class AssertDSL<T> {
      * No exceptions are caught, use {@link #map(MappingRule)} if you have a mapper that could throw.
      */
     @Contract(pure = true)
-    public AssertDSL<T> after(be.iffy.fv.Transformation<T> transformation) {
-        return new AssertDSL<>(validationDSL.after(transformation));
+    public AssertThatDSL<T> after(be.iffy.fv.Transformation<T> transformation) {
+        return new AssertThatDSL<>(validateThatDSL.after(transformation));
     }
 
     /**
@@ -49,29 +49,29 @@ public final class AssertDSL<T> {
      */
     @SafeVarargs
     @Contract(pure = true)
-    public final AssertDSL<T> after(be.iffy.fv.Transformation<T> first, be.iffy.fv.Transformation<T>... rest) {
-        return new AssertDSL<>(validationDSL.after(first, rest));
+    public final AssertThatDSL<T> after(be.iffy.fv.Transformation<T> first, be.iffy.fv.Transformation<T>... rest) {
+        return new AssertThatDSL<>(validateThatDSL.after(first, rest));
     }
 
     /**
      * Maps the validation from type T to type R using the provided mapping rule.
      */
     @Contract(pure = true)
-    public <R> AssertDSL<R> map(MappingRule<T, R> mapper) {
-        return new AssertDSL<>(validationDSL.map(mapper));
+    public <R> AssertThatDSL<R> map(MappingRule<T, R> mapper) {
+        return new AssertThatDSL<>(validateThatDSL.map(mapper));
     }
 
     /**
      * Asserts that the value satisfies the given rule.
      */
     public <R> R is(RuleLike<? super T, ? extends Validation<R>> rule) throws ValidationException {
-        return validationDSL.is(rule).getOrElseThrow();
+        return validateThatDSL.is(rule).getOrElseThrow();
     }
 
     /**
      * Asserts that the value is not null.
      */
     public T isNotNull() throws ValidationException {
-        return validationDSL.isNotNull().getOrElseThrow();
+        return validateThatDSL.isNotNull().getOrElseThrow();
     }
 }

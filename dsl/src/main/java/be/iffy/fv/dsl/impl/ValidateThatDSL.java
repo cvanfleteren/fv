@@ -23,17 +23,17 @@ import java.util.function.Predicate;
  * }
  *}
  */
-public final class ValidationDSL<T> {
+public final class ValidateThatDSL<T> {
 
     private final Validation<T> validation;
     private final Option<String> name;
 
-    public ValidationDSL(T value, Option<String> name) {
+    public ValidateThatDSL(T value, Option<String> name) {
         this.validation = Validation.fromNullable(value);
         this.name = name.filter(Predicate.not(String::isBlank));
     }
 
-    private ValidationDSL(Validation<T> validation, Option<String> name) {
+    private ValidateThatDSL(Validation<T> validation, Option<String> name) {
         this.validation = Objects.requireNonNull(validation, "validation cannot be null");
         this.name = name;
     }
@@ -44,9 +44,9 @@ public final class ValidationDSL<T> {
      * No exceptions are caught, use {@link #map(MappingRule)} if you have a mapper that could throw.
      */
     @Contract(pure = true)
-    public ValidationDSL<T> after(be.iffy.fv.Transformation<T> transformation) {
+    public ValidateThatDSL<T> after(be.iffy.fv.Transformation<T> transformation) {
         Objects.requireNonNull(transformation, "transformation cannot be null");
-        return new ValidationDSL<>(validation.map(transformation::apply), name);
+        return new ValidateThatDSL<>(validation.map(transformation::apply), name);
     }
 
     /**
@@ -54,8 +54,8 @@ public final class ValidationDSL<T> {
      */
     @SafeVarargs
     @Contract(pure = true)
-    public final ValidationDSL<T> after(be.iffy.fv.Transformation<T> first, be.iffy.fv.Transformation<T>... rest) {
-        return new ValidationDSL<>(
+    public final ValidateThatDSL<T> after(be.iffy.fv.Transformation<T> first, be.iffy.fv.Transformation<T>... rest) {
+        return new ValidateThatDSL<>(
             validation.map(Transformation.sequence(first, rest)::apply),
             name
         );
@@ -65,9 +65,9 @@ public final class ValidationDSL<T> {
      * Maps the validation from type T to type R using the provided mapping rule.
      */
     @Contract(pure = true)
-    public <R> ValidationDSL<R> map(MappingRule<T, R> mapper) {
+    public <R> ValidateThatDSL<R> map(MappingRule<T, R> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
-        return new ValidationDSL<>(validation.refine(mapper), name);
+        return new ValidateThatDSL<>(validation.refine(mapper), name);
     }
 
     /**

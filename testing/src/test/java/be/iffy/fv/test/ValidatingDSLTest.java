@@ -10,7 +10,7 @@ import java.time.Instant;
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static be.iffy.fv.dsl.DSL.*;
 
-public class ValidationDSLTest {
+public class ValidatingDSLTest {
 
     enum SomeStatus {
         READY, SUCCESS, FAILURE

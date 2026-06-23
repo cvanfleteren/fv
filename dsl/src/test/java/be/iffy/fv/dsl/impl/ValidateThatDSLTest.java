@@ -8,7 +8,7 @@ import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static be.iffy.fv.dsl.DSL.validateThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class ValidationDSLTest {
+class ValidateThatDSLTest {
 
     @Nested
     class NullInput {

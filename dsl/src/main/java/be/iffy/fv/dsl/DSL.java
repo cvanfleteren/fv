@@ -398,8 +398,8 @@ public final class DSL {
      * Starts a validation process for a single value.
      */
     @Contract(pure = true)
-    public static <T> ValidationDSL<T> validateThat(T value) {
-        return new ValidationDSL<>(value, Option.none());
+    public static <T> ValidateThatDSL<T> validateThat(T value) {
+        return new ValidateThatDSL<>(value, Option.none());
     }
 
     /**
@@ -409,8 +409,8 @@ public final class DSL {
      * @param name the name of the value (e.g., field name).
      */
     @Contract(pure = true)
-    public static <T> ValidationDSL<T> validateThat(T value, String name) {
-        return new ValidationDSL<>(value, Option.of(name));
+    public static <T> ValidateThatDSL<T> validateThat(T value, String name) {
+        return new ValidateThatDSL<>(value, Option.of(name));
     }
 
     /**
@@ -420,9 +420,9 @@ public final class DSL {
      * @param name a selector for the name of the value (e.g., Field::name).
      */
     @Contract(pure = true)
-    public static <S, T> ValidationDSL<T> validateThat(T value, PropertySelector<S, T> name) {
+    public static <S, T> ValidateThatDSL<T> validateThat(T value, PropertySelector<S, T> name) {
         Objects.requireNonNull(name, "name cannot be null");
-        return new ValidationDSL<>(value, Option.of(name.getPropertyName()));
+        return new ValidateThatDSL<>(value, Option.of(name.getPropertyName()));
     }
 
     /**
@@ -487,25 +487,25 @@ public final class DSL {
      * Build a Validation that asserts that the valid is {@link be.iffy.fv.Validation.Valid} and returns its value, throwing a {@link ValidationException} otherwise.
      */
     @Contract(pure = true)
-    public static <T> AssertDSL<T> assertThat(T value, String name) {
-        return new AssertDSL<>(value, Option.of(name));
+    public static <T> AssertThatDSL<T> assertThat(T value, String name) {
+        return new AssertThatDSL<>(value, Option.of(name));
     }
 
     /**
      * Build a Validation that asserts that the valid is {@link be.iffy.fv.Validation.Valid} and returns its value, throwing a {@link ValidationException} otherwise.
      */
     @Contract(pure = true)
-    public static <T> AssertDSL<T> assertThat(T value) {
-        return new AssertDSL<>(value, Option.none());
+    public static <T> AssertThatDSL<T> assertThat(T value) {
+        return new AssertThatDSL<>(value, Option.none());
     }
 
     /**
      * Build a Validation that asserts that the valid is {@link be.iffy.fv.Validation.Valid} and returns its value, throwing a {@link ValidationException} otherwise.
      */
     @Contract(pure = true)
-    public static <T, Z> AssertDSL<T> assertThat(T value, PropertySelector<Z, T> selector) {
+    public static <T, Z> AssertThatDSL<T> assertThat(T value, PropertySelector<Z, T> selector) {
         Objects.requireNonNull(selector, "selector cannot be null");
-        return new AssertDSL<>(value, Option.of(selector.getPropertyName()));
+        return new AssertThatDSL<>(value, Option.of(selector.getPropertyName()));
     }
 
     /**
