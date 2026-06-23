@@ -1,11 +1,5 @@
 # Spring Boot Integration
 
-The `spring-web` module integrates FV with Spring Boot by:
-- Automatically translating ValidationException into a consistent, machine-readable HTTP error response, without requiring 
-controller boilerplate—whether the exception originates within your controller or from an @RequestBody constructor.
-- Seamlessly handling controllers that return `Validation<T>`: `Valid<T>` produces a standard response body, while `Invalid` 
-results yield the same structured problem details as a thrown ValidationException.
-
 ## Getting started
 
 Add the `spring-web` dependency to your project:
@@ -14,7 +8,7 @@ Add the `spring-web` dependency to your project:
 <dependency>
   <groupId>be.iffy.fv</groupId>
   <artifactId>spring-web</artifactId>
-  <version>1.1.0</version>
+  <version>2.0.0</version>
 </dependency>
 ```
 
@@ -22,27 +16,23 @@ That's all. Spring Boot's autoconfiguration picks up the exception and returns v
 
 ## What you get
 
-These things are registered automatically:
+The `spring-web` module integrates FV with Spring MVC through autoconfiguration: add the dependency and the following 
+four handlers are registered, covering every path where a `ValidationException` can surface in a request:
 
-**Exception handler** - any `ValidationException` thrown anywhere in the call stack of a Spring MVC request (like in a
+**Exception handler**: any `ValidationException` thrown anywhere in the call stack of a Spring MVC request (like in a
 controller method, a service, a validated domain constructor, ...) is caught and turned into an
 HTTP **422 Unprocessable Entity** response in [Problem Details](https://www.rfc-editor.org/rfc/rfc9457)
 format (`application/problem+json`).
 
-**Deserialization unwrapping** - when a self-validating domain object is used directly as a
-`@RequestBody` parameter, its constructor runs during Jackson deserialization before the controller
-method is entered. The `ValidationException` gets wrapped by Jackson and rethrown by Spring as an
-`HttpMessageNotReadableException`. The exception handler unwraps it so you still get the same
-422 Problem Details body. Genuinely malformed requests (bad JSON, wrong type, etc.) are unaffected
-and still produce a 400.
+**Deserialization unwrapping**: when a self-validating type is used as a `@RequestBody` parameter, its constructor runs
+during Jackson deserialization. If it throws `ValidationException`, the handler unwraps it and returns the same 
+422 Problem Details body. Genuinely malformed requests (bad JSON, wrong type, etc.) are unaffected and still produce a 400.
 
-**Converter unwrapping** - when a `@RequestParam` or `@PathVariable` uses a custom Spring
+**Converter unwrapping**: when a `@RequestParam` or `@PathVariable` uses a custom Spring
 [`Converter`](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/core/convert/converter/Converter.html)
-that throws `ValidationException`, Spring wraps it in a `TypeMismatchException`. The exception
-handler unwraps it and returns the same 422 Problem Details body. Both parameter kinds behave
-identically. See [Using validated types as request parameters](#using-validated-types-as-request-parameters) for setup.
+that throws `ValidationException`, the handler unwraps it and returns the same 422 Problem Details body. See [Using validated types as request parameters](#using-validated-types-as-request-parameters) for setup.
 
-**Return value handler** - controller methods that return `Validation<T>` are handled natively.
+**Return value handler**: controller methods that return `Validation<T>` are handled natively.
 A `Valid<T>` result serializes `T` as the normal response body (as if the method had declared `T`
 directly). An `Invalid` result produces the same HTTP 422 Problem Details body as the exception
 path, without you having to call `.getOrElseThrow()` explicitly. This mirrors how Spring MVC
@@ -150,15 +140,6 @@ If the domain type validates its own constructor you can also use it directly as
 type, removing the separate DTO entirely:
 
 ```java
-record User(String name, String email) {
-  public User {
-    asserting(
-      validateThat(name, User::name).is(strings.minLength(3)),
-      validateThat(email, User::email).is(strings.notBlank())
-    );
-  }
-}
-
 @RestController
 @RequestMapping("/users")
 class UserController {
@@ -198,8 +179,8 @@ it before Spring attempts to serialize the `Validation` wrapper itself.
 ## Using validated types as request parameters
 
 To use a validated type as a `@RequestParam` or `@PathVariable`, Spring needs a registered
-`Converter<String, YourType>`. Implement the interface and annotate the converter with `@Component`
-— Spring Boot picks it up automatically:
+`Converter<String, YourType>`. Implement the interface and annotate the converter with `@Component`. 
+Spring Boot picks it up automatically:
 
 ```java
 @Component
@@ -254,37 +235,14 @@ There are two levels of customization, from lightest to heaviest:
 **1. Change the status code only** — use `fv.spring.status-code`. No Java needed.
 
 **2. Change the response body, headers, or status code** — provide a `ValidationResponseFactory`
-bean. It is called by all four error paths:
-- `ValidationException` thrown directly from a controller or service
-- `@RequestBody` constructor failures (Jackson deserialization unwrapping)
-- `@RequestParam` / `@PathVariable` converter type-mismatch unwrapping
-- `Validation.Invalid` return values from controller methods
-
-Define a `@Bean` anywhere in your application context (a `@Configuration` class, a
-`@SpringBootApplication`, etc.):
-
-```java
-@Bean
-ValidationResponseFactory validationResponseFactory() {
-  return (ex, headers, request) -> ResponseEntity
-      .unprocessableEntity()
-      .body(Map.of("violations", ex.errors().map(e -> e.key()).toJavaList()));
-}
-```
-
-Because `ValidationResponseFactory` is a `@FunctionalInterface`, a lambda is enough for simple
-cases. For access to the configured status code or other Spring beans, use a regular method:
+bean. It is used by all four error paths (thrown exceptions, `@RequestBody`, `@RequestParam`/`@PathVariable`, and `Validation.Invalid` return values):
 
 ```java
 @Bean
 ValidationResponseFactory validationResponseFactory(FvSpringWebProperties properties) {
-  return (ex, headers, request) -> {
-    Map<String, Object> body = Map.of(
-        "status", properties.statusCode(),
-        "violations", ex.errors().map(e -> e.key()).toJavaList()
-    );
-    return ResponseEntity.status(properties.statusCode()).body(body);
-  };
+  return (ex, headers, request) -> ResponseEntity
+      .status(properties.statusCode())
+      .body(Map.of("violations", ex.errors().map(e -> e.key()).toJavaList()));
 }
 ```
 
