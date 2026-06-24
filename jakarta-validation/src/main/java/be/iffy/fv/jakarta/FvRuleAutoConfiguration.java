@@ -1,5 +1,6 @@
 package be.iffy.fv.jakarta;
 
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -19,7 +20,7 @@ public class FvRuleAutoConfiguration {
 
     @Bean
     @ConditionalOnProperty(prefix = "fv.rule", name = "startup-scan.enabled", matchIfMissing = true)
-    public FvRuleStartupValidator fvRuleStartupValidator() {
-        return new FvRuleStartupValidator();
+    public FvRuleStartupValidator fvRuleStartupValidator(BeanFactory beanFactory) {
+        return new FvRuleStartupValidator(beanFactory);
     }
 }

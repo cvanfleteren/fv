@@ -1,14 +1,16 @@
 package be.iffy.fv.jakarta;
 
+import io.vavr.collection.List;
+import io.vavr.control.Option;
+import io.vavr.control.Try;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
 /**
  * Eagerly validates all {@link FvRule}-annotated types found on the classpath at Spring Boot
@@ -22,32 +24,26 @@ import java.util.List;
  * <p>All problems are collected before throwing, so a single startup failure lists every
  * misconfigured type rather than stopping at the first one.
  */
-public class FvRuleStartupValidator implements SmartInitializingSingleton, BeanFactoryAware {
+public class FvRuleStartupValidator implements SmartInitializingSingleton {
 
-    private BeanFactory beanFactory;
+    private final BeanFactory beanFactory;
 
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) {
+    public FvRuleStartupValidator(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
 
     @Override
     public void afterSingletonsInstantiated() {
-        List<String> packages;
-        try {
-            packages = AutoConfigurationPackages.get(beanFactory);
-        } catch (IllegalStateException ignored) {
-            return;
-        }
-        if (packages.isEmpty()) {
-            return;
-        }
+        List<String> packages = Try.of(() -> AutoConfigurationPackages.get(beanFactory))
+            .map(List::ofAll)
+            .recover(IllegalStateException.class, List.empty())
+            .get();
 
         List<String> errors = scanAndValidate(packages);
-        if (!errors.isEmpty()) {
+        if (errors.nonEmpty()) {
             throw new IllegalStateException(
                 "@FvRule misconfiguration detected at startup — fix the following before the application can start:\n  - "
-                + String.join("\n  - ", errors)
+                + errors.mkString("\n  - ")
             );
         }
     }
@@ -61,25 +57,31 @@ public class FvRuleStartupValidator implements SmartInitializingSingleton, BeanF
         var scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AnnotationTypeFilter(FvRule.class));
 
-        var errors = new ArrayList<String>();
+        return basePackages
+            .flatMap(pkg -> List.ofAll(scanner.findCandidateComponents(pkg)))
+            .map(BeanDefinition::getBeanClassName)
+            .filter(Objects::nonNull)
+            .flatMap(FvRuleStartupValidator::validate);
+    }
 
-        for (String pkg : basePackages) {
-            for (var bd : scanner.findCandidateComponents(pkg)) {
-                String className = bd.getBeanClassName();
-                try {
-                    Class<?> type = Class.forName(className);
-                    FvRule annotation = type.getAnnotation(FvRule.class);
-                    if (annotation != null) {
-                        FvRuleValidator.resolveRule(annotation);
-                    }
-                } catch (ClassNotFoundException e) {
-                    errors.add(className + ": could not load class (" + e.getMessage() + ")");
-                } catch (IllegalArgumentException e) {
-                    errors.add(className + ": " + e.getMessage());
+    /**
+     * Resolves the {@link FvRule} configuration on the given type. Returns {@code Some(error)}
+     * describing the misconfiguration, or {@code None} when the type resolves cleanly. Any
+     * exception other than the two expected kinds is left to propagate.
+     */
+    private static Option<String> validate(String className) {
+        return Try.run(() -> {
+                Class<?> type = Class.forName(className);
+                FvRule annotation = type.getAnnotation(FvRule.class);
+                if (annotation != null) {
+                    FvRuleValidator.resolveRule(annotation);
                 }
-            }
-        }
-
-        return errors;
+            })
+            .map(ignored -> Option.<String>none())
+            .recover(ClassNotFoundException.class,
+                e -> Option.some(className + ": could not load class (" + e.getMessage() + ")"))
+            .recover(IllegalArgumentException.class,
+                e -> Option.some(className + ": " + e.getMessage()))
+            .get();
     }
 }

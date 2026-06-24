@@ -3,7 +3,7 @@ package be.iffy.fv.jakarta;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import io.vavr.collection.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

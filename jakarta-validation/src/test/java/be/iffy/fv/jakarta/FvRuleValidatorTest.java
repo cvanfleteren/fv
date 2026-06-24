@@ -3,8 +3,10 @@ package be.iffy.fv.jakarta;
 import be.iffy.fv.jakarta.support.Gadget;
 import be.iffy.fv.jakarta.support.Order;
 import be.iffy.fv.jakarta.support.Person;
+import be.iffy.fv.jakarta.support.Shipment;
 import be.iffy.fv.jakarta.support.Widget;
 import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Valid;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.hibernate.validator.HibernateValidator;
@@ -175,6 +177,78 @@ class FvRuleValidatorTest {
             assertThat(violations)
                 .extracting(v -> v.getPropertyPath().toString())
                 .containsExactlyInAnyOrder("code", "quantity");
+        }
+    }
+
+    @Nested
+    class WhenObjectHasNestedFvRuleObject {
+
+        @Test
+        void validShipment_noViolations() {
+            var violations = validator.validate(new Shipment("TRK-001", new Person("Alice", 25)));
+            assertThat(violations).isEmpty();
+        }
+
+        @Test
+        void invalidNestedPerson_violationsIncludeNestedPath() {
+            Set<ConstraintViolation<Shipment>> violations = validator.validate(
+                new Shipment("TRK-001", new Person("A", 16)));
+
+            assertThat(violations).hasSize(2);
+            assertThat(violations)
+                .extracting(v -> v.getPropertyPath().toString())
+                .containsExactlyInAnyOrder("recipient.name", "recipient.age");
+        }
+
+        @Test
+        void bothLevelsInvalid_allViolationsReported() {
+            Set<ConstraintViolation<Shipment>> violations = validator.validate(
+                new Shipment("TRK", new Person("A", 16)));
+
+            assertThat(violations).hasSize(3);
+            assertThat(violations)
+                .extracting(v -> v.getPropertyPath().toString())
+                .containsExactlyInAnyOrder("trackingNumber", "recipient.name", "recipient.age");
+        }
+
+        @Test
+        void validNestedPerson_outerViolationOnly() {
+            Set<ConstraintViolation<Shipment>> violations = validator.validate(
+                new Shipment("TRK", new Person("Alice", 25)));
+
+            assertThat(violations).hasSize(1);
+            assertThat(violations.iterator().next().getPropertyPath().toString()).isEqualTo("trackingNumber");
+        }
+    }
+
+    @Nested
+    class WhenAtValidCascadesToCollection {
+
+        @Test
+        void invalidElementInList_violationIncludesIndex() {
+            record Roster(@Valid List<@Valid Person> members) {}
+
+            var violations = validator.validate(new Roster(List.of(
+                new Person("Alice", 25),
+                new Person("A", 16)
+            )));
+
+            assertThat(violations).hasSize(2);
+            assertThat(violations)
+                .extracting(v -> v.getPropertyPath().toString())
+                .containsExactlyInAnyOrder("members[1].name", "members[1].age");
+        }
+
+        @Test
+        void allValidElements_noViolations() {
+            record Roster(@Valid List<@Valid Person> members) {}
+
+            var violations = validator.validate(new Roster(List.of(
+                new Person("Alice", 25),
+                new Person("Bob", 30)
+            )));
+
+            assertThat(violations).isEmpty();
         }
     }
 

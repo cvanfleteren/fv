@@ -3,14 +3,13 @@ package be.iffy.fv.jakarta;
 import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
+import io.vavr.control.Try;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.ConstraintValidatorContext.ConstraintViolationBuilder.NodeBuilderCustomizableContext;
 import jakarta.validation.ConstraintValidatorContext.ConstraintViolationBuilder.NodeBuilderDefinedContext;
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
-
-import java.lang.reflect.Field;
-import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /**
  * BV {@link ConstraintValidator} that delegates to an FV {@link Rule}.
@@ -20,6 +19,7 @@ import java.util.List;
  */
 public class FvRuleValidator implements ConstraintValidator<FvRule, Object> {
 
+    @Nullable
     private Rule<Object> rule;
 
     @Override
@@ -27,6 +27,19 @@ public class FvRuleValidator implements ConstraintValidator<FvRule, Object> {
     public void initialize(FvRule annotation) {
         rule = (Rule<Object>) resolveRule(annotation);
     }
+
+    @Override
+    public boolean isValid(@Nullable Object value, ConstraintValidatorContext context) {
+        if (value == null) return true;
+
+        Validation<?> result = rule.apply(value);
+        if (result.isValid()) return true;
+
+        context.disableDefaultConstraintViolation();
+        result.errors().forEach(error -> addViolation(error, context));
+        return false;
+    }
+
 
     /**
      * Resolves the {@link Rule} described by the annotation, applying the same validation that
@@ -60,21 +73,10 @@ public class FvRuleValidator implements ConstraintValidator<FvRule, Object> {
             }
             return r;
         } else {
-            return resolveStaticField(annotation.on(), annotation.field());
+            return resolveStaticField(annotation.on(), annotation.field()).get();
         }
     }
 
-    @Override
-    public boolean isValid(Object value, ConstraintValidatorContext context) {
-        if (value == null) return true;
-
-        Validation<?> result = rule.apply(value);
-        if (result.isValid()) return true;
-
-        context.disableDefaultConstraintViolation();
-        result.errors().forEach(error -> addViolation(error, context));
-        return false;
-    }
 
     private static Object instantiate(Class<?> cls, String kind) {
         try {
@@ -88,70 +90,60 @@ public class FvRuleValidator implements ConstraintValidator<FvRule, Object> {
         }
     }
 
-    private static Rule<?> resolveStaticField(Class<?> holder, String fieldName) {
+    private static Try<Rule<?>> resolveStaticField(Class<?> holder, String fieldName) {
         if (holder == Void.class || fieldName.isEmpty()) {
             throw new IllegalArgumentException(
-                "@FvRule static-field mode requires both on and field to be set"
+                "@FvRule static-field mode requires both 'on' and 'field' to be set"
             );
         }
-        Field f;
-        try {
-            f = holder.getDeclaredField(fieldName);
-        } catch (NoSuchFieldException e) {
-            throw new IllegalArgumentException(
-                "No field '" + fieldName + "' found on " + holder.getName(), e
-            );
-        }
-        f.setAccessible(true);
-        Object value;
-        try {
-            value = f.get(null);
-        } catch (IllegalAccessException e) {
-            throw new IllegalArgumentException(
-                "Cannot read field '" + fieldName + "' on " + holder.getName(), e
-            );
-        }
-        if (value == null) {
-            throw new IllegalArgumentException(
-                holder.getName() + "." + fieldName + " is null"
-            );
-        }
-        if (!(value instanceof Rule)) {
-            throw new IllegalArgumentException(
-                holder.getName() + "." + fieldName + " is not a Rule (found: " + value.getClass().getName() + ")"
-            );
-        }
-        return (Rule<?>) value;
+        return Try.of(() -> holder.getDeclaredField(fieldName))
+            .recoverWith(
+                NoSuchFieldException.class,
+                e -> Try.failure(new IllegalArgumentException("No field '" + fieldName + "' found on " + holder.getName(), e))
+            )
+            .andThenTry(f -> f.setAccessible(true))
+            .mapTry(f -> f.get(null))
+            .recoverWith(
+                IllegalAccessException.class,
+                e -> Try.failure(new IllegalArgumentException("Cannot read field '" + fieldName + "' on " + holder.getName(), e))
+            )
+            .flatMap(value -> {
+                if (value == null) {
+                    return Try.failure(new IllegalArgumentException(holder.getName() + "." + fieldName + " is null"));
+                }
+                if (!(value instanceof Rule<?> r)) {
+                    return Try.failure(new IllegalArgumentException(
+                        holder.getName() + "." + fieldName + " is not a Rule (found: " + value.getClass().getName() + ")"));
+                }
+                return Try.success(r);
+            });
     }
 
     private void addViolation(ErrorMessage error, ConstraintValidatorContext context) {
         var violationBuilder = buildViolation(error, context);
-        List<ErrorMessage.Path> paths = error.paths().toJavaList();
+        var paths = error.paths();
 
         if (paths.isEmpty()) {
             violationBuilder.addConstraintViolation();
             return;
         }
 
-        var current = violationBuilder.addPropertyNode(paths.get(0).text());
-
-        // For all but the last segment: apply index (if any) then add the next property node.
-        // Index here marks the property as "in iterable at position N" which applies to
-        // intermediate segments where we continue navigating deeper.
-        for (int i = 0; i < paths.size() - 1; i++) {
-            var nextName = paths.get(i + 1).text();
-            if (paths.get(i).index().isDefined()) {
-                current = applyIntermediateIndex(current, paths.get(i).index().get())
-                    .addPropertyNode(nextName);
-            } else {
-                current = current.addPropertyNode(nextName);
-            }
-        }
+        // Fold over adjacent pairs (current, next) to navigate intermediate segments.
+        // Each step applies the current segment's index (if any) then advances to the next node.
+        var current = paths.init()
+            .zip(paths.tail())
+            .foldLeft(
+                violationBuilder.addPropertyNode(paths.head().text()),
+                (node, pair) -> pair._1.index().fold(
+                    () -> node.addPropertyNode(pair._2.text()),
+                    idx -> applyIntermediateIndex(node, idx).addPropertyNode(pair._2.text())
+                )
+            );
 
         // For the last segment: an index means "element N of this collection property".
         // We express this with an anonymous bean node (representing the element) at the index —
         // which HV renders as "fieldName[N]" in the path string.
-        var last = paths.get(paths.size() - 1);
+        var last = paths.last();
         if (last.index().isDefined()) {
             applyTerminalIndex(current, last.index().get());
         } else {
