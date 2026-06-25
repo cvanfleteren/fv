@@ -42,7 +42,7 @@ import java.util.function.Supplier;
  * </table>
  *
  * <h2>{@code assertThat} — single field, throws on invalid</h2>
- * Use inside a constructor when you want the field to be normalised (e.g. trimmed) before
+ * Use inside a constructor when you want the field to be normalized (e.g., trimmed) before
  * the check, and you want the constructor to throw if the value is invalid.
  * {@snippet :
  * record Username(String value) {
@@ -97,7 +97,7 @@ import java.util.function.Supplier;
  * // toPerson(new PersonDto("Al", "-5")) → Invalid([name.must.have.min.length, age.must.be.positive])
  *}
  *
- * <h2>{@code validating} vs {@code combine} — one-shot result vs reusable rule</h2>
+ * <h2>{@code validating} vs {@code combine} — one-shot result vs. reusable rule</h2>
  * Both accumulate errors across multiple validations, but they differ in what they return
  * and when the input is consumed:
  * <ul>

@@ -18,7 +18,7 @@ import java.util.Objects;
  * Catches {@link ValidationException} thrown from Spring MVC controllers and converts it to an
  * HTTP response via the configured {@link ValidationResponseFactory}.
  *
- * <p>By default produces HTTP 422 Unprocessable Entity in Problem Details format (RFC 9457).
+ * <p>By default, produces HTTP 422 Unprocessable Entity in Problem Details format (RFC 9457).
  * To change the response body, headers, or status code, provide a {@link ValidationResponseFactory}
  * {@code @Bean} — it is called by all four error paths:
  * <ul>

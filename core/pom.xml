@@ -13,7 +13,7 @@
 
     <name>FV - Core</name>
     <artifactId>core</artifactId>
-    <description>Functional Validaton core modules.</description>
+    <description>Functional Validation core modules.</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

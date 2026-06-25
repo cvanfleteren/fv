@@ -565,7 +565,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
     }
 
     /**
-     * Takes the last N charachters of the string.
+     * Takes the last N characters of the string.
      * So "12345" takeRight(2) is "45".
      * Fails if the string length is less than the requested length.
      * <p>
@@ -591,7 +591,7 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
     }
 
     /**
-     * Drops the last N charachters of the string.
+     * Drops the last N characters of the string.
      * So "12345" dropRight(2) is "123".
      * Fails if the string length is less than the requested length.
      * <p>

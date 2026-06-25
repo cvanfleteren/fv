@@ -3,7 +3,7 @@
 
 # FV — Functional Validation
 
-FV is a lightweight, type-safe, functional library for validating and transforming data in Java 21+. It lets you both check that a value meets your rules and turn it into something else (e.g. parsing a String into a LocalDate), with a focus on immutability, side-effect-free functions, and seamless integration with [Vavr](https://www.vavr.io/).
+FV is a lightweight, type-safe, functional library for validating and transforming data in Java 21+. It lets you both check that a value meets your rules and turn it into something else (e.g., parsing a String into a LocalDate), with a focus on immutability, side-effect-free functions, and seamless integration with [Vavr](https://www.vavr.io/).
 
 The library encourages **"Validation at the Edge"**: your domain objects (like Java Records) are always in a valid state because they validate and convert their inputs during construction. 
 It's just as useful for validating and mapping incoming data like DTOs or request payloads into trusted domain objects, or for checking business rules later on, independently of object construction.
@@ -119,7 +119,7 @@ The project is split into several modules, so you only pull in what you need:
 Use FV when you want to:
 
 * Guarantee that a domain object can never exist in an invalid state (validate inside the constructor).
-* Validate and parse incoming data (e.g. DTOs, request bodies, CSV rows) into typed, validated domain objects,
+* Validate and parse incoming data (e.g., DTOs, request bodies, CSV rows) into typed, validated domain objects,
   collecting **all** errors instead of stopping at the first one.
 * Compose small, reusable, named validation rules instead of scattering `if`-checks across the codebase.
 
@@ -130,10 +130,10 @@ Use FV when you want to:
 * **`Rule<T>`** — a check on a value of type `T`. If valid, it returns the exact same instance; if invalid, it
   returns an `Invalid` result with one or more `ErrorMessage`s. Think of it as a `Predicate<T>` that explains
   itself.
-* **`MappingRule<T, R>`** — validates **and transforms** a value, e.g. parsing a `String` into a `LocalDate`. If
+* **`MappingRule<T, R>`** — validates **and transforms** a value, e.g., parsing a `String` into a `LocalDate`. If
   parsing or validation fails, you get an `Invalid` result; otherwise a `Valid<R>` with the transformed value.
 * **`Validation<T>`** — an applicative functor representing either `Valid<T>` or `Invalid` (one or more errors).
-  Unlike `Either`, it **accumulates** errors when you combine several validations together.
+  Unlike `Either`, it **accumulates** errors when you combine several validations.
 
 `core` ships no rules by default — `rules` provides the reusable ones, but you can always make your own:
 
@@ -153,7 +153,7 @@ import static be.iffy.fv.dsl.DSL.*;
 
 ### 1. Transform, then validate a single field
 
-`assertThat(value, name).after(transformation).is(rule)` normalizes a value (e.g. trims it) before validating it,
+`assertThat(value, name).after(transformation).is(rule)` normalizes a value (e.g., trims it) before validating it,
 and returns the **transformed** value — or throws a `ValidationException` if it's invalid.
 
 ```java
@@ -197,7 +197,7 @@ new Person("Al", 16);
 
 ## Mapping and validating a DTO into a Domain object with `MappingRule`
 
-A common use case is turning a "dumb" DTO (e.g. all-`String` fields from a form or JSON payload) into a validated
+A common use case is turning a "dumb" DTO (e.g., all-`String` fields from a form or JSON payload) into a validated
 domain object. Because the `age` field needs to change type (`String` → `int`), this is a job for a
 `MappingRule`: `strings.asInteger()` parses the string, and `.then(ints.positive())` validates the parsed result.
 
@@ -222,7 +222,7 @@ toPerson(new PersonDto("Al", "-5"));
 ```
 
 `validating(...).map(...)` never throws: it returns a `Validation<Person>` you can inspect with `isValid()` /
-`errors()`. If you'd rather fail fast with an exception (e.g. inside a constructor), use `asserting(...)` instead
+`errors()`. If you'd rather fail fast with an exception (e.g., inside a constructor), use `asserting(...)` instead
 of `validating(...).map(...)`, exactly as in the constructor examples above.
 
 ---
@@ -255,7 +255,7 @@ Validation<Person> result2 = validating(
 ).map(Person::new);
 ```
 
-`combine` is especially useful when you want to define the full validation for a type once (e.g. as a
+`combine` is especially useful when you want to define the full validation for a type once (e.g., as a
 static field or a Spring bean) and reuse it across controllers, tests, and message consumers.
 
 ---
@@ -312,7 +312,7 @@ produces paths like `debtor.address.street.must.not.be.blank` and
 ## Available rules
 
 `rules` ships these rule collections (all accessible as static fields via `import static be.iffy.fv.dsl.DSL.*;`,
-e.g. `strings`, `ints`, `lists`, ...):
+e.g., `strings`, `ints`, `lists`, ...):
 
 ### Strings (`strings`)
 Parsing/mapping: `asInteger`, `asLong`, `asDouble`, `asFloat`, `asBigInteger`, `asBigDecimal`, `asBoolean`,
@@ -328,7 +328,7 @@ Checks: `notEmpty`, `notBlank`, `trimmed`, `singleLine`, `noWhitespace`, `upperc
 ### Numbers (`ints`, `longs`, `doubles`, `floats`, `bigIntegers`, `bigDecimals`)
 Sign checks: `positive`, `nonNegative`, `negative`, `nonPositive`, `zero`, `nonZero`.
 
-Range checks (shared by all comparable rules, e.g. dates too): `between`, `betweenExclusive`, `greaterThan`,
+Range checks (shared by all comparable rules, e.g., dates too): `between`, `betweenExclusive`, `greaterThan`,
 `atLeast`, `lessThan`, `atMost`.
 
 ### Booleans (`booleans`)

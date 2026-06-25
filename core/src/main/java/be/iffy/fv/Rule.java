@@ -25,7 +25,7 @@ import java.util.function.Supplier;
  *          To change the input (type or value), use a {@link MappingRule}
  *      </li>
  *     <li>
- *         If you need to transform the input, but keep the type, you can look at using a {@link Transformation}, for example like this (using the DSL)
+ *         If you need to transform the input, but keep the type, you can look at using a {@link Transformation}, for example, like this (using the DSL)
  *     {@snippet :
  *     Rule<String> originalRule = after(stringOps.trim()).is(strings.maxLength(2));
  *     Validation<String> v = originalRule.apply("  12  "); // Valid

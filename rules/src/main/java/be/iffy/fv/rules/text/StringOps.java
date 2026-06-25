@@ -200,7 +200,7 @@ public final class StringOps {
      *     <li>{@code keepChars("-[]").apply("a-]b[")} → {@code "-]["}</li>
      * </ul>
      *
-     * @param allowed the characters to keep; if {@code null} or empty, nothing is kept (result becomes empty string)
+     * @param allowed the characters to keep; if {@code null} or empty, nothing is kept (the result becomes an empty string)
      * @return a {@link MappingRule} that filters the input to the provided character set.
      */
     public Transformation<String> keepChars(String allowed) {
@@ -270,7 +270,7 @@ public final class StringOps {
      * Truncates the string to at most {@code maxLen} UTF-16 code units without splitting a surrogate pair.
      * <p>
      * If the input length is less than or equal to {@code maxLen}, the input is returned unchanged.
-     * If cutting at {@code maxLen} would split a surrogate pair (i.e. the character boundary falls between
+     * If cutting at {@code maxLen} would split a surrogate pair (i.e., the character boundary falls between
      * a high and low surrogate), the cut index is moved one position to the left to preserve the pair.
      *
      * @param maxLen maximum length of the resulting string, must be {@code >= 0}
