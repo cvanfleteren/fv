@@ -229,6 +229,20 @@ public final class DSL {
     //region Other
 
     /**
+     * Shorthand for validateThat(...).isNotNull()
+     */
+    public static <T, Z> Validation<T> notNull(T value, PropertySelector<Z, T> propertySelector) {
+        return validateThat(value, propertySelector).isNotNull();
+    }
+
+    /**
+     * Shorthand for validateThat(...).isNotNull()
+     */
+    public static <T, Z> Validation<T> notNull(T value, String name) {
+        return validateThat(value, name).isNotNull();
+    }
+
+    /**
      * Create a Validation from code that might throw {@link ValidationException}.
      * @see Validation#catching(Supplier)
      */

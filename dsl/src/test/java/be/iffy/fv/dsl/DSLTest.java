@@ -241,6 +241,44 @@ public class DSLTest {
     }
 
     @Nested
+    class NotNull {
+
+        @Test
+        void notNull_withStringName_whenValueIsNotNull_returnsValid() {
+            Validation<String> result = DSL.notNull("hello", "name");
+
+            assertThatValidation(result).isValid().isEqualTo("hello");
+        }
+
+        @Test
+        void notNull_withStringName_whenValueIsNull_returnsInvalid() {
+            String value = null;
+            Validation<String> result = DSL.notNull(value, "name");
+
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("name.must.not.be.null");
+        }
+
+        @Test
+        void notNull_withPropertySelector_whenValueIsNotNull_returnsValid() {
+            Validation<String> result = DSL.notNull("john", Person::name);
+
+            assertThatValidation(result).isValid().isEqualTo("john");
+        }
+
+        @Test
+        void notNull_withPropertySelector_whenValueIsNull_returnsInvalid() {
+            String value = null;
+            Validation<String> result = DSL.notNull(value, Person::name);
+
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("name.must.not.be.null");
+        }
+    }
+
+    @Nested
     class Catching {
 
         @Test
