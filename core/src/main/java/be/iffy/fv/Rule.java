@@ -155,7 +155,6 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
                 Objects.requireNonNull(rule.apply(value),"rule cannot return null Validation")
             );
             List<ErrorMessage> errors = validations
-                .filter(v -> !v.isValid())
                 .flatMap(Validation::errors);
 
             return errors.isEmpty()
