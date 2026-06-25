@@ -80,9 +80,9 @@ public class Validator {
         }
 
         public <V> MappingRule<T, V> builds(Function<R1, V> mapper) {
-            return input -> predicate.apply(input).flatMapCatching(ignore -> {
-                return rule1.apply(input).map(mapper);
-            });
+            return input -> predicate.apply(input).flatMapCatching(ignore ->
+                rule1.apply(input).map(mapper)
+            );
         }
     }
 

@@ -45,7 +45,7 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
      * @return a {@link Validation} object indicating the result of the test.
      */
     @Override
-    @Contract(pure = false)
+    @Contract(pure = true)
     Validation<T> apply(T value);
 
     //region Factory methods

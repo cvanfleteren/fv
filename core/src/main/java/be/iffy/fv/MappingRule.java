@@ -3,6 +3,8 @@ package be.iffy.fv;
 import be.iffy.fv.Validation.Invalid;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
+import org.jetbrains.annotations.Contract;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -28,7 +30,8 @@ public interface MappingRule<T, R> extends  RuleLike<T, Validation<R>> {
      * mapping or validation.
      */
     @Override
-    Validation<R> apply(T value);
+    @Contract(pure = true)
+    Validation<R> apply(@Nullable T value);
 
     //region factory methods
 
@@ -233,6 +236,9 @@ public interface MappingRule<T, R> extends  RuleLike<T, Validation<R>> {
         };
     }
 
+    /**
+     * Shorthand for RuleCombiners.combine(this, other);
+     */
     default <R2> RuleCombiners.CombineBuilder2<T, R, R2> combine(RuleLike<? super T, Validation<R2>> other) {
         return RuleCombiners.combine(this, other);
     }

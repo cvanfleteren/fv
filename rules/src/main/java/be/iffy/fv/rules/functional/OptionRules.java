@@ -96,8 +96,8 @@ public final class OptionRules {
      */
     public <T> Rule<Option<T>> empty() {
         return Rule.of(
-                input -> input.isEmpty(),
-                "must.be.empty"
+            Option::isEmpty,
+            "must.be.empty"
         );
     }
 
