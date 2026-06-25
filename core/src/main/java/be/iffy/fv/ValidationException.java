@@ -58,8 +58,4 @@ public final class ValidationException extends RuntimeException {
         return errors;
     }
 
-    @Override
-    public String getMessage() {
-        return super.getMessage();
-    }
 }
