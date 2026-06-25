@@ -1,20 +1,26 @@
 # Changelog
 
+
 ## [Unreleased]
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [2.0.1] - 2026-06-25
 ### Added
 
 - add DSL.notNull(value, field) as a shorthand for validateThat(...).isNotNull()
 - add assertInvalid(Runnable) for testing code that throws ValidationException
-
-### Changed,
-
-### Deprecated,
-
-### Removed,
-
-### Fixed,
-
-### Security
+- StringRules: add doesNotStart/EndWith(IgnoreCase)
 
 
 ## [2.0.0] - 2026-06-24
@@ -37,14 +43,6 @@ transformation not being passed further.
 - Breaking: renamed `AssertDSL` -> `AssertThatDSL` and `ValidationDSL` -> `ValidateThatDSL`, but these shouldn't have been 
 used directly.
 
-### Deprecated,
-
-### Removed,
-
-### Fixed,
-
-### Security
-
 
 ## [1.1.0] - 2026-06-22
 ### Added
@@ -59,6 +57,7 @@ used directly.
 - Initial release with core, rules, dsl, assertj modules
 
 [Unreleased]: https://github.com/cvanfleteren/fv/compare/v1.1.0...HEAD
+[2.0.0]: https://github.com/cvanfleteren/fv/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/cvanfleteren/fv/compare/v1.1.0...v2.0.0
 [1.1.0]: https://github.com/cvanfleteren/fv/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/cvanfleteren/fv/releases/tag/v1.0.0
