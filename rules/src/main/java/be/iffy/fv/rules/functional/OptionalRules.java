@@ -5,7 +5,6 @@ import be.iffy.fv.Validation.Invalid;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 
 public final class OptionalRules {
 

@@ -2,7 +2,6 @@ package be.iffy.fv.rules.collections;
 
 import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Rule;
-import be.iffy.fv.Validation;
 import io.vavr.Function1;
 import io.vavr.collection.Map;
 
