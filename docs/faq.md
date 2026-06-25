@@ -788,14 +788,14 @@ library does not force you to do so in your APIs.
 Yes! Use the `eithers()` method (note: it is a method, not a field, because it is generic over `L` and `R`). It
 returns an `EitherRules<L, R>` with the following rules:
 
-| Method | Behaviour |
-|--------|-----------|
-| `isRight()` | Fails if the Either is Left |
-| `isLeft()` | Fails if the Either is Right |
-| `isRight(rule)` | Fails if Left, or if Right but the right value fails the rule |
-| `isLeft(rule)` | Fails if Right, or if Left but the left value fails the rule |
+| Method                    | Behaviour                                                      |
+|---------------------------|----------------------------------------------------------------|
+| `isRight()`               | Fails if the Either is Left                                    |
+| `isLeft()`                | Fails if the Either is Right                                   |
+| `isRight(rule)`           | Fails if Left, or if Right but the right value fails the rule  |
+| `isLeft(rule)`            | Fails if Right, or if Left but the left value fails the rule   |
 | `validateRightWith(rule)` | Applies rule to the Right value; passes silently if it is Left |
-| `validateLeftWith(rule)` | Applies rule to the Left value; passes silently if it is Right |
+| `validateLeftWith(rule)`  | Applies rule to the Left value; passes silently if it is Right |
 
 ```java
 import static be.iffy.fv.dsl.DSL.*;
@@ -1018,12 +1018,12 @@ Validation<LocalDate> result = validating(
 
 These four DSL entry points cover two axes: **single value vs. combined** and **functional (returns `Validation`) vs. asserting (throws on failure)**.
 
-| Method | Takes | Returns | Throws? |
-|---|---|---|---|
-| `validateThat(value, name)` | a single value | `Validation<T>` | no |
-| `assertThat(value, name)` | a single value | the value `T` | yes |
-| `validating(v1, v2, …)` | `Validation` objects | `Validation<mapped>` | no |
-| `asserting(v1, v2, …)` | `Validation` objects | `Tuple` of values | yes |
+| Method                      | Takes                | Returns              | Throws? |
+|-----------------------------|----------------------|----------------------|---------|
+| `validateThat(value, name)` | a single value       | `Validation<T>`      | no      |
+| `assertThat(value, name)`   | a single value       | the value `T`        | yes     |
+| `validating(v1, v2, …)`     | `Validation` objects | `Validation<mapped>` | no      |
+| `asserting(v1, v2, …)`      | `Validation` objects | `Tuple` of values    | yes     |
 
 #### `validateThat` — functional, single value
 
@@ -1540,16 +1540,16 @@ assertThatValidation(strings.minLength(5).apply("hi"))
 
 Available methods on `InvalidValidationAssert`:
 
-| Method | Description |
-|--------|-------------|
-| `hasErrorKeys(String...)` | checks that the given error keys are present |
-| `hasErrorMessages(String...)` | checks full path-qualified error messages |
-| `hasErrorCount(int)` | exact number of errors |
-| `hasFormattedMessage(String)` | checks a specific `formatted()` string |
-| `errorKeys()` | returns `ListAssert<String>` for custom assertions on keys |
-| `errorMessages()` | returns `ListAssert<String>` for custom assertions on messages |
-| `formattedMessages()` | returns `ListAssert<String>` on `formatted()` strings |
-| `errors()` | returns `ListAssert<ErrorMessage>` for full control |
+| Method                        | Description                                                    |
+|-------------------------------|----------------------------------------------------------------|
+| `hasErrorKeys(String...)`     | checks that the given error keys are present                   |
+| `hasErrorMessages(String...)` | checks full path-qualified error messages                      |
+| `hasErrorCount(int)`          | exact number of errors                                         |
+| `hasFormattedMessage(String)` | checks a specific `formatted()` string                         |
+| `errorKeys()`                 | returns `ListAssert<String>` for custom assertions on keys     |
+| `errorMessages()`             | returns `ListAssert<String>` for custom assertions on messages |
+| `formattedMessages()`         | returns `ListAssert<String>` on `formatted()` strings          |
+| `errors()`                    | returns `ListAssert<ErrorMessage>` for full control            |
 
 #### Asserting that a constructor throws `ValidationException`
 

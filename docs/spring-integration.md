@@ -212,10 +212,10 @@ other validation failure. To opt out of this unwrapping, set `fv.spring.handle-t
 
 ## Configuration
 
-| Property | Default | Description |
-|---|---|---|
-| `fv.spring.status-code` | `422` | HTTP status code returned for all validation failures. |
-| `fv.spring.handle-type-mismatch` | `true` | When `false`, `@RequestParam` and `@PathVariable` converter failures that wrap a `ValidationException` fall through to Spring's default 400 handling instead of producing a Problem Details body. |
+| Property                         | Default | Description                                                                                                                                                                                       |
+|----------------------------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `fv.spring.status-code`          | `422`   | HTTP status code returned for all validation failures.                                                                                                                                            |
+| `fv.spring.handle-type-mismatch` | `true`  | When `false`, `@RequestParam` and `@PathVariable` converter failures that wrap a `ValidationException` fall through to Spring's default 400 handling instead of producing a Problem Details body. |
 
 ```properties
 # Use 400 Bad Request instead of 422 for validation errors
