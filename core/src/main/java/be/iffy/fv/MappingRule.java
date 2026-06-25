@@ -185,14 +185,14 @@ public interface MappingRule<T, R> extends RuleLike<T, Validation<R>> {
      */
     default MappingRule<T, R> fallback(RuleLike<? super T, ? extends Validation<R>> fallback) {
         Objects.requireNonNull(fallback, "fallback rule cannot be null");
-        return input -> {
+        return MappingRule.of(input -> {
             Validation<R> first = this.apply(input);
             if (first.isValid()) {
                 return first;
             }
 
             return Objects.requireNonNull(fallback.apply(input), "fallback cannot return null Validation");
-        };
+        });
     }
 
     /**
@@ -207,7 +207,9 @@ public interface MappingRule<T, R> extends RuleLike<T, Validation<R>> {
      */
     default <Z> MappingRule<T, Z> then(RuleLike<? super R, ? extends Validation<? extends Z>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return (T input) -> this.apply(input).flatMap(rule);
+        return MappingRule.of((T input) ->
+            this.apply(input).flatMap(rule)
+        );
     }
 
     /**
@@ -221,7 +223,7 @@ public interface MappingRule<T, R> extends RuleLike<T, Validation<R>> {
     @SuppressWarnings("unchecked")
     default MappingRule<T, R> or(RuleLike<? super T, ? extends Validation<? extends R>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
-        return input -> {
+        return MappingRule.of(input -> {
             Validation<R> first = this.apply(input);
             if (first.isValid()) {
                 return first;
@@ -233,7 +235,7 @@ public interface MappingRule<T, R> extends RuleLike<T, Validation<R>> {
             }
 
             return invalid(first.errors().appendAll(second.errors()));
-        };
+        });
     }
 
     /**
@@ -281,8 +283,12 @@ public interface MappingRule<T, R> extends RuleLike<T, Validation<R>> {
      */
     default MappingRule<T, R> withErrorKey(String errorKey) {
         Objects.requireNonNull(errorKey, "errorKey cannot be null");
-        return input ->
-            this.apply(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
+        return MappingRule.of(input ->
+            this.apply(input)
+                .mapErrors(ignore ->
+                    List.of(ErrorMessage.of(errorKey))
+                )
+        );
     }
 
     /**
@@ -291,7 +297,9 @@ public interface MappingRule<T, R> extends RuleLike<T, Validation<R>> {
      */
     default <Z> MappingRule<T, Z> map(Function<? super R, ? extends Z> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
-        return (T input) -> this.apply(input).map(mapper);
+        return MappingRule.of((T input) ->
+            this.apply(input).map(mapper)
+        );
     }
 
     /**

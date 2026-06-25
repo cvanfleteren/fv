@@ -150,10 +150,7 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
         Objects.requireNonNull(rules, "rules cannot be null");
         List.of(rules).forEach(rule -> Objects.requireNonNull(rule,"rule cannot be null"));
 
-        return value -> {
-            if (value == null) {
-                return Invalid.notNull();
-            }
+        return Rule.of(value -> {
             List<Validation<T>> validations = List.of(rules).map(rule ->
                 Objects.requireNonNull(rule.apply(value),"rule cannot return null Validation")
             );
@@ -164,7 +161,7 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
             return errors.isEmpty()
                 ? Validation.valid(value)
                 : Validation.invalid(errors);
-        };
+        });
     }
 
     /**
@@ -184,11 +181,7 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
         }
         Stream.of(rules).forEach(r -> Objects.requireNonNull(r, "rules cannot be null"));
 
-        return value -> {
-            if (value == null) {
-                return Invalid.notNull();
-            }
-
+        return Rule.of(value -> {
             // we use a Stream of Lazy to ensure each rule is applied at most once per validation run
             Stream<io.vavr.Lazy<Validation<T>>> lazyValidations = Stream.of(rules)
                     .map(rule -> io.vavr.Lazy.of(() -> rule.apply(value)));
@@ -199,7 +192,7 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
                     .getOrElse(() ->
                             Validation.invalid(lazyValidations.flatMap(l -> l.get().errors()).toList())
                     );
-        };
+        });
     }
 
     /**
@@ -211,11 +204,7 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
      */
     default Rule<T> fallback(RuleLike<? super T, ? extends Validation<T>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
-        return input -> {
-            if (input == null) {
-                return Invalid.notNull();
-            }
-
+        return Rule.of(input -> {
             Validation<T> first = this.apply(input);
             if (first.isValid()) {
                 return first;
@@ -223,7 +212,7 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
 
             // make sure we stick to the Rule contract and return the original input
             return Validation.narrowSuper(other.apply(input).map(ignored -> input));
-        };
+        });
     }
 
     /**
@@ -236,10 +225,7 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
      */
     default <S extends T> Rule<S> or(RuleLike<? super S, ? extends Validation<?>> other) {
         Objects.requireNonNull(other, "other rule cannot be null");
-        return input -> {
-            if (input == null) {
-                return Invalid.notNull();
-            }
+        return Rule.of(input -> {
 
             Validation<S> first = this.<S>narrow().apply(input);
             if (first.isValid()) {
@@ -252,7 +238,7 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
             }
 
             return Validation.invalid(first.errors().appendAll(second.errors()));
-        };
+        });
     }
 
     /**
@@ -307,18 +293,14 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
     default <S extends T> Rule<S> xor(RuleLike<? super S, ? extends Validation<?>> other, ErrorMessage errorMessage) {
         Objects.requireNonNull(other, "other cannot be null");
         Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
-        return input -> {
-            if (input == null) {
-                return Invalid.notNull();
-            }
-
+        return Rule.of(input -> {
             boolean v1Valid = this.apply(input).isValid();
             boolean v2Valid = other.apply(input).isValid();
             if (v1Valid ^ v2Valid) {
                 return Validation.valid(input);
             }
             return Validation.invalid(errorMessage);
-        };
+        });
     }
 
     /**
@@ -356,15 +338,12 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
         }
         List.of(rules).forEach(rule -> Objects.requireNonNull(rule, "rule cannot be null"));
 
-        return value -> {
-            if (value == null) {
-                return Invalid.notNull();
-            }
+        return Rule.of(value -> {
             int validCount = List.of(rules).count(rule -> rule.apply(value).isValid());
             return validCount == 1
                 ? Validation.valid(value)
                 : Validation.invalid(errorMessage);
-        };
+        });
     }
 
     //endregion
@@ -389,13 +368,13 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
      */
     default Rule<T> negate(ErrorMessage negatedError) {
         Objects.requireNonNull(negatedError, "negatedError cannot be null");
-        return input -> {
+        return Rule.of(input -> {
             Validation<T> original = this.apply(input);
             return original.fold(
                 invalid -> Validation.valid(input),
                 valid -> Validation.invalid(negatedError)
             );
-        };
+        });
     }
 
     /**
@@ -406,15 +385,12 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
      */
     default Rule<T> onlyIf(Predicate<? super T> condition) {
         Objects.requireNonNull(condition, "condition cannot be null");
-        return input -> {
-            if (input == null) {
-                return Invalid.notNull();
-            }
+        return Rule.of(input -> {
             if (condition.test(input)) {
                 return this.apply(input);
             }
             return Validation.valid(input);
-        };
+        });
     }
 
     /**
@@ -425,17 +401,13 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
      */
     default Rule<T> onlyIf(Supplier<Boolean> condition) {
         Objects.requireNonNull(condition, "condition cannot be null");
-        return input -> {
-            if (input == null) {
-                return Invalid.notNull();
-            }
-
+        return Rule.of(input -> {
             boolean shouldRun = Objects.requireNonNull(condition.get(), "condition result cannot be null");
             if (shouldRun) {
                 return this.apply(input);
             }
             return Validation.valid(input);
-        };
+        });
     }
 
     /**
@@ -445,16 +417,12 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
      * If the condition is false, the value is considered valid by default.
      */
     default Rule<T> onlyIf(boolean condition) {
-        return input -> {
-            if (input == null) {
-                return Invalid.notNull();
-            }
-
+        return Rule.of(input -> {
             if (condition) {
                 return this.apply(input);
             }
             return Validation.valid(input);
-        };
+        });
     }
 
     /**
@@ -462,8 +430,12 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
      */
     default Rule<T> withErrorKey(String errorKey) {
         Objects.requireNonNull(errorKey, "errorKey cannot be null");
-        return input ->
-            this.apply(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
+        return Rule.of(input ->
+            this.apply(input)
+                .mapErrors(ignore ->
+                    List.of(ErrorMessage.of(errorKey))
+                )
+        );
     }
 
     /**
