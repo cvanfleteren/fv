@@ -39,10 +39,10 @@ public final class AfterDSL<T> {
     @Contract(pure = true)
     public MappingRule<T, T> is(Rule<T> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return input -> {
+        return MappingRule.of(input -> {
             T transformed = transformer.apply(input);
             return rule.apply(transformed);
-        };
+        });
     }
 
     /**
@@ -51,9 +51,9 @@ public final class AfterDSL<T> {
     @Contract(pure = true)
     public <R> MappingRule<T, R> is(RuleLike<? super T, ? extends Validation<R>> ruleFunction) {
         Objects.requireNonNull(ruleFunction, "ruleFunction cannot be null");
-        return input -> {
+        return MappingRule.of(input -> {
             T transformed = transformer.apply(input);
             return ruleFunction.apply(transformed);
-        };
+        });
     }
 }

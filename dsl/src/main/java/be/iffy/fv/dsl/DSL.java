@@ -276,6 +276,7 @@ public final class DSL {
     /**
      * Like {@link #after(Transformation)} but takes multiple transformations and applies them in sequence.
      */
+    @SafeVarargs
     @Contract(pure = true)
     public static <T> AfterDSL<T> after(Transformation<T> first, Transformation<T>... rest) {
         return new AfterDSL<>(Transformation.sequence(first,  rest));

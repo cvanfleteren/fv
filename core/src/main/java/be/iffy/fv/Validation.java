@@ -190,7 +190,7 @@ public sealed interface Validation<T> extends Iterable<T> {
      */
     default <R> Validation<R> map(Function<? super T, ? extends R> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
-        return (Validation<R>) switch (this) {
+        return switch (this) {
             case Valid(var value) -> Validation.<R>valid(mapper.apply(value));
             default -> (Validation<R>) this;
         };
@@ -497,7 +497,6 @@ public sealed interface Validation<T> extends Iterable<T> {
     //region casting
     /**
      * Narrows a {@code Validation<? extends T>} to a {@code Validation<T>}.
-     *
      */
     @SuppressWarnings("unchecked")
     static <T> Validation<T> narrow(Validation<? extends T> validation) {

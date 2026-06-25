@@ -1,7 +1,6 @@
 package be.iffy.fv.rules.functional;
 
 import be.iffy.fv.*;
-import be.iffy.fv.Validation.Invalid;
 import io.vavr.control.Option;
 
 import java.util.Objects;
@@ -20,10 +19,12 @@ public final class OptionRules {
      * Error key: {@code must.not.be.empty}
      */
     public <T> MappingRule<Option<T>, T> required() {
-        return MappingRule.<Option<T>>notNull().then(input -> input.fold(
+        return MappingRule.of(input ->
+            input.fold(
                 () -> Validation.invalid("must.not.be.empty"),
                 Validation::valid
-        ));
+            )
+        );
     }
 
     /**
@@ -31,13 +32,11 @@ public final class OptionRules {
      * is considered to be valid.
      */
     public <T, R> MappingRule<Option<T>, Option<R>> matches(RuleLike<? super T, Validation<R>> mappingRuleLike) {
-        return input -> {
-            if(input == null) {
-                return Invalid.notNull();
+        return MappingRule.of(input -> {
+                Option<Validation<R>> res = input.map(mappingRuleLike::apply);
+                return Validations.sequence(res);
             }
-            Option<Validation<R>> res = input.map(mappingRuleLike::apply);
-            return Validations.sequence(res);
-        };
+        );
     }
 
     /**
@@ -60,9 +59,11 @@ public final class OptionRules {
      */
     public <T, R> MappingRule<Option<T>, R> required(RuleLike<? super T, ? extends Validation<R>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return input -> input.fold(
+        return MappingRule.of(input ->
+            input.fold(
                 () -> Validation.invalid("must.not.be.empty"),
                 rule::apply
+            )
         );
     }
 
@@ -83,8 +84,8 @@ public final class OptionRules {
      */
     public <T> Rule<Option<T>> notEmpty() {
         return Rule.of(
-                input -> !input.isEmpty(),
-                "must.not.be.empty"
+            input -> !input.isEmpty(),
+            "must.not.be.empty"
         );
     }
 
@@ -96,8 +97,8 @@ public final class OptionRules {
      */
     public <T> Rule<Option<T>> empty() {
         return Rule.of(
-                input -> input.isEmpty(),
-                "must.be.empty"
+            Option::isEmpty,
+            "must.be.empty"
         );
     }
 

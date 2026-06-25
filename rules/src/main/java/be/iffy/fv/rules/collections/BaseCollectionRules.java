@@ -33,8 +33,8 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
      */
     public Rule<C> notEmpty() {
         return Rule.of(
-                value -> !isEmpty(value),
-                ErrorMessage.of("must.not.be.empty")
+            value -> !isEmpty(value),
+            ErrorMessage.of("must.not.be.empty")
         );
     }
 
@@ -45,8 +45,8 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
      */
     public Rule<C> empty() {
         return Rule.of(
-                value -> isEmpty(value),
-                ErrorMessage.of("must.be.empty")
+            this::isEmpty,
+            ErrorMessage.of("must.be.empty")
         );
     }
 
@@ -62,8 +62,8 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
      */
     public Rule<C> minSize(int size) {
         return Rule.of(
-                value -> getSize(value) >= size,
-                ErrorMessage.of("must.have.min.size", "min", size)
+            value -> getSize(value) >= size,
+            ErrorMessage.of("must.have.min.size", "min", size)
         );
     }
 
@@ -79,8 +79,8 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
      */
     public Rule<C> maxSize(int size) {
         return Rule.of(
-                value -> getSize(value) <= size,
-                ErrorMessage.of("must.have.max.size", "max", size)
+            value -> getSize(value) <= size,
+            ErrorMessage.of("must.have.max.size", "max", size)
         );
     }
 
@@ -99,8 +99,8 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
      */
     public Rule<C> sizeEquals(int size) {
         return Rule.of(
-                value -> getSize(value) == size,
-                ErrorMessage.of("must.have.exact.size", "equal", size)
+            value -> getSize(value) == size,
+            ErrorMessage.of("must.have.exact.size", "equal", size)
         );
     }
 
@@ -120,11 +120,11 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
      */
     public Rule<C> sizeBetween(int min, int max) {
         return Rule.of(
-                value -> {
-                    int size = getSize(value);
-                    return (size >= min && size <= max);
-                },
-                ErrorMessage.of("must.have.size.between", HashMap.of("min", min, "max", max))
+            value -> {
+                int size = getSize(value);
+                return (size >= min && size <= max);
+            },
+            ErrorMessage.of("must.have.size.between", HashMap.of("min", min, "max", max))
         );
     }
 
@@ -150,7 +150,6 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
     /**
      * Fails if any element in the collection does not match the given predicate.
      *
-
      * @param predicate    the predicate to test each element against.
      * @param errorMessage the error message to use if validation fails.
      * @return a {@link Rule} that validates if all elements match the predicate.
@@ -227,8 +226,8 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
      */
     public Rule<C> contains(T element) {
         return Rule.of(
-                values -> contains(values, element),
-                ErrorMessage.of("must.contain", HashMap.of("element", element))
+            values -> contains(values, element),
+            ErrorMessage.of("must.contain", HashMap.of("element", element))
         );
     }
 
@@ -249,8 +248,8 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
         Set<T> requiredSet = HashSet.ofAll(required);
 
         return Rule.of(
-                values -> requiredSet.forAll(req -> contains(values, req)),
-                ErrorMessage.of("must.contain.all", HashMap.of("required", requiredSet))
+            values -> requiredSet.forAll(req -> contains(values, req)),
+            ErrorMessage.of("must.contain.all", HashMap.of("required", requiredSet))
         );
     }
 
@@ -271,8 +270,8 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
         Set<T> candidateSet = HashSet.ofAll(candidates);
 
         return Rule.of(
-                values -> !candidateSet.isEmpty() && candidateSet.exists(candidate -> contains(values, candidate)),
-                ErrorMessage.of("must.contain.any.of", HashMap.of("candidates", candidateSet))
+            values -> !candidateSet.isEmpty() && candidateSet.exists(candidate -> contains(values, candidate)),
+            ErrorMessage.of("must.contain.any.of", HashMap.of("candidates", candidateSet))
         );
     }
 
@@ -302,46 +301,46 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
             io.vavr.collection.List<T> list = io.vavr.collection.List.ofAll(values);
 
             Map<K, io.vavr.collection.List<Integer>> duplicateIndicesByKey = list.zipWithIndex()
-                    .foldLeft(
-                            // The accumulator holds a Tuple of (firstIndexByKey, duplicateIndicesByKey)
-                            Tuple.of(HashMap.<K, Integer>empty(), HashMap.<K, io.vavr.collection.List<Integer>>empty()),
-                            (acc, t) -> {
-                                HashMap<K, Integer> firstIndexByKey = acc._1;
-                                HashMap<K, io.vavr.collection.List<Integer>> duplicates = acc._2;
+                .foldLeft(
+                    // The accumulator holds a Tuple of (firstIndexByKey, duplicateIndicesByKey)
+                    Tuple.of(HashMap.<K, Integer>empty(), HashMap.<K, io.vavr.collection.List<Integer>>empty()),
+                    (acc, t) -> {
+                        HashMap<K, Integer> firstIndexByKey = acc._1;
+                        HashMap<K, io.vavr.collection.List<Integer>> duplicates = acc._2;
 
-                                T value = t._1;
-                                int idx = t._2;
-                                K keyValue = keyExtractor.apply(value);
+                        T value = t._1;
+                        int idx = t._2;
+                        K keyValue = keyExtractor.apply(value);
 
-                                if (firstIndexByKey.containsKey(keyValue)) {
-                                    // Key already seen, record this index as a duplicate
-                                    int firstIdx = firstIndexByKey.get(keyValue).get();
+                        if (firstIndexByKey.containsKey(keyValue)) {
+                            // Key already seen, record this index as a duplicate
+                            int firstIdx = firstIndexByKey.get(keyValue).get();
 
-                                    io.vavr.collection.List<Integer> indices = duplicates
-                                            .get(keyValue)
-                                            .getOrElse(io.vavr.collection.List.of(firstIdx))
-                                            .append(idx);
+                            io.vavr.collection.List<Integer> indices = duplicates
+                                .get(keyValue)
+                                .getOrElse(io.vavr.collection.List.of(firstIdx))
+                                .append(idx);
 
-                                    return Tuple.of(firstIndexByKey, duplicates.put(keyValue, indices));
-                                } else {
-                                    // First time seeing this key, record its index
-                                    return Tuple.of(firstIndexByKey.put(keyValue, idx), duplicates);
-                                }
-                            }
-                    )._2;
+                            return Tuple.of(firstIndexByKey, duplicates.put(keyValue, indices));
+                        } else {
+                            // First time seeing this key, record its index
+                            return Tuple.of(firstIndexByKey.put(keyValue, idx), duplicates);
+                        }
+                    }
+                )._2;
 
             if (duplicateIndicesByKey.isEmpty()) {
                 return Validation.valid(values);
             }
 
             return Validation.invalid(
-                    ErrorMessage.of(
-                            "must.be.unique.by.key",
-                            HashMap.of(
-                                    "key", key,
-                                    "duplicates", duplicateIndicesByKey
-                            )
+                ErrorMessage.of(
+                    "must.be.unique.by.key",
+                    HashMap.of(
+                        "key", key,
+                        "duplicates", duplicateIndicesByKey
                     )
+                )
             );
         });
     }
@@ -353,7 +352,7 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
      */
     public Rule<C> allUnique() {
         return input -> {
-            if(HashSet.ofAll(input).size() == getSize(input)) {
+            if (HashSet.ofAll(input).size() == getSize(input)) {
                 return Validation.valid(input);
             } else {
                 return Validation.invalid("must.be.unique");
@@ -371,8 +370,8 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
             Rule<T> castedRule = rule.narrow();
 
             io.vavr.collection.List<Validation<T>> validations = io.vavr.collection.List.ofAll(collection)
-                    .map(castedRule::apply)
-                    .zipWithIndex((validation, index) -> validation.mapErrors(errors -> errors.map(e -> e.atIndex(index))));
+                .map(castedRule::apply)
+                .zipWithIndex((validation, index) -> validation.mapErrors(errors -> errors.map(e -> e.atIndex(index))));
 
             io.vavr.collection.List<ErrorMessage> allErrors = validations.flatMap(Validation::errors);
             if (allErrors.isEmpty()) {

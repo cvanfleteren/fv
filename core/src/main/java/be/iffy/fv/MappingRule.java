@@ -3,6 +3,8 @@ package be.iffy.fv;
 import be.iffy.fv.Validation.Invalid;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
+import org.jetbrains.annotations.Contract;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -17,7 +19,7 @@ import static be.iffy.fv.Validation.invalid;
  * The mapping can either succeed (producing a {@link Validation.Valid} R) or fail (producing an {@link Invalid} with error details).
  */
 @FunctionalInterface
-public interface MappingRule<T, R> extends  RuleLike<T, Validation<R>> {
+public interface MappingRule<T, R> extends RuleLike<T, Validation<R>> {
 
     /**
      * Evaluates the input against this rule, transforming it from type T to type R.
@@ -28,7 +30,8 @@ public interface MappingRule<T, R> extends  RuleLike<T, Validation<R>> {
      * mapping or validation.
      */
     @Override
-    Validation<R> apply(T value);
+    @Contract(pure = true)
+    Validation<R> apply(@Nullable T value);
 
     //region factory methods
 
@@ -37,19 +40,19 @@ public interface MappingRule<T, R> extends  RuleLike<T, Validation<R>> {
      * Use this to easily treat existing functions as Validations.
      */
     static <T, R> MappingRule<T, R> of(RuleLike<? super T, ? extends Validation<? extends R>> validationFunction) {
-        if(validationFunction instanceof MappingRule) {
+        if (validationFunction instanceof MappingRule) {
             return (MappingRule<T, R>) validationFunction;
         }
         Objects.requireNonNull(validationFunction, "validationFunction cannot be null");
         return input -> {
-            if(input == null) {
+            if (input == null) {
                 return Invalid.notNull();
             }
             return Validation.narrow(
-                    Objects.requireNonNull(
-                            validationFunction.apply(input),
-                            "validationFunction cannot return null Validation"
-                    )
+                Objects.requireNonNull(
+                    validationFunction.apply(input),
+                    "validationFunction cannot return null Validation"
+                )
             );
         };
     }
@@ -93,10 +96,10 @@ public interface MappingRule<T, R> extends  RuleLike<T, Validation<R>> {
                 return invalid(ve.errors());
             } catch (Exception e) {
                 return invalid(
-                        Objects.requireNonNull(
-                                errorMessageMaker.apply(input, e),
-                                "errorMessageMaker result cannot be null"
-                        )
+                    Objects.requireNonNull(
+                        errorMessageMaker.apply(input, e),
+                        "errorMessageMaker result cannot be null"
+                    )
                 );
             }
         };
@@ -145,14 +148,14 @@ public interface MappingRule<T, R> extends  RuleLike<T, Validation<R>> {
             }
             Try<? extends R> result = Objects.requireNonNull(tryProvider.apply(input), "tryProvider cannot return null Try");
             return result.fold(
-                    t -> {
-                        if (t instanceof ValidationException ve) {
-                            return invalid(ve.errors());
-                        } else {
-                            return invalid(errorMessageMaker.apply(input, t));
-                        }
-                    },
-                    Validation::valid
+                t -> {
+                    if (t instanceof ValidationException ve) {
+                        return invalid(ve.errors());
+                    } else {
+                        return invalid(errorMessageMaker.apply(input, t));
+                    }
+                },
+                Validation::valid
             );
         };
     }
@@ -166,7 +169,7 @@ public interface MappingRule<T, R> extends  RuleLike<T, Validation<R>> {
      */
     static <T> MappingRule<T, T> notNull() {
         return input ->
-                input == null ? Invalid.notNull() : Validation.valid(input);
+            input == null ? Invalid.notNull() : Validation.valid(input);
     }
 
     //endregion
@@ -233,6 +236,9 @@ public interface MappingRule<T, R> extends  RuleLike<T, Validation<R>> {
         };
     }
 
+    /**
+     * Shorthand for RuleCombiners.combine(this, other);
+     */
     default <R2> RuleCombiners.CombineBuilder2<T, R, R2> combine(RuleLike<? super T, Validation<R2>> other) {
         return RuleCombiners.combine(this, other);
     }
@@ -248,7 +254,7 @@ public interface MappingRule<T, R> extends  RuleLike<T, Validation<R>> {
      * @param selector a function that extracts a value of type V from an input of type T
      */
     default <V> MappingRule<V, R> on(PropertySelector<? super V, ? extends T> selector) {
-       return MappingRule.on(selector, this);
+        return MappingRule.on(selector, this);
     }
 
     /**
@@ -261,12 +267,13 @@ public interface MappingRule<T, R> extends  RuleLike<T, Validation<R>> {
     static <T, V, R> MappingRule<T, R> on(PropertySelector<? super T, ? extends V> selector, RuleLike<? super V, ? extends Validation<? extends R>> rule) {
         Objects.requireNonNull(selector, "selector cannot be null");
         Objects.requireNonNull(rule, "rule cannot be null");
-        return input -> Validation.narrow(
+        return MappingRule.of(input ->
+            Validation.narrow(
                 Objects.requireNonNull(
-                        rule.apply(selector.apply(input)).at(selector.getPropertyName()),
-                        "rule cannot return null Validation"
+                    rule.apply(selector.apply(input)).at(selector.getPropertyName()),
+                    "rule cannot return null Validation"
                 )
-        );
+            ));
     }
 
     /**
@@ -275,7 +282,7 @@ public interface MappingRule<T, R> extends  RuleLike<T, Validation<R>> {
     default MappingRule<T, R> withErrorKey(String errorKey) {
         Objects.requireNonNull(errorKey, "errorKey cannot be null");
         return input ->
-                this.apply(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
+            this.apply(input).mapErrors(ignore -> List.of(ErrorMessage.of(errorKey)));
     }
 
     /**

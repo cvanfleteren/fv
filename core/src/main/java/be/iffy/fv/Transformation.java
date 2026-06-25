@@ -20,8 +20,8 @@ import java.util.Objects;
 @FunctionalInterface
 public interface Transformation<T> {
 
-    @Contract(pure = true)
-    T apply(@Nullable T value);
+    @Contract(pure = true, value = "null -> null; !null -> !null")
+    @Nullable T apply(@Nullable T value);
 
     /**
      * Apply another {@link Transformation} after this {@link Transformation}

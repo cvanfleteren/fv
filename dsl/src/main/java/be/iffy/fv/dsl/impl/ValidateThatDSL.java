@@ -46,7 +46,15 @@ public final class ValidateThatDSL<T> {
     @Contract(pure = true)
     public ValidateThatDSL<T> after(be.iffy.fv.Transformation<T> transformation) {
         Objects.requireNonNull(transformation, "transformation cannot be null");
-        return new ValidateThatDSL<>(validation.map(transformation::apply), name);
+        return new ValidateThatDSL<>(
+            validation.map(v -> {
+                    // v cannot be null here anymore, we'd be invalid otherwise
+                    T t = transformation.apply(v);
+                    return Objects.requireNonNull(t);
+                }
+            ),
+            name
+        );
     }
 
     /**
@@ -56,7 +64,12 @@ public final class ValidateThatDSL<T> {
     @Contract(pure = true)
     public final ValidateThatDSL<T> after(be.iffy.fv.Transformation<T> first, be.iffy.fv.Transformation<T>... rest) {
         return new ValidateThatDSL<>(
-            validation.map(Transformation.sequence(first, rest)::apply),
+            validation.map(v -> {
+                    // v cannot be null here anymore, we'd be invalid otherwise
+                    T t = Transformation.sequence(first, rest).apply(Objects.requireNonNull(v));
+                    return t;
+                }
+            ),
             name
         );
     }
@@ -67,7 +80,10 @@ public final class ValidateThatDSL<T> {
     @Contract(pure = true)
     public <R> ValidateThatDSL<R> map(MappingRule<T, R> mapper) {
         Objects.requireNonNull(mapper, "mapper cannot be null");
-        return new ValidateThatDSL<>(validation.refine(mapper), name);
+        return new ValidateThatDSL<>(
+            validation.refine(mapper),
+            name
+        );
     }
 
     /**
@@ -94,7 +110,7 @@ public final class ValidateThatDSL<T> {
             )
         );
 
-       return validationAtName(refined);
+        return validationAtName(refined);
     }
 
     /**

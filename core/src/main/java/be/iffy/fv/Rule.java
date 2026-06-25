@@ -45,7 +45,7 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
      * @return a {@link Validation} object indicating the result of the test.
      */
     @Override
-    @Contract(pure = false)
+    @Contract(pure = true)
     Validation<T> apply(T value);
 
     //region Factory methods
@@ -279,9 +279,10 @@ public interface Rule<T> extends RuleLike<T, Validation<T>> {
      * Short-circuiting, not accumulating.
      */
     default <R> MappingRule<T, R> then(RuleLike<? super T, ? extends Validation<? extends R>> ruleLikeFunction) {
-        return input ->
+        return MappingRule.of(input ->
             apply(input)
-                .flatMap(ruleLikeFunction);
+                .flatMap(ruleLikeFunction)
+        );
     }
 
     /**

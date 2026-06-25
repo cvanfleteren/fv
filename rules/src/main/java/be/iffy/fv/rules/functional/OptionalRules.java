@@ -1,7 +1,6 @@
 package be.iffy.fv.rules.functional;
 
 import be.iffy.fv.*;
-import be.iffy.fv.Validation.Invalid;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -19,8 +18,8 @@ public final class OptionalRules {
      * Error key: {@code must.not.be.empty}
      */
     public <T> MappingRule<Optional<T>, T> required() {
-        return MappingRule.<Optional<T>>notNull().then(input ->
-                input.map(Validation::valid).orElse(Validation.invalid("must.not.be.empty"))
+        return MappingRule.of(input ->
+            input.map(Validation::valid).orElse(Validation.invalid("must.not.be.empty"))
         );
     }
 
@@ -29,13 +28,11 @@ public final class OptionalRules {
      * is considered to be valid.
      */
     public <T, R> MappingRule<Optional<T>, Optional<R>> matches(RuleLike<? super T, Validation<R>> mappingRuleLike) {
-        return input -> {
-            if(input == null) {
-                return Invalid.notNull();
+        return MappingRule.of(input -> {
+                Optional<Validation<R>> res = input.map(mappingRuleLike::apply);
+                return Validations.sequence(res);
             }
-            Optional<Validation<R>> res = input.map(mappingRuleLike::apply);
-            return Validations.sequence(res);
-        };
+        );
     }
 
     /**
@@ -58,16 +55,14 @@ public final class OptionalRules {
      */
     public <T, Z> MappingRule<Optional<T>, Z> required(RuleLike<? super T, ? extends Validation<Z>> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
-        return input -> {
-            if(input == null) {
-                return Invalid.notNull();
+        return MappingRule.of(input -> {
+                if (input.isEmpty()) {
+                    return Validation.invalid("must.not.be.empty");
+                } else {
+                    return rule.apply(input.get());
+                }
             }
-            if(input.isEmpty()) {
-                return Validation.invalid("must.not.be.empty");
-            } else {
-                return rule.apply(input.get());
-            }
-        };
+        );
     }
 
     /**
@@ -75,7 +70,7 @@ public final class OptionalRules {
      * <p>
      * Error key: {@code must.not.be.empty} or the key of the passed rule
      */
-    public <T> Rule<Optional<T>> contains( RuleLike<? super T, ? extends Validation<? extends T>> rule) {
+    public <T> Rule<Optional<T>> contains(RuleLike<? super T, ? extends Validation<? extends T>> rule) {
         return Rule.all(notEmpty(), Rule.of(rule).lift().toOptional());
     }
 
@@ -86,8 +81,8 @@ public final class OptionalRules {
      */
     public <T> Rule<Optional<T>> notEmpty() {
         return Rule.of(
-                Optional::isPresent,
-                "must.not.be.empty"
+            Optional::isPresent,
+            "must.not.be.empty"
         );
     }
 
@@ -98,8 +93,8 @@ public final class OptionalRules {
      */
     public <T> Rule<Optional<T>> empty() {
         return Rule.of(
-                Optional::isEmpty,
-                "must.be.empty"
+            Optional::isEmpty,
+            "must.be.empty"
         );
     }
 

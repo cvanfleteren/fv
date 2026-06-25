@@ -147,7 +147,7 @@ public final class FieldsDSL {
 
         @Override
         public <V> EqualBuilder<T, V> thenField(Function1<T, V> ruleFunction, String fieldName) {
-            return new EqualBuilder<T, V>() {
+            return new EqualBuilder<>() {
                 @Override
                 public Rule<T> isEqualTo(Function<T, V> get, String otherFieldName) {
                     return input -> {
