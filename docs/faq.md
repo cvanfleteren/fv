@@ -44,6 +44,7 @@ feel free to open an issue or reach out to the maintainers.
 - [In my constructor, I want to be liberal with my input, and only validate the value after changing it](#in-my-constructor-i-want-to-be-liberal-with-my-input-and-only-validate-the-value-after-changing-it)
 - [Ok, but I want to transform multiple fields in my constructor, how do I get their transformed values?](#ok-but-i-want-to-transform-multiple-fields-in-my-constructor-how-do-i-get-their-transformed-values)
 - [Ok, but can I do the same when defining a Rule?](#ok-but-can-i-do-the-same-when-defining-a-rule)
+- [How do I perform cross-field validation where one field's validation depends on another?](#how-do-i-perform-cross-field-validation-where-one-fields-validation-depends-on-another)
 
 **Exception Interop**
 - [I have some type whose constructor throws an exception, how can I make a Validation for this type?](#i-have-some-type-whose-constructor-throws-an-exception-how-can-i-make-a-validation-for-this-type)
@@ -54,7 +55,6 @@ feel free to open an issue or reach out to the maintainers.
 - [I have a Validation, but I want to add an extra check on the value](#i-have-a-validation-but-i-want-to-add-an-extra-check-on-the-value)
 - [I want to perform a side effect (like logging) only if a validation is successful.](#i-want-to-perform-a-side-effect-like-logging-only-if-a-validation-is-successful)
 - [How do I consume a Validation result into a plain value or handle both branches?](#how-do-i-consume-a-validation-result-into-a-plain-value-or-handle-both-branches)
-- [How do I perform cross-field validation where one field's validation depends on another?](#how-do-i-perform-cross-field-validation-where-one-field-s-validation-depends-on-another)
 
 **Time and Date Validation**
 - [What date and time rule namespaces are available?](#what-date-and-time-rule-namespaces-are-available)
@@ -977,6 +977,43 @@ MappingRule<String, String> trimmedMinLength3 = MappingRule.catching(String::tri
 
 ---
 
+
+### How do I perform cross-field validation where one field's validation depends on another?
+
+For cross-field validation, you typically have two options:
+
+#### 1. Validating at the Object Level
+
+Create a `Rule` for the object itself that looks at multiple fields.
+
+```java
+Rule<Period> validPeriod = Rule.of(
+        p -> p.getStart().isBefore(p.getEnd()),
+        ErrorMessage.of("start.must.be.before.end", "end")
+);
+
+Validation<Period> v = validateThat(period).is(validPeriod);
+```
+
+#### 2. Using `flatMap` or `refine` on the result of `Validations.combine` or `DSL.validating`
+
+After combining multiple validated fields, you can apply an additional check on the resulting object:
+
+```java
+LocalDate start = LocalDate.of(2026,1,30);
+LocalDate end = LocalDate.of(2026,1,29);
+
+Validation<LocalDate> result = validating(
+  validateThat(start).isNotNull(),
+  validateThat(end).isNotNull()
+).flatMap((s, e) ->
+  validateThat(s,"start").is(localDates.isBefore(end))
+); 
+// result is an Invalid with "start.must.be.before:{limit:2026-01-29}"
+```
+
+---
+
 ### What is the difference between `validateThat`, `assertThat`, `validating`, and `asserting`?
 
 These four DSL entry points cover two axes: **single value vs. combined** and **functional (returns `Validation`) vs. asserting (throws on failure)**.
@@ -1312,51 +1349,6 @@ Returns `Optional.of(value)` / `Option.of(value)` on success, and `Optional.empt
 ```java
 Optional<String> opt = validateThat(input, "name").is(strings.notEmpty()).toOptional();
 opt.ifPresent(name -> System.out.println("Got: " + name));
-```
-
----
-
-### How do I perform cross-field validation where one field's validation depends on another?
-
-For cross-field validation, you typically have two options:
-
-#### 1. Validating at the Object Level
-
-Create a `Rule` for the object itself that looks at multiple fields.
-
-```java
-Rule<Period> validPeriod = Rule.of(
-        p -> p.getStart().isBefore(p.getEnd()),
-        ErrorMessage.of("start.must.be.before.end", "end")
-);
-
-Validation<Period> v = validateThat(period).is(validPeriod);
-```
-
-#### 2. Using `flatMap` or `refine` on the result of `Validations.combine`
-
-After combining multiple validated fields, you can apply an additional check on the resulting object.
-
-```java
-Validation<Period> periodV = Validations.combine(startV, endV).map(Period::new)
-        .refine(Rule.of(p -> p.getStart().isBefore(p.getEnd()), "start.must.be.before.end"));
-```
-
-or using the DSL:
-
-```java
-LocalDate start = LocalDate.now();
-LocalDate end = LocalDate.now().plusDays(1);
-
-validating(
-        validateThat(start).isNotNull(),
-        validateThat(end).isNotNull()
-)
-        .map(Period::new)
-        .refine(Rule.of(
-                p -> p.start.isBefore(p.end),
-                "start.must.be.before.end"
-        ));
 ```
 
 ---
