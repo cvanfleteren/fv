@@ -138,9 +138,10 @@ public record ErrorMessage(String errorKey, List<Path> paths, Map<String, @Nulla
         }
     }
 
-    private String formatValues(Object values) {
+    private String formatValues(@Nullable Object values) {
         return switch (values) {
             case List<?> l -> l.mkString("[", ",", "]");
+            case null -> "null";
             default -> values.toString();
         };
     }
