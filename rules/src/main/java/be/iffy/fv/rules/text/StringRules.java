@@ -885,6 +885,48 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
     }
 
     /**
+     * Fails if the string starts with any of the specified prefixes.
+     * <p>
+     * Error key: {@code must.not.start.with}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code prefixes}: the forbidden prefixes ({@link List<String>})</li>
+     * </ul>
+     *
+     * @param prefixes the forbidden prefixes.
+     * @return a {@link Rule} checking that the string does not start with any of the prefixes.
+     */
+    public Rule<String> doesNotStartWith(String... prefixes) {
+        Objects.requireNonNull(prefixes, "prefixes cannot be null");
+        return Rule.of(
+            s -> Arrays.stream(prefixes).noneMatch(s::startsWith),
+            ErrorMessage.of("must.not.start.with", "prefixes", List.of(prefixes))
+        );
+    }
+
+    /**
+     * Fails if the string starts with any of the specified prefixes (ignoring case).
+     * <p>
+     * Error key: {@code must.not.start.with.ignorecase}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code prefixes}: the forbidden prefixes ({@link List<String>})</li>
+     * </ul>
+     *
+     * @param prefixes the forbidden prefixes.
+     * @return a {@link Rule} checking that the string does not start with any of the prefixes (ignoring case).
+     */
+    public Rule<String> doesNotStartWithIgnoreCase(String... prefixes) {
+        Objects.requireNonNull(prefixes, "prefixes cannot be null");
+        return Rule.of(
+            s -> Arrays.stream(prefixes).noneMatch(prefix -> s.regionMatches(true, 0, prefix, 0, prefix.length())),
+            ErrorMessage.of("must.not.start.with.ignorecase", "prefixes", List.of(prefixes))
+        );
+    }
+
+    /**
      * Fails if the string does not end with the specified suffix (ignoring case).
      * <p>
      * Error key: {@code must.end.with.ignorecase}
@@ -900,6 +942,49 @@ public final class StringRules implements ComparableRules<String>, IObjectRules<
             s -> Arrays.stream(suffixes).anyMatch(suffix -> s.length() >= suffix.length()
                 && s.regionMatches(true, s.length() - suffix.length(), suffix, 0, suffix.length())),
             ErrorMessage.of("must.end.with.ignorecase", "suffixes", List.of(suffixes))
+        );
+    }
+
+    /**
+     * Fails if the string ends with any of the specified suffixes.
+     * <p>
+     * Error key: {@code must.not.end.with}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code suffixes}: the forbidden suffixes ({@link List<String>})</li>
+     * </ul>
+     *
+     * @param suffixes the forbidden suffixes.
+     * @return a {@link Rule} checking that the string does not end with any of the suffixes.
+     */
+    public Rule<String> doesNotEndWith(String... suffixes) {
+        Objects.requireNonNull(suffixes, "suffixes cannot be null");
+        return Rule.of(
+            s -> Arrays.stream(suffixes).noneMatch(s::endsWith),
+            ErrorMessage.of("must.not.end.with", "suffixes", List.of(suffixes))
+        );
+    }
+
+    /**
+     * Fails if the string ends with any of the specified suffixes (ignoring case).
+     * <p>
+     * Error key: {@code must.not.end.with.ignorecase}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code suffixes}: the forbidden suffixes ({@link List<String>})</li>
+     * </ul>
+     *
+     * @param suffixes the forbidden suffixes.
+     * @return a {@link Rule} checking that the string does not end with any of the suffixes (ignoring case).
+     */
+    public Rule<String> doesNotEndWithIgnoreCase(String... suffixes) {
+        Objects.requireNonNull(suffixes, "suffixes cannot be null");
+        return Rule.of(
+            s -> Arrays.stream(suffixes).noneMatch(suffix -> s.length() >= suffix.length()
+                && s.regionMatches(true, s.length() - suffix.length(), suffix, 0, suffix.length())),
+            ErrorMessage.of("must.not.end.with.ignorecase", "suffixes", List.of(suffixes))
         );
     }
 

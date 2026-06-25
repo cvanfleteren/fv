@@ -394,6 +394,55 @@ class StringRulesTest {
     }
 
     @Nested
+    class DoesNotStartWith {
+
+        @Test
+        void valid() {
+            validTest("hello", strings.doesNotStartWith("xy"));
+            validTest("", strings.doesNotStartWith("x"));
+            validTest("hello", strings.doesNotStartWith("xy", "ab"));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("hello", strings.doesNotStartWith("he"), "must.not.start.with", HashMap.of("prefixes", List.of("he")));
+            invalidTest("hello", strings.doesNotStartWith("xy", "he"), "must.not.start.with", HashMap.of("prefixes", List.of("xy", "he")));
+            invalidTest("hello", strings.doesNotStartWith(""), "must.not.start.with", HashMap.of("prefixes", List.of("")));
+            invalidTest(null, strings.doesNotStartWith("x"), "must.not.be.null");
+        }
+
+        @Test
+        void nullPrefix_throwsException() {
+            assertThrows(NullPointerException.class, () -> strings.doesNotStartWith((String[]) null));
+        }
+    }
+
+    @Nested
+    class DoesNotStartWithIgnoreCase {
+
+        @Test
+        void valid() {
+            validTest("hello", strings.doesNotStartWithIgnoreCase("XY"));
+            validTest("", strings.doesNotStartWithIgnoreCase("x"));
+            validTest("hello", strings.doesNotStartWithIgnoreCase("XY", "AB"));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("hello", strings.doesNotStartWithIgnoreCase("HE"), "must.not.start.with.ignorecase", HashMap.of("prefixes", List.of("HE")));
+            invalidTest("HELLO", strings.doesNotStartWithIgnoreCase("he"), "must.not.start.with.ignorecase", HashMap.of("prefixes", List.of("he")));
+            invalidTest("hello", strings.doesNotStartWithIgnoreCase("XY", "HE"), "must.not.start.with.ignorecase", HashMap.of("prefixes", List.of("XY", "HE")));
+            invalidTest("hello", strings.doesNotStartWithIgnoreCase(""), "must.not.start.with.ignorecase", HashMap.of("prefixes", List.of("")));
+            invalidTest(null, strings.doesNotStartWithIgnoreCase("x"), "must.not.be.null");
+        }
+
+        @Test
+        void nullPrefix_throwsException() {
+            assertThrows(NullPointerException.class, () -> strings.doesNotStartWithIgnoreCase((String[]) null));
+        }
+    }
+
+    @Nested
     class EndsWith {
 
         @Test
@@ -445,6 +494,55 @@ class StringRulesTest {
         @Test
         void nullSuffix_throwsException() {
             assertThrows(NullPointerException.class, () -> strings.endsWithIgnoreCase((String[]) null));
+        }
+    }
+
+    @Nested
+    class DoesNotEndWith {
+
+        @Test
+        void valid() {
+            validTest("hello", strings.doesNotEndWith("xy"));
+            validTest("", strings.doesNotEndWith("x"));
+            validTest("hello", strings.doesNotEndWith("xy", "ab"));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("hello", strings.doesNotEndWith("lo"), "must.not.end.with", HashMap.of("suffixes", List.of("lo")));
+            invalidTest("hello", strings.doesNotEndWith("xy", "lo"), "must.not.end.with", HashMap.of("suffixes", List.of("xy", "lo")));
+            invalidTest("hello", strings.doesNotEndWith(""), "must.not.end.with", HashMap.of("suffixes", List.of("")));
+            invalidTest(null, strings.doesNotEndWith("x"), "must.not.be.null");
+        }
+
+        @Test
+        void nullSuffix_throwsException() {
+            assertThrows(NullPointerException.class, () -> strings.doesNotEndWith((String[]) null));
+        }
+    }
+
+    @Nested
+    class DoesNotEndWithIgnoreCase {
+
+        @Test
+        void valid() {
+            validTest("hello", strings.doesNotEndWithIgnoreCase("XY"));
+            validTest("", strings.doesNotEndWithIgnoreCase("x"));
+            validTest("hello", strings.doesNotEndWithIgnoreCase("XY", "AB"));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest("hello", strings.doesNotEndWithIgnoreCase("LO"), "must.not.end.with.ignorecase", HashMap.of("suffixes", List.of("LO")));
+            invalidTest("HELLO", strings.doesNotEndWithIgnoreCase("lo"), "must.not.end.with.ignorecase", HashMap.of("suffixes", List.of("lo")));
+            invalidTest("hello", strings.doesNotEndWithIgnoreCase("XY", "LO"), "must.not.end.with.ignorecase", HashMap.of("suffixes", List.of("XY", "LO")));
+            invalidTest("hello", strings.doesNotEndWithIgnoreCase(""), "must.not.end.with.ignorecase", HashMap.of("suffixes", List.of("")));
+            invalidTest(null, strings.doesNotEndWithIgnoreCase("x"), "must.not.be.null");
+        }
+
+        @Test
+        void nullSuffix_throwsException() {
+            assertThrows(NullPointerException.class, () -> strings.doesNotEndWithIgnoreCase((String[]) null));
         }
     }
 
