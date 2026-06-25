@@ -4,6 +4,7 @@
 ### Added
 
 - add DSL.notNull(value, field) as a shorthand for validateThat(...).isNotNull()
+- add assertInvalid(Runnable) for testing code that throws ValidationException
 
 ### Changed,
 

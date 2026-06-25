@@ -124,5 +124,19 @@ class ValidationAssertTest {
                     .isInstanceOf(AssertionError.class)
                     .hasMessageContaining("Expected validation to be invalid but was valid");
         }
+
+        @Test
+        void assertInvalid_withRunnable_whenThrowsValidationException_shouldPass() {
+            ValidationAssert.assertInvalid((Runnable) () -> {
+                throw new be.iffy.fv.ValidationException(List.of(ErrorMessage.of("error")));
+            }).hasErrorMessage("error");
+        }
+
+        @Test
+        void assertInvalid_withRunnable_whenDoesNotThrow_shouldFail() {
+            assertThatCode(() -> ValidationAssert.assertInvalid((Runnable) () -> {}))
+                    .isInstanceOf(AssertionError.class)
+                    .hasMessageContaining("Expected codeThrowingValidationException to throw ValidationException");
+        }
     }
 }
