@@ -129,7 +129,7 @@ public interface IObjectRules<T> {
     }
 
     /**
-     * Fails if the object is not the same instance as the specified value.
+     * Fails if the object is different instance from the specified value.
      * <p>
      * Error key: {@code must.be.same}
      *

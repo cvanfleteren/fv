@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * JSON-serializable representation of a single {@link ErrorMessage}.
  *
- * @param key        the error key without path (e.g. {@code "min.length"}).
+ * @param key        the error key without the path (e.g. {@code "min.length"}).
  * @param path       the dotted path to the invalid field (e.g. {@code "person.name"}).
  *                   Empty string when no path is present.
  * @param parameters the constraint parameters (e.g. {@code {"min": 3}}).

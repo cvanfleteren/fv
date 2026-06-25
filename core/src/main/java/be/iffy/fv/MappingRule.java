@@ -109,7 +109,7 @@ public interface MappingRule<T, R> extends RuleLike<T, Validation<R>> {
      * Creates a MappingRule from a function that returns a Try.
      * <p>
      * The tryProvider itself is invoked directly. If the tryProvider throws before returning a Try,
-     * that exception is propagated. Only failures represented as Try.Failure are converted into Invalid.
+     * that exception is propagated. Only failures represented as {@code Try.Failure} are converted into Invalid.
      * <p>
      * If the Try fails with {@link ValidationException}, its errors are preserved, otherwise the provided error message is used.
      */
@@ -122,7 +122,7 @@ public interface MappingRule<T, R> extends RuleLike<T, Validation<R>> {
      * Creates a MappingRule from a function that returns a Try.
      * <p>
      * The tryProvider itself is invoked directly. If the tryProvider throws before returning a Try,
-     * that exception is propagated. Only failures represented as Try.Failure are converted into Invalid.
+     * that exception is propagated. Only failures represented as {@code Try.Failure} are converted into Invalid.
      * <p>
      * If the Try fails with {@link ValidationException}, its errors are preserved, otherwise the provided error message is used.
      */
@@ -135,7 +135,7 @@ public interface MappingRule<T, R> extends RuleLike<T, Validation<R>> {
      * Creates a MappingRule from a function that returns a Try.
      * <p>
      * The tryProvider itself is invoked directly. If the tryProvider throws before returning a Try,
-     * that exception is propagated. Only failures represented as Try.Failure are converted into Invalid.
+     * that exception is propagated. Only failures represented as {@code Try.Failure} are converted into Invalid.
      * <p>
      * If the Try fails with {@link ValidationException}, its errors are preserved, otherwise the provided error message is used.
      */

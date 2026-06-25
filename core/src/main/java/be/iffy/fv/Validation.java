@@ -566,7 +566,7 @@ public sealed interface Validation<T> extends Iterable<T> {
     /**
      * Represents an invalid validation.
      *
-     * @param errors the list of error messages that describe the validation failure. Errors cannot be empty, cannot contain nulls and will be deduplicated.
+     * @param errors the list of error messages that describe the validation failure. Errors cannot be empty, cannot contain nulls, and will be deduplicated.
      */
     record Invalid<T>(List<ErrorMessage> errors) implements Validation<T> {
         private static final Invalid<?> notNull = new Invalid<>(List.of(ErrorMessage.of("must.not.be.null")));

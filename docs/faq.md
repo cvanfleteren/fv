@@ -659,7 +659,7 @@ mapRule.apply(input); // Invalid (key2.must.not.be.empty)
 
 #### Customizing the Path Segment
 
-By default, `lift().toMap()` uses `key.toString()` for the path. If your keys are complex objects or you want a different
+By default, `lift().toMap()` uses `key.toString()` for the path. If your keys are complex objects, or you want a different
 naming convention, you can provide a `keyExtractor` function:
 
 ```java
@@ -673,7 +673,7 @@ mapRule.apply(Map.of(1, user1, 2,user2)); // Invalid (user_1.must.be...)
 
 ### I have a List<Validation<T>>, how can I turn it into a Validation<List<T>>?
 
-When you have a collection of validations and you want to combine them into a single validation containing a list of all
+When you have a collection of validations, and you want to combine them into a single validation containing a list of all
 successful values (or all accumulated errors if any fail), you can use **`Validations.sequence()`**.
 
 This operation is often called "sequence" in other functional programming libraries.
@@ -701,7 +701,7 @@ container:
 * **`Optional<Validation<T>>`** → **`Validation<Optional<T>>`**
 * **`Option<Validation<T>>`** → **`Validation<Option<T>>`**
 
-This is useful when you have an optional validation step and you want to treat an empty container as a successful
+This is useful when you have an optional validation step, and you want to treat an empty container as a successful
 validation of "nothing".
 
 ```java
@@ -740,7 +740,7 @@ instead.
 #### Using a Custom Enum Provider
 
 There's also a variant that takes an `enumProvider` function, allowing you to choose how to
-lookup an enum instance from the given string. This is useful when you want to lookup an enum by a code,
+look up an enum instance from the given string. This is useful when you want to look up an enum by a code,
 a database ID, or any other property instead of its name.
 
 ```java

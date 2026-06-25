@@ -14,7 +14,7 @@ import static be.iffy.fv.rules.ObjectRules.objects;
 
 /**
  *
- * Abstract class holding the implementations of collection related Rules, written in
+ * Abstract class holding the implementations of collection-related Rules, written in
  * a collection type (List, Set, vavr List, Collection, ...) agnostic way.
  *
  */

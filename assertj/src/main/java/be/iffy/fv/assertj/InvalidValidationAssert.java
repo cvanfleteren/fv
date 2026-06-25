@@ -45,7 +45,7 @@ public class InvalidValidationAssert<SELF extends InvalidValidationAssert<SELF, 
     }
 
     /**
-     * Asserts that the validation contains an error witch partially matches the specified message.
+     * Asserts that the validation contains an error which partially matches the specified message.
      *
      * @param errorMessage the error message.
      * @return {@code this} assertion object.

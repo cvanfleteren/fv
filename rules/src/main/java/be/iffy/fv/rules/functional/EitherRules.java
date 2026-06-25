@@ -44,7 +44,7 @@ public final class EitherRules<L, R> implements IObjectRules<Either<L, R>> {
      * Fails if the {@link Either} is not a {@link Either.Right} or if the right value fails the specified rule.
      * <p>
      * Error key: {@code must.be.right} if it's a left.
-     * If it's a right, the error key and parameters from the provided rule are used.
+     * If it's a Right, the error key and parameters from the provided rule are used.
      *
      * @param rule the rule to apply to the right value.
      */

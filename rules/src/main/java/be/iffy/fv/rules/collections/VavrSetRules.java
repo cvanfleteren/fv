@@ -12,7 +12,7 @@ import java.util.function.Predicate;
 
 /**
  * Important note: if your set doesn't have a fixed iteration order (e.g., is not a {@link io.vavr.collection.SortedSet} or a {@link io.vavr.collection.LinkedHashSet}),
- * the index generated in the errror messages for invalids is not deterministic. Validating the same Set multiple times might lead to
+ * the index generated in the error messages for invalids is not deterministic. Validating the same Set multiple times might lead to
  * different error messages with different indexes.
  */
 public final class VavrSetRules {

@@ -81,7 +81,7 @@ public class MappingRuleLifter<T, R> extends Lifter<T,R> {
     /**
      * Lifts this {@link MappingRule} so it applies to a {@link Map} of K to T.
      * <p>
-     * Behaves the same as {@link #toVavrMap()} ()}, but uses the keyExtractor function to generate the path segment.
+     * Behaves the same as {@link #toVavrMap()}, but uses the keyExtractor function to generate the path segment.
      * <p>
      * Semantics:
      * - If the Map is empty, the map is considered valid.
