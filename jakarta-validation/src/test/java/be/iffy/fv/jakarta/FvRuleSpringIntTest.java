@@ -2,6 +2,7 @@ package be.iffy.fv.jakarta;
 
 import be.iffy.fv.jakarta.support.Order;
 import be.iffy.fv.jakarta.support.Person;
+import be.iffy.fv.jakarta.support.SpringThing;
 import be.iffy.fv.jakarta.support.TestApplication;
 import be.iffy.fv.jakarta.support.TestService;
 import jakarta.validation.ConstraintViolationException;
@@ -91,6 +92,26 @@ class FvRuleSpringIntTest {
                     assertThat(violations).hasSize(1);
                     assertThat(violations.iterator().next().getConstraintDescriptor().getAnnotation())
                         .isInstanceOf(jakarta.validation.constraints.Max.class);
+                });
+        }
+    }
+
+    @Nested
+    class WhenSpringBeanModeIsUsed {
+
+        @Test
+        void validSpringThing_noException() {
+            assertThat(service.processSpringThing(new SpringThing("hello"))).isEqualTo("processed: hello");
+        }
+
+        @Test
+        void labelTooShort_violationReported() {
+            assertThatThrownBy(() -> service.processSpringThing(new SpringThing("hi")))
+                .isInstanceOf(ConstraintViolationException.class)
+                .satisfies(ex -> {
+                    var violations = ((ConstraintViolationException) ex).getConstraintViolations();
+                    assertThat(violations).hasSize(1);
+                    assertThat(violations.iterator().next().getPropertyPath().toString()).endsWith("label");
                 });
         }
     }

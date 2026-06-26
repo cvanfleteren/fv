@@ -6,11 +6,11 @@ import be.iffy.fv.Rule;
  * A factory that supplies a {@link Rule} for use with {@link FvRule}.
  *
  * <p>Use this when the class that holds your validation logic doesn't implement {@link Rule}
- * directly — for example, when it acts as a namespace for multiple rules, or when it needs
+ * directly - for example, when it acts as a namespace for multiple rules, or when it needs
  * additional setup that doesn't belong in the rule itself:
  *
  * <pre>{@code
- * @FvRule(provider = Person.Rules.class)
+ * @FvRule(Person.Rules.class)
  * record Person(String name, int age) {
  *
  *     public static class Rules implements RuleProvider<Person> {
@@ -28,5 +28,7 @@ import be.iffy.fv.Rule;
  */
 @FunctionalInterface
 public interface RuleProvider<T> {
+
     Rule<T> provide();
+
 }

@@ -20,4 +20,8 @@ public class TestService {
     public String placeOrder(@Valid Order order) {
         return "placed: " + order.reference();
     }
+
+    public String processSpringThing(@Valid SpringThing thing) {
+        return "processed: " + thing.label();
+    }
 }

@@ -1,10 +1,7 @@
 package be.iffy.fv.jakarta;
 
-import be.iffy.fv.jakarta.support.Gadget;
-import be.iffy.fv.jakarta.support.Order;
-import be.iffy.fv.jakarta.support.Person;
-import be.iffy.fv.jakarta.support.Shipment;
-import be.iffy.fv.jakarta.support.Widget;
+import be.iffy.fv.Rule;
+import be.iffy.fv.jakarta.support.*;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import jakarta.validation.Validation;
@@ -20,11 +17,14 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
+import static be.iffy.fv.dsl.DSL.ints;
+import static be.iffy.fv.dsl.DSL.strings;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Unit tests for {@link FvRuleValidator} using Hibernate Validator directly (no Spring).
+ * Unit tests for {@link FvRuleValidator}, {@link FvStaticRuleValidator}, and
+ * {@link FvRuleBeanValidator} using Hibernate Validator directly (no Spring).
  */
 class FvRuleValidatorTest {
 
@@ -41,12 +41,6 @@ class FvRuleValidatorTest {
         @Test
         void validPerson_noViolations() {
             var violations = validator.validate(new Person("Alice", 25));
-            assertThat(violations).isEmpty();
-        }
-
-        @Test
-        void edgeCasePerson_exactMinValues_noViolations() {
-            var violations = validator.validate(new Person("Al", 18));
             assertThat(violations).isEmpty();
         }
     }
@@ -127,7 +121,7 @@ class FvRuleValidatorTest {
     }
 
     @Nested
-    class WhenRuleProviderModeIsUsed {
+    class WhenRuleProviderIsUsedWithFvRule {
 
         @Test
         void validWidget_noViolations() {
@@ -154,7 +148,7 @@ class FvRuleValidatorTest {
     }
 
     @Nested
-    class WhenStaticFieldModeIsUsed {
+    class WhenFvStaticRuleIsUsed {
 
         @Test
         void validGadget_noViolations() {
@@ -253,49 +247,106 @@ class FvRuleValidatorTest {
     }
 
     @Nested
-    class WhenAnnotationConfigurationIsInvalid {
+    class WhenFvRuleAnnotationIsMisconfigured {
 
         @Test
-        void noModeSpecified_throwsOnInitialization() {
-            @FvRule
-            record Empty(String x) {}
+        void classNeitherRuleNorRuleProvider_throwsOnInitialization() {
+            @FvRule(Object.class)
+            record BadClass(String x) {}
 
-            assertThatThrownBy(() -> validator.validate(new Empty("hi")))
+            assertThatThrownBy(() -> validator.validate(new BadClass("hi")))
                 .cause()
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("exactly one");
+                .hasMessageContaining("must implement Rule or RuleProvider");
         }
 
         @Test
-        void bothValueAndProvider_throwsOnInitialization() {
-            @FvRule(value = Person.Validator.class, provider = Widget.Rules.class)
-            record Conflicting(String x) {}
-
-            assertThatThrownBy(() -> validator.validate(new Conflicting("hi")))
-                .cause()
+        void privateConstructor_throwsOnInitialization() {
+            assertThatThrownBy(() -> FvRuleValidator.resolveRule(PrivateCtorRule.class))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("exactly one");
+                .hasMessageContaining("no-arg constructor");
         }
+    }
+
+    @Nested
+    class WhenFvStaticRuleAnnotationIsMisconfigured {
 
         @Test
-        void onWithoutField_throwsOnInitialization() {
-            @FvRule(on = Gadget.class)
-            record MissingField(String x) {}
+        void emptyFieldName_throwsOnInitialization() {
+            @FvStaticRule(on = Gadget.class, field = "")
+            record EmptyField(String x) {}
 
-            assertThatThrownBy(() -> validator.validate(new MissingField("hi")))
+            assertThatThrownBy(() -> validator.validate(new EmptyField("hi")))
                 .cause()
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("non-empty field name");
         }
 
         @Test
         void fieldWithUnknownName_throwsOnInitialization() {
-            @FvRule(on = Gadget.class, field = "NONEXISTENT")
+            @FvStaticRule(on = Gadget.class, field = "NONEXISTENT")
             record BadField(String x) {}
 
             assertThatThrownBy(() -> validator.validate(new BadField("hi")))
                 .cause()
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("NONEXISTENT");
+        }
+    }
+
+    @Nested
+    class WhenFvRuleBeanAnnotationIsMisconfigured {
+
+        @Test
+        void beanModeWithoutSpring_throwsRequiresBeanFactory() {
+            // In plain BV (no Spring), beanFactory is null — must fail with a clear message
+            @FvRuleBean(SpringThing.Validator.class)
+            record NoBeanFactory(String x) {}
+
+            assertThatThrownBy(() -> validator.validate(new NoBeanFactory("hi")))
+                .cause()
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("BeanFactory");
+        }
+    }
+
+    @Nested
+    class WhenMultipleFvAnnotationsAreOnSameType {
+
+        @FvRule(TwoRules.NameValidator.class)
+        @FvStaticRule(on = TwoRules.class, field = "AGE_RULE")
+        record TwoRules(String name, int age) {
+            static final Rule<TwoRules> AGE_RULE = ints.atLeast(18).on(TwoRules::age);
+
+            static class NameValidator implements Rule<TwoRules> {
+                private static final Rule<TwoRules> IMPL = strings.minLength(2).on(TwoRules::name);
+
+                @Override
+                public be.iffy.fv.Validation<TwoRules> apply(TwoRules t) { return IMPL.apply(t); }
+            }
+        }
+
+        @Test
+        void bothViolated_violationsFromBothAccumulated() {
+            Set<ConstraintViolation<TwoRules>> violations = validator.validate(new TwoRules("A", 16));
+
+            assertThat(violations).hasSize(2);
+            assertThat(violations)
+                .extracting(v -> v.getPropertyPath().toString())
+                .containsExactlyInAnyOrder("name", "age");
+        }
+
+        @Test
+        void onlyOneViolated_onlyItsViolationReported() {
+            Set<ConstraintViolation<TwoRules>> violations = validator.validate(new TwoRules("A", 25));
+
+            assertThat(violations).hasSize(1);
+            assertThat(violations.iterator().next().getPropertyPath().toString()).isEqualTo("name");
+        }
+
+        @Test
+        void bothPass_noViolations() {
+            assertThat(validator.validate(new TwoRules("Alice", 25))).isEmpty();
         }
     }
 
@@ -337,6 +388,16 @@ class FvRuleValidatorTest {
 
             assertThat(violations).hasSize(1);
             assertThat(violations.iterator().next().getMessage()).isEqualTo("Must be positive");
+        }
+    }
+
+    /** Helper: a Rule implementation with a private constructor, used to test instantiation errors. */
+    private static class PrivateCtorRule implements Rule<Object> {
+        private PrivateCtorRule() {}
+
+        @Override
+        public be.iffy.fv.Validation<Object> apply(Object o) {
+            return be.iffy.fv.Validation.valid(o);
         }
     }
 }

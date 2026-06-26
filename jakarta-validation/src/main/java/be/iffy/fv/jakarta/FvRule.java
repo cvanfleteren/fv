@@ -9,24 +9,11 @@ import java.lang.annotation.*;
 /**
  * Bridges an FV {@link Rule} into Jakarta Bean Validation.
  *
- * <p>Annotate a type with {@code @FvRule} and specify the rule using <em>exactly one</em> of the
- * three supported modes:
+ * <p>Point at a class that implements {@link Rule} or {@link RuleProvider} and has a public
+ * no-arg constructor. BV instantiates it once per validator lifecycle.
  *
- * <p><b>1. Static field reference</b>
- * <p>Point directly to a {@code public static} field of type {@link Rule} on any class.
- * This is the most concise option when rules are already defined as static constants:
- * <pre>{@code
- * @FvRule(on = Person.class, field = "RULE")
- * record Person(String name, int age) {
- *     public static final Rule<Person> RULE = Rule.all(
- *         strings.minLength(2).on(Person::name),
- *         ints.atLeast(18).on(Person::age)
- *     );
- * }
- * }</pre>
+ * <p><b>Rule class:</b> the class implements {@link Rule} directly:
  *
- * <p><b>2. Rule class</b>
- * <p>Point to a class that directly implements {@link Rule} and has a public no-arg constructor:
  * <pre>{@code
  * @FvRule(Person.Validator.class)
  * record Person(String name, int age) {
@@ -42,24 +29,27 @@ import java.lang.annotation.*;
  * }
  * }</pre>
  *
- * <p><b>3. RuleProvider class</b>
- * <p>Point to a class that implements {@link RuleProvider} and has a public no-arg constructor.
- * The class does not need to implement {@link Rule} itself:
+ * <p><b>RuleProvider class:</b> the class implements {@link RuleProvider} — a factory that returns
+ * the rule via {@code provide()}. Useful when the class serves as a namespace for multiple related
+ * rules and does not need to implement {@link Rule} directly:
+ *
  * <pre>{@code
- * @FvRule(provider = Person.Rules.class)
+ * @FvRule(Person.Rules.class)
  * record Person(String name, int age) {
  *
  *     public static class Rules implements RuleProvider<Person> {
- *         private static final Rule<Person> IMPL = Rule.all(
+ *         private static final Rule<Person> PERSON = Rule.all(
  *             strings.minLength(2).on(Person::name),
  *             ints.atLeast(18).on(Person::age)
  *         );
  *
- *         @Override public Rule<Person> provide() { return IMPL; }
+ *         @Override public Rule<Person> provide() { return PERSON; }
  *     }
  * }
  * }</pre>
  *
+ * <p>For rules stored in a {@code public static} field, use {@link FvStaticRule} instead.
+ * For Spring-managed beans that need injection, use {@link FvRuleBean} instead.
  *
  * <p>When a BV-aware framework (Spring {@code @Validated}, JPA, etc.) encounters {@code @Valid}
  * on a parameter or field of the annotated type, it invokes the FV rule and translates any
@@ -68,7 +58,6 @@ import java.lang.annotation.*;
  * property nodes.
  *
  * <p>A null value is treated as valid — pair with {@code @NotNull} if needed.
- * This is a limitation of the Jakarta Validation API, the null value will never get passed to the Rule.
  */
 @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
@@ -77,31 +66,10 @@ import java.lang.annotation.*;
 public @interface FvRule {
 
     /**
-     * Mode 1 (part 1): the class that declares the static {@link Rule} field.
-     * Must be combined with {@link #field()}; mutually exclusive with {@link #value()} and
-     * {@link #provider()}.
+     * A class implementing {@link Rule} or {@link RuleProvider} with a public no-arg constructor.
      */
-    Class<?> on() default Void.class;
+    Class<?> value();
 
-    /**
-     * Mode 1 (part 2): the name of the {@code public static} field of type {@link Rule} on
-     * the class specified by {@link #on()}.
-     */
-    String field() default "";
-
-    /**
-     * Mode 2: a class implementing {@link Rule} with a public no-arg constructor.
-     * Mutually exclusive with {@link #provider()} and {@link #on()}/{@link #field()}.
-     */
-    Class<? extends Rule<?>> value() default NoneRule.class;
-
-    /**
-     * Mode 3: a class implementing {@link RuleProvider} with a public no-arg constructor.
-     * Mutually exclusive with {@link #value()} and {@link #on()}/{@link #field()}.
-     */
-    Class<? extends RuleProvider<?>> provider() default NoneRuleProvider.class;
-
-    //region properties required by bean validation
     /**
      * Required by the Bean Validation spec but intentionally not honored.
      *
@@ -114,5 +82,4 @@ public @interface FvRule {
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
-    //endregion
 }

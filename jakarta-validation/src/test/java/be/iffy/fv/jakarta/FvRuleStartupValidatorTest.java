@@ -16,13 +16,14 @@ class FvRuleStartupValidatorTest {
     class WhenAllAnnotationsAreCorrect {
 
         @Test
-        void ruleClassMode_noErrors() {
-            assertThat(FvRuleStartupValidator.scanAndValidate(List.of(GOOD_PACKAGE))).isEmpty();
+        void allAnnotationTypes_noErrors() {
+            // null BeanFactory: @FvRuleBean annotations are skipped, all others are validated
+            assertThat(FvRuleStartupValidator.scanAndValidate(List.of(GOOD_PACKAGE), null)).isEmpty();
         }
 
         @Test
         void emptyPackageList_noErrors() {
-            assertThat(FvRuleStartupValidator.scanAndValidate(List.of())).isEmpty();
+            assertThat(FvRuleStartupValidator.scanAndValidate(List.of(), null)).isEmpty();
         }
     }
 
@@ -31,14 +32,14 @@ class FvRuleStartupValidatorTest {
 
         @Test
         void allErrorsCollectedInSinglePass() {
-            List<String> errors = FvRuleStartupValidator.scanAndValidate(List.of(BAD_PACKAGE));
+            List<String> errors = FvRuleStartupValidator.scanAndValidate(List.of(BAD_PACKAGE), null);
 
             assertThat(errors).hasSize(2);
         }
 
         @Test
         void wrongFieldName_errorMentionsClassName() {
-            List<String> errors = FvRuleStartupValidator.scanAndValidate(List.of(BAD_PACKAGE));
+            List<String> errors = FvRuleStartupValidator.scanAndValidate(List.of(BAD_PACKAGE), null);
 
             assertThat(errors)
                 .anyMatch(e -> e.contains("WrongFieldName") && e.contains("NONEXISTENT"));
@@ -46,7 +47,7 @@ class FvRuleStartupValidatorTest {
 
         @Test
         void missingConstructor_errorMentionsClassName() {
-            List<String> errors = FvRuleStartupValidator.scanAndValidate(List.of(BAD_PACKAGE));
+            List<String> errors = FvRuleStartupValidator.scanAndValidate(List.of(BAD_PACKAGE), null);
 
             assertThat(errors)
                 .anyMatch(e -> e.contains("MissingConstructor"));
@@ -59,12 +60,13 @@ class FvRuleStartupValidatorTest {
         @Test
         void goodAndBadPackageTogether_onlyBadPackageProducesErrors() {
             List<String> errors = FvRuleStartupValidator.scanAndValidate(
-                List.of(GOOD_PACKAGE, BAD_PACKAGE)
+                List.of(GOOD_PACKAGE, BAD_PACKAGE), null
             );
 
             assertThat(errors).hasSize(2);
             assertThat(errors).noneMatch(e ->
-                e.contains("Person") || e.contains("Order") || e.contains("Widget") || e.contains("Gadget")
+                e.contains("Person") || e.contains("Order") || e.contains("Widget")
+                    || e.contains("Gadget") || e.contains("Shipment")
             );
         }
     }

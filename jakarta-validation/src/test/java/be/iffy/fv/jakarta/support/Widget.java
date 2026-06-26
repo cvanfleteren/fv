@@ -7,9 +7,9 @@ import be.iffy.fv.jakarta.RuleProvider;
 import static be.iffy.fv.dsl.DSL.*;
 
 /**
- * Test model using @FvRule provider mode: the Rules class implements RuleProvider, not Rule.
+ * Test model using @FvRule with a RuleProvider: the Rules class implements RuleProvider, not Rule.
  */
-@FvRule(provider = Widget.Rules.class)
+@FvRule(Widget.Rules.class)
 public record Widget(String name, int weight) {
 
     public static class Rules implements RuleProvider<Widget> {
