@@ -16,14 +16,18 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/springframework/boot/spring-boot-autoconfigure-processor/4.0.0/spring-boot-autoconfigure-processor-4.0.0.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/springframework/boot/spring-boot-configuration-processor/4.0.0/spring-boot-configuration-processor-4.0.0.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/springframework/boot/spring-boot-autoconfigure-processor/4.0.0/spring-boot-autoconfigure-processor-4.0.0.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/springframework/boot/spring-boot-configuration-processor/4.0.0/spring-boot-configuration-processor-4.0.0.jar" />
         </processorPath>
         <module name="spring-web" />
       </profile>
-      <profile name="Annotation profile for FV - Functional Validation (Parent POM)" enabled="true">
+      <profile name="Annotation profile for FV - Parent POM" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
         </processorPath>
         <module name="jakarta-validation" />
@@ -32,6 +36,15 @@
         <module name="rules" />
         <module name="dsl" />
         <module name="testing" />
+      </profile>
+      <profile name="Annotation profile for jakarta-validation-bval-it" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
+        </processorPath>
+        <module name="jakarta-validation-bval-it" />
       </profile>
     </annotationProcessing>
   </component>

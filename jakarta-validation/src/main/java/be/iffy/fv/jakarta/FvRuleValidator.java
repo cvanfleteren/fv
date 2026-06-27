@@ -29,7 +29,8 @@ public class FvRuleValidator extends AbstractFvValidator<FvRule> {
         } catch (ReflectiveOperationException e) {
             String error = """
                 Cannot instantiate %s - ensure it has a public no-arg constructor.
-                If you need to instantiate a class with a constructor that takes arguments, use FvRuleBean or FvRuleProvider.
+                If the class needs injected dependencies, use @FvRuleBean instead.
+                If the rule is already stored as a static field, use @FvStaticRule instead.
                 """.formatted(cls.getName());
             throw new IllegalArgumentException(error, e);
         }
