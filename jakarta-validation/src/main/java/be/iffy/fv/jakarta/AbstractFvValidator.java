@@ -3,7 +3,6 @@ package be.iffy.fv.jakarta;
 import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
-import be.iffy.fv.ValidationException;
 import io.vavr.collection.List;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -27,8 +26,20 @@ import java.lang.annotation.Annotation;
 abstract class AbstractFvValidator<A extends Annotation> implements ConstraintValidator<A, Object> {
 
     @NonNull // gets set on initialization
-    @SuppressWarnings("unchecked")
-    Rule<Object> rule;
+    protected Rule<Object> rule;
+
+    // check to see if we have Hibernate Validator on the classpath without causing an error if we don't
+    static final boolean HAS_HIBERNATE_VALIDATOR;
+    static  {
+        boolean found;
+        try {
+            Class.forName("org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext", false, AbstractFvValidator.class.getClassLoader());
+            found = true;
+        } catch (ClassNotFoundException e) {
+            found = false;
+        }
+        HAS_HIBERNATE_VALIDATOR = found;
+    }
 
     @Override
     public boolean isValid(@Nullable Object value, ConstraintValidatorContext context) {
@@ -47,7 +58,7 @@ abstract class AbstractFvValidator<A extends Annotation> implements ConstraintVa
     }
 
     protected static Rule<?> getRule(Class<?> cls, Object instance) {
-        return switch(instance) {
+        return switch (instance) {
             case Rule<?> r -> r;
             case RuleProvider<?> p -> {
                 Rule<?> r = p.provide();
@@ -56,7 +67,8 @@ abstract class AbstractFvValidator<A extends Annotation> implements ConstraintVa
                 }
                 yield r;
             }
-            case null, default -> throw new IllegalArgumentException(cls.getName() + " must implement Rule or RuleProvider");
+            case null, default ->
+                throw new IllegalArgumentException(cls.getName() + " must implement Rule or RuleProvider");
         };
     }
 
@@ -105,12 +117,13 @@ abstract class AbstractFvValidator<A extends Annotation> implements ConstraintVa
         ErrorMessage error, ConstraintValidatorContext context
     ) {
         String template = "{" + error.key() + "}";
-        try {
+
+        if (HAS_HIBERNATE_VALIDATOR) {
             HibernateConstraintValidatorContext hvCtx = context.unwrap(HibernateConstraintValidatorContext.class);
             error.parameters().forEach(hvCtx::addMessageParameter);
 
             return hvCtx.buildConstraintViolationWithTemplate(template);
-        } catch (ValidationException ignored) {
+        } else {
             return context.buildConstraintViolationWithTemplate(template);
         }
     }

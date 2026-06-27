@@ -50,4 +50,12 @@
     </Or>
   </Match>
 
+
+  <Match>
+    <Bug pattern="VA_FORMAT_STRING_USES_NEWLINE"/>
+    <Or>
+      <Class name="be.iffy.fv.jakarta.FvRuleValidator"/>
+    </Or>
+  </Match>
+
 </FindBugsFilter>

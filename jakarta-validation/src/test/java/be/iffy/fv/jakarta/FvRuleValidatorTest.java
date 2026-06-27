@@ -3,10 +3,12 @@ package be.iffy.fv.jakarta;
 import be.iffy.fv.Rule;
 import be.iffy.fv.jakarta.support.*;
 import jakarta.validation.ConstraintViolation;
+import jakarta.validation.MessageInterpolator;
 import jakarta.validation.Valid;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.hibernate.validator.HibernateValidator;
+import org.hibernate.validator.messageinterpolation.HibernateMessageInterpolatorContext;
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
 import org.hibernate.validator.resourceloading.PlatformResourceBundleLocator;
 import org.junit.jupiter.api.BeforeAll;
@@ -14,7 +16,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import static be.iffy.fv.dsl.DSL.ints;
@@ -388,6 +393,113 @@ class FvRuleValidatorTest {
 
             assertThat(violations).hasSize(1);
             assertThat(violations.iterator().next().getMessage()).isEqualTo("Must be positive");
+        }
+    }
+
+    @Nested
+    class WhenGroupsParameterIsUsed {
+
+        interface StrictGroup {}
+
+        @FvRule(value = GroupedItem.Validator.class, groups = StrictGroup.class)
+        record GroupedItem(String code) {
+            static class Validator implements Rule<GroupedItem> {
+                private static final Rule<GroupedItem> IMPL = strings.minLength(3).on(GroupedItem::code);
+
+                @Override
+                public be.iffy.fv.Validation<GroupedItem> apply(GroupedItem g) { return IMPL.apply(g); }
+            }
+        }
+
+        @Test
+        void invalidObject_defaultGroup_constraintSkipped() {
+            assertThat(validator.validate(new GroupedItem("A"))).isEmpty();
+        }
+
+        @Test
+        void invalidObject_strictGroup_violationReported() {
+            Set<ConstraintViolation<GroupedItem>> violations = validator.validate(new GroupedItem("A"), StrictGroup.class);
+
+            assertThat(violations).hasSize(1);
+            assertThat(violations.iterator().next().getPropertyPath().toString()).isEqualTo("code");
+        }
+
+        @Test
+        void validObject_strictGroup_noViolations() {
+            assertThat(validator.validate(new GroupedItem("ABC"), StrictGroup.class)).isEmpty();
+        }
+    }
+
+    @Nested
+    class WhenMessageParametersAreForwardedToHibernateValidator {
+
+        private Validator capturingValidator(Map<String, Object> capture) {
+            return Validation.byProvider(HibernateValidator.class)
+                .configure()
+                .messageInterpolator(new MessageInterpolator() {
+                    @Override
+                    public String interpolate(String template, MessageInterpolator.Context context) {
+                        if (context instanceof HibernateMessageInterpolatorContext hCtx) {
+                            capture.putAll(hCtx.getMessageParameters());
+                        }
+                        return template;
+                    }
+
+                    @Override
+                    public String interpolate(String template, MessageInterpolator.Context context, Locale locale) {
+                        return interpolate(template, context);
+                    }
+                })
+                .buildValidatorFactory()
+                .getValidator();
+        }
+
+        @Test
+        void minLengthViolation_minParameterIsForwarded() {
+            var captured = new HashMap<String, Object>();
+            capturingValidator(captured).validate(new Person("A", 25));
+
+            assertThat(captured).containsEntry("min", 2);
+        }
+
+        @Test
+        void atLeastViolation_minParameterIsForwarded() {
+            var captured = new HashMap<String, Object>();
+            capturingValidator(captured).validate(new Person("Alice", 16));
+
+            assertThat(captured).containsEntry("min", 18);
+        }
+
+        @Test
+        void twoViolationsBothWithMinParameter_eachGetsOwnValue() {
+            // Person("A", 16) produces two violations, both with a "min" parameter:
+            //   name too short → min=2, age too low → min=18
+            // Verifies HV snapshots parameters per violation rather than sharing mutable state.
+            var capturedByTemplate = new HashMap<String, Object>();
+
+            Validation.byProvider(HibernateValidator.class)
+                .configure()
+                .messageInterpolator(new MessageInterpolator() {
+                    @Override
+                    public String interpolate(String template, MessageInterpolator.Context context) {
+                        if (context instanceof HibernateMessageInterpolatorContext hCtx) {
+                            capturedByTemplate.put(template, hCtx.getMessageParameters().get("min"));
+                        }
+                        return template;
+                    }
+
+                    @Override
+                    public String interpolate(String template, MessageInterpolator.Context context, Locale locale) {
+                        return interpolate(template, context);
+                    }
+                })
+                .buildValidatorFactory()
+                .getValidator()
+                .validate(new Person("A", 16));
+
+            assertThat(capturedByTemplate)
+                .containsEntry("{must.have.min.length}", 2)
+                .containsEntry("{must.be.at.least}", 18);
         }
     }
 
