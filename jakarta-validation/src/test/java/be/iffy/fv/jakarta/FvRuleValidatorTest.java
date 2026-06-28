@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.lang.annotation.*;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -611,6 +612,91 @@ class FvRuleValidatorTest {
         void allElementsValid_noViolations() {
             var cart = new Cart(List.of(new Cart.Line("A", 1), new Cart.Line("B", 2)));
             assertThat(validator.validate(cart)).isEmpty();
+        }
+    }
+
+    @Nested
+    class WhenFvStaticRuleOmitsOn {
+
+        // on() omitted: the annotated type is used automatically as the rule holder.
+        @FvStaticRule(field = "RULE")
+        record Snippet(String text, int count) {
+            static final Rule<Snippet> RULE = Rule.all(
+                strings.minLength(3).on(Snippet::text),
+                ints.atLeast(1).on(Snippet::count)
+            );
+        }
+
+        @Test
+        void validSnippet_noViolations() {
+            assertThat(validator.validate(new Snippet("abc", 1))).isEmpty();
+        }
+
+        @Test
+        void textTooShort_violationReported() {
+            Set<ConstraintViolation<Snippet>> violations = validator.validate(new Snippet("ab", 1));
+
+            assertThat(violations).hasSize(1);
+            assertThat(violations.iterator().next().getPropertyPath().toString()).isEqualTo("text");
+        }
+
+        @Test
+        void multipleInvalid_allViolationsReported() {
+            Set<ConstraintViolation<Snippet>> violations = validator.validate(new Snippet("ab", 0));
+
+            assertThat(violations).hasSize(2);
+            assertThat(violations)
+                .extracting(v -> v.getPropertyPath().toString())
+                .containsExactlyInAnyOrder("text", "count");
+        }
+    }
+
+    @Nested
+    class WhenComposedAnnotationIsUsed {
+
+        // A composed annotation: @ValidTag is just a shorthand for @FvRule(Tag.Validator.class).
+        @FvRule(Tag.Validator.class)
+        @Constraint(validatedBy = {})
+        @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface ValidTag {
+            String message() default "";
+            Class<?>[] groups() default {};
+            Class<? extends Payload>[] payload() default {};
+        }
+
+        @ValidTag
+        record Tag(String name, int priority) {
+            static class Validator implements Rule<Tag> {
+                private static final Rule<Tag> IMPL = Rule.all(
+                    strings.minLength(2).on(Tag::name),
+                    ints.atLeast(1).on(Tag::priority)
+                );
+                @Override public be.iffy.fv.Validation<Tag> apply(Tag t) { return IMPL.apply(t); }
+            }
+        }
+
+        @Test
+        void validTag_noViolations() {
+            assertThat(validator.validate(new Tag("ok", 1))).isEmpty();
+        }
+
+        @Test
+        void nameTooShort_violationReported() {
+            Set<ConstraintViolation<Tag>> violations = validator.validate(new Tag("x", 1));
+
+            assertThat(violations).hasSize(1);
+            assertThat(violations.iterator().next().getPropertyPath().toString()).isEqualTo("name");
+        }
+
+        @Test
+        void multipleInvalid_allViolationsReported() {
+            Set<ConstraintViolation<Tag>> violations = validator.validate(new Tag("x", 0));
+
+            assertThat(violations).hasSize(2);
+            assertThat(violations)
+                .extracting(v -> v.getPropertyPath().toString())
+                .containsExactlyInAnyOrder("name", "priority");
         }
     }
 

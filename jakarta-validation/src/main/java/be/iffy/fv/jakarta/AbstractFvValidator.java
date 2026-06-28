@@ -10,7 +10,6 @@ import jakarta.validation.ConstraintValidatorContext.ConstraintViolationBuilder;
 import jakarta.validation.ConstraintValidatorContext.ConstraintViolationBuilder.NodeBuilderCustomizableContext;
 import jakarta.validation.ConstraintValidatorContext.ConstraintViolationBuilder.NodeBuilderDefinedContext;
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -26,8 +25,9 @@ import java.util.Objects;
  */
 abstract class AbstractFvValidator<A extends Annotation> implements ConstraintValidator<A, Object> {
 
-    @NonNull // gets set on initialization
-    protected Rule<Object> rule;
+    // volatile because FvStaticRuleValidator may initialize lazily in isValid() from a different
+    // thread than the one that called initialize().
+    protected volatile Rule<Object> rule;
 
     // check to see if we have Hibernate Validator on the classpath without causing an error if we don't
     static final boolean HAS_HIBERNATE_VALIDATOR;

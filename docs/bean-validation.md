@@ -39,8 +39,11 @@ Point directly at a `static` field of type `Rule` on any class. This is the natu
 idiom: rules are plain static constants, and the annotation is just a pointer — no wrapper class
 or interface required.
 
+When the rule lives on the annotated type itself, `on` can be omitted — the annotated type is
+used automatically:
+
 ```java
-@FvStaticRule(on = Person.class, field = "RULE")
+@FvStaticRule(field = "RULE")
 record Person(String name, int age) {
 
     public static final Rule<Person> RULE = Rule.all(
@@ -50,8 +53,7 @@ record Person(String name, int age) {
 }
 ```
 
-The rule can live in a separate class when you want to keep the type clean or share rules across
-modules:
+When the rule lives on a different class, supply `on` to point at that class:
 
 ```java
 @FvStaticRule(on = PersonRules.class, field = "VALIDATE")
@@ -151,7 +153,7 @@ Annotate your types with the appropriate annotation and use `@Valid` on nested f
 validation — each type's rule runs independently and the violations are combined.
 
 ```java
-@FvStaticRule(on = Address.class, field = "RULE")
+@FvStaticRule(field = "RULE")
 record Address(String street, String city) {
 
     public static final Rule<Address> RULE = Rule.all(
@@ -160,7 +162,7 @@ record Address(String street, String city) {
     );
 }
 
-@FvStaticRule(on = Person.class, field = "RULE")
+@FvStaticRule(field = "RULE")
 record Person(String name, int age, @Valid Address address) {
 
     public static final Rule<Person> RULE = Rule.all(
@@ -290,6 +292,50 @@ public class EnrollmentService {
 
 An invalid `Person` and a `degrees` value over 2 produce three violations simultaneously —
 two from `@FvStaticRule` and one from `@Max`.
+
+## Composed annotations
+
+Any of the three annotations can be used as a meta-annotation to create a composed annotation —
+a project-specific shorthand that is self-documenting and hides the implementation detail:
+
+```java
+@FvRule(Person.Validator.class)
+@Constraint(validatedBy = {})
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ValidPerson {
+    String message() default "";
+    Class<?>[] groups() default {};
+    Class<? extends Payload>[] payload() default {};
+}
+```
+
+Then use `@ValidPerson` exactly where you would have written `@FvRule(Person.Validator.class)`:
+
+```java
+@ValidPerson
+record Person(String name, int age) { ... }
+```
+
+```java
+public void enroll(@Valid @ValidPerson Person person) { ... }
+```
+
+BV discovers the `@FvRule` meta-annotation on `@ValidPerson` and invokes the validator
+transparently. Violations, paths, groups, and message interpolation all work identically to
+using the original annotation directly.
+
+`@FvStaticRule` and `@FvRuleBean` work the same way as meta-annotations, though `@FvStaticRule`
+requires an explicit `on` when used this way (the rule holder cannot be inferred from an
+annotation type declaration):
+
+```java
+@FvStaticRule(on = Person.class, field = "RULE")
+@Constraint(validatedBy = {})
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ValidPerson { ... }
+```
 
 ## Repeating annotations
 

@@ -54,6 +54,9 @@ import java.lang.annotation.*;
  * <p>This annotation is {@link Repeatable}: two or more {@code @FvRule} annotations may appear
  * on the same element; BV runs each independently and accumulates all violations.
  *
+ * <p>The annotation may also be placed on another annotation type to create a composed annotation
+ * (a shorthand alias). See the module docs for details.
+ *
  * <p>When a BV-aware framework (Spring {@code @Validated}, JPA, etc.) encounters {@code @Valid}
  * on a parameter or field of the annotated type, it invokes the FV rule and translates any
  * {@link be.iffy.fv.Validation.Invalid} result into {@link jakarta.validation.ConstraintViolation}s —
@@ -63,7 +66,7 @@ import java.lang.annotation.*;
  * <p>A null value is treated as valid — pair with {@code @NotNull} if needed.
  */
 @Repeatable(FvRule.List.class)
-@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER})
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = FvRuleValidator.class)
 @Documented
@@ -88,7 +91,7 @@ public @interface FvRule {
     Class<? extends Payload>[] payload() default {};
 
     /** Container for repeating {@link FvRule} on the same element. */
-    @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER})
+    @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
     @interface List {

@@ -13,8 +13,11 @@ import java.lang.annotation.*;
  * rules are plain static constants, and the annotation is just a pointer — no wrapper class or
  * interface required.
  *
+ * <p><b>Shorthand form</b> (when the rule lives on the annotated type itself): omit {@link #on()}
+ * and the annotated type is used automatically:
+ *
  * <pre>{@code
- * @FvStaticRule(on = Person.class, field = "RULE")
+ * @FvStaticRule(field = "RULE")
  * record Person(String name, int age) {
  *
  *     public static final Rule<Person> RULE = Rule.all(
@@ -24,8 +27,8 @@ import java.lang.annotation.*;
  * }
  * }</pre>
  *
- * <p>The rule can live in a separate class when you want to keep the type clean or share rules
- * across modules:
+ * <p><b>Explicit form</b> (when the rule lives on a different class): supply {@link #on()} to
+ * point at the class that declares the field:
  *
  * <pre>{@code
  * @FvStaticRule(on = PersonRules.class, field = "VALIDATE")
@@ -39,20 +42,29 @@ import java.lang.annotation.*;
  * }
  * }</pre>
  *
+ * <p>This annotation is {@link Repeatable}: two or more {@code @FvStaticRule} annotations may
+ * appear on the same element; BV runs each independently and accumulates all violations.
+ *
  * <p>The field name is validated eagerly at startup — a typo or missing field is caught before the
  * first request (see {@code FvRuleStartupValidator}).
  *
  * <p>A null value is treated as valid — pair with {@code @NotNull} if needed.
  */
 @Repeatable(FvStaticRule.List.class)
-@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER})
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = FvStaticRuleValidator.class)
 @Documented
 public @interface FvStaticRule {
 
-    /** The class that declares the static {@link Rule} field. */
-    Class<?> on();
+    /**
+     * The class that declares the static {@link Rule} field.
+     *
+     * <p>When this annotation is placed on a type and the rule lives on that same type, {@code on}
+     * may be omitted: the annotated type is used automatically. Must be specified explicitly when
+     * the rule lives on a different class, or when the annotation is on a field or parameter.
+     */
+    Class<?> on() default Void.class;
 
     /** The name of the {@code public static} field of type {@link Rule} on {@link #on()}. */
     String field();
@@ -64,7 +76,7 @@ public @interface FvStaticRule {
     Class<? extends Payload>[] payload() default {};
 
     /** Container for repeating {@link FvStaticRule} on the same element. */
-    @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER})
+    @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
     @interface List {
