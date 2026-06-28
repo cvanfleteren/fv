@@ -82,6 +82,13 @@ public @interface FvStaticRule {
     /** The name of the {@code public static} field of type {@link Rule} on {@link #on()}. */
     String field();
 
+    /**
+     * Required by the Bean Validation spec but intentionally not honored.
+     *
+     * <p>{@code @FvRule} maps one annotation to <em>N</em> violations with <em>N</em> distinct
+     * error keys, so a single template here cannot cover them individually. Override messages
+     * per error key via {@code ValidationMessages.properties} instead — see the module docs.
+     */
     String message() default "";
 
     Class<?>[] groups() default {};

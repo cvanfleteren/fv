@@ -69,7 +69,7 @@ toPerson(new PersonDto(" A ", "16"));
 - [Testing with `assertThatValidation`](#testing-with-assertthatvalidation)
 - [More recipes](#more-recipes)
 - [Spring Boot integration](docs/spring-integration.md)
-- [Jakarta Bean Validation integration](docs/bean-validation.md)
+- [Jakarta Bean Validation integration](jakarta-validation/README.md)
 - [License](#license)
 
 ---

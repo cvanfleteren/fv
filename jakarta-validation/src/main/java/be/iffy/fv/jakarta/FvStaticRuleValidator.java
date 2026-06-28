@@ -19,7 +19,8 @@ import java.lang.reflect.Modifier;
 public class FvStaticRuleValidator extends AbstractFvValidator<FvStaticRule> {
 
     // Non-null only when on == Void.class; cleared implicitly once rule is resolved.
-    private String deferredField;
+    @Nullable
+    private volatile String deferredField;
 
     @Override
     @SuppressWarnings("unchecked")
