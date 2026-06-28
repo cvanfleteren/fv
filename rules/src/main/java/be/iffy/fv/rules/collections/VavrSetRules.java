@@ -2,9 +2,7 @@ package be.iffy.fv.rules.collections;
 
 import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Rule;
-import be.iffy.fv.Validation;
 import io.vavr.Function1;
-import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 
@@ -42,25 +40,6 @@ public final class VavrSetRules {
             return ts.contains(t);
         }
 
-        @Override
-        public Rule<Set<T>> validateValuesWith(Rule<? super T> rule) {
-            return Rule.of(set -> {
-                Rule<T> castedRule = rule.narrow();
-
-                List<ErrorMessage> allErrors = set
-                        .toList()
-                        .map(castedRule::apply)
-                        .zipWithIndex((validation, index) ->
-                                validation.mapErrors(errors -> errors.map(e -> e.atIndex(index)))
-                        ).flatMap(Validation::errors);
-
-                if(allErrors.isEmpty()) {
-                    return Validation.valid(set);
-                } else {
-                    return Validation.invalid(allErrors);
-                }
-            });
-        }
     }
 
     public static final VavrSetRules vavrSets = new VavrSetRules();
