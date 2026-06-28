@@ -75,7 +75,7 @@ BV instantiates it once per validator lifecycle.
 
 ```java
 @FvRule(Person.Validator.class)
-record Person(String name, int age) {agent
+record Person(String name, int age) {
 
     public static class Validator implements Rule<Person> {
         private static final Rule<Person> IMPL = Rule.all(
@@ -290,6 +290,34 @@ public class EnrollmentService {
 
 An invalid `Person` and a `degrees` value over 2 produce three violations simultaneously —
 two from `@FvStaticRule` and one from `@Max`.
+
+## Repeating annotations
+
+All three annotations are `@Repeatable`, so you can stack multiple instances of the same
+annotation type on a single element. This is useful when validation logic for a type comes from
+more than one rule — for example, a core module supplies a base rule and a feature module adds
+additional constraints:
+
+```java
+@FvRule(Product.BaseValidator.class)
+@FvRule(Product.InventoryValidator.class)
+record Product(String code, int stock) {
+
+    static class BaseValidator implements Rule<Product> {
+        private static final Rule<Product> IMPL = strings.minLength(3).on(Product::code);
+        @Override public Validation<Product> apply(Product p) { return IMPL.apply(p); }
+    }
+
+    static class InventoryValidator implements Rule<Product> {
+        private static final Rule<Product> IMPL = ints.atLeast(1).on(Product::stock);
+        @Override public Validation<Product> apply(Product p) { return IMPL.apply(p); }
+    }
+}
+```
+
+BV runs each repeated annotation independently and accumulates all violations. Mixing annotation
+types also works — `@FvRule`, `@FvStaticRule`, and `@FvRuleBean` can all appear together on the
+same element, since they are already different annotation types.
 
 ## Startup validation
 

@@ -118,22 +118,27 @@ public class FvRuleStartupValidator implements SmartInitializingSingleton {
             String location, AnnotatedElement element, @Nullable BeanFactory beanFactory, Set<Annotation> seen) {
         List<String> errors = List.empty();
 
-        FvRule fvRule = element.getAnnotation(FvRule.class);
-        if (fvRule != null && seen.add(fvRule)) {
-            errors = errors.appendAll(
-                tryResolve(location, () -> FvRuleValidator.resolveRule(fvRule.value())));
+        for (FvRule fvRule : element.getAnnotationsByType(FvRule.class)) {
+            if (seen.add(fvRule)) {
+                errors = errors.appendAll(
+                    tryResolve(location, () -> FvRuleValidator.resolveRule(fvRule.value())));
+            }
         }
 
-        FvStaticRule staticRule = element.getAnnotation(FvStaticRule.class);
-        if (staticRule != null && seen.add(staticRule)) {
-            errors = errors.appendAll(
-                tryResolve(location, () -> FvStaticRuleValidator.resolveRule(staticRule.on(), staticRule.field()).get()));
+        for (FvStaticRule staticRule : element.getAnnotationsByType(FvStaticRule.class)) {
+            if (seen.add(staticRule)) {
+                errors = errors.appendAll(
+                    tryResolve(location, () -> FvStaticRuleValidator.resolveRule(staticRule.on(), staticRule.field()).get()));
+            }
         }
 
-        FvRuleBean ruleBean = element.getAnnotation(FvRuleBean.class);
-        if (ruleBean != null && beanFactory != null && seen.add(ruleBean)) {
-            errors = errors.appendAll(
-                tryResolve(location, () -> FvRuleBeanValidator.resolveBean(ruleBean.value(), beanFactory)));
+        if (beanFactory != null) {
+            for (FvRuleBean ruleBean : element.getAnnotationsByType(FvRuleBean.class)) {
+                if (seen.add(ruleBean)) {
+                    errors = errors.appendAll(
+                        tryResolve(location, () -> FvRuleBeanValidator.resolveBean(ruleBean.value(), beanFactory)));
+                }
+            }
         }
 
         return errors;

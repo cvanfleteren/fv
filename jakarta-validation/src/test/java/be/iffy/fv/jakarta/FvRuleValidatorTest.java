@@ -307,6 +307,46 @@ class FvRuleValidatorTest {
     }
 
     @Nested
+    class WhenSameAnnotationIsRepeated {
+
+        @FvRule(TwoFvRules.CodeValidator.class)
+        @FvRule(TwoFvRules.CountValidator.class)
+        record TwoFvRules(String code, int count) {
+            static class CodeValidator implements Rule<TwoFvRules> {
+                private static final Rule<TwoFvRules> IMPL = strings.minLength(3).on(TwoFvRules::code);
+                @Override public be.iffy.fv.Validation<TwoFvRules> apply(TwoFvRules t) { return IMPL.apply(t); }
+            }
+            static class CountValidator implements Rule<TwoFvRules> {
+                private static final Rule<TwoFvRules> IMPL = ints.atLeast(1).on(TwoFvRules::count);
+                @Override public be.iffy.fv.Validation<TwoFvRules> apply(TwoFvRules t) { return IMPL.apply(t); }
+            }
+        }
+
+        @Test
+        void bothViolated_violationsFromBothAccumulated() {
+            Set<ConstraintViolation<TwoFvRules>> violations = validator.validate(new TwoFvRules("AB", 0));
+
+            assertThat(violations).hasSize(2);
+            assertThat(violations)
+                .extracting(v -> v.getPropertyPath().toString())
+                .containsExactlyInAnyOrder("code", "count");
+        }
+
+        @Test
+        void onlyFirstViolated_onlyItsViolationReported() {
+            Set<ConstraintViolation<TwoFvRules>> violations = validator.validate(new TwoFvRules("AB", 5));
+
+            assertThat(violations).hasSize(1);
+            assertThat(violations.iterator().next().getPropertyPath().toString()).isEqualTo("code");
+        }
+
+        @Test
+        void bothPass_noViolations() {
+            assertThat(validator.validate(new TwoFvRules("ABC", 1))).isEmpty();
+        }
+    }
+
+    @Nested
     class WhenMultipleFvAnnotationsAreOnSameType {
 
         @FvRule(TwoRules.NameValidator.class)

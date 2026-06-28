@@ -51,6 +51,9 @@ import java.lang.annotation.*;
  * <p>For rules stored in a {@code public static} field, use {@link FvStaticRule} instead.
  * For Spring-managed beans that need injection, use {@link FvRuleBean} instead.
  *
+ * <p>This annotation is {@link Repeatable}: two or more {@code @FvRule} annotations may appear
+ * on the same element; BV runs each independently and accumulates all violations.
+ *
  * <p>When a BV-aware framework (Spring {@code @Validated}, JPA, etc.) encounters {@code @Valid}
  * on a parameter or field of the annotated type, it invokes the FV rule and translates any
  * {@link be.iffy.fv.Validation.Invalid} result into {@link jakarta.validation.ConstraintViolation}s —
@@ -59,6 +62,7 @@ import java.lang.annotation.*;
  *
  * <p>A null value is treated as valid — pair with {@code @NotNull} if needed.
  */
+@Repeatable(FvRule.List.class)
 @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = FvRuleValidator.class)
@@ -82,4 +86,12 @@ public @interface FvRule {
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
+
+    /** Container for repeating {@link FvRule} on the same element. */
+    @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER})
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @interface List {
+        FvRule[] value();
+    }
 }
