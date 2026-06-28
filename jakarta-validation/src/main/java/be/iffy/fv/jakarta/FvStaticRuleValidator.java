@@ -5,6 +5,8 @@ import io.vavr.control.Try;
 import jakarta.validation.ConstraintValidatorContext;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.reflect.Modifier;
+
 /**
  * BV {@link jakarta.validation.ConstraintValidator} that resolves an FV {@link Rule} from a
  * {@code public static} field on a class, as specified by {@link FvStaticRule}.
@@ -51,6 +53,12 @@ public class FvStaticRuleValidator extends AbstractFvValidator<FvStaticRule> {
                 NoSuchFieldException.class,
                 e -> Try.failure(new IllegalArgumentException("No field '" + fieldName + "' found on " + holder.getName(), e))
             )
+            .andThenTry(f -> {
+                if (!Modifier.isStatic(f.getModifiers())) {
+                    throw new IllegalArgumentException(
+                        "Field '" + fieldName + "' on " + holder.getName() + " must be static");
+                }
+            })
             .andThenTry(f -> f.setAccessible(true))
             .mapTry(f -> f.get(null))
             .recoverWith(

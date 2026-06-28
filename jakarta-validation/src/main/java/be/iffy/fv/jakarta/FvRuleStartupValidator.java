@@ -104,6 +104,8 @@ public class FvRuleStartupValidator implements SmartInitializingSingleton {
                 }
             }
             for (Method method : type.getDeclaredMethods()) {
+                String methodLoc = className + "." + method.getName() + "()";
+                errors = errors.appendAll(checkElement(methodLoc, method, beanFactory, seen));
                 for (Parameter param : method.getParameters()) {
                     String loc = className + "." + method.getName() + "(" + param.getType().getSimpleName() + " " + param.getName() + ")";
                     errors = errors.appendAll(checkElement(loc, param, beanFactory, seen));

@@ -1,5 +1,6 @@
 package be.iffy.fv.jakarta.support;
 
+import be.iffy.fv.jakarta.FvRule;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import org.springframework.stereotype.Service;
@@ -23,5 +24,10 @@ public class TestService {
 
     public String processSpringThing(@Valid SpringThing thing) {
         return "processed: " + thing.label();
+    }
+
+    @FvRule(Person.Validator.class)
+    public Person buildPerson(String name, int age) {
+        return new Person(name, age);
     }
 }

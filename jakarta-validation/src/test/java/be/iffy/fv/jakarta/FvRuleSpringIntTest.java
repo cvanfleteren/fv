@@ -117,6 +117,39 @@ class FvRuleSpringIntTest {
     }
 
     @Nested
+    class WhenAnnotationIsOnMethodReturnValue {
+
+        @Test
+        void invalidReturn_throwsConstraintViolationException() {
+            assertThatThrownBy(() -> service.buildPerson("A", 16))
+                .isInstanceOf(ConstraintViolationException.class)
+                .satisfies(ex -> {
+                    var violations = ((ConstraintViolationException) ex).getConstraintViolations();
+                    assertThat(violations).hasSize(2);
+                    assertThat(violations)
+                        .extracting(v -> v.getMessage())
+                        .containsExactlyInAnyOrder("{must.have.min.length}", "{must.be.at.least}");
+                });
+        }
+
+        @Test
+        void partiallyInvalidReturn_onlyAffectedViolationsReported() {
+            assertThatThrownBy(() -> service.buildPerson("A", 25))
+                .isInstanceOf(ConstraintViolationException.class)
+                .satisfies(ex -> {
+                    var violations = ((ConstraintViolationException) ex).getConstraintViolations();
+                    assertThat(violations).hasSize(1);
+                    assertThat(violations.iterator().next().getMessage()).isEqualTo("{must.have.min.length}");
+                });
+        }
+
+        @Test
+        void validReturn_noException() {
+            assertThat(service.buildPerson("Alice", 25)).isEqualTo(new Person("Alice", 25));
+        }
+    }
+
+    @Nested
     class WhenOrderHasListWithInvalidElements {
 
         @Test

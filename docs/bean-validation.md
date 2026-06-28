@@ -276,6 +276,31 @@ standard BV convention. Pair with `@NotNull` if null should be rejected:
 public void enroll(@Valid @NotNull Person person) { ... }
 ```
 
+## Return value validation
+
+All three annotations support `ElementType.METHOD`, which lets you validate the return value of a
+method. Spring's `@Validated` AOP intercepts the call and runs the constraint against what the
+method returned:
+
+```java
+@Service
+@Validated
+public class PersonService {
+
+    @FvRule(Person.Validator.class)
+    public Person findById(long id) {
+        return repository.findById(id); // validated after the method returns
+    }
+}
+```
+
+If the returned object violates the rule, a `ConstraintViolationException` is thrown with
+violations whose paths include `<return value>` as a path node — for example,
+`findById.<return value>.name`.
+
+This is the mirror of parameter validation: `@Valid` on a parameter validates the input before
+the method runs; the FV annotation on the method itself validates the output after it returns.
+
 ## Combining with standard BV constraints
 
 These annotations compose naturally with standard BV annotations. All constraints are evaluated
@@ -301,7 +326,7 @@ a project-specific shorthand that is self-documenting and hides the implementati
 ```java
 @FvRule(Person.Validator.class)
 @Constraint(validatedBy = {})
-@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER})
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidPerson {
     String message() default "";
@@ -332,7 +357,7 @@ annotation type declaration):
 ```java
 @FvStaticRule(on = Person.class, field = "RULE")
 @Constraint(validatedBy = {})
-@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER})
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidPerson { ... }
 ```

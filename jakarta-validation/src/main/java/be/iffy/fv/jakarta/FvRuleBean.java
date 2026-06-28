@@ -39,10 +39,23 @@ import java.lang.annotation.*;
  * Spring — using it outside a Spring context throws an {@link IllegalArgumentException} at
  * validation time.
  *
+ * <p>Placing this annotation on a method validates the <em>return value</em> — useful with
+ * Spring {@code @Validated} AOP to enforce post-conditions on service methods:
+ *
+ * <pre>{@code
+ * @Service
+ * @Validated
+ * public class OrderService {
+ *
+ *     @FvRuleBean(Order.Validator.class)
+ *     public Order build(String ref) { ... }
+ * }
+ * }</pre>
+ *
  * <p>A null value is treated as valid — pair with {@code @NotNull} if needed.
  */
 @Repeatable(FvRuleBean.List.class)
-@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = FvRuleBeanValidator.class)
 @Documented
@@ -61,7 +74,7 @@ public @interface FvRuleBean {
     Class<? extends Payload>[] payload() default {};
 
     /** Container for repeating {@link FvRuleBean} on the same element. */
-    @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
+    @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
     @interface List {

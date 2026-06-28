@@ -48,10 +48,23 @@ import java.lang.annotation.*;
  * <p>The field name is validated eagerly at startup — a typo or missing field is caught before the
  * first request (see {@code FvRuleStartupValidator}).
  *
+ * <p>Placing this annotation on a method validates the <em>return value</em> — useful with
+ * Spring {@code @Validated} AOP to enforce post-conditions on service methods:
+ *
+ * <pre>{@code
+ * @Service
+ * @Validated
+ * public class PersonService {
+ *
+ *     @FvStaticRule(on = Person.class, field = "RULE")
+ *     public Person findById(long id) { ... }
+ * }
+ * }</pre>
+ *
  * <p>A null value is treated as valid — pair with {@code @NotNull} if needed.
  */
 @Repeatable(FvStaticRule.List.class)
-@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = FvStaticRuleValidator.class)
 @Documented
@@ -76,7 +89,7 @@ public @interface FvStaticRule {
     Class<? extends Payload>[] payload() default {};
 
     /** Container for repeating {@link FvStaticRule} on the same element. */
-    @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
+    @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
     @interface List {

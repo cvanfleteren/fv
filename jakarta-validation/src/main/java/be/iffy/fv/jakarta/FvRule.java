@@ -63,10 +63,23 @@ import java.lang.annotation.*;
  * one per FV error, with the FV error key as the violation message and the FV path mapped to BV
  * property nodes.
  *
+ * <p>Placing this annotation on a method validates the <em>return value</em> — useful with
+ * Spring {@code @Validated} AOP to enforce post-conditions on service methods:
+ *
+ * <pre>{@code
+ * @Service
+ * @Validated
+ * public class PersonService {
+ *
+ *     @FvRule(Person.Validator.class)
+ *     public Person findById(long id) { ... }
+ * }
+ * }</pre>
+ *
  * <p>A null value is treated as valid — pair with {@code @NotNull} if needed.
  */
 @Repeatable(FvRule.List.class)
-@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = FvRuleValidator.class)
 @Documented
@@ -91,7 +104,7 @@ public @interface FvRule {
     Class<? extends Payload>[] payload() default {};
 
     /** Container for repeating {@link FvRule} on the same element. */
-    @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
+    @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
     @interface List {

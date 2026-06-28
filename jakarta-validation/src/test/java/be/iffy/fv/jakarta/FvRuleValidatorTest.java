@@ -289,6 +289,18 @@ class FvRuleValidatorTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("NONEXISTENT");
         }
+
+        @Test
+        void nonStaticField_clearlySaysFieldMustBeStatic() {
+            class Holder {
+                @SuppressWarnings("unused")
+                public Rule<Object> INSTANCE_RULE = Rule.of(o -> true, "irrelevant");
+            }
+
+            assertThatThrownBy(() -> FvStaticRuleValidator.resolveRule(Holder.class, "INSTANCE_RULE").get())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("must be static");
+        }
     }
 
     @Nested
@@ -657,7 +669,7 @@ class FvRuleValidatorTest {
         // A composed annotation: @ValidTag is just a shorthand for @FvRule(Tag.Validator.class).
         @FvRule(Tag.Validator.class)
         @Constraint(validatedBy = {})
-        @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER})
+        @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD})
         @Retention(RetentionPolicy.RUNTIME)
         @interface ValidTag {
             String message() default "";
