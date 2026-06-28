@@ -3,6 +3,7 @@ package be.iffy.fv.rules.collections;
 import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
+import be.iffy.fv.Validations;
 import io.vavr.Function1;
 import io.vavr.Tuple;
 import io.vavr.collection.*;
@@ -367,17 +368,16 @@ abstract class BaseCollectionRules<T, C extends Iterable<T>> {
     public Rule<C> validateValuesWith(Rule<? super T> rule) {
         Objects.requireNonNull(rule, "rule cannot be null");
         return Rule.of(collection -> {
+
             Rule<T> castedRule = rule.narrow();
 
-            io.vavr.collection.List<Validation<T>> validations = io.vavr.collection.List.ofAll(collection)
-                .map(castedRule::apply)
-                .zipWithIndex((validation, index) -> validation.mapErrors(errors -> errors.map(e -> e.atIndex(index))));
+            io.vavr.collection.List<Validation<T>> validations = io.vavr.collection.List.ofAll(collection).map(castedRule::apply);
+            Validation<List<T>> sequenced = Validations.sequence(validations);
 
-            io.vavr.collection.List<ErrorMessage> allErrors = validations.flatMap(Validation::errors);
-            if (allErrors.isEmpty()) {
+            if (sequenced.errors().isEmpty()) {
                 return Validation.valid(collection);
             } else {
-                return Validation.invalid(allErrors);
+                return Validation.invalid(sequenced.errors());
             }
         });
     }

@@ -286,7 +286,8 @@ public final class VavrListRules {
      * The individual {@link ErrorMessage}s are passed to the final Validation.
      */
     public <T> Rule<List<T>> validateValuesWith(Rule<? super T> rule) {
-        return VavrListRules.InnerRules.<T>inner().validateValuesWith(rule);
+        Rule<T> tRule = rule.narrow();
+        return tRule.lift().toVavrList();
     }
 
 }

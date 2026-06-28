@@ -278,7 +278,8 @@ public final class ListRules {
      * The individual {@link ErrorMessage}s are passed to the final Validation.
      */
     public <T> Rule<List<T>> validateValuesWith(Rule<? super T> rule) {
-        return InnerRules.<T>inner().validateValuesWith(rule);
+        Rule<T> tRule = rule.narrow();
+        return tRule.lift().toList();
     }
 
 }
