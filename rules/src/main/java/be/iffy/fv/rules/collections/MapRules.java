@@ -3,6 +3,7 @@ package be.iffy.fv.rules.collections;
 import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
+import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.Set;
 
@@ -33,6 +34,81 @@ public final class MapRules {
                 return Validation.valid(map);
             }
         });
+    }
+
+    /**
+     * Fails if the map size is less than the specified minimum.
+     * <p>
+     * Error key: {@code must.have.min.size}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code min}: the minimum allowed size ({@code int})</li>
+     * </ul>
+     */
+    public <K, V> Rule<Map<K, V>> minSize(int size) {
+        return Rule.of(
+            input -> input.size() >= size,
+            ErrorMessage.of("must.have.min.size", "min", size)
+        );
+    }
+
+    /**
+     * Fails if the map size is greater than the specified maximum.
+     * <p>
+     * Error key: {@code must.have.max.size}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code max}: the maximum allowed size ({@code int})</li>
+     * </ul>
+     */
+    public <K, V> Rule<Map<K, V>> maxSize(int size) {
+        return Rule.of(
+            input -> input.size() <= size,
+            ErrorMessage.of("must.have.max.size", "max", size)
+        );
+    }
+
+    /**
+     * Fails if the collection size is not equal to the specified size.
+     * <p>
+     * Error key: {@code must.have.exact.size}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code equal}: the required size ({@code int})</li>
+     * </ul>
+     */
+    public <K, V> Rule<Map<K, V>> sizeEquals(int size) {
+        return Rule.of(
+            input -> input.size() == size,
+            ErrorMessage.of("must.have.exact.size", "equal", size)
+        );
+    }
+
+    /**
+     * Fails if the collection size is not between the specified bounds (inclusive).
+     * <p>
+     * Error key: {@code must.have.size.between}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code min}: the minimum allowed size ({@code int})</li>
+     *     <li>{@code max}: the maximum allowed size ({@code int})</li>
+     * </ul>
+     *
+     * @param min the minimum allowed size (inclusive).
+     * @param max the maximum allowed size (inclusive).
+     */
+    public <K, V> Rule<Map<K, V>> sizeBetween(int min, int max) {
+        return Rule.of(
+            value -> {
+                int size = value.size();
+                return (size >= min && size <= max);
+            },
+            ErrorMessage.of("must.have.size.between", HashMap.of("min", min, "max", max))
+        );
     }
 
     /**

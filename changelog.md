@@ -5,6 +5,8 @@
 
 ### Added
 
+- min/max size rules in MapRules and VavrMapRules
+
 ### Changed
 
 ### Deprecated

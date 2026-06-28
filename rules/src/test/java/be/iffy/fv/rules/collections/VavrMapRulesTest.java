@@ -33,6 +33,102 @@ class VavrMapRulesTest {
     }
 
     @Nested
+    class MinSize {
+
+        @Test
+        void valid() {
+            validTest(HashMap.of("a", 1, "b", 2), vavrMaps.minSize(2));
+            validTest(HashMap.of("a", 1, "b", 2, "c", 3), vavrMaps.minSize(2));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, vavrMaps.minSize(2), "must.not.be.null");
+            invalidTest(
+                    HashMap.of("a", 1),
+                    vavrMaps.minSize(2),
+                    "must.have.min.size",
+                    HashMap.of("min", 2)
+            );
+        }
+    }
+
+    @Nested
+    class MaxSize {
+
+        @Test
+        void valid() {
+            validTest(HashMap.of("a", 1, "b", 2), vavrMaps.maxSize(2));
+            validTest(HashMap.of("a", 1), vavrMaps.maxSize(2));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, vavrMaps.maxSize(2), "must.not.be.null");
+            invalidTest(
+                    HashMap.of("a", 1, "b", 2, "c", 3),
+                    vavrMaps.maxSize(2),
+                    "must.have.max.size",
+                    HashMap.of("max", 2)
+            );
+        }
+    }
+
+    @Nested
+    class SizeEquals {
+
+        @Test
+        void valid() {
+            validTest(HashMap.of("a", 1, "b", 2), vavrMaps.sizeEquals(2));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, vavrMaps.sizeEquals(2), "must.not.be.null");
+            invalidTest(
+                    HashMap.of("a", 1),
+                    vavrMaps.sizeEquals(2),
+                    "must.have.exact.size",
+                    HashMap.of("equal", 2)
+            );
+            invalidTest(
+                    HashMap.of("a", 1, "b", 2, "c", 3),
+                    vavrMaps.sizeEquals(2),
+                    "must.have.exact.size",
+                    HashMap.of("equal", 2)
+            );
+        }
+    }
+
+    @Nested
+    class SizeBetween {
+
+        @Test
+        void valid() {
+            validTest(HashMap.of("a", 1), vavrMaps.sizeBetween(1, 3));
+            validTest(HashMap.of("a", 1, "b", 2), vavrMaps.sizeBetween(1, 3));
+            validTest(HashMap.of("a", 1, "b", 2, "c", 3), vavrMaps.sizeBetween(1, 3));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, vavrMaps.sizeBetween(1, 3), "must.not.be.null");
+            invalidTest(
+                    HashMap.empty(),
+                    vavrMaps.sizeBetween(1, 3),
+                    "must.have.size.between",
+                    HashMap.of("min", 1, "max", 3)
+            );
+            invalidTest(
+                    HashMap.of("a", 1, "b", 2, "c", 3, "d", 4),
+                    vavrMaps.sizeBetween(1, 3),
+                    "must.have.size.between",
+                    HashMap.of("min", 1, "max", 3)
+            );
+        }
+    }
+
+    @Nested
     class ContainsKey {
 
         @Test
