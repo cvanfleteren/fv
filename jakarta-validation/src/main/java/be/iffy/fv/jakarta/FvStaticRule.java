@@ -64,7 +64,7 @@ import java.lang.annotation.*;
  * <p>A null value is treated as valid — pair with {@code @NotNull} if needed.
  */
 @Repeatable(FvStaticRule.List.class)
-@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = FvStaticRuleValidator.class)
 @Documented
@@ -89,7 +89,7 @@ public @interface FvStaticRule {
     Class<? extends Payload>[] payload() default {};
 
     /** Container for repeating {@link FvStaticRule} on the same element. */
-    @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
+    @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR})
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
     @interface List {

@@ -55,7 +55,7 @@ import java.lang.annotation.*;
  * <p>A null value is treated as valid — pair with {@code @NotNull} if needed.
  */
 @Repeatable(FvRuleBean.List.class)
-@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = FvRuleBeanValidator.class)
 @Documented
@@ -74,7 +74,7 @@ public @interface FvRuleBean {
     Class<? extends Payload>[] payload() default {};
 
     /** Container for repeating {@link FvRuleBean} on the same element. */
-    @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
+    @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR})
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
     @interface List {

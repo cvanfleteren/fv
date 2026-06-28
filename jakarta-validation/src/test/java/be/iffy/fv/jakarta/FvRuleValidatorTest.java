@@ -712,6 +712,38 @@ class FvRuleValidatorTest {
         }
     }
 
+    @Nested
+    class WhenAnnotationIsOnConstructorReturnValue {
+
+        // Compact canonical constructor annotated for return-value validation.
+        // @FvStaticRule on a constructor validates the constructed object, not a parameter.
+        record Box(String label) {
+            @FvStaticRule(on = Box.class, field = "RULE")
+            Box {}
+
+            static final Rule<Box> RULE = strings.minLength(3).on(Box::label);
+        }
+
+        @Test
+        void invalidObject_violationsReported() throws NoSuchMethodException {
+            var ctor = Box.class.getDeclaredConstructor(String.class);
+            var violations = validator.forExecutables()
+                .validateConstructorReturnValue(ctor, new Box("AB"));
+
+            assertThat(violations).hasSize(1);
+            assertThat(violations.iterator().next().getPropertyPath().toString()).endsWith("label");
+        }
+
+        @Test
+        void validObject_noViolations() throws NoSuchMethodException {
+            var ctor = Box.class.getDeclaredConstructor(String.class);
+            var violations = validator.forExecutables()
+                .validateConstructorReturnValue(ctor, new Box("ABC"));
+
+            assertThat(violations).isEmpty();
+        }
+    }
+
     /** Helper: a Rule implementation with a private constructor, used to test instantiation errors. */
     private static class PrivateCtorRule implements Rule<Object> {
         private PrivateCtorRule() {}

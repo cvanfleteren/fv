@@ -98,6 +98,8 @@ public class FvRuleStartupValidator implements SmartInitializingSingleton {
                     checkElement(className + "#" + field.getName(), field, beanFactory, seen));
             }
             for (Constructor<?> ctor : type.getDeclaredConstructors()) {
+                String ctorLoc = className + ".new()";
+                errors = errors.appendAll(checkElement(ctorLoc, ctor, beanFactory, seen));
                 for (Parameter param : ctor.getParameters()) {
                     String loc = className + "(" + param.getType().getSimpleName() + " " + param.getName() + ")";
                     errors = errors.appendAll(checkElement(loc, param, beanFactory, seen));
@@ -163,6 +165,7 @@ public class FvRuleStartupValidator implements SmartInitializingSingleton {
             case Class<?> cls when !cls.isAnnotation() -> cls;
             case Field f -> f.getType();
             case Parameter p -> p.getType();
+            case Constructor<?> c -> c.getDeclaringClass();
             default -> null;
         };
     }
