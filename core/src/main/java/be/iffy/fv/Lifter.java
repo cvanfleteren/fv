@@ -77,7 +77,7 @@ abstract class Lifter<T, R> {
             }
             Seq<Tuple2<K, Validation<R>>> validations = map.map(tuple ->
                     Tuple.of(tuple._1, this.test(tuple._2).mapErrors(errors ->
-                            errors.map(e -> e.atIndex(keyExtractor.apply(tuple._1)))
+                            errors.map(e -> e.prepend(new ErrorMessage.Path("", Option.of(keyExtractor.apply(tuple._1)))))
                     ))
             );
 

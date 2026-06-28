@@ -1,11 +1,7 @@
 package be.iffy.fv;
 
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
-import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
-import io.vavr.collection.Seq;
 import io.vavr.control.Option;
 
 import java.util.Objects;
@@ -99,29 +95,7 @@ public class RuleLifter<T> extends Lifter<T,T> {
     @Override
     public <K> Rule<Map<K, T>> toVavrMap(Function<K, Object> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
-        return map -> {
-            if (map == null) {
-                return Validation.Invalid.notNull();
-            }
-            Seq<Tuple2<K, Validation<T>>> validations = map.map(tuple ->
-                    Tuple.of(tuple._1, this.test(tuple._2).mapErrors(errors ->
-                            errors.map(e -> e.atIndex(keyExtractor.apply(tuple._1)))
-                    ))
-            );
-
-            var validAndInvalid = validations.partition(t -> t._2.isValid());
-            if (validAndInvalid._2.nonEmpty()) {
-                return Validation.invalid(validAndInvalid._2.flatMap(t -> t._2.errors()).toList());
-            } else {
-                return Validation.valid(
-                        validAndInvalid._1.toMap(
-                                Tuple2::_1,
-                                t ->
-                                        t._2.getOrElseThrow()
-                        )
-                );
-            }
-        };
+       return Rule.of(super.toVavrMap(keyExtractor));
     }
 
     /**
@@ -150,28 +124,7 @@ public class RuleLifter<T> extends Lifter<T,T> {
     @Override
     public <K> Rule<java.util.Map<K, T>> toMap(Function<K, Object> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor cannot be null");
-        return Rule.of(
-                (java.util.Map<K, T> map) -> {
-                    Seq<Tuple2<K, Validation<T>>> validations = HashMap.ofAll(map).map(tuple ->
-                            Tuple.of(tuple._1, this.test(tuple._2).mapErrors(errors ->
-                                    errors.map(e -> e.atIndex(keyExtractor.apply(tuple._1)))
-                            ))
-                    );
-
-                    var validAndInvalid = validations.partition(t -> t._2.isValid());
-                    if (validAndInvalid._2.nonEmpty()) {
-                        return Validation.invalid(validAndInvalid._2.flatMap(t -> t._2.errors()).toList());
-                    } else {
-                        return Validation.valid(
-                                validAndInvalid._1.toMap(
-                                        Tuple2::_1,
-                                        t ->
-                                                t._2.getOrElseThrow()
-                                ).toJavaMap()
-                        );
-                    }
-                }
-        );
+        return Rule.of(super.toMap(keyExtractor));
     }
 
 }
