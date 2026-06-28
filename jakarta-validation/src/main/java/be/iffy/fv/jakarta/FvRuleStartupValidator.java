@@ -1,30 +1,39 @@
 package be.iffy.fv.jakarta;
 
+import io.vavr.CheckedRunnable;
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import io.vavr.control.Try;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.core.type.filter.AnnotationTypeFilter;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
+import java.util.HashSet;
 import java.util.Objects;
-import org.jspecify.annotations.Nullable;
+import java.util.Set;
 
 /**
  * Eagerly validates all {@link FvRule}-, {@link FvStaticRule}-, and {@link FvRuleBean}-annotated
- * types found on the classpath at Spring Boot startup, so misconfiguration (wrong field name,
- * missing constructor, null provider result, etc.) is reported immediately rather than on the
- * first incoming request that triggers validation.
+ * elements found in the application's base packages at Spring Boot startup, so misconfiguration
+ * (wrong field name, missing constructor, null provider result, etc.) is reported immediately
+ * rather than on the first incoming request that triggers validation.
  *
  * <p>Registered automatically via {@link FvRuleAutoConfiguration}. Scans the packages reported
  * by {@link AutoConfigurationPackages} — which is the base package set by
- * {@code @SpringBootApplication} — so it covers the same scope as component scanning.
+ * {@code @SpringBootApplication} — and inspects every class found there for FV annotations on
+ * types, fields, constructor parameters, and method parameters.
+ *
+ * <p>Annotations that appear in multiple locations on the same class (e.g. a record component
+ * that propagates to both the field and the canonical constructor parameter) are validated only
+ * once.
  *
  * <p>All problems are collected before throwing, so a single startup failure lists every
- * misconfigured type rather than stopping at the first one.
+ * misconfigured annotation rather than stopping at the first one.
  */
 public class FvRuleStartupValidator implements SmartInitializingSingleton {
 
@@ -44,25 +53,29 @@ public class FvRuleStartupValidator implements SmartInitializingSingleton {
         List<String> errors = scanAndValidate(packages, beanFactory);
         if (errors.nonEmpty()) {
             throw new IllegalStateException(
-                "FV rule annotation misconfiguration detected at startup — fix the following before the application can start:\n  - "
+                "FV rule annotation misconfiguration detected at startup - fix the following before the application can start:\n  - "
                 + errors.mkString("\n  - ")
             );
         }
     }
 
     /**
-     * Scans the given base packages for types annotated with {@link FvRule}, {@link FvStaticRule},
-     * or {@link FvRuleBean} and attempts to resolve each annotation's rule configuration.
-     * Returns one error string per misconfigured type; returns an empty list if everything is valid.
+     * Scans all classes in the given base packages and validates every {@link FvRule},
+     * {@link FvStaticRule}, and {@link FvRuleBean} annotation found on types, fields,
+     * constructor parameters, and method parameters. Returns one error string per
+     * misconfigured annotation; returns an empty list if everything is valid.
      *
      * <p>Pass {@code null} for {@code beanFactory} when no Spring context is available (e.g.
      * in unit tests); {@link FvRuleBean} annotations are skipped in that case.
      */
     static List<String> scanAndValidate(List<String> basePackages, @Nullable BeanFactory beanFactory) {
-        var scanner = new ClassPathScanningCandidateComponentProvider(false);
-        scanner.addIncludeFilter(new AnnotationTypeFilter(FvRule.class));
-        scanner.addIncludeFilter(new AnnotationTypeFilter(FvStaticRule.class));
-        scanner.addIncludeFilter(new AnnotationTypeFilter(FvRuleBean.class));
+        var scanner = new ClassPathScanningCandidateComponentProvider(false) {
+            @Override
+            protected boolean isCandidateComponent(AnnotatedBeanDefinition sbd) {
+                return true;
+            }
+        };
+        scanner.addIncludeFilter((metadataReader, metadataReaderFactory) -> true);
 
         return basePackages
             .flatMap(pkg -> List.ofAll(scanner.findCandidateComponents(pkg)))
@@ -71,30 +84,65 @@ public class FvRuleStartupValidator implements SmartInitializingSingleton {
             .flatMap(className -> validate(className, beanFactory));
     }
 
-    private static Option<String> validate(String className, @Nullable BeanFactory beanFactory) {
-        return Try.run(() -> {
-                Class<?> type = Class.forName(className);
+    private static List<String> validate(String className, @Nullable BeanFactory beanFactory) {
+        return Try.of(() -> {
+            Class<?> type = Class.forName(className);
+            Set<Annotation> seen = new HashSet<>();
 
-                FvRule fvRule = type.getAnnotation(FvRule.class);
-                if (fvRule != null) {
-                    FvRuleValidator.resolveRule(fvRule.value());
-                }
+            List<String> errors = checkElement(className, type, beanFactory, seen);
 
-                FvStaticRule staticRule = type.getAnnotation(FvStaticRule.class);
-                if (staticRule != null) {
-                    FvStaticRuleValidator.resolveRule(staticRule.on(), staticRule.field()).get();
+            for (Field field : type.getDeclaredFields()) {
+                errors = errors.appendAll(
+                    checkElement(className + "#" + field.getName(), field, beanFactory, seen));
+            }
+            for (Constructor<?> ctor : type.getDeclaredConstructors()) {
+                for (Parameter param : ctor.getParameters()) {
+                    String loc = className + "(" + param.getType().getSimpleName() + " " + param.getName() + ")";
+                    errors = errors.appendAll(checkElement(loc, param, beanFactory, seen));
                 }
+            }
+            for (Method method : type.getDeclaredMethods()) {
+                for (Parameter param : method.getParameters()) {
+                    String loc = className + "." + method.getName() + "(" + param.getType().getSimpleName() + " " + param.getName() + ")";
+                    errors = errors.appendAll(checkElement(loc, param, beanFactory, seen));
+                }
+            }
+            return errors;
+        })
+        .recover(ClassNotFoundException.class,
+            e -> List.of(className + ": could not load class (" + e.getMessage() + ")"))
+        .get();
+    }
 
-                FvRuleBean ruleBean = type.getAnnotation(FvRuleBean.class);
-                if (ruleBean != null && beanFactory != null) {
-                    FvRuleBeanValidator.resolveBean(ruleBean.value(), beanFactory);
-                }
-            })
-            .map(ignored -> Option.<String>none())
-            .recover(ClassNotFoundException.class,
-                e -> Option.some(className + ": could not load class (" + e.getMessage() + ")"))
-            .recover(IllegalArgumentException.class,
-                e -> Option.some(className + ": " + e.getMessage()))
+    private static List<String> checkElement(
+            String location, AnnotatedElement element, @Nullable BeanFactory beanFactory, Set<Annotation> seen) {
+        List<String> errors = List.empty();
+
+        FvRule fvRule = element.getAnnotation(FvRule.class);
+        if (fvRule != null && seen.add(fvRule)) {
+            errors = errors.appendAll(
+                tryResolve(location, () -> FvRuleValidator.resolveRule(fvRule.value())));
+        }
+
+        FvStaticRule staticRule = element.getAnnotation(FvStaticRule.class);
+        if (staticRule != null && seen.add(staticRule)) {
+            errors = errors.appendAll(
+                tryResolve(location, () -> FvStaticRuleValidator.resolveRule(staticRule.on(), staticRule.field()).get()));
+        }
+
+        FvRuleBean ruleBean = element.getAnnotation(FvRuleBean.class);
+        if (ruleBean != null && beanFactory != null && seen.add(ruleBean)) {
+            errors = errors.appendAll(
+                tryResolve(location, () -> FvRuleBeanValidator.resolveBean(ruleBean.value(), beanFactory)));
+        }
+
+        return errors;
+    }
+
+    private static List<String> tryResolve(String location, CheckedRunnable action) {
+        return Try.run(action)
+            .map(ignored -> List.<String>empty())
+            .recover(IllegalArgumentException.class, e -> List.of(location + ": " + e.getMessage()))
             .get();
     }
 }

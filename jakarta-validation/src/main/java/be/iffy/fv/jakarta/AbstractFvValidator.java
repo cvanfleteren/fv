@@ -14,6 +14,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
+import java.util.Objects;
 
 /**
  * Abstract base class for a Bean Validation (BV) {@link ConstraintValidator} implementation
@@ -45,12 +46,12 @@ abstract class AbstractFvValidator<A extends Annotation> implements ConstraintVa
     public boolean isValid(@Nullable Object value, ConstraintValidatorContext context) {
         if (value == null) return true;
 
-        Validation<?> result = rule.apply(value);
+        Validation<?> result = Objects.requireNonNull(rule.apply(value), "Rules are not allowed to return a null Validation");
 
         return result.fold(
             errors -> {
                 context.disableDefaultConstraintViolation();
-                result.errors().forEach(error -> addViolation(error, context));
+                errors.forEach(error -> addViolation(error, context));
                 return false;
             },
             ignore -> true
@@ -81,26 +82,52 @@ abstract class AbstractFvValidator<A extends Annotation> implements ConstraintVa
             return;
         }
 
-        // Fold over adjacent pairs (current, next) to navigate intermediate segments.
-        // Each step applies the current segment's index (if any) then advances to the next node.
-        NodeBuilderCustomizableContext current = paths.init()
-            .zip(paths.tail())
-            .foldLeft(
-                violationBuilder.addPropertyNode(paths.head().text()),
-                (node, pair) -> pair._1.index().fold(
-                    () -> node.addPropertyNode(pair._2.text()),
-                    idx -> applyIntermediateIndex(node, idx).addPropertyNode(pair._2.text())
-                )
-            );
+        // Build the BV property path from the FV error path.
+        //
+        // Key constraint: HV renders the index associated with a node X as belonging to X's PARENT.
+        // Specifically, addPropertyNode("parent").addPropertyNode("child").inIterable().atIndex(N)
+        // renders as "parent[N].child", NOT "parent.child[N]".
+        //
+        // Therefore, FV's index on segment[i] (meaning "segment[i] is a container, element N")
+        // must be expressed via inIterable().atIndex(N) on segment[i+1] — not on segment[i].
+        //
+        // The accumulator alternates between NodeBuilderCustomizableContext (no pending index, can
+        // call inIterable()) and NodeBuilderDefinedContext (index just applied, cannot call inIterable()
+        // but can call addPropertyNode/addConstraintViolation). We use Object to hold either.
 
-        // For the last segment: an index means "element N of this collection property".
-        // We express this with an anonymous bean node (representing the element) at the index —
-        // which HV renders as "fieldName[N]" in the path string.
+        // Add the first segment
+        Object ctx = violationBuilder.addPropertyNode(paths.head().text());
+
+        // For each pair (segment[i], segment[i+1]): add segment[i+1], then apply segment[i]'s index
+        for (int i = 0; i < paths.size() - 1; i++) {
+            ErrorMessage.Path prevSeg = paths.apply(i);
+            String nextText = paths.apply(i + 1).text();
+
+            // Add the next property node (addPropertyNode is available on both NBC and NBD)
+            NodeBuilderCustomizableContext nextNBC = switch (ctx) {
+                case NodeBuilderCustomizableContext nbc -> nbc.addPropertyNode(nextText);
+                case NodeBuilderDefinedContext nbd -> nbd.addPropertyNode(nextText);
+                default -> throw new IllegalStateException();
+            };
+
+            // Apply the previous segment's index to the newly added node (if any)
+            ctx = prevSeg.index().fold(
+                () -> (Object) nextNBC,
+                idx -> applyIntermediateIndex(nextNBC, idx)
+            );
+        }
+
+        // Handle the last segment's own index (if any): add an anonymous bean node at that index,
+        // which HV renders as "fieldName[N]" when it is the terminal path node.
         ErrorMessage.Path last = paths.last();
         if (last.index().isDefined()) {
-            applyTerminalIndex(current, last.index().get());
+            applyTerminalIndex(ctx, last.index().get());
         } else {
-            current.addConstraintViolation();
+            switch (ctx) {
+                case NodeBuilderCustomizableContext nbc -> nbc.addConstraintViolation();
+                case NodeBuilderDefinedContext nbd -> nbd.addConstraintViolation();
+                default -> throw new IllegalStateException();
+            }
         }
     }
 
@@ -128,16 +155,24 @@ abstract class AbstractFvValidator<A extends Annotation> implements ConstraintVa
         }
     }
 
-    private NodeBuilderDefinedContext applyIntermediateIndex(NodeBuilderCustomizableContext ctx, Object idx) {
-        ConstraintViolationBuilder.NodeContextBuilder nodeCtx = ctx.inIterable();
+    // Applies segment[i]'s index to segment[i+1]'s already-added property node. HV renders this
+    // as "segment[i][idx].segment[i+1]" because the index visually shifts left by one node.
+    private NodeBuilderDefinedContext applyIntermediateIndex(NodeBuilderCustomizableContext childNode, Object idx) {
+        ConstraintViolationBuilder.NodeContextBuilder inIterable = childNode.inIterable();
         return switch (idx) {
-            case Integer i -> nodeCtx.atIndex(i);
-            default -> nodeCtx.atKey(idx.toString());
+            case Integer i -> inIterable.atIndex(i);
+            default -> inIterable.atKey(idx.toString());
         };
     }
 
-    private void applyTerminalIndex(NodeBuilderCustomizableContext ctx, Object idx) {
-        ConstraintViolationBuilder.LeafNodeContextBuilder leafCtx = ctx.addBeanNode().inIterable();
+    // Adds an anonymous bean node at the given index, used for the terminal segment's own index.
+    // Both NBC and NBD expose addBeanNode() → LeafNodeBuilderCustomizableContext, so we accept Object.
+    private void applyTerminalIndex(Object ctx, Object idx) {
+        ConstraintViolationBuilder.LeafNodeContextBuilder leafCtx = (switch (ctx) {
+            case NodeBuilderCustomizableContext nbc -> nbc.addBeanNode();
+            case NodeBuilderDefinedContext nbd -> nbd.addBeanNode();
+            default -> throw new IllegalStateException();
+        }).inIterable();
         switch (idx) {
             case Integer i -> leafCtx.atIndex(i).addConstraintViolation();
             default -> leafCtx.atKey(idx.toString()).addConstraintViolation();

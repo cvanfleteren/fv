@@ -2,11 +2,7 @@ package be.iffy.fv.jakarta;
 
 import be.iffy.fv.Rule;
 import be.iffy.fv.jakarta.support.*;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.MessageInterpolator;
-import jakarta.validation.Valid;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
+import jakarta.validation.*;
 import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.messageinterpolation.HibernateMessageInterpolatorContext;
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
@@ -16,14 +12,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import static be.iffy.fv.dsl.DSL.ints;
-import static be.iffy.fv.dsl.DSL.strings;
+import static be.iffy.fv.dsl.DSL.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -500,6 +491,86 @@ class FvRuleValidatorTest {
             assertThat(capturedByTemplate)
                 .containsEntry("{must.have.min.length}", 2)
                 .containsEntry("{must.be.at.least}", 18);
+        }
+    }
+
+    @Nested
+    class WhenPathHasNonIntegerIndexedSegment {
+        @Test
+        void fullNested_invalidElementInList_pathIncludesIndexOnContainerNotLeaf() {
+            var cart = new CartMap(Map.of(
+                "a", new CartMap.Line("A", 5),
+                "b", new CartMap.Line("B", 0)  // index 1, qty fails
+            ));
+
+            Set<ConstraintViolation<CartMap>> violations = validator.validate(cart);
+
+            assertThat(violations).hasSize(1);
+            var v = violations.iterator().next();
+            assertThat(v.getPropertyPath().toString()).isEqualTo("map[b].qty");
+        }
+
+    }
+
+    @Nested
+    class WhenPathHasIntermediateIndexedSegment {
+
+        @FvStaticRule(on=Carts.class, field="RULE")
+        record Carts(@Valid List<Cart> carts) {
+
+            public static Rule<Carts> RULE = lists.<Cart>minSize(1).on(Carts::carts);
+
+        }
+
+        // Regression test: the bridge previously dropped the index on non-terminal segments,
+        // producing "lines.qty" instead of "lines[1].qty" for a List<Line> validated per-element.
+
+        @Test
+        void fullNested_invalidElementInList_pathIncludesIndexOnContainerNotLeaf() {
+            var cart = new Cart(List.of(
+                new Cart.Line("A", 5),
+                new Cart.Line("B", 0)  // index 1, qty fails
+            ));
+            var carts = new Carts(List.of(cart));
+            Set<ConstraintViolation<Carts>> violations = validator.validate(carts);
+
+            assertThat(violations).hasSize(1);
+            var v = violations.iterator().next();
+            assertThat(v.getPropertyPath().toString()).isEqualTo("carts[0].lines[1].qty");
+        }
+
+        @Test
+        void invalidElementInList_pathIncludesIndexOnContainerNotLeaf() {
+            var cart = new Cart(List.of(
+                new Cart.Line("A", 5),
+                new Cart.Line("B", 0)  // index 1, qty fails
+            ));
+            Set<ConstraintViolation<Cart>> violations = validator.validate(cart);
+
+            assertThat(violations).hasSize(1);
+            var v = violations.iterator().next();
+            assertThat(v.getPropertyPath().toString()).isEqualTo("lines[1].qty");
+        }
+
+        @Test
+        void multipleInvalidElements_allPathsIncludeIndex() {
+            var cart = new Cart(List.of(
+                new Cart.Line("A", 0),
+                new Cart.Line("B", 5),
+                new Cart.Line("C", 0)
+            ));
+            Set<ConstraintViolation<Cart>> violations = validator.validate(cart);
+
+            assertThat(violations).hasSize(2);
+            assertThat(violations)
+                .extracting(v -> v.getPropertyPath().toString())
+                .containsExactlyInAnyOrder("lines[0].qty", "lines[2].qty");
+        }
+
+        @Test
+        void allElementsValid_noViolations() {
+            var cart = new Cart(List.of(new Cart.Line("A", 1), new Cart.Line("B", 2)));
+            assertThat(validator.validate(cart)).isEmpty();
         }
     }
 

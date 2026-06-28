@@ -34,7 +34,7 @@ class FvRuleStartupValidatorTest {
         void allErrorsCollectedInSinglePass() {
             List<String> errors = FvRuleStartupValidator.scanAndValidate(List.of(BAD_PACKAGE), null);
 
-            assertThat(errors).hasSize(2);
+            assertThat(errors).hasSize(3);
         }
 
         @Test
@@ -52,6 +52,14 @@ class FvRuleStartupValidatorTest {
             assertThat(errors)
                 .anyMatch(e -> e.contains("MissingConstructor"));
         }
+
+        @Test
+        void fieldOrParameterAnnotation_errorMentionsLocation() {
+            List<String> errors = FvRuleStartupValidator.scanAndValidate(List.of(BAD_PACKAGE), null);
+
+            assertThat(errors)
+                .anyMatch(e -> e.contains("BadParamAnnotation") && e.contains("must implement Rule or RuleProvider"));
+        }
     }
 
     @Nested
@@ -63,7 +71,7 @@ class FvRuleStartupValidatorTest {
                 List.of(GOOD_PACKAGE, BAD_PACKAGE), null
             );
 
-            assertThat(errors).hasSize(2);
+            assertThat(errors).hasSize(3);
             assertThat(errors).noneMatch(e ->
                 e.contains("Person") || e.contains("Order") || e.contains("Widget")
                     || e.contains("Gadget") || e.contains("Shipment")

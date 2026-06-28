@@ -29,13 +29,13 @@ Three annotations are available, each covering a different way to point at the r
 
 | Annotation      | When to use                                                                     |
 |-----------------|---------------------------------------------------------------------------------|
-| `@FvStaticRule` | Rule is a `public static` field — the natural FV idiom                          |
+| `@FvStaticRule` | Rule is a `static` field — the natural FV idiom                                 |
 | `@FvRule`       | Rule is a class with a no-arg constructor (implements `Rule` or `RuleProvider`) |
 | `@FvRuleBean`   | Rule is a Spring bean that needs `@Autowired` dependencies                      |
 
 ### `@FvStaticRule` — static field (recommended)
 
-Point directly at a `public static` field of type `Rule` on any class. This is the natural FV
+Point directly at a `static` field of type `Rule` on any class. This is the natural FV
 idiom: rules are plain static constants, and the annotation is just a pointer — no wrapper class
 or interface required.
 
@@ -75,7 +75,7 @@ BV instantiates it once per validator lifecycle.
 
 ```java
 @FvRule(Person.Validator.class)
-record Person(String name, int age) {
+record Person(String name, int age) {agent
 
     public static class Validator implements Rule<Person> {
         private static final Rule<Person> IMPL = Rule.all(
@@ -131,7 +131,7 @@ record Order(String ref, List<LineItem> items) {
         public Validation<Order> apply(Order order) {
             return Rule.all(
                 strings.notBlank().on(Order::ref),
-                rule(o -> pricingService.isWithinBudget(o.items()), "order.over.budget")
+                Rule.of(o -> pricingService.isWithinBudget(o.items()), "order.over.budget")
             ).apply(order);
         }
     }
@@ -250,7 +250,7 @@ through the normal BV message interpolation mechanism by adding a
 
 ```properties
 # src/main/resources/ValidationMessages.properties
-must.have.min.length=Must be at least {min} character(s)
+must.have.min.length=Must be at least {length} character(s)
 must.be.at.least=Must be at least {min}
 must.not.be.blank=Must not be blank
 ```
@@ -303,18 +303,13 @@ All problems are collected before throwing, so a single startup failure lists ev
 misconfigured type at once:
 
 ```
-IllegalStateException: FV rule annotation misconfiguration detected at startup — fix the following before the application can start:
+IllegalStateException: FV rule annotation misconfiguration detected at startup - fix the following before the application can start:
   - com.example.Order: No field 'RULES' found on com.example.Order
-  - com.example.Product: Cannot instantiate com.example.Product$Validator — ensure it has a public no-arg constructor.
+  - com.example.Product: Cannot instantiate com.example.Product$Validator - ensure it has a public no-arg constructor.
 ```
 
 ## Configuration
 
-| Property                       | Default | Description                                                        |
-|--------------------------------|---------|--------------------------------------------------------------------|
+| Property                       | Default | Description                                                         |
+|--------------------------------|---------|---------------------------------------------------------------------|
 | `fv.rule.startup-scan.enabled` | `true`  | Set to `false` to skip the FV annotation classpath scan at startup. |
-
-```properties
-# Disable startup scanning (e.g. to speed up test contexts where misconfiguration is not a concern)
-fv.rule.startup-scan.enabled=false
-```
