@@ -8,6 +8,8 @@ import io.vavr.collection.HashSet;
 import io.vavr.collection.Set;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  * Validation rules for {@link java.util.Map} values.
@@ -18,6 +20,23 @@ public final class MapRules {
      * Singleton instance of {@link MapRules}.
      */
     public static final MapRules maps = new MapRules();
+
+    /**
+     * Fails if the map is not empty.
+     * <p>
+     * Error key: {@code must.be.empty}
+     *
+     * @return a {@link Rule} checking if the map is empty.
+     */
+    public <K, V> Rule<Map<K, V>> empty() {
+        return Rule.of((Map<K, V> map) -> {
+            if (map.isEmpty()) {
+                return Validation.valid(map);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.be.empty"));
+            }
+        });
+    }
 
     /**
      * Fails if the map is {@code null} or empty.
@@ -97,9 +116,6 @@ public final class MapRules {
      *     <li>{@code min}: the minimum allowed size ({@code int})</li>
      *     <li>{@code max}: the maximum allowed size ({@code int})</li>
      * </ul>
-     *
-     * @param min the minimum allowed size (inclusive).
-     * @param max the maximum allowed size (inclusive).
      */
     public <K, V> Rule<Map<K, V>> sizeBetween(int min, int max) {
         return Rule.of(
@@ -120,9 +136,6 @@ public final class MapRules {
      * <ul>
      *     <li>{@code key}: the required key ({@code K})</li>
      * </ul>
-     *
-     * @param key the required key.
-     * @return a {@link Rule} checking for the presence of the key.
      */
     public <K, V> Rule<Map<K, V>> containsKey(K key) {
         return Rule.of((Map<K, V> map) -> {
@@ -143,9 +156,6 @@ public final class MapRules {
      * <ul>
      *     <li>{@code keys}: the set of required keys ({@link Set})</li>
      * </ul>
-     *
-     * @param keys the required keys.
-     * @return a {@link Rule} checking for the presence of all specified keys.
      */
     public <K, V> Rule<Map<K, V>> containsKeys(K... keys) {
         Set<K> keySet = HashSet.of(keys);
@@ -167,9 +177,6 @@ public final class MapRules {
      * <ul>
      *     <li>{@code key}: the disallowed key ({@code K})</li>
      * </ul>
-     *
-     * @param key the disallowed key.
-     * @return a {@link Rule} checking that the key is absent.
      */
     public <K, V> Rule<Map<K, V>> doesNotContainKey(K key) {
         return Rule.of((Map<K, V> map) -> {
@@ -190,9 +197,6 @@ public final class MapRules {
      * <ul>
      *     <li>{@code keys}: the set of disallowed keys ({@link Set})</li>
      * </ul>
-     *
-     * @param keys the disallowed keys.
-     * @return a {@link Rule} checking that none of the keys are present.
      */
     public <K, V> Rule<Map<K, V>> doesNotContainKeys(K... keys) {
         Set<K> keySet = HashSet.of(keys);
@@ -230,6 +234,121 @@ public final class MapRules {
                 return Validation.valid(map);
             }
         });
+    }
+
+    /**
+     * Fails if all values do not match the given predicate.
+     * <p>
+     * Error key: {@code must.all.match}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code predicate}: the predicate used for validation</li>
+     * </ul>
+     */
+    public <K, V> Rule<Map<K, V>> allMatch(Predicate<V> predicate) {
+        Objects.requireNonNull(predicate, "predicate cannot be null");
+        return allMatch(predicate, ErrorMessage.of("must.all.match"));
+    }
+
+    /**
+     * Fails if all values do not match the given predicate.
+     */
+    public <K, V> Rule<Map<K, V>> allMatch(Predicate<V> predicate, ErrorMessage errorMessage) {
+        Objects.requireNonNull(predicate, "predicate cannot be null");
+        return Rule.of(
+                (Map<K, V> map) -> map.values().stream().allMatch(v -> v != null && predicate.test(v)),
+                errorMessage
+        );
+    }
+
+    /**
+     * Fails if not all values pass the passed {@link Rule}.
+     * <p>
+     * Error key: {@code must.all.match}
+     */
+    public <K, V> Rule<Map<K, V>> allMatchRule(Rule<V> rule) {
+        return allMatchRule(rule, ErrorMessage.of("must.all.match"));
+    }
+
+    /**
+     * Fails if not all values pass the passed {@link Rule}.
+     */
+    public <K, V> Rule<Map<K, V>> allMatchRule(Rule<V> rule, ErrorMessage errorMessage) {
+        return allMatch(rule.toPredicate(), errorMessage);
+    }
+
+    /**
+     * Fails if any value matches the passed {@link Rule}.
+     * <p>
+     * Error key: {@code must.none.match}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code rule}: the rule that must not match any value</li>
+     * </ul>
+     */
+    public <K, V> Rule<Map<K, V>> noneMatchRule(Rule<V> rule) {
+        return noneMatchRule(rule, ErrorMessage.of("must.none.match"));
+    }
+
+    /**
+     * Fails if any value matches the passed {@link Rule}.
+     */
+    public <K, V> Rule<Map<K, V>> noneMatchRule(Rule<V> rule, ErrorMessage errorMessage) {
+        return noneMatch(rule.toPredicate(), errorMessage);
+    }
+
+    /**
+     * Fails if any value matches the given predicate.
+     * <p>
+     * Error key: {@code must.none.match}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code predicate}: the predicate to validate against</li>
+     * </ul>
+     */
+    public <K, V> Rule<Map<K, V>> noneMatch(Predicate<V> predicate) {
+        Objects.requireNonNull(predicate, "predicate cannot be null");
+        return noneMatch(predicate, ErrorMessage.of("must.none.match"));
+    }
+
+    /**
+     * Fails if any value matches the given predicate.
+     */
+    public <K, V> Rule<Map<K, V>> noneMatch(Predicate<V> predicate, ErrorMessage errorMessage) {
+        Objects.requireNonNull(predicate, "predicate cannot be null");
+        return Rule.of(
+                (Map<K, V> map) -> map.values().stream().noneMatch(v -> v != null && predicate.test(v)),
+                errorMessage
+        );
+    }
+
+    /**
+     * Fails if no value matches the given predicate.
+     * <p>
+     * Error key: {@code must.at.least.one.match}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code predicate}: the predicate to validate against</li>
+     * </ul>
+     */
+    public <K, V> Rule<Map<K, V>> anyMatch(Predicate<V> predicate) {
+        Objects.requireNonNull(predicate, "predicate cannot be null");
+        return anyMatch(predicate, ErrorMessage.of("must.at.least.one.match"));
+    }
+
+    /**
+     * Fails if no value matches the given predicate.
+     */
+    public <K, V> Rule<Map<K, V>> anyMatch(Predicate<V> predicate, ErrorMessage errorMessage) {
+        Objects.requireNonNull(predicate, "predicate cannot be null");
+        return Rule.of(
+                (Map<K, V> map) -> map.values().stream().anyMatch(v -> v != null && predicate.test(v)),
+                errorMessage
+        );
     }
 
     /**

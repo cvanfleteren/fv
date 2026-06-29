@@ -1,5 +1,6 @@
 package be.iffy.fv.rules.collections;
 
+import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 import io.vavr.collection.HashMap;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.function.Predicate;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
@@ -16,6 +18,21 @@ import static be.iffy.fv.rules.RulesTest.validTest;
 import static be.iffy.fv.rules.collections.VavrMapRules.vavrMaps;
 
 class VavrMapRulesTest {
+
+    @Nested
+    class Empty {
+
+        @Test
+        void valid() {
+            validTest(HashMap.empty(), vavrMaps.empty());
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, vavrMaps.empty(), "must.not.be.null");
+            invalidTest(HashMap.of("a", 1), vavrMaps.empty(), "must.be.empty");
+        }
+    }
 
     @Nested
     class NotEmpty {
@@ -290,4 +307,202 @@ class VavrMapRulesTest {
         }
     }
 
+
+    @Nested
+    class AllMatch {
+
+        @Test
+        void valid() {
+            Predicate<Integer> isPositive = v -> v > 0;
+            validTest(HashMap.of("a", 1, "b", 2), vavrMaps.allMatch(isPositive));
+            validTest(HashMap.empty(), vavrMaps.allMatch(isPositive));
+        }
+
+        @Test
+        void invalid() {
+            Predicate<Integer> isPositive = v -> v > 0;
+            invalidTest(null, vavrMaps.allMatch(isPositive), "must.not.be.null");
+            invalidTest(
+                HashMap.of("a", 1, "b", -1),
+                vavrMaps.allMatch(isPositive),
+                "must.all.match"
+            );
+        }
+
+        @Test
+        void customErrorMessage() {
+            Predicate<Integer> isPositive = v -> v > 0;
+            ErrorMessage errorMsg = ErrorMessage.of("custom.all.match");
+            Rule<Map<String, Integer>> rule = vavrMaps.allMatch(isPositive, errorMsg);
+            invalidTest(
+                HashMap.of("a", 1, "b", -1),
+                rule,
+                "custom.all.match"
+            );
+        }
+    }
+
+    @Nested
+    class AllMatchRule {
+
+        @Test
+        void valid() {
+            Rule<Integer> rule = Rule.of(v -> v > 0, "must.be.positive");
+            validTest(HashMap.of("a", 1, "b", 2), vavrMaps.allMatchRule(rule));
+            validTest(HashMap.empty(), vavrMaps.allMatchRule(rule));
+        }
+
+        @Test
+        void invalid() {
+            Rule<Integer> rule = Rule.of(v -> v > 0, "must.be.positive");
+            invalidTest(null, vavrMaps.allMatchRule(rule), "must.not.be.null");
+            invalidTest(
+                HashMap.of("a", 1, "b", -1),
+                vavrMaps.allMatchRule(rule),
+                "must.all.match"
+            );
+        }
+    }
+
+    @Nested
+    class NoneMatch {
+
+        @Test
+        void valid() {
+            Predicate<Integer> isNegative = v -> v < 0;
+            validTest(HashMap.of("a", 1, "b", 2), vavrMaps.noneMatch(isNegative));
+            validTest(HashMap.empty(), vavrMaps.noneMatch(isNegative));
+        }
+
+        @Test
+        void invalid() {
+            Predicate<Integer> isNegative = v -> v < 0;
+            invalidTest(null, vavrMaps.noneMatch(isNegative), "must.not.be.null");
+            invalidTest(
+                HashMap.of("a", 1, "b", -1),
+                vavrMaps.noneMatch(isNegative),
+                "must.none.match"
+            );
+        }
+
+        @Test
+        void customErrorMessage() {
+            Predicate<Integer> isNegative = v -> v < 0;
+            ErrorMessage errorMsg = ErrorMessage.of("custom.none.match");
+            Rule<Map<String, Integer>> rule = vavrMaps.noneMatch(isNegative, errorMsg);
+            invalidTest(
+                HashMap.of("a", 1, "b", -1),
+                rule,
+                "custom.none.match"
+            );
+        }
+    }
+
+    @Nested
+    class NoneMatchRule {
+
+        @Test
+        void valid() {
+            Rule<Integer> rule = Rule.of(v -> v < 0, "must.be.positive");
+            validTest(HashMap.of("a", 1, "b", 2), vavrMaps.noneMatchRule(rule));
+            validTest(HashMap.empty(), vavrMaps.noneMatchRule(rule));
+        }
+
+        @Test
+        void invalid() {
+            Rule<Integer> rule = Rule.of(v -> v < 0, "must.be.positive");
+            invalidTest(null, vavrMaps.noneMatchRule(rule), "must.not.be.null");
+            invalidTest(
+                HashMap.of("a", 1, "b", -1),
+                vavrMaps.noneMatchRule(rule),
+                "must.none.match"
+            );
+        }
+    }
+
+    @Nested
+    class AnyMatch {
+
+        @Test
+        void valid() {
+            Predicate<Integer> isNegative = v -> v < 0;
+            validTest(HashMap.of("a", -1), vavrMaps.anyMatch(isNegative));
+            validTest(HashMap.of("a", 1, "b", -1), vavrMaps.anyMatch(isNegative));
+        }
+
+        @Test
+        void invalid() {
+            Predicate<Integer> isNegative = v -> v < 0;
+            invalidTest(null, vavrMaps.anyMatch(isNegative), "must.not.be.null");
+            invalidTest(
+                HashMap.of("a", 1, "b", 2),
+                vavrMaps.anyMatch(isNegative),
+                "must.at.least.one.match"
+            );
+        }
+
+        @Test
+        void customErrorMessage() {
+            Predicate<Integer> isNegative = v -> v < 0;
+            ErrorMessage errorMsg = ErrorMessage.of("custom.any.match");
+            Rule<Map<String, Integer>> rule = vavrMaps.anyMatch(isNegative, errorMsg);
+            invalidTest(
+                HashMap.of("a", 1, "b", 2),
+                rule,
+                "custom.any.match"
+            );
+        }
+    }
+
+    @Nested
+    class AllMatchNullValues {
+
+        @Test
+        void allMatch_withNullValues() {
+            Predicate<Integer> isPositive = v -> v > 0;
+            Rule<Map<String, Integer>> rule = vavrMaps.allMatch(isPositive);
+            // null values are not matching the predicate
+            Map<String, Integer> input = HashMap.of("a", 1, "b", null);
+            invalidTest(
+                input,
+                rule,
+                "must.all.match"
+            );
+        }
+    }
+
+    @Nested
+    class NoneMatchNullValues {
+
+        @Test
+        void noneMatch_withNullValues() {
+            Predicate<Integer> isPositive = v -> v > 0;
+            Rule<Map<String, Integer>> rule = vavrMaps.noneMatch(isPositive);
+            // null values are not matching the predicate, and 1 is > 0 so noneMatch fails
+            Map<String, Integer> input = HashMap.of("a", 1, "b", null);
+            // 1 matches the predicate, so noneMatch should fail
+            invalidTest(
+                input,
+                rule,
+                "must.none.match"
+            );
+        }
+    }
+
+    @Nested
+    class AnyMatchNullValues {
+
+        @Test
+        void anyMatch_withNullValues() {
+            Predicate<Integer> isPositive = v -> v > 0;
+            Rule<Map<String, Integer>> rule = vavrMaps.anyMatch(isPositive);
+            // All values are null which are not > 0, so anyMatch fails
+            Map<String, Integer> input = HashMap.of("a", null, "b", null);
+            invalidTest(
+                input,
+                rule,
+                "must.at.least.one.match"
+            );
+        }
+    }
 }

@@ -5,8 +5,7 @@
 
 ### Added
 
-- min/max size rules in MapRules and VavrMapRules
-- doesNotContainKey(s) rules in MapRules and VavrMapRules
+- added new rules to MapRules/VavrMapRules: min/max size, doesNotContainKey(s), empty, allMatch, noneMatch, anyMatch, ...
 
 ### Changed
 
