@@ -159,6 +159,53 @@ public final class MapRules {
     }
 
     /**
+     * Fails if the map contains the specified key.
+     * <p>
+     * Error key: {@code must.not.contain.key}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code key}: the disallowed key ({@code K})</li>
+     * </ul>
+     *
+     * @param key the disallowed key.
+     * @return a {@link Rule} checking that the key is absent.
+     */
+    public <K, V> Rule<Map<K, V>> doesNotContainKey(K key) {
+        return Rule.of((Map<K, V> map) -> {
+            if (!map.containsKey(key)) {
+                return Validation.valid(map);
+            } else {
+                return Validation.invalid(ErrorMessage.of("must.not.contain.key", "key", key));
+            }
+        });
+    }
+
+    /**
+     * Fails if the map contains ANY of the specified keys.
+     * <p>
+     * Error key: {@code must.not.contain.keys}
+     * <p>
+     * Parameters:
+     * <ul>
+     *     <li>{@code keys}: the set of disallowed keys ({@link Set})</li>
+     * </ul>
+     *
+     * @param keys the disallowed keys.
+     * @return a {@link Rule} checking that none of the keys are present.
+     */
+    public <K, V> Rule<Map<K, V>> doesNotContainKeys(K... keys) {
+        Set<K> keySet = HashSet.of(keys);
+        return Rule.of((Map<K, V> map) -> {
+            if (map.keySet().stream().anyMatch(keySet::contains)) {
+                return Validation.invalid(ErrorMessage.of("must.not.contain.keys", "keys", keySet));
+            } else {
+                return Validation.valid(map);
+            }
+        });
+    }
+
+    /**
      * Fails if the map contains any {@code null} values.
      * <p>
      * Error key: {@code must.not.contain.null.values}

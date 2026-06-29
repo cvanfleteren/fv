@@ -149,6 +149,96 @@ class MapRulesTest {
     }
 
     @Nested
+    class ContainsKeys {
+
+        @Test
+        void valid() {
+            validTest(
+                Map.of("a", 1, "b", 2),
+                maps.containsKeys("a", "b")
+            );
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(
+                null,
+                maps.containsKeys("a", "b"),
+                "must.not.be.null"
+            );
+            invalidTest(
+                Map.of("a", 1),
+                maps.containsKeys("a", "b"),
+                "must.contain.keys",
+                HashMap.of("keys", HashSet.of("a", "b"))
+            );
+            invalidTest(
+                Map.of("a", 1),
+                maps.containsKeys("a", "b", "c"),
+                "must.contain.keys",
+                HashMap.of("keys", HashSet.of("a", "b", "c"))
+            );
+        }
+    }
+
+    @Nested
+    class DoesNotContainKey {
+
+        @Test
+        void valid() {
+            validTest(Map.of("a", 1, "b", 2), maps.doesNotContainKey("c"));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, maps.doesNotContainKey("a"), "must.not.be.null");
+            invalidTest(
+                Map.of("a", 1),
+                maps.doesNotContainKey("a"),
+                "must.not.contain.key",
+                HashMap.of("key", "a")
+            );
+        }
+    }
+
+    @Nested
+    class DoesNotContainKeys {
+
+        @Test
+        void valid() {
+            validTest(
+                Map.of("a", 1, "b", 2),
+                maps.doesNotContainKeys("c", "d")
+            );
+            validTest(
+                Map.of("a", 1, "b", 2),
+                maps.doesNotContainKeys("c")
+            );
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(
+                null,
+                maps.doesNotContainKeys("a", "b"),
+                "must.not.be.null"
+            );
+            invalidTest(
+                Map.of("a", 1, "b", 2),
+                maps.doesNotContainKeys("a", "b"),
+                "must.not.contain.keys",
+                HashMap.of("keys", HashSet.of("a", "b"))
+            );
+            invalidTest(
+                Map.of("a", 1),
+                maps.doesNotContainKeys("a", "c"),
+                "must.not.contain.keys",
+                HashMap.of("keys", HashSet.of("a", "c"))
+            );
+        }
+    }
+
+    @Nested
     class ValuesNotNull {
 
         @Test
@@ -196,39 +286,6 @@ class MapRulesTest {
 
             assertThatValidation(result).isInvalid().hasErrorMessage("value[a].must.be.positive");
             assertThatValidation(result).isInvalid().hasErrorMessage("value[c].must.be.positive");
-        }
-    }
-
-    @Nested
-    class ContainsKeys {
-
-        @Test
-        void valid() {
-            validTest(
-                    Map.of("a", 1, "b", 2),
-                    maps.containsKeys("a", "b")
-            );
-        }
-
-        @Test
-        void invalid() {
-            invalidTest(
-                    null,
-                    maps.containsKeys("a", "b"),
-                    "must.not.be.null"
-            );
-            invalidTest(
-                    Map.of("a", 1),
-                    maps.containsKeys("a", "b"),
-                    "must.contain.keys",
-                    HashMap.of("keys", HashSet.of("a", "b"))
-            );
-            invalidTest(
-                    Map.of("a", 1),
-                    maps.containsKeys("a", "b", "c"),
-                    "must.contain.keys",
-                    HashMap.of("keys", HashSet.of("a", "b", "c"))
-            );
         }
     }
 

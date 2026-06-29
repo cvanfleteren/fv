@@ -6,6 +6,7 @@
 ### Added
 
 - min/max size rules in MapRules and VavrMapRules
+- doesNotContainKey(s) rules in MapRules and VavrMapRules
 
 ### Changed
 

@@ -195,6 +195,63 @@ class VavrMapRulesTest {
     }
 
     @Nested
+    class DoesNotContainKey {
+
+        @Test
+        void valid() {
+            validTest(HashMap.of("a", 1, "b", 2), vavrMaps.doesNotContainKey("c"));
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(null, vavrMaps.doesNotContainKey("a"), "must.not.be.null");
+            invalidTest(
+                HashMap.of("a", 1),
+                vavrMaps.doesNotContainKey("a"),
+                "must.not.contain.key",
+                HashMap.of("key", "a")
+            );
+        }
+    }
+
+    @Nested
+    class DoesNotContainKeys {
+
+        @Test
+        void valid() {
+            validTest(
+                HashMap.of("a", 1, "b", 2),
+                vavrMaps.doesNotContainKeys("c", "d")
+            );
+            validTest(
+                HashMap.of("a", 1, "b", 2),
+                vavrMaps.doesNotContainKeys("c")
+            );
+        }
+
+        @Test
+        void invalid() {
+            invalidTest(
+                null,
+                vavrMaps.doesNotContainKeys("a", "b"),
+                "must.not.be.null"
+            );
+            invalidTest(
+                HashMap.of("a", 1, "b", 2),
+                vavrMaps.doesNotContainKeys("a", "b"),
+                "must.not.contain.keys",
+                HashMap.of("keys", HashSet.of("a", "b"))
+            );
+            invalidTest(
+                HashMap.of("a", 1),
+                vavrMaps.doesNotContainKeys("a", "c"),
+                "must.not.contain.keys",
+                HashMap.of("keys", HashSet.of("a", "c"))
+            );
+        }
+    }
+
+    @Nested
     class ContainsKeys {
 
         @Test
