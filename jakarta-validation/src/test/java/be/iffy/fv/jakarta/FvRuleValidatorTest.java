@@ -628,10 +628,50 @@ class FvRuleValidatorTest {
     }
 
     @Nested
-    class WhenFvStaticRuleOmitsOn {
+    class WhenPathHasDoublyNestedIndexedSegments {
 
-        // on() omitted: the annotated type is used automatically as the rule holder.
-        @FvStaticRule(field = "RULE")
+        @Test
+        void invalidItemInNestedList_pathIncludesBothIndices() {
+            var depot = new Depot(List.of(
+                new Depot.Shelf(List.of(
+                    new Depot.Item("abc"),
+                    new Depot.Item("x")   // index 1, name too short
+                ))
+            ));
+            Set<ConstraintViolation<Depot>> violations = validator.validate(depot);
+
+            assertThat(violations).hasSize(1);
+            assertThat(violations.iterator().next().getPropertyPath().toString())
+                .isEqualTo("shelves[0].items[1].name");
+        }
+
+        @Test
+        void multipleInvalidItems_allPathsIncludeBothIndices() {
+            var depot = new Depot(List.of(
+                new Depot.Shelf(List.of(new Depot.Item("abc"), new Depot.Item("x"))),  // shelf 0, item 1 fails
+                new Depot.Shelf(List.of(new Depot.Item("y"), new Depot.Item("abc")))   // shelf 1, item 0 fails
+            ));
+            Set<ConstraintViolation<Depot>> violations = validator.validate(depot);
+
+            assertThat(violations).hasSize(2);
+            assertThat(violations)
+                .extracting(v -> v.getPropertyPath().toString())
+                .containsExactlyInAnyOrder("shelves[0].items[1].name", "shelves[1].items[0].name");
+        }
+
+        @Test
+        void allItemsValid_noViolations() {
+            var depot = new Depot(List.of(
+                new Depot.Shelf(List.of(new Depot.Item("abc"), new Depot.Item("def")))
+            ));
+            assertThat(validator.validate(depot)).isEmpty();
+        }
+    }
+
+    @Nested
+    class WhenFvStaticRulePointsAtAnnotatedType {
+
+        @FvStaticRule(on = Snippet.class, field = "RULE")
         record Snippet(String text, int count) {
             static final Rule<Snippet> RULE = Rule.all(
                 strings.minLength(3).on(Snippet::text),

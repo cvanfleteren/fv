@@ -2,44 +2,19 @@ package be.iffy.fv.jakarta;
 
 import be.iffy.fv.Rule;
 import io.vavr.control.Try;
-import jakarta.validation.ConstraintValidatorContext;
-import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Modifier;
 
 /**
  * BV {@link jakarta.validation.ConstraintValidator} that resolves an FV {@link Rule} from a
  * {@code public static} field on a class, as specified by {@link FvStaticRule}.
- *
- * <p>When {@link FvStaticRule#on()} is omitted (defaults to {@code Void.class}), the holder class
- * is inferred from the runtime type of the first validated value and cached for subsequent calls.
- * The write to the cached rule is safe under concurrent access because the computed value is always
- * the same for a given annotated element, and {@code rule} is {@code volatile} in the parent.
  */
 public class FvStaticRuleValidator extends AbstractFvValidator<FvStaticRule> {
-
-    // Non-null only when on == Void.class; cleared implicitly once rule is resolved.
-    @Nullable
-    private volatile String deferredField;
 
     @Override
     @SuppressWarnings("unchecked")
     public void initialize(FvStaticRule annotation) {
-        if (annotation.on() != Void.class) {
-            rule = (Rule<Object>) resolveRule(annotation.on(), annotation.field()).get();
-        } else {
-            deferredField = annotation.field();
-        }
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public boolean isValid(@Nullable Object value, ConstraintValidatorContext context) {
-        if (value == null) return true;
-        if (deferredField != null && rule == null) {
-            rule = (Rule<Object>) resolveRule(value.getClass(), deferredField).get();
-        }
-        return super.isValid(value, context);
+        rule = (Rule<Object>) resolveRule(annotation.on(), annotation.field()).get();
     }
 
     @SuppressWarnings("unchecked")

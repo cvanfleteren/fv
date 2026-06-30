@@ -10,10 +10,10 @@ Because these annotations are standard BV constraints, FV and BV validation unif
 
 ### `@FvStaticRule`
 
-Points directly at a `static` field of type `Rule` on any class. This is the natural FV idiom: rules are plain static constants, and the annotation is just a pointer. When the rule lives on the annotated type itself, `on` can be omitted:
+Points directly at a `static` field of type `Rule` on any class. This is the natural FV idiom: rules are plain static constants, and the annotation is just a pointer. Both `on` (the class that declares the field) and `field` (the field name) are required:
 
 ```java
-@FvStaticRule(field = "RULE")
+@FvStaticRule(on = Person.class, field = "RULE")
 record Person(String name, int age) {
 
     public static final Rule<Person> RULE = Rule.all(
@@ -23,7 +23,7 @@ record Person(String name, int age) {
 }
 ```
 
-When the rule lives on a different class, supply `on` to point at that class:
+The rule may live on any class, not just the annotated type:
 
 ```java
 @FvStaticRule(on = PersonRules.class, field = "VALIDATE")
@@ -203,7 +203,7 @@ The annotation-level `message()` attribute required by the BV spec is intentiona
 The FV annotations compose naturally with standard BV annotations. A type can carry both BV constraints and an FV rule — all constraints are evaluated together and their violations are accumulated:
 
 ```java
-@FvStaticRule(field = "RULE")
+@FvStaticRule(on = Order.class, field = "RULE")
 record Order(@NotBlank String reference, @Min(1) int quantity) {
 
     public static final Rule<Order> RULE = Rule.all(
@@ -255,7 +255,7 @@ public void enroll(@Valid @ValidPerson Person person) { ... }
 
 BV discovers the `@FvRule` meta-annotation on `@ValidPerson` and invokes the validator transparently. Violations, paths, groups, and message interpolation all work identically to using the original annotation directly.
 
-`@FvStaticRule` requires an explicit `on` when used as a meta-annotation (the rule holder cannot be inferred from an annotation type declaration):
+`@FvStaticRule` always requires both `on` and `field`:
 
 ```java
 @FvStaticRule(on = Person.class, field = "RULE")

@@ -9,15 +9,12 @@ import java.lang.annotation.*;
 /**
  * Bridges an FV {@link Rule} stored in a {@code public static} field into Jakarta Bean Validation.
  *
- * <p>Point directly at a field of type {@link Rule} on any class. This is the natural FV idiom:
- * rules are plain static constants, and the annotation is just a pointer — no wrapper class or
- * interface required.
- *
- * <p><b>Shorthand form</b> (when the rule lives on the annotated type itself): omit {@link #on()}
- * and the annotated type is used automatically:
+ * <p>Point {@link #on()} at the class that declares the field, and {@link #field()} at the field
+ * name. This is the natural FV idiom: rules are plain static constants, and the annotation is
+ * just a pointer — no wrapper class or interface required.
  *
  * <pre>{@code
- * @FvStaticRule(field = "RULE")
+ * @FvStaticRule(on = Person.class, field = "RULE")
  * record Person(String name, int age) {
  *
  *     public static final Rule<Person> RULE = Rule.all(
@@ -27,8 +24,7 @@ import java.lang.annotation.*;
  * }
  * }</pre>
  *
- * <p><b>Explicit form</b> (when the rule lives on a different class): supply {@link #on()} to
- * point at the class that declares the field:
+ * <p>The rule may live on any class, not necessarily the annotated type:
  *
  * <pre>{@code
  * @FvStaticRule(on = PersonRules.class, field = "VALIDATE")
@@ -70,14 +66,8 @@ import java.lang.annotation.*;
 @Documented
 public @interface FvStaticRule {
 
-    /**
-     * The class that declares the static {@link Rule} field.
-     *
-     * <p>When this annotation is placed on a type and the rule lives on that same type, {@code on}
-     * may be omitted: the annotated type is used automatically. Must be specified explicitly when
-     * the rule lives on a different class, or when the annotation is on a field or parameter.
-     */
-    Class<?> on() default Void.class;
+    /** The class that declares the static {@link Rule} field. */
+    Class<?> on();
 
     /** The name of the {@code public static} field of type {@link Rule} on {@link #on()}. */
     String field();

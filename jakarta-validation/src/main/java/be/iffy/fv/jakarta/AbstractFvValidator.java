@@ -3,12 +3,15 @@ package be.iffy.fv.jakarta;
 import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
+import io.vavr.Tuple2;
 import io.vavr.collection.List;
+import io.vavr.control.Try;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.ConstraintValidatorContext.ConstraintViolationBuilder;
 import jakarta.validation.ConstraintValidatorContext.ConstraintViolationBuilder.NodeBuilderCustomizableContext;
 import jakarta.validation.ConstraintValidatorContext.ConstraintViolationBuilder.NodeBuilderDefinedContext;
+import jakarta.validation.ValidationException;
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
 import org.jspecify.annotations.Nullable;
 
@@ -31,7 +34,8 @@ abstract class AbstractFvValidator<A extends Annotation> implements ConstraintVa
 
     // check to see if we have Hibernate Validator on the classpath without causing an error if we don't
     static final boolean HAS_HIBERNATE_VALIDATOR;
-    static  {
+
+    static {
         boolean found;
         try {
             Class.forName("org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext", false, AbstractFvValidator.class.getClassLoader());
@@ -96,34 +100,35 @@ abstract class AbstractFvValidator<A extends Annotation> implements ConstraintVa
         // but can call addPropertyNode/addConstraintViolation). We use Object to hold either.
 
         // Add the first segment
-        Object ctx = violationBuilder.addPropertyNode(paths.head().text());
+        Object initialCtx = violationBuilder.addPropertyNode(paths.head().text());
 
-        // For each pair (segment[i], segment[i+1]): add segment[i+1], then apply segment[i]'s index
-        for (int i = 0; i < paths.size() - 1; i++) {
-            ErrorMessage.Path prevSeg = paths.apply(i);
-            String nextText = paths.apply(i + 1).text();
+        // For each consecutive pair (segment[i], segment[i+1]): add segment[i+1], then apply segment[i]'s index
+        // zip pairs each element with its successor, foldLeft accumulates the mutable context through the path
+        Object almostCtx = paths.zip(paths.tail()).foldLeft(initialCtx, (ctx, pair) -> {
+            ErrorMessage.Path prev = pair._1;
+            ErrorMessage.Path next = pair._2;
 
             // Add the next property node (addPropertyNode is available on both NBC and NBD)
             NodeBuilderCustomizableContext nextNBC = switch (ctx) {
-                case NodeBuilderCustomizableContext nbc -> nbc.addPropertyNode(nextText);
-                case NodeBuilderDefinedContext nbd -> nbd.addPropertyNode(nextText);
+                case NodeBuilderCustomizableContext nbc -> nbc.addPropertyNode(next.text());
+                case NodeBuilderDefinedContext nbd -> nbd.addPropertyNode(next.text());
                 default -> throw new IllegalStateException();
             };
 
             // Apply the previous segment's index to the newly added node (if any)
-            ctx = prevSeg.index().fold(
+            return prev.index().fold(
                 () -> (Object) nextNBC,
                 idx -> applyIntermediateIndex(nextNBC, idx)
             );
-        }
+        });
 
         // Handle the last segment's own index (if any): add an anonymous bean node at that index,
         // which HV renders as "fieldName[N]" when it is the terminal path node.
         ErrorMessage.Path last = paths.last();
         if (last.index().isDefined()) {
-            applyTerminalIndex(ctx, last.index().get());
+            applyTerminalIndex(almostCtx, last.index().get());
         } else {
-            switch (ctx) {
+            switch (almostCtx) {
                 case NodeBuilderCustomizableContext nbc -> nbc.addConstraintViolation();
                 case NodeBuilderDefinedContext nbd -> nbd.addConstraintViolation();
                 default -> throw new IllegalStateException();
@@ -144,12 +149,15 @@ abstract class AbstractFvValidator<A extends Annotation> implements ConstraintVa
         ErrorMessage error, ConstraintValidatorContext context
     ) {
         String template = "{" + error.key() + "}";
-
         if (HAS_HIBERNATE_VALIDATOR) {
-            HibernateConstraintValidatorContext hvCtx = context.unwrap(HibernateConstraintValidatorContext.class);
-            error.parameters().forEach(hvCtx::addMessageParameter);
-
-            return hvCtx.buildConstraintViolationWithTemplate(template);
+            return Try.<ConstraintViolationBuilder>of(() -> {
+                HibernateConstraintValidatorContext hvCtx = context.unwrap(HibernateConstraintValidatorContext.class);
+                error.parameters().forEach(hvCtx::addMessageParameter);
+                return hvCtx.buildConstraintViolationWithTemplate(template);
+            }).recover(
+                ValidationException.class,
+                context.buildConstraintViolationWithTemplate(template)
+            ).get();
         } else {
             return context.buildConstraintViolationWithTemplate(template);
         }

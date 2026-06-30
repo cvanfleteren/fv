@@ -28,10 +28,10 @@ Three annotations are available, each finding the rule in a different way:
 
 ### 1. Annotate your type
 
-The simplest path: point `@FvStaticRule` at a `static` field of type `Rule<T>`. When the rule lives on the annotated type itself, `on` can be omitted:
+The simplest path: point `@FvStaticRule` at a `static` field of type `Rule<T>`. Both `on` (the class that declares the field) and `field` (the field name) are required:
 
 ```java
-@FvStaticRule(field = "RULE")
+@FvStaticRule(on = Person.class, field = "RULE")
 record Person(String name, int age) {
 
     public static final Rule<Person> RULE = Rule.all(
@@ -41,7 +41,7 @@ record Person(String name, int age) {
 }
 ```
 
-When the rule lives on a different class, supply `on`:
+The rule may live on any class, not just the annotated type:
 
 ```java
 @FvStaticRule(on = PersonRules.class, field = "VALIDATE")

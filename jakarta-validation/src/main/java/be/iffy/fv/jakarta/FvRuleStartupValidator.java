@@ -11,8 +11,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 
-import org.jspecify.annotations.Nullable;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.HashSet;
@@ -133,11 +131,8 @@ public class FvRuleStartupValidator implements SmartInitializingSingleton {
 
         for (FvStaticRule staticRule : element.getAnnotationsByType(FvStaticRule.class)) {
             if (seen.add(staticRule)) {
-                Class<?> holder = staticRule.on() != Void.class ? staticRule.on() : inferHolderClass(element);
-                if (holder != null) {
-                    errors = errors.appendAll(
-                        tryResolve(location, () -> FvStaticRuleValidator.resolveRule(holder, staticRule.field()).get()));
-                }
+                errors = errors.appendAll(
+                    tryResolve(location, () -> FvStaticRuleValidator.resolveRule(staticRule.on(), staticRule.field()).get()));
             }
         }
 
@@ -151,23 +146,6 @@ public class FvRuleStartupValidator implements SmartInitializingSingleton {
         }
 
         return errors;
-    }
-
-    /**
-     * Infers the class to look up the static rule field on when {@link FvStaticRule#on()} is
-     * omitted. Returns the class itself for type-level annotations, the declared type for field
-     * and parameter annotations, and {@code null} for annotation types (where the target type
-     * is only known at the use site, not at the annotation declaration).
-     */
-    @Nullable
-    private static Class<?> inferHolderClass(AnnotatedElement element) {
-        return switch (element) {
-            case Class<?> cls when !cls.isAnnotation() -> cls;
-            case Field f -> f.getType();
-            case Parameter p -> p.getType();
-            case Constructor<?> c -> c.getDeclaringClass();
-            default -> null;
-        };
     }
 
     private static List<String> tryResolve(String location, CheckedRunnable action) {
