@@ -542,7 +542,7 @@ Rule<String> minLengthRule = strings.minLength(5);
 Rule<Optional<String>> optionalRule = minLengthRule.lift().toOptional();
 
 // or alternatively with the OptionalRules:
-Rule<Optional<String>> fromOptionals = optionals.contains(strings.minLength(5));
+Rule<Optional<String>> fromOptionals = optionals.matches(strings.minLength(5));
 
 optionalRule.apply(Optional.empty()); // Valid
 optionalRule.apply(Optional.of("abc")); // Invalid (must be at least 5)
