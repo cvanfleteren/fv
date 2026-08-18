@@ -12,16 +12,64 @@ import java.util.function.Function;
 /**
  * Utility class providing static factory methods for combining and sequencing {@link Validation} instances.
  *
- * <p>The two main operations are:
+ * <p>The main operations are:
  * <ul>
  *   <li>{@code sequence} — collapses a collection or optional of validations into a single validation of a collection or optional.</li>
  *   <li>{@code combine} — zips two to eight independent validations into a {@code CombineBuilder} that applies a mapper
  *       when all are valid, or accumulates all errors when any are invalid.</li>
+ *   <li>{@code anyOf} — evaluates multiple validations in order, returning the first valid validation or accumulating all errors if all are invalid.</li>
  * </ul>
  */
 public class Validations {
 
     private Validations() {}
+
+    /**
+     * Evaluates a series of validations in order, returning the first {@link Validation.Valid} validation.
+     * If all validations are {@link Validation.Invalid}, returns a validation accumulating all errors in order.
+     *
+     * @return the first valid validation, or an invalid validation containing all accumulated errors.
+     */
+    @SafeVarargs
+    public static <T> Validation<T> anyOf(Validation<? extends T>... validations) {
+        Objects.requireNonNull(validations, "validations cannot be null");
+        if (validations.length == 0) {
+            throw new IllegalArgumentException("validations cannot be empty");
+        }
+        List<ErrorMessage> allErrors = List.empty();
+        for (Validation<? extends T> validation : validations) {
+            Objects.requireNonNull(validation, "validations cannot contain null");
+            if (validation.isValid()) {
+                return Validation.narrow(validation);
+            }
+            allErrors = allErrors.appendAll(validation.errors());
+        }
+        return Validation.invalid(allErrors);
+    }
+
+    /**
+     * Evaluates an iterable of validations in order, returning the first {@link Validation.Valid} validation.
+     * If all validations are {@link Validation.Invalid}, returns a validation accumulating all errors in order.
+     *
+     * @return the first valid validation, or an invalid validation containing all accumulated errors.
+     */
+    public static <T> Validation<T> anyOf(Iterable<? extends Validation<? extends T>> validations) {
+        Objects.requireNonNull(validations, "validations cannot be null");
+        java.util.Iterator<? extends Validation<? extends T>> iterator = validations.iterator();
+        if (!iterator.hasNext()) {
+            throw new IllegalArgumentException("validations cannot be empty");
+        }
+        List<ErrorMessage> allErrors = List.empty();
+        while (iterator.hasNext()) {
+            Validation<? extends T> validation = iterator.next();
+            Objects.requireNonNull(validation, "validations cannot contain null");
+            if (validation.isValid()) {
+                return Validation.narrow(validation);
+            }
+            allErrors = allErrors.appendAll(validation.errors());
+        }
+        return Validation.invalid(allErrors);
+    }
 
     /**
      * Transforms a {@link Seq} of {@link Validation}s into a single {@code Validation} of a {@link List}.

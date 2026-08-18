@@ -421,6 +421,90 @@ public sealed interface Validation<T> extends Iterable<T> {
         Objects.requireNonNull(selector, "selector cannot be null");
         return at(selector.getPropertyName());
     }
+
+    /**
+     * If this validation is invalid, replaces all error messages with the provided {@link ErrorMessage}.
+     * If this validation is valid, returns it unchanged.
+     *
+     * @param errorMessage the replacement error message.
+     * @return this validation if valid, or an invalid validation with the specified error message.
+     */
+    default Validation<T> orError(ErrorMessage errorMessage) {
+        Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
+        return switch (this) {
+            case Valid<T> v -> v;
+            case Invalid<T> ignored -> invalid(errorMessage);
+        };
+    }
+
+    /**
+     * If this validation is invalid, replaces all error messages with an error message having the specified error key.
+     * If this validation is valid, returns it unchanged.
+     *
+     * @param errorKey the replacement error message key.
+     * @return this validation if valid, or an invalid validation with the specified error key.
+     */
+    default Validation<T> orError(String errorKey) {
+        Objects.requireNonNull(errorKey, "errorKey cannot be null");
+        return orError(ErrorMessage.of(errorKey));
+    }
+
+
+    /**
+     * If this validation is invalid, replaces all error messages with the error message supplied by the given supplier.
+     * If this validation is valid, the supplier is not evaluated and returns this unchanged.
+     *
+     * @param errorSupplier the supplier providing the replacement error message.
+     * @return this validation if valid, or an invalid validation with the supplied error message.
+     */
+    default Validation<T> orError(Supplier<ErrorMessage> errorSupplier) {
+        Objects.requireNonNull(errorSupplier, "errorSupplier cannot be null");
+        return switch (this) {
+            case Valid<T> v -> v;
+            case Invalid<T> ignored -> invalid(Objects.requireNonNull(errorSupplier.get(), "errorSupplier result cannot be null"));
+        };
+    }
+
+    /**
+     * If this validation is invalid, replaces all error messages with the provided list of {@link ErrorMessage}s.
+     * If this validation is valid, returns it unchanged.
+     *
+     * @param errors the replacement list of error messages.
+     * @return this validation if valid, or an invalid validation with the specified error messages.
+     */
+    default Validation<T> orErrors(List<ErrorMessage> errors) {
+        Objects.requireNonNull(errors, "errors cannot be null");
+        return switch (this) {
+            case Valid<T> v -> v;
+            case Invalid<T> ignored -> invalid(errors);
+        };
+    }
+
+    /**
+     * If this validation is invalid, replaces all error messages with the provided list of {@link ErrorMessage}s.
+     * If this validation is valid, returns it unchanged.
+     *
+     * @param errors the replacement list of error messages.
+     * @return this validation if valid, or an invalid validation with the specified error messages.
+     */
+    default Validation<T> orErrors(java.util.List<ErrorMessage> errors) {
+        Objects.requireNonNull(errors, "errors cannot be null");
+        return orErrors(List.ofAll(errors));
+    }
+
+    /**
+     * If this validation is invalid, replaces all error messages with the provided error messages.
+     * If this validation is valid, returns it unchanged.
+     *
+     * @param error      the first replacement error message.
+     * @param moreErrors additional replacement error messages.
+     * @return this validation if valid, or an invalid validation with the specified error messages.
+     */
+    default Validation<T> orErrors(ErrorMessage error, ErrorMessage... moreErrors) {
+        Objects.requireNonNull(error, "error cannot be null");
+        Objects.requireNonNull(moreErrors, "moreErrors cannot be null");
+        return orErrors(List.of(error).appendAll(List.of(moreErrors)));
+    }
     //endregion
 
     //region factory methods

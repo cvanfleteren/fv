@@ -3,6 +3,7 @@ package be.iffy.fv;
 import be.iffy.fv.Validation.Invalid;
 import io.vavr.Function2;
 import io.vavr.collection.List;
+import io.vavr.collection.Seq;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -2778,6 +2779,376 @@ public class ValidationTest {
             assertThatValidation(result)
                     .isInvalid()
                     .hasErrorMessages("collection[1].error1", "collection[2].error2");
+        }
+    }
+
+    @Nested
+    class OrError {
+
+        private record TestBean(String name) {
+        }
+
+        @Test
+        void orError_whenValid_returnsSelfUnchanged() {
+            // Arrange
+            Validation<String> valid = Validation.valid("ok");
+
+            // Act
+            Validation<String> result = valid.orError("custom.error");
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("ok");
+        }
+
+        @Test
+        void orError_whenInvalid_replacesAllErrorsWithSpecifiedErrorKey() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid(ErrorMessage.of("err1"), ErrorMessage.of("err2"));
+
+            // Act
+            Validation<String> result = invalid.orError("custom.error");
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("custom.error");
+        }
+
+        @Test
+        void orError_whenInvalidWithErrorMessage_replacesWithErrorMessage() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("err1");
+            ErrorMessage custom = ErrorMessage.of("custom.key", "param", "val");
+
+            // Act
+            Validation<String> result = invalid.orError(custom);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid();
+            assertThat(result.errors()).containsExactly(custom);
+        }
+
+        @Test
+        void orError_whenValidWithErrorMessage_returnsSelfUnchanged() {
+            // Arrange
+            Validation<String> valid = Validation.valid("ok");
+            ErrorMessage custom = ErrorMessage.of("custom.key");
+
+            // Act
+            Validation<String> result = valid.orError(custom);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("ok");
+        }
+
+
+        @Test
+        void orError_whenInvalidWithSupplier_replacesWithSuppliedErrorMessage() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("err1");
+            AtomicBoolean supplierCalled = new AtomicBoolean(false);
+            Supplier<ErrorMessage> supplier = () -> {
+                supplierCalled.set(true);
+                return ErrorMessage.of("supplied.error");
+            };
+
+            // Act
+            Validation<String> result = invalid.orError(supplier);
+
+            // Assert
+            assertThat(supplierCalled.get()).isTrue();
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("supplied.error");
+        }
+
+        @Test
+        void orError_whenValidWithSupplier_doesNotCallSupplier() {
+            // Arrange
+            Validation<String> valid = Validation.valid("ok");
+            AtomicBoolean supplierCalled = new AtomicBoolean(false);
+            Supplier<ErrorMessage> supplier = () -> {
+                supplierCalled.set(true);
+                return ErrorMessage.of("supplied.error");
+            };
+
+            // Act
+            Validation<String> result = valid.orError(supplier);
+
+            // Assert
+            assertThat(supplierCalled.get()).isFalse();
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("ok");
+        }
+
+        @Test
+        void orErrors_whenInvalidWithList_replacesWithSpecifiedErrors() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("err1");
+            List<ErrorMessage> errors = List.of(ErrorMessage.of("custom.1"), ErrorMessage.of("custom.2"));
+
+            // Act
+            Validation<String> result = invalid.orErrors(errors);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("custom.1", "custom.2");
+        }
+
+        @Test
+        void orErrors_whenValidWithList_returnsSelfUnchanged() {
+            // Arrange
+            Validation<String> valid = Validation.valid("ok");
+            List<ErrorMessage> errors = List.of(ErrorMessage.of("custom.1"), ErrorMessage.of("custom.2"));
+
+            // Act
+            Validation<String> result = valid.orErrors(errors);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("ok");
+        }
+
+        @Test
+        void orErrors_whenInvalidWithJavaList_replacesWithSpecifiedErrors() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("err1");
+            java.util.List<ErrorMessage> errors = java.util.List.of(ErrorMessage.of("custom.1"), ErrorMessage.of("custom.2"));
+
+            // Act
+            Validation<String> result = invalid.orErrors(errors);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("custom.1", "custom.2");
+        }
+
+        @Test
+        void orErrors_whenInvalidWithVarargs_replacesWithSpecifiedErrors() {
+            // Arrange
+            Validation<String> invalid = Validation.invalid("err1");
+
+            // Act
+            Validation<String> result = invalid.orErrors(ErrorMessage.of("custom.1"), ErrorMessage.of("custom.2"));
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("custom.1", "custom.2");
+        }
+
+        @Test
+        void orError_whenNullInputs_throwsNullPointerException() {
+            Validation<String> invalid = Validation.invalid("err1");
+
+            assertThatCode(() -> invalid.orError((String) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("errorKey cannot be null");
+
+            assertThatCode(() -> invalid.orError((ErrorMessage) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("errorMessage cannot be null");
+
+            assertThatCode(() -> invalid.orError((Supplier<ErrorMessage>) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("errorSupplier cannot be null");
+
+            assertThatCode(() -> invalid.orErrors((List<ErrorMessage>) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("errors cannot be null");
+
+            assertThatCode(() -> invalid.orErrors((java.util.List<ErrorMessage>) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("errors cannot be null");
+        }
+    }
+
+    @Nested
+    class AnyOf {
+
+        @Test
+        void anyOf_whenFirstIsValid_returnsFirstValidValidation() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("first");
+            Validation<String> v2 = Validation.invalid("second.error");
+
+            // Act
+            Validation<String> result = Validations.anyOf(v1, v2);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("first");
+        }
+
+        @Test
+        void anyOf_whenSecondIsValid_returnsSecondValidValidation() {
+            // Arrange
+            Validation<String> v1 = Validation.invalid("first.error");
+            Validation<String> v2 = Validation.valid("second");
+
+            // Act
+            Validation<String> result = Validations.anyOf(v1, v2);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("second");
+        }
+
+        @Test
+        void anyOf_whenAllAreValid_returnsFirstValidValidation() {
+            // Arrange
+            Validation<String> v1 = Validation.valid("first");
+            Validation<String> v2 = Validation.valid("second");
+
+            // Act
+            Validation<String> result = Validations.anyOf(v1, v2);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("first");
+        }
+
+        @Test
+        void anyOf_whenAllAreInvalid_accumulatesAllErrorsInOrder() {
+            // Arrange
+            Validation<String> v1 = Validation.invalid("first.error");
+            Validation<String> v2 = Validation.invalid("second.error");
+            Validation<String> v3 = Validation.invalid("third.error");
+
+            // Act
+            Validation<String> result = Validations.anyOf(v1, v2, v3);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("first.error", "second.error", "third.error");
+        }
+
+        @Test
+        void anyOf_whenAllAreInvalidWithDuplicates_deduplicatesErrorsPreservingOrder() {
+            // Arrange
+            Validation<String> v1 = Validation.invalid(ErrorMessage.of("duplicate.error"), ErrorMessage.of("first.error"));
+            Validation<String> v2 = Validation.invalid(ErrorMessage.of("duplicate.error"), ErrorMessage.of("second.error"));
+
+            // Act
+            Validation<String> result = Validations.anyOf(v1, v2);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("duplicate.error", "first.error", "second.error");
+        }
+
+        @Test
+        void anyOf_whenEmptyVarargs_throwsIllegalArgumentException() {
+            assertThatCode(() -> Validations.anyOf())
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("validations cannot be empty");
+        }
+
+        @Test
+        void anyOf_whenNullVarargs_throwsNullPointerException() {
+            assertThatCode(() -> Validations.anyOf((Validation<String>[]) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("validations cannot be null");
+        }
+
+        @Test
+        void anyOf_whenVarargsContainsNull_throwsNullPointerException() {
+            Validation<String> invalid = Validation.invalid("error");
+            assertThatCode(() -> Validations.anyOf(invalid, null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("validations cannot contain null");
+        }
+
+        @Test
+        void anyOf_whenIterable_withVavrSeq_returnsFirstValidValidation() {
+            // Arrange
+            Seq<Validation<String>> seq = List.of(Validation.valid("first"), Validation.invalid("error"));
+
+            // Act
+            Validation<String> result = Validations.anyOf(seq);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("first");
+        }
+
+        @Test
+        void anyOf_whenIterable_withVavrSeq_accumulatesAllErrorsInOrder() {
+            // Arrange
+            Seq<Validation<String>> seq = List.of(Validation.invalid("first.error"), Validation.invalid("second.error"));
+
+            // Act
+            Validation<String> result = Validations.anyOf(seq);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("first.error", "second.error");
+        }
+
+        @Test
+        void anyOf_whenIterable_whenValid_returnsFirstValid() {
+            // Arrange
+            Iterable<Validation<String>> iterable = java.util.List.of(Validation.invalid("first.error"), Validation.valid("second"));
+
+            // Act
+            Validation<String> result = Validations.anyOf(iterable);
+
+            // Assert
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("second");
+        }
+
+        @Test
+        void anyOf_whenIterable_whenAllAreInvalid_accumulatesAllErrors() {
+            // Arrange
+            Iterable<Validation<String>> iterable = java.util.List.of(Validation.invalid("first.error"), Validation.invalid("second.error"));
+
+            // Act
+            Validation<String> result = Validations.anyOf(iterable);
+
+            // Assert
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("first.error", "second.error");
+        }
+
+        @Test
+        void anyOf_whenIterableEmpty_throwsIllegalArgumentException() {
+            assertThatCode(() -> Validations.anyOf((Iterable<Validation<String>>) java.util.List.<Validation<String>>of()))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("validations cannot be empty");
+        }
+
+        @Test
+        void anyOf_whenIterableNull_throwsNullPointerException() {
+            assertThatCode(() -> Validations.anyOf((Iterable<Validation<String>>) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("validations cannot be null");
+        }
+
+        @Test
+        void anyOf_whenIterableContainsNull_throwsNullPointerException() {
+            Iterable<Validation<String>> iterable = java.util.Arrays.asList(Validation.invalid("error"), null);
+            assertThatCode(() -> Validations.anyOf(iterable))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("validations cannot contain null");
         }
     }
 }
