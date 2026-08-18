@@ -1,9 +1,15 @@
 # Changelog
 
 
-## [Unreleased]
+## [2.1.0] - TBD
 
 ### Added
+- `spring-web` module: Spring Boot autoconfiguration that maps `ValidationException` to HTTP 422
+  Problem Details responses, handles `@RequestBody` constructor failures and `@RequestParam`/`@PathVariable`
+  converter type mismatches, and supports returning `Validation<T>` directly from controller methods.
+- `jakarta-validation` module: Support for Jakarta Validation that allows you to combine have Rules validated with @Valid.
+See docs/bean-validation.md for more info. 
+
 
 - added new rules to MapRules/VavrMapRules: min/max size, doesNotContainKey(s), empty, allMatch, noneMatch, anyMatch, ...
 - added anyOf in core Validation and the DSL, allowing you to specify at least one Validation must be Valid.
@@ -28,10 +34,6 @@
 
 
 ## [2.0.0] - 2026-06-24
-### Added
-- `spring-web` module: Spring Boot autoconfiguration that maps `ValidationException` to HTTP 422
-  Problem Details responses, handles `@RequestBody` constructor failures and `@RequestParam`/`@PathVariable`
-  converter type mismatches, and supports returning `Validation<T>` directly from controller methods.
 
 ### Changed,
 

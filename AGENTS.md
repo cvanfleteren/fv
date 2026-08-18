@@ -2,6 +2,9 @@
 
 This file contains standards and patterns established during the development of the FV project.
 
+### 0. Building
+- this is a maven project, compile, run tests, ... using the mvnw wrapper in the project root. 
+
 #### 1. Testing Standards
 - **Framework**: Use JUnit 6 for testing.
 - **Structure**: Use `@Nested` classes to group tests by record type or component.

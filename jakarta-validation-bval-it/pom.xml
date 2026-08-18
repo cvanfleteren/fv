@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>be.iffy.fv</groupId>
+    <artifactId>fv-parent</artifactId>
+    <version>${revision}</version>
+  </parent>
+
+  <artifactId>jakarta-validation-bval-it</artifactId>
+  <name>FV - Jakarta Validation BVal Compatibility IT</name>
+  <description>
+    Integration tests that verify the jakarta-validation bridge works correctly when Hibernate
+    Validator is absent and Apache BVal is the BV provider. Kept as a separate module so
+    the test classpath genuinely excludes HV and spring-core (both optional/non-transitive in
+    the bridge module), which cannot be achieved from within the bridge module's own test suite.
+  </description>
+
+  <properties>
+    <!-- test-only module: never deploy to Maven Central -->
+    <maven.deploy.skip>true</maven.deploy.skip>
+    <maven.install.skip>true</maven.install.skip>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>4.0.0</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <!--
+      Pulls in dsl + vavr transitively.
+      Does NOT pull in hibernate-validator or spring-core — both are optional in the bridge,
+      so they are non-transitive. That is the whole point of this module.
+    -->
+    <dependency>
+      <groupId>be.iffy.fv</groupId>
+      <artifactId>jakarta-validation</artifactId>
+      <version>${revision}</version>
+    </dependency>
+
+    <!-- The bridge declares validation-api as 'provided', so we need it explicitly here -->
+    <dependency>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+    </dependency>
+
+    <!-- The BV provider under test: Apache BVal (no HV, no Spring transitive deps) -->
+    <dependency>
+      <groupId>org.apache.bval</groupId>
+      <artifactId>bval-jsr</artifactId>
+      <version>3.0.1</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- junit-jupiter and assertj-core are inherited from the parent pom -->
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.github.siom79.japicmp</groupId>
+        <artifactId>japicmp-maven-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>injected-central-publishing</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

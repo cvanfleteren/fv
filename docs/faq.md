@@ -7,7 +7,7 @@ feel free to open an issue or reach out to the maintainers.
 
 **Core Concepts**
 - [What is the difference between a `Rule` and a `MappingRule`?](#what-is-the-difference-between-a-rule-and-a-mappingrule)
-- [Whats with the RuleLike<? super T, ? extends Validation<R>> signatures?](#whats-with-the-function-super-t--extends-validationr-signatures)
+- [Whats with the RuleLike<? super T, ? extends Validation<R>> signatures?](#whats-with-the-rulelike-super-t--extends-validationr-signatures)
 - [Do I need to use Strings to name the values I'm validating?](#do-i-need-to-use-strings-to-name-the-values-im-validating)
 - [Are rules null-safe by default?](#are-rules-null-safe-by-default)
 - [How do I create a Validation directly from a nullable value?](#how-do-i-create-a-validation-directly-from-a-nullable-value)
@@ -46,6 +46,7 @@ feel free to open an issue or reach out to the maintainers.
 - [Ok, but can I do the same when defining a Rule?](#ok-but-can-i-do-the-same-when-defining-a-rule)
 - [How do I perform cross-field validation where one field's validation depends on another?](#how-do-i-perform-cross-field-validation-where-one-fields-validation-depends-on-another)
 - [How do I validate that at least one of multiple fields is valid (cross-field OR / `anyOf`)?](#how-do-i-validate-that-at-least-one-of-multiple-fields-is-valid-cross-field-or--anyof)
+- [What is the difference between `validateThat`, `assertThat`, `validating`, and `asserting`?](#what-is-the-difference-between-validatethat-assertthat-validating-and-asserting)
 
 **Exception Interop**
 - [I have some type whose constructor throws an exception, how can I make a Validation for this type?](#i-have-some-type-whose-constructor-throws-an-exception-how-can-i-make-a-validation-for-this-type)
@@ -566,9 +567,9 @@ that value and **extracts** the value from the container.
 Rule<String> minLengthRule = strings.minLength(5);
 MappingRule<Optional<String>, String> mandatoryAndMinLength = optionals.required(minLengthRule);
 
-mandatoryRule.apply(Optional.empty()); // Invalid (must.not.be.empty)
-mandatoryRule.apply(Optional.of("abc")); // Invalid (must be at least 5)
-mandatoryRule.apply(Optional.of("abcdef")); // Valid("abcdef")
+mandatoryAndMinLength.apply(Optional.empty()); // Invalid (must.not.be.empty)
+mandatoryAndMinLength.apply(Optional.of("abc")); // Invalid (must be at least 5)
+mandatoryAndMinLength.apply(Optional.of("abcdef")); // Valid("abcdef")
 ```
 
 If you don't want to extract the value and prefer to keep working with a `Rule<Optional<T>>`, you can use
@@ -1302,7 +1303,7 @@ Validation<String> refinedValidation = initialValidation.refine(strings.looksLik
 In this case:
 
 1. If `initialValidation` is `Invalid`, `refine()` does nothing and returns the original `Invalid` result.
-2. If `initialValidation` is `Valid`, the `strings.email()` rule is applied to the value.
+2. If `initialValidation` is `Valid`, the `strings.looksLikeEmailAddress()` rule is applied to the value.
 3. If the email rule passes, you get a `Valid` result with the original value.
 4. If the email rule fails, you get an `Invalid` result containing the error from the email rule.
 
