@@ -45,6 +45,7 @@ feel free to open an issue or reach out to the maintainers.
 - [Ok, but I want to transform multiple fields in my constructor, how do I get their transformed values?](#ok-but-i-want-to-transform-multiple-fields-in-my-constructor-how-do-i-get-their-transformed-values)
 - [Ok, but can I do the same when defining a Rule?](#ok-but-can-i-do-the-same-when-defining-a-rule)
 - [How do I perform cross-field validation where one field's validation depends on another?](#how-do-i-perform-cross-field-validation-where-one-fields-validation-depends-on-another)
+- [How do I validate that at least one of multiple fields is valid (cross-field OR / `anyOf`)?](#how-do-i-validate-that-at-least-one-of-multiple-fields-is-valid-cross-field-or--anyof)
 
 **Exception Interop**
 - [I have some type whose constructor throws an exception, how can I make a Validation for this type?](#i-have-some-type-whose-constructor-throws-an-exception-how-can-i-make-a-validation-for-this-type)
@@ -1011,6 +1012,34 @@ Validation<LocalDate> result = validating(
 ); 
 // result is an Invalid with "start.must.be.before:{limit:2026-01-29}"
 ```
+
+---
+
+### How do I validate that at least one of multiple fields is valid (cross-field OR / `anyOf`)?
+
+When you have multiple fields and need **at least one** of them to be valid (for example: *"at least one of `email` or `phone` must not be blank, but individually either can be"*), use **`anyOf(...)`** combined with **`.orError(...)`**:
+
+#### Example: In a Record Constructor
+
+```java
+import static be.iffy.fv.dsl.DSL.*;
+
+record Contact(String email, String phone) {
+    Contact {
+        asserting(
+            anyOf(
+                validateThat(email, "email").is(strings.notBlank()),
+                validateThat(phone, "phone").is(strings.notBlank())
+            ).orError("contact.at.least.one.must.not.be.blank")
+        );
+    }
+}
+```
+
+#### How it works:
+- **Short-circuits on success**: `anyOf` evaluates validations in order and returns the first `Valid` validation it encounters.
+- **Error accumulation on failure**: If all validations fail, it accumulates all individual error messages from each branch.
+- **Overriding error messages with `.orError`**: Chaining `.orError("custom.error.key")` replaces the accumulated low-level errors with a single higher-level summary error when invalid.
 
 ---
 

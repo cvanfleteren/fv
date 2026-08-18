@@ -6,6 +6,8 @@
 ### Added
 
 - added new rules to MapRules/VavrMapRules: min/max size, doesNotContainKey(s), empty, allMatch, noneMatch, anyMatch, ...
+- added anyOf in core Validation and the DSL, allowing you to specify at least one Validation must be Valid.
+- added onError on Validation, allowing for easy override of the ErrorMessages if invalid.
 
 ### Changed
 

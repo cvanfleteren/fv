@@ -97,6 +97,23 @@ import java.util.function.Supplier;
  * // toPerson(new PersonDto("Al", "-5")) → Invalid([name.must.have.min.length, age.must.be.positive])
  *}
  *
+ * <h2>{@code anyOf} — disjunction across fields (at least one must be valid)</h2>
+ * Use when at least one condition or field validation must pass (logical OR).
+ * Short-circuits on the first valid result or accumulates all errors if all fail.
+ * Combine with {@code .orError(...)} on the validation result to provide a single composite error message when invalid.
+ * {@snippet :
+ * record Contact(String email, String phone) {
+ *     public Contact {
+ *         asserting(
+ *                 anyOf(
+ *                         validateThat(email, "email").is(strings.notBlank()),
+ *                         validateThat(phone, "phone").is(strings.notBlank())
+ *                 ).orError("contact.at.least.one.must.not.be.blank")
+ *         );
+ *     }
+ * }
+ *}
+ *
  * <h2>{@code validating} vs {@code combine} — one-shot result vs. reusable rule</h2>
  * Both accumulate errors across multiple validations, but they differ in what they return
  * and when the input is consumed:
@@ -492,6 +509,33 @@ public final class DSL {
     public static <S, T> JListValidationDSL<T, T> validateThatList(java.util.List<T> value, PropertySelector<S, java.util.List<T>> name) {
         Objects.requireNonNull(name, "name cannot be null");
         return new JListValidationDSL<>(value, name.getPropertyName());
+    }
+
+    //endregion
+
+    //region anyOf
+
+    /**
+     * Evaluates multiple validations in order, returning the first valid validation.
+     * If all validations are invalid, returns an invalid validation accumulating all errors in order.
+     *
+     * @return the first valid validation, or an invalid validation containing all accumulated errors.
+     */
+    @SafeVarargs
+    @Contract(pure = true)
+    public static <T> Validation<T> anyOf(Validation<? extends T>... validations) {
+        return Validations.anyOf(validations);
+    }
+
+    /**
+     * Evaluates an iterable of validations in order, returning the first valid validation.
+     * If all validations are invalid, returns an invalid validation accumulating all errors in order.
+     *
+     * @return the first valid validation, or an invalid validation containing all accumulated errors.
+     */
+    @Contract(pure = true)
+    public static <T> Validation<T> anyOf(Iterable<? extends Validation<? extends T>> validations) {
+        return Validations.anyOf(validations);
     }
 
     //endregion

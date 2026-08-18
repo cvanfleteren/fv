@@ -12,7 +12,7 @@ import java.util.Arrays;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
 import static be.iffy.fv.dsl.DSL.*;
-import static be.iffy.fv.rules.text.CharCategory.*;
+import static be.iffy.fv.rules.text.CharCategory.ASCII_DIGITS;
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -476,6 +476,143 @@ public class DSLTest {
                         assertThat(ve.errors())
                                 .isEqualTo(List.of(ErrorMessage.of("error1"), ErrorMessage.of("error2")));
                     });
+        }
+    }
+
+    @Nested
+    class MultiField {
+
+        record AtLeastOne(String first, String second) {
+
+            AtLeastOne {
+                asserting(
+                    anyOf(
+                        validateThat(first,"first").is(strings.notBlank()),
+                        validateThat(second,"second").is(strings.notBlank())
+                    ).orError("at.least.one.must.not.be.blank")
+                );
+            }
+
+        }
+
+        @Test
+        void asserting_atLeastOne() {
+            assertThatValidation(Validation.valid(new AtLeastOne("first", "second"))).isValid();
+            assertThatValidation(Validation.valid(new AtLeastOne("", "second"))).isValid();
+            assertThatValidation(Validation.valid(new AtLeastOne("first", ""))).isValid();
+
+            assertThatValidation(
+                Validation.from().catching(() -> new AtLeastOne("", ""))
+            ).isInvalid()
+                .hasFormattedMessage("at.least.one.must.not.be.blank");
+        }
+
+    }
+
+    @Nested
+    class AnyOf {
+
+        @Test
+        void anyOf_whenFirstIsValid_returnsFirst() {
+            var result = anyOf(
+                    validateThat("foo", "first").is(strings.notBlank()),
+                    validateThat("", "second").is(strings.notBlank())
+            );
+
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("foo");
+        }
+
+        @Test
+        void anyOf_whenSecondIsValid_returnsSecond() {
+            var result = anyOf(
+                    validateThat("", "first").is(strings.notBlank()),
+                    validateThat("bar", "second").is(strings.notBlank())
+            );
+
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("bar");
+        }
+
+        @Test
+        void anyOf_whenAllAreInvalid_accumulatesAllErrorsInOrder() {
+            var result = anyOf(
+                    validateThat("", "first").is(strings.notBlank()),
+                    validateThat("", "second").is(strings.notBlank())
+            );
+
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessages("first.must.not.be.blank", "second.must.not.be.blank");
+        }
+
+        @Test
+        void anyOf_whenAllAreInvalidWithOrError_replacesErrors() {
+            var result = anyOf(
+                    validateThat("", "first").is(strings.notBlank()),
+                    validateThat("", "second").is(strings.notBlank())
+            ).orError("contact.must.have.at.least.one");
+
+            assertThatValidation(result)
+                    .isInvalid()
+                    .hasErrorMessage("contact.must.have.at.least.one");
+        }
+
+        @Test
+        void anyOf_withHeterogeneousTypes_compilesAndEvaluatesCorrectly() {
+            Validation<String> stringV = validateThat("", "str").is(strings.notBlank());
+            Validation<Integer> intV = validateThat(42, "num").is(ints.positive());
+
+            Validation<Object> result = anyOf(stringV, intV);
+
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo(42);
+        }
+
+        @Test
+        void anyOf_interoperabilityWithValidating() {
+            var emailOrPhone = anyOf(
+                    validateThat("", "email").is(strings.notBlank()),
+                    validateThat("123456", "phone").is(strings.notBlank())
+            );
+            var name = validateThat("Alice", "name").is(strings.notBlank());
+
+            var person = validating(name, emailOrPhone).map(Tuple::of);
+
+            assertThatValidation(person)
+                    .isValid()
+                    .isEqualTo(Tuple.of("Alice", "123456"));
+        }
+
+        @Test
+        void anyOf_withSeq_evaluatesCorrectly() {
+            List<Validation<String>> validations = List.of(
+                    validateThat("", "first").is(strings.notBlank()),
+                    validateThat("secondVal", "second").is(strings.notBlank())
+            );
+
+            var result = anyOf(validations);
+
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("secondVal");
+        }
+
+        @Test
+        void anyOf_withIterable_evaluatesCorrectly() {
+            java.util.List<Validation<String>> validations = java.util.List.of(
+                    validateThat("", "first").is(strings.notBlank()),
+                    validateThat("secondVal", "second").is(strings.notBlank())
+            );
+
+            var result = anyOf(validations);
+
+            assertThatValidation(result)
+                    .isValid()
+                    .isEqualTo("secondVal");
         }
     }
 }
