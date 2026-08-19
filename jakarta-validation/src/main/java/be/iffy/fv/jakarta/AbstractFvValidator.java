@@ -3,7 +3,6 @@ package be.iffy.fv.jakarta;
 import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
-import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
 import jakarta.validation.ConstraintValidator;
