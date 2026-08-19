@@ -1,5 +1,6 @@
 package be.iffy.fv.rules;
 
+import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Rule;
@@ -131,6 +132,58 @@ public interface ComparableRules<T extends Comparable<? super T>> {
         return Rule.of(
                 i -> i.compareTo(maxInclusive) <= 0,
                 ErrorMessage.of("must.be.at.most", "max", maxInclusive)
+        );
+    }
+
+    /**
+     * Fails if the first element of the pair is not strictly before the second element, according to their
+     * natural ordering.
+     * <p>
+     * Error key: {@code first.must.be.before.second}
+     */
+    static <T extends Comparable<? super T>> Rule<Tuple2<T, T>> strictlyOrdered() {
+        return Rule.of(
+                t -> t._1.compareTo(t._2) < 0,
+                ErrorMessage.of("first.must.be.before.second")
+        );
+    }
+
+    /**
+     * Fails if the first element of the pair is not before or equal to the second element, according to their
+     * natural ordering.
+     * <p>
+     * Error key: {@code first.must.be.at.most.second}
+     */
+    static <T extends Comparable<? super T>> Rule<Tuple2<T, T>> ordered() {
+        return Rule.of(
+                t -> t._1.compareTo(t._2) <= 0,
+                ErrorMessage.of("first.must.be.at.most.second")
+        );
+    }
+
+    /**
+     * Fails if the first element of the pair is not strictly after the second element, according to their
+     * natural ordering.
+     * <p>
+     * Error key: {@code first.must.be.after.second}
+     */
+    static <T extends Comparable<? super T>> Rule<Tuple2<T, T>> strictlyDescending() {
+        return Rule.of(
+                t -> t._1.compareTo(t._2) > 0,
+                ErrorMessage.of("first.must.be.after.second")
+        );
+    }
+
+    /**
+     * Fails if the first element of the pair is not after or equal to the second element, according to their
+     * natural ordering.
+     * <p>
+     * Error key: {@code first.must.be.at.least.second}
+     */
+    static <T extends Comparable<? super T>> Rule<Tuple2<T, T>> descending() {
+        return Rule.of(
+                t -> t._1.compareTo(t._2) >= 0,
+                ErrorMessage.of("first.must.be.at.least.second")
         );
     }
 

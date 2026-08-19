@@ -4,6 +4,7 @@ import be.iffy.fv.*;
 import be.iffy.fv.dsl.impl.*;
 import be.iffy.fv.rules.BooleanRules;
 import be.iffy.fv.rules.ObjectRules;
+import be.iffy.fv.rules.PairRules;
 import be.iffy.fv.rules.collections.*;
 import be.iffy.fv.rules.functional.EitherRules;
 import be.iffy.fv.rules.functional.OptionRules;
@@ -152,6 +153,9 @@ public final class DSL {
 
     /** Rules for validating any {@link Object}. */
     public static final ObjectRules objects = ObjectRules.objects;
+
+    /** Rules for validating pairs of values ({@link io.vavr.Tuple2}). */
+    public static final PairRules pairs = PairRules.pairs;
 
     /** Rules for validating {@link Boolean} values. */
     public static final BooleanRules booleans = BooleanRules.booleans;
@@ -424,6 +428,37 @@ public final class DSL {
     @Contract(pure = true)
     public static <T1, T2, T3, T4, T5, T6, T7, T8> ValidatingDSL.ValidatingBuilder8<T1, T2, T3, T4, T5, T6, T7, T8> validating(Validation<T1> v1, Validation<T2> v2, Validation<T3> v3, Validation<T4> v4, Validation<T5> v5, Validation<T6> v6, Validation<T7> v7, Validation<T8> v8) {
         return new ValidatingDSL.ValidatingBuilder8<>(v1, v2, v3, v4, v5, v6, v7, v8);
+    }
+
+    /**
+     * Creates a {@link Rule} for a {@link Tuple3} that fails unless the three elements satisfy the specified
+     * predicate. Useful with {@code validating(v1, v2, v3).is(...)} for cross-field checks involving three
+     * fields that don't need to be {@link Comparable} or equal, e.g. {@code a + b == c}.
+     * <p>
+     * Error key: the {@code errorKey} passed as argument.
+     *
+     * @param predicate the predicate to apply to the three elements of the tuple.
+     * @param errorKey  the error key to use if the predicate returns {@code false}.
+     */
+    @Contract(pure = true)
+    public static <T1, T2, T3> Rule<Tuple3<T1, T2, T3>> satisfies(
+            Function3<? super T1, ? super T2, ? super T3, Boolean> predicate, String errorKey) {
+        return ValidatingDSL.satisfies(predicate, errorKey);
+    }
+
+    /**
+     * Creates a {@link Rule} for a {@link Tuple3} that fails unless the three elements satisfy the specified
+     * predicate.
+     * <p>
+     * Error key: the {@code errorMessage} passed as argument.
+     *
+     * @param predicate    the predicate to apply to the three elements of the tuple.
+     * @param errorMessage the error message to use if the predicate returns {@code false}.
+     */
+    @Contract(pure = true)
+    public static <T1, T2, T3> Rule<Tuple3<T1, T2, T3>> satisfies(
+            Function3<? super T1, ? super T2, ? super T3, Boolean> predicate, ErrorMessage errorMessage) {
+        return ValidatingDSL.satisfies(predicate, errorMessage);
     }
 
     /**
