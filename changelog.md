@@ -3,6 +3,17 @@
 ## [NEXT] - TBD
 
 ### Added
+- `ValidatingDSL.ValidatingBuilder2#is(Rule<Tuple2<T1, T2>>)` and `#is(String, Rule<Tuple2<T1, T2>>)`, allowing
+  cross-field validation on `validating(v1, v2)` without manually combining the values into a `Tuple2` first.
+- `ComparableRules#strictlyOrdered()`, a reusable `Rule<Tuple2<T, T>>` failing unless the first element is
+  strictly before the second, exposed via a new `PairRules` class (`DSL.pairs`).
+- `PairRules`: added `ordered()`, `strictlyDescending()`, `descending()` ordering variants, `equal()`/`notEqual()`
+  equality checks, and a generic `satisfies(BiPredicate<T1, T2>, errorKey/ErrorMessage)` for arbitrary two-argument
+  invariants between the two elements of a pair.
+- `ValidatingDSL.ValidatingBuilder3#is(Rule<Tuple3<T1, T2, T3>>)` and `ValidatingBuilder4#is(Rule<Tuple4<T1, T2, T3, T4>>)`,
+  extending the `.is(rule)` cross-field shortcut to three and four fields.
+- `DSL#satisfies(Function3<T1, T2, T3, Boolean>, errorKey/ErrorMessage)`, a general `Rule<Tuple3<T1, T2, T3>>`
+  factory for arbitrary three-argument invariants, for use with `validating(v1, v2, v3).is(...)`.
 
 ### Changed
 

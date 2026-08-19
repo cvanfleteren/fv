@@ -1,5 +1,7 @@
 package be.iffy.fv.rules;
 
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import be.iffy.fv.Rule;
 import org.junit.jupiter.api.Nested;
@@ -142,6 +144,24 @@ class ComparableRulesTest {
         void invalid() {
             Rule<Integer> rule = ints.atMost(20);
             invalidTest(25, rule, "must.be.at.most", HashMap.of("max", 20));
+            invalidTest(null, rule, "must.not.be.null");
+        }
+    }
+
+    @Nested
+    class StrictlyOrdered {
+
+        @Test
+        void valid() {
+            Rule<Tuple2<Integer, Integer>> rule = ComparableRules.strictlyOrdered();
+            validTest(Tuple.of(10, 20), rule);
+        }
+
+        @Test
+        void invalid() {
+            Rule<Tuple2<Integer, Integer>> rule = ComparableRules.strictlyOrdered();
+            invalidTest(Tuple.of(20, 10), rule, "first.must.be.before.second");
+            invalidTest(Tuple.of(10, 10), rule, "first.must.be.before.second");
             invalidTest(null, rule, "must.not.be.null");
         }
     }

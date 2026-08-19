@@ -1014,6 +1014,88 @@ Validation<LocalDate> result = validating(
 // result is an Invalid with "start.must.be.before:{limit:2026-01-29}"
 ```
 
+#### 3. Using `is(Rule<Tuple2<...>>)` on `validating(v1, v2)` — the recommended shortcut for two fields
+
+When you only have two fields, `validating(v1, v2).is(rule)` combines them into a `Tuple2` and applies a plain
+`Rule<Tuple2<T1, T2>>` to it — this only runs once *both* fields are already valid, so the second field is
+guaranteed non-null/valid before it's used in the cross-field check:
+
+```java
+import static be.iffy.fv.dsl.DSL.*;
+import io.vavr.Tuple2;
+
+public record DateRange(LocalDate date1, LocalDate date2) {
+
+    public DateRange {
+        Tuple2<LocalDate, LocalDate> valid = asserting(
+            validating(
+                validateThat(date1, "date1").isNotNull(),
+                validateThat(date2, "date2").isNotNull()
+            ).is(pairs.strictlyOrdered())
+        );
+
+        date1 = valid._1;
+        date2 = valid._2;
+    }
+}
+```
+
+Here, `pairs.strictlyOrdered()` is a reusable `Rule<Tuple2<T, T>>` (from `PairRules`, for any `Comparable` type)
+that fails with error key `first.must.be.before.second` unless the first element is strictly before the second.
+If you want a more domain-specific error key (e.g. `date1.must.be.before.date2`), define your own
+`Rule<Tuple2<LocalDate, LocalDate>>` with `Rule.of(...)` and pass that to `.is(...)` instead — or use
+`.is("dateRange", rule)` to prepend a name to the rule's error messages without changing the rule itself.
+
+`PairRules` (the `pairs` singleton) offers more than just `strictlyOrdered()`:
+
+- Ordering variants for any `Comparable` type: `ordered()` (`first.must.be.at.most.second`), `strictlyDescending()`
+  (`first.must.be.after.second`), and `descending()` (`first.must.be.at.least.second`).
+- Equality checks between the two elements: `equal()` (`pair.must.be.equal`) and `notEqual()`
+  (`pair.must.not.be.equal`) — useful for e.g. `password`/`confirmPassword` checks.
+- `satisfies(BiPredicate<T1, T2>, errorKey)` (or an `ErrorMessage` overload) for arbitrary two-argument invariants
+  that don't need both elements to be `Comparable`, for example:
+
+```java
+Rule<Tuple2<LocalDate, LocalDate>> atLeastThreeDaysApart =
+        pairs.satisfies((start, end) -> !end.isBefore(start.plusDays(3)), "end.must.be.at.least.3.days.after.start");
+
+Tuple2<LocalDate, LocalDate> valid = asserting(
+    validating(
+        validateThat(date1, "date1").isNotNull(),
+        validateThat(date2, "date2").isNotNull()
+    ).is(atLeastThreeDaysApart)
+);
+```
+
+Since `satisfies` doesn't require `Comparable`, it also works for pairs of different types, e.g.
+`Rule<Tuple2<String, String>>` comparing a `password` and `confirmPassword` field, or any other pair where the
+invariant can't be expressed with natural ordering or equality alone.
+
+#### 4. Using `is(Rule<Tuple3<...>>)` / `is(Rule<Tuple4<...>>)` for three or four fields
+
+The same `.is(rule)` shortcut is also available on `validating(v1, v2, v3)` and `validating(v1, v2, v3, v4)`,
+combining the values into a `Tuple3`/`Tuple4` and applying a `Rule<Tuple3<T1, T2, T3>>` /
+`Rule<Tuple4<T1, T2, T3, T4>>` to it — again, only once *all* fields are already valid. There's no `TripleRules`/
+`QuadRules` equivalent of `PairRules` for these arities (3+-way "ordered"/"equal" checks are rare), but a general
+`satisfies(...)` helper (returning a `Rule<Tuple3<T1, T2, T3>>`) is available directly from the `DSL` for
+arbitrary three-argument invariants:
+
+```java
+import static be.iffy.fv.dsl.DSL.*;
+import io.vavr.Tuple3;
+
+Rule<Tuple3<BigDecimal, BigDecimal, BigDecimal>> sumMustMatch =
+        satisfies((a, b, total) -> a.add(b).equals(total), "sum.must.match.total");
+
+Tuple3<BigDecimal, BigDecimal, BigDecimal> valid = asserting(
+    validating(
+        validateThat(a, "a").isNotNull(),
+        validateThat(b, "b").isNotNull(),
+        validateThat(total, "total").isNotNull()
+    ).is(sumMustMatch)
+);
+```
+
 ---
 
 ### How do I validate that at least one of multiple fields is valid (cross-field OR / `anyOf`)?

@@ -1,5 +1,7 @@
 package be.iffy.fv.dsl.impl;
 
+import be.iffy.fv.ErrorMessage;
+import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 import be.iffy.fv.Validations;
 import io.vavr.*;
@@ -11,6 +13,42 @@ import java.util.Objects;
  * A small DSL that's basically just a wrapper around {@link Validations#combine}.
  */
 public final class ValidatingDSL {
+
+    /**
+     * Creates a {@link Rule} for a {@link Tuple3} that fails unless the three elements satisfy the specified
+     * predicate.
+     * <p>
+     * Error key: the {@code errorKey} passed as argument.
+     *
+     * @param predicate the predicate to apply to the three elements of the tuple.
+     * @param errorKey  the error key to use if the predicate returns {@code false}.
+     */
+    public static <T1, T2, T3> Rule<Tuple3<T1, T2, T3>> satisfies(
+            Function3<? super T1, ? super T2, ? super T3, Boolean> predicate, String errorKey) {
+        Objects.requireNonNull(predicate, "predicate cannot be null");
+        return Rule.of(
+                t -> predicate.apply(t._1, t._2, t._3),
+                errorKey
+        );
+    }
+
+    /**
+     * Creates a {@link Rule} for a {@link Tuple3} that fails unless the three elements satisfy the specified
+     * predicate.
+     * <p>
+     * Error key: the {@code errorMessage} passed as argument.
+     *
+     * @param predicate    the predicate to apply to the three elements of the tuple.
+     * @param errorMessage the error message to use if the predicate returns {@code false}.
+     */
+    public static <T1, T2, T3> Rule<Tuple3<T1, T2, T3>> satisfies(
+            Function3<? super T1, ? super T2, ? super T3, Boolean> predicate, ErrorMessage errorMessage) {
+        Objects.requireNonNull(predicate, "predicate cannot be null");
+        return Rule.of(
+                t -> predicate.apply(t._1, t._2, t._3),
+                errorMessage
+        );
+    }
 
     /**
      * Combine multiple Validations, allowing you to map or flatMap over their values.
@@ -38,6 +76,16 @@ public final class ValidatingDSL {
         @Contract(pure = true)
         public <T> Validation<T> flatMap(Function2<T1, T2, Validation<? extends T>> mapper) {
             return Validations.combine(v1, v2).flatMap(mapper);
+        }
+
+        /**
+         * Combines the values of the passed Validations into a {@link Tuple2} and validates it against the
+         * given rule. Only runs if both Validations are already {@link Validation.Valid}.
+         */
+        @Contract(pure = true)
+        public Validation<Tuple2<T1, T2>> is(Rule<? super Tuple2<T1, T2>> rule) {
+            Objects.requireNonNull(rule, "rule cannot be null");
+            return map(Tuple::of).flatMap(rule.narrow());
         }
     }
 
@@ -69,6 +117,16 @@ public final class ValidatingDSL {
         @Contract(pure = true)
         public <T> Validation<T> flatMap(Function3<T1, T2, T3, Validation<? extends T>> mapper) {
             return Validations.combine(v1, v2, v3).flatMap(mapper);
+        }
+
+        /**
+         * Combines the values of the passed Validations into a {@link Tuple3} and validates it against the
+         * given rule. Only runs if all three Validations are already {@link Validation.Valid}.
+         */
+        @Contract(pure = true)
+        public Validation<Tuple3<T1, T2, T3>> is(Rule<? super Tuple3<T1, T2, T3>> rule) {
+            Objects.requireNonNull(rule, "rule cannot be null");
+            return map(Tuple::of).flatMap(rule.narrow());
         }
     }
 
@@ -102,6 +160,16 @@ public final class ValidatingDSL {
         @Contract(pure = true)
         public <T> Validation<T> flatMap(Function4<T1, T2, T3, T4, Validation<? extends T>> mapper) {
             return Validations.combine(v1, v2, v3, v4).flatMap(mapper);
+        }
+
+        /**
+         * Combines the values of the passed Validations into a {@link Tuple4} and validates it against the
+         * given rule. Only runs if all four Validations are already {@link Validation.Valid}.
+         */
+        @Contract(pure = true)
+        public Validation<Tuple4<T1, T2, T3, T4>> is(Rule<? super Tuple4<T1, T2, T3, T4>> rule) {
+            Objects.requireNonNull(rule, "rule cannot be null");
+            return map(Tuple::of).flatMap(rule.narrow());
         }
     }
 
