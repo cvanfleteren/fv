@@ -60,6 +60,18 @@ public class ValidationAssert<SELF extends ValidationAssert<SELF, VALIDATION, T>
     }
 
     /**
+     * Asserts that the passed code results in a Valid validation.
+     *
+     * @param code the code to execute.
+     * @return a {@link ObjectAssert} with the value inside the Validation for further assertions.
+     */
+    public static <T> ObjectAssert<T> assertValid(Supplier<T> code) {
+        Validation<T> actual = Validation.from().catching(code);
+        assertThat(actual.isValid()).as("Expected passed code to be valid but was invalid").isTrue();
+        return new ObjectAssert<>(actual.getOrElseThrow());
+    }
+
+    /**
      * Asserts that the validation is invalid.
      *
      * @param actual the actual value.
