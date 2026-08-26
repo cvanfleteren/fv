@@ -23,8 +23,8 @@ public final class PairRules {
      * <p>
      * Error key: {@code first.must.be.before.second}
      */
-    public <T extends Comparable<? super T>> Rule<Tuple2<T, T>> strictlyOrdered() {
-        return ComparableRules.strictlyOrdered();
+    public <T extends Comparable<? super T>> Rule<Tuple2<T, T>> strictlyAscending() {
+        return ComparableRules.strictlyAscending();
     }
 
     /**
@@ -33,8 +33,8 @@ public final class PairRules {
      * <p>
      * Error key: {@code first.must.be.at.most.second}
      */
-    public <T extends Comparable<? super T>> Rule<Tuple2<T, T>> ordered() {
-        return ComparableRules.ordered();
+    public <T extends Comparable<? super T>> Rule<Tuple2<T, T>> ascending() {
+        return ComparableRules.ascending();
     }
 
     /**

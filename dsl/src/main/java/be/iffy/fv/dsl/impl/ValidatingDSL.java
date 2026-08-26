@@ -4,10 +4,14 @@ import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
 import be.iffy.fv.Validations;
+import be.iffy.fv.dsl.DSL;
 import io.vavr.*;
 import org.jetbrains.annotations.Contract;
 
 import java.util.Objects;
+import java.util.function.BiPredicate;
+
+import static be.iffy.fv.rules.PairRules.pairs;
 
 /**
  * A small DSL that's basically just a wrapper around {@link Validations#combine}.
@@ -87,6 +91,17 @@ public final class ValidatingDSL {
             Objects.requireNonNull(rule, "rule cannot be null");
             return map(Tuple::of).flatMap(rule.narrow());
         }
+
+        /**
+         * Combines the values of the passed Validations and validates it against the
+         * given BiPredicate. Only runs if both Validations are already {@link Validation.Valid}.
+         */
+        @Contract(pure = true)
+        public Validation<Tuple2<T1, T2>> is(BiPredicate<T1, T2> predicate, ErrorMessage errorMessage) {
+            Objects.requireNonNull(predicate, "predicate cannot be null");
+            Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
+            return is(pairs.satisfies(predicate, errorMessage));
+        }
     }
 
     /**
@@ -127,6 +142,17 @@ public final class ValidatingDSL {
         public Validation<Tuple3<T1, T2, T3>> is(Rule<? super Tuple3<T1, T2, T3>> rule) {
             Objects.requireNonNull(rule, "rule cannot be null");
             return map(Tuple::of).flatMap(rule.narrow());
+        }
+
+        /**
+         * Combines the values of the passed Validations and validates it against the
+         * given Function<T1, T2, T3, Boolean>. Only runs if all Validations are already {@link Validation.Valid}.
+         */
+        @Contract(pure = true)
+        public Validation<Tuple3<T1, T2, T3>> is(Function3<T1, T2, T3, Boolean> predicate, ErrorMessage errorMessage) {
+            Objects.requireNonNull(predicate, "predicate cannot be null");
+            Objects.requireNonNull(errorMessage, "errorMessage cannot be null");
+            return is(DSL.satisfies(predicate, errorMessage));
         }
     }
 

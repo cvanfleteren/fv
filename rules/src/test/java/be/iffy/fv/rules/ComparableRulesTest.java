@@ -1,15 +1,15 @@
 package be.iffy.fv.rules;
 
+import be.iffy.fv.Rule;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
-import be.iffy.fv.Rule;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static be.iffy.fv.rules.numbers.IntegerRules.ints;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
+import static be.iffy.fv.rules.numbers.IntegerRules.ints;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -153,13 +153,13 @@ class ComparableRulesTest {
 
         @Test
         void valid() {
-            Rule<Tuple2<Integer, Integer>> rule = ComparableRules.strictlyOrdered();
+            Rule<Tuple2<Integer, Integer>> rule = ComparableRules.strictlyAscending();
             validTest(Tuple.of(10, 20), rule);
         }
 
         @Test
         void invalid() {
-            Rule<Tuple2<Integer, Integer>> rule = ComparableRules.strictlyOrdered();
+            Rule<Tuple2<Integer, Integer>> rule = ComparableRules.strictlyAscending();
             invalidTest(Tuple.of(20, 10), rule, "first.must.be.before.second");
             invalidTest(Tuple.of(10, 10), rule, "first.must.be.before.second");
             invalidTest(null, rule, "must.not.be.null");

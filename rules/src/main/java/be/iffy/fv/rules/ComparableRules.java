@@ -1,9 +1,9 @@
 package be.iffy.fv.rules;
 
-import io.vavr.Tuple2;
-import io.vavr.collection.HashMap;
 import be.iffy.fv.ErrorMessage;
 import be.iffy.fv.Rule;
+import io.vavr.Tuple2;
+import io.vavr.collection.HashMap;
 
 /**
  * Common validation rules for {@link Comparable} values.
@@ -141,7 +141,7 @@ public interface ComparableRules<T extends Comparable<? super T>> {
      * <p>
      * Error key: {@code first.must.be.before.second}
      */
-    static <T extends Comparable<? super T>> Rule<Tuple2<T, T>> strictlyOrdered() {
+    static <T extends Comparable<? super T>> Rule<Tuple2<T, T>> strictlyAscending() {
         return Rule.of(
                 t -> t._1.compareTo(t._2) < 0,
                 ErrorMessage.of("first.must.be.before.second")
@@ -154,7 +154,7 @@ public interface ComparableRules<T extends Comparable<? super T>> {
      * <p>
      * Error key: {@code first.must.be.at.most.second}
      */
-    static <T extends Comparable<? super T>> Rule<Tuple2<T, T>> ordered() {
+    static <T extends Comparable<? super T>> Rule<Tuple2<T, T>> ascending() {
         return Rule.of(
                 t -> t._1.compareTo(t._2) <= 0,
                 ErrorMessage.of("first.must.be.at.most.second")

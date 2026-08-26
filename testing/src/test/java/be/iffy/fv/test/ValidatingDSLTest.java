@@ -231,7 +231,7 @@ public class ValidatingDSLTest {
         Validation<LocalDate> v2 = Validation.valid(LocalDate.of(2024, 1, 2));
 
         Validation<Tuple2<LocalDate, LocalDate>> result = validating(v1, v2)
-                .is(pairs.<LocalDate>strictlyOrdered());
+                .is(pairs.<LocalDate>strictlyAscending());
 
         assertThatValidation(result)
                 .isValid()
@@ -244,7 +244,7 @@ public class ValidatingDSLTest {
         Validation<LocalDate> v2 = Validation.valid(LocalDate.of(2024, 1, 1));
 
         Validation<Tuple2<LocalDate, LocalDate>> result = validating(v1, v2)
-                .is(pairs.<LocalDate>strictlyOrdered());
+                .is(pairs.<LocalDate>strictlyAscending());
 
         assertThatValidation(result)
                 .isInvalid()
@@ -257,7 +257,7 @@ public class ValidatingDSLTest {
         Validation<LocalDate> v2 = Validation.valid(LocalDate.of(2024, 1, 1));
 
         Validation<Tuple2<LocalDate, LocalDate>> result = validating(v1, v2)
-                .is(pairs.<LocalDate>strictlyOrdered());
+                .is(pairs.<LocalDate>strictlyAscending());
 
         assertThatValidation(result)
                 .isInvalid()
@@ -270,11 +270,50 @@ public class ValidatingDSLTest {
         Validation<LocalDate> v2 = Validation.valid(LocalDate.of(2024, 1, 1));
 
         Validation<Tuple2<LocalDate, LocalDate>> result = validating(v1, v2)
-                .is(pairs.strictlyOrdered()).at("dateRange");
+                .is(pairs.strictlyAscending()).at("dateRange");
 
         assertThatValidation(result)
                 .isInvalid()
                 .hasErrorMessages("dateRange.first.must.be.before.second");
+    }
+
+    @Test
+    void validating2_is_withBiPredicate_whenBothValidAndPredicateSatisfied_returnsValidResult() {
+        Validation<LocalDate> v1 = Validation.valid(LocalDate.of(2024, 1, 1));
+        Validation<LocalDate> v2 = Validation.valid(LocalDate.of(2024, 1, 2));
+
+        Validation<Tuple2<LocalDate, LocalDate>> result = validating(v1, v2)
+                .is((a, b) -> a.isBefore(b), be.iffy.fv.ErrorMessage.of("first.must.be.before.second"));
+
+        assertThatValidation(result)
+                .isValid()
+                .isEqualTo(io.vavr.Tuple.of(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 2)));
+    }
+
+    @Test
+    void validating2_is_withBiPredicate_whenBothValidButPredicateNotSatisfied_returnsInvalidResult() {
+        Validation<LocalDate> v1 = Validation.valid(LocalDate.of(2024, 1, 2));
+        Validation<LocalDate> v2 = Validation.valid(LocalDate.of(2024, 1, 1));
+
+        Validation<Tuple2<LocalDate, LocalDate>> result = validating(v1, v2)
+                .is((a, b) -> a.isBefore(b), be.iffy.fv.ErrorMessage.of("first.must.be.before.second"));
+
+        assertThatValidation(result)
+                .isInvalid()
+                .hasErrorKeys("first.must.be.before.second");
+    }
+
+    @Test
+    void validating2_is_withBiPredicate_whenOneInvalid_neverEvaluatesPredicate_returnsInvalidResult() {
+        Validation<LocalDate> v1 = Validation.invalid("date1.error");
+        Validation<LocalDate> v2 = Validation.valid(LocalDate.of(2024, 1, 1));
+
+        Validation<Tuple2<LocalDate, LocalDate>> result = validating(v1, v2)
+                .is((a, b) -> a.isBefore(b), be.iffy.fv.ErrorMessage.of("first.must.be.before.second"));
+
+        assertThatValidation(result)
+                .isInvalid()
+                .hasErrorKeys("date1.error");
     }
 
     @Test
@@ -316,6 +355,48 @@ public class ValidatingDSLTest {
         Rule<Tuple3<Integer, Integer, Integer>> sumRule = satisfies((a, b, c) -> a + b == c, "sum.must.match");
 
         Validation<Tuple3<Integer, Integer, Integer>> result = validating(v1, v2, v3).is(sumRule);
+
+        assertThatValidation(result)
+                .isInvalid()
+                .hasErrorKeys("v1.error");
+    }
+
+    @Test
+    void validating3_is_withFunction3_whenAllValidAndPredicateSatisfied_returnsValidResult() {
+        Validation<Integer> v1 = Validation.valid(10);
+        Validation<Integer> v2 = Validation.valid(20);
+        Validation<Integer> v3 = Validation.valid(30);
+
+        Validation<Tuple3<Integer, Integer, Integer>> result = validating(v1, v2, v3)
+                .is((a, b, c) -> a + b == c, be.iffy.fv.ErrorMessage.of("sum.must.match"));
+
+        assertThatValidation(result)
+                .isValid()
+                .isEqualTo(io.vavr.Tuple.of(10, 20, 30));
+    }
+
+    @Test
+    void validating3_is_withFunction3_whenAllValidButPredicateNotSatisfied_returnsInvalidResult() {
+        Validation<Integer> v1 = Validation.valid(10);
+        Validation<Integer> v2 = Validation.valid(20);
+        Validation<Integer> v3 = Validation.valid(999);
+
+        Validation<Tuple3<Integer, Integer, Integer>> result = validating(v1, v2, v3)
+                .is((a, b, c) -> a + b == c, be.iffy.fv.ErrorMessage.of("sum.must.match"));
+
+        assertThatValidation(result)
+                .isInvalid()
+                .hasErrorKeys("sum.must.match");
+    }
+
+    @Test
+    void validating3_is_withFunction3_whenOneInvalid_neverEvaluatesPredicate_returnsInvalidResult() {
+        Validation<Integer> v1 = Validation.invalid("v1.error");
+        Validation<Integer> v2 = Validation.valid(20);
+        Validation<Integer> v3 = Validation.valid(30);
+
+        Validation<Tuple3<Integer, Integer, Integer>> result = validating(v1, v2, v3)
+                .is((a, b, c) -> a + b == c, be.iffy.fv.ErrorMessage.of("sum.must.match"));
 
         assertThatValidation(result)
                 .isInvalid()

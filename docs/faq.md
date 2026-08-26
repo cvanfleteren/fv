@@ -1014,11 +1014,18 @@ Validation<LocalDate> result = validating(
 // result is an Invalid with "start.must.be.before:{limit:2026-01-29}"
 ```
 
-#### 3. Using `is(Rule<Tuple2<...>>)` on `validating(v1, v2)` — the recommended shortcut for two fields
+#### 3. Using `is(...)` on `validating(v1, v2)` — the recommended shortcut for two fields
 
-When you only have two fields, `validating(v1, v2).is(rule)` combines them into a `Tuple2` and applies a plain
-`Rule<Tuple2<T1, T2>>` to it — this only runs once *both* fields are already valid, so the second field is
-guaranteed non-null/valid before it's used in the cross-field check:
+When you only have two fields, `validating(v1, v2).is(...)` combines them and applies a check to
+them — this only runs once *both* fields are already valid, so both fields are guaranteed non-null/valid before
+they're used in the cross-field check. Two overloads are available:
+
+- **`is(BiPredicate<T1, T2>, ErrorMessage)`** — the **preferred** syntax for a one-off check: pass a predicate and
+  the `ErrorMessage` to use if it fails.
+- **`is(Rule<Tuple2<T1, T2>>)`** — for a reusable `Rule<Tuple2<T1, T2>>`, e.g. one built with `PairRules`, or
+  shared across multiple call sites.
+
+#### Example: preferred `BiPredicate` syntax
 
 ```java
 import static be.iffy.fv.dsl.DSL.*;
@@ -1027,28 +1034,48 @@ import io.vavr.Tuple2;
 public record DateRange(LocalDate date1, LocalDate date2) {
 
     public DateRange {
-        Tuple2<LocalDate, LocalDate> valid = asserting(
+        asserting(
             validating(
-                validateThat(date1, "date1").isNotNull(),
-                validateThat(date2, "date2").isNotNull()
-            ).is(pairs.strictlyOrdered())
+                notNull(date1, "date1").isNotNull(),
+                notNull(date2, "date2").isNotNull()
+            ).is(
+              (d1, d2) -> d1.isBefore(d2), 
+              "date1.must.be.before.date2"
+            )
         );
-
-        date1 = valid._1;
-        date2 = valid._2;
     }
 }
 ```
 
-Here, `pairs.strictlyOrdered()` is a reusable `Rule<Tuple2<T, T>>` (from `PairRules`, for any `Comparable` type)
+#### Example: `Rule<Tuple2<...>>` syntax (reusable rules)
+
+```java
+import static be.iffy.fv.dsl.DSL.*;
+import io.vavr.Tuple2;
+
+public record DateRange(LocalDate date1, LocalDate date2) {
+
+    public DateRange {
+        asserting(
+            validating(
+                notNull(date1, "date1"),
+                notNull(date2, "date2")
+            ).is(pairs.strictlyAscending())
+        );
+    }
+}
+```
+
+Here, `pairs.strictlyAscending()` is a reusable `Rule<Tuple2<T, T>>` (from `PairRules`, for any `Comparable` type)
 that fails with error key `first.must.be.before.second` unless the first element is strictly before the second.
-If you want a more domain-specific error key (e.g. `date1.must.be.before.date2`), define your own
-`Rule<Tuple2<LocalDate, LocalDate>>` with `Rule.of(...)` and pass that to `.is(...)` instead — or use
+If you want a more domain-specific error key (e.g. `date1.must.be.before.date2`) without defining a full `Rule`,
+use the preferred `is(BiPredicate, ErrorMessage)` syntax shown above instead. If you do want a reusable
+`Rule<Tuple2<LocalDate, LocalDate>>`, define one with `Rule.of(...)` and pass that to `.is(...)` — or use
 `.is("dateRange", rule)` to prepend a name to the rule's error messages without changing the rule itself.
 
-`PairRules` (the `pairs` singleton) offers more than just `strictlyOrdered()`:
+`PairRules` (the `pairs` singleton) offers more than just `strictlyAscending()`:
 
-- Ordering variants for any `Comparable` type: `ordered()` (`first.must.be.at.most.second`), `strictlyDescending()`
+- Ordering variants for any `Comparable` type: `ascending()` (`first.must.be.at.most.second`), `strictlyDescending()`
   (`first.must.be.after.second`), and `descending()` (`first.must.be.at.least.second`).
 - Equality checks between the two elements: `equal()` (`pair.must.be.equal`) and `notEqual()`
   (`pair.must.not.be.equal`) — useful for e.g. `password`/`confirmPassword` checks.
@@ -1071,14 +1098,37 @@ Since `satisfies` doesn't require `Comparable`, it also works for pairs of diffe
 `Rule<Tuple2<String, String>>` comparing a `password` and `confirmPassword` field, or any other pair where the
 invariant can't be expressed with natural ordering or equality alone.
 
-#### 4. Using `is(Rule<Tuple3<...>>)` / `is(Rule<Tuple4<...>>)` for three or four fields
+#### 4. Using `is(...)` on `validating(v1, v2, v3)` / `is(Rule<Tuple4<...>>)` on `validating(v1, v2, v3, v4)`
 
-The same `.is(rule)` shortcut is also available on `validating(v1, v2, v3)` and `validating(v1, v2, v3, v4)`,
-combining the values into a `Tuple3`/`Tuple4` and applying a `Rule<Tuple3<T1, T2, T3>>` /
-`Rule<Tuple4<T1, T2, T3, T4>>` to it — again, only once *all* fields are already valid. There's no `TripleRules`/
-`QuadRules` equivalent of `PairRules` for these arities (3+-way "ordered"/"equal" checks are rare), but a general
-`satisfies(...)` helper (returning a `Rule<Tuple3<T1, T2, T3>>`) is available directly from the `DSL` for
-arbitrary three-argument invariants:
+The same kind of shortcut is also available for three and four fields. For three fields,
+`validating(v1, v2, v3).is(...)` combines the values into a `Tuple3` and offers, just like the two-field case,
+two overloads:
+
+- **`is(Function3<T1, T2, T3, Boolean>, ErrorMessage)`** — the **preferred** syntax for a one-off three-argument
+  check: pass a predicate and the `ErrorMessage` to use if it fails.
+- **`is(Rule<Tuple3<T1, T2, T3>>)`** — for a reusable `Rule<Tuple3<T1, T2, T3>>`, e.g. one built with the general
+  `satisfies(...)` helper from the `DSL`.
+
+For four fields, only `is(Rule<Tuple4<T1, T2, T3, T4>>)` on `validating(v1, v2, v3, v4)` is available — there's no
+`Function4`/`ErrorMessage` overload (yet). There's also no `TripleRules`/`QuadRules` equivalent of `PairRules` for
+these arities (3+-way "ordered"/"equal" checks are rare).
+
+#### Example: preferred `Function3` syntax (three fields)
+
+```java
+import static be.iffy.fv.dsl.DSL.*;
+import io.vavr.Tuple3;
+
+Tuple3<BigDecimal, BigDecimal, BigDecimal> valid = asserting(
+    validating(
+        validateThat(a, "a").isNotNull(),
+        validateThat(b, "b").isNotNull(),
+        validateThat(total, "total").isNotNull()
+    ).is((x, y, t) -> x.add(y).equals(t), ErrorMessage.of("sum.must.match.total"))
+);
+```
+
+#### Example: `Rule<Tuple3<...>>` syntax (reusable rules)
 
 ```java
 import static be.iffy.fv.dsl.DSL.*;

@@ -14,17 +14,17 @@ import static be.iffy.fv.rules.RulesTest.validTest;
 class PairRulesTest {
 
     @Nested
-    class StrictlyOrdered {
+    class StrictlyAscending {
 
         @Test
         void valid() {
-            Rule<Tuple2<Integer, Integer>> rule = pairs.strictlyOrdered();
+            Rule<Tuple2<Integer, Integer>> rule = pairs.strictlyAscending();
             validTest(Tuple.of(10, 20), rule);
         }
 
         @Test
         void invalid() {
-            Rule<Tuple2<Integer, Integer>> rule = pairs.strictlyOrdered();
+            Rule<Tuple2<Integer, Integer>> rule = pairs.strictlyAscending();
             invalidTest(Tuple.of(20, 10), rule, "first.must.be.before.second");
             invalidTest(Tuple.of(10, 10), rule, "first.must.be.before.second");
             invalidTest(null, rule, "must.not.be.null");
@@ -32,18 +32,18 @@ class PairRulesTest {
     }
 
     @Nested
-    class Ordered {
+    class Ascending {
 
         @Test
         void valid() {
-            Rule<Tuple2<Integer, Integer>> rule = pairs.ordered();
+            Rule<Tuple2<Integer, Integer>> rule = pairs.ascending();
             validTest(Tuple.of(10, 20), rule);
             validTest(Tuple.of(10, 10), rule);
         }
 
         @Test
         void invalid() {
-            Rule<Tuple2<Integer, Integer>> rule = pairs.ordered();
+            Rule<Tuple2<Integer, Integer>> rule = pairs.ascending();
             invalidTest(Tuple.of(20, 10), rule, "first.must.be.at.most.second");
             invalidTest(null, rule, "must.not.be.null");
         }
