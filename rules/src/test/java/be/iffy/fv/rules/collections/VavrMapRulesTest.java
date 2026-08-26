@@ -212,6 +212,31 @@ class VavrMapRulesTest {
     }
 
     @Nested
+    class ValidateKeysWith {
+
+        @Test
+        void validateKeysWith_whenSomeKeysFail_accumulatesErrorsAndAddsKeyToPath() {
+            Rule<String> rule = Rule.of(key -> key.length() > 1, "key.too.short");
+            Rule<Map<String, Integer>> mapRule = vavrMaps.validateKeysWith(rule);
+
+            Map<String, Integer> input = HashMap.of(
+                "a", 1,
+                "bb", 2,
+                "c", 3
+            );
+
+            Validation<Map<String, Integer>> result = mapRule.apply(input).at("value");
+
+            assertThatValidation(result)
+                .isInvalid()
+                .hasErrorMessages(
+                    "value[a].key.too.short",
+                    "value[c].key.too.short"
+                );
+        }
+    }
+
+    @Nested
     class DoesNotContainKey {
 
         @Test

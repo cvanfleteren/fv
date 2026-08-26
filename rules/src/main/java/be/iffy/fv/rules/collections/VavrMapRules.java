@@ -355,4 +355,27 @@ public final class VavrMapRules {
         });
     }
 
+    /**
+     * Fails if not all keys pass the {@code rule}.
+     */
+    public <K, V> Rule<Map<K, V>> validateKeysWith(Rule<? super K> rule) {
+        Objects.requireNonNull(rule, "rule cannot be null");
+
+        Rule<K> castedRule = rule.narrow();
+        return Rule.of(map -> {
+
+            Set<Validation<K>> res = map.keySet().map(k ->
+                castedRule.apply(k).atIndex(k.toString())
+            );
+
+            var validAndInvalid = res.partition(Validation::isValid);
+
+            if (validAndInvalid._2.nonEmpty()) {
+                return Validation.invalid(validAndInvalid._2.flatMap(Validation::errors).toList());
+            } else {
+                return Validation.valid(map);
+            }
+        });
+    }
+
 }

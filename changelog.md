@@ -14,6 +14,8 @@
   extending the `.is(rule)` cross-field shortcut to three and four fields.
 - `DSL#satisfies(Function3<T1, T2, T3, Boolean>, errorKey/ErrorMessage)`, a general `Rule<Tuple3<T1, T2, T3>>`
   factory for arbitrary three-argument invariants, for use with `validating(v1, v2, v3).is(...)`.
+- `VavrMapRules#validateKeysWith(Rule<? super K>)` and `MapRules#validateKeysWith`, allowing validation of
+  every key of a `Map` with a given `Rule`, accumulating errors indexed by key.
 
 ### Changed
 

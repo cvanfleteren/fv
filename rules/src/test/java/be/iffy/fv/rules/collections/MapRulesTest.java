@@ -1,10 +1,10 @@
 package be.iffy.fv.rules.collections;
 
 import be.iffy.fv.ErrorMessage;
-import io.vavr.collection.HashMap;
-import io.vavr.collection.HashSet;
 import be.iffy.fv.Rule;
 import be.iffy.fv.Validation;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.HashSet;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -13,9 +13,9 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import static be.iffy.fv.assertj.ValidationAssert.assertThatValidation;
-import static be.iffy.fv.rules.collections.MapRules.*;
 import static be.iffy.fv.rules.RulesTest.invalidTest;
 import static be.iffy.fv.rules.RulesTest.validTest;
+import static be.iffy.fv.rules.collections.MapRules.maps;
 
 class MapRulesTest {
 
@@ -291,18 +291,47 @@ class MapRulesTest {
             Rule<Map<String, BigDecimal>> mapRule = maps.validateValuesWith(rule);
 
             Map<String, BigDecimal> input = Map.of(
-                    "a", BigDecimal.valueOf(-1),
-                    "b", BigDecimal.TEN,
-                    "c", BigDecimal.ZERO
+                "a", BigDecimal.valueOf(-1),
+                "b", BigDecimal.TEN,
+                "c", BigDecimal.ZERO
             );
 
             Validation<Map<String, BigDecimal>> result = mapRule.apply(input).at("value");
 
             assertThatValidation(result)
-                    .isInvalid();
+                .isInvalid();
 
-            assertThatValidation(result).isInvalid().hasErrorMessage("value[a].must.be.positive");
-            assertThatValidation(result).isInvalid().hasErrorMessage("value[c].must.be.positive");
+            assertThatValidation(result)
+                .isInvalid()
+                .hasErrorMessages(
+                    "value[a].must.be.positive",
+                    "value[c].must.be.positive"
+                );
+        }
+    }
+
+    @Nested
+    class ValidateKeysWith {
+
+        @Test
+        void validateKeysWith_whenSomeKeysFail_accumulatesErrorsAndAddsKeyToPath() {
+            Rule<String> rule = Rule.of(key -> key.length() > 1, "key.too.short");
+            Rule<Map<String, Integer>> mapRule = maps.validateKeysWith(rule);
+
+            Map<String, Integer> input = Map.of(
+                "a", 1,
+                "bb", 2,
+                "c", 3
+            );
+
+            Validation<Map<String, Integer>> result = mapRule.apply(input).at("value");
+
+            assertThatValidation(result)
+                .isInvalid()
+                .hasErrorMessages(
+                    "value[a].key.too.short",
+                    "value[c].key.too.short"
+                );
         }
     }
 
