@@ -146,7 +146,7 @@ public final class ValidatingDSL {
 
         /**
          * Combines the values of the passed Validations and validates it against the
-         * given Function<T1, T2, T3, Boolean>. Only runs if all Validations are already {@link Validation.Valid}.
+         * given {@code Function<T1, T2, T3, Boolean>}. Only runs if all Validations are already {@link Validation.Valid}.
          */
         @Contract(pure = true)
         public Validation<Tuple3<T1, T2, T3>> is(Function3<T1, T2, T3, Boolean> predicate, ErrorMessage errorMessage) {
