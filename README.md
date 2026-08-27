@@ -19,8 +19,8 @@ import static be.iffy.fv.dsl.DSL.*;
 record Person(String name, int age) {
     public Person {
         var v = asserting(
-                validateThat(name, Person::name).after(stringOps.trim()).is(strings.minLength(2)),
-                validateThat(age,  Person::age).is(ints.atLeast(18))
+                that(name, Person::name).after(stringOps.trim()).is(strings.minLength(2)),
+                that(age,  Person::age).is(ints.atLeast(18))
         );
         name = v._1;
     }
@@ -42,8 +42,8 @@ record Person(String name, int age) {}
 
 Validation<Person> toPerson(PersonDto dto) {
     return validating(
-            validateThat(dto.name(), "name").after(stringOps.trim()).is(strings.minLength(2)),
-            validateThat(dto.age(),  "age").is(strings.asInteger().then(ints.atLeast(18)))
+            that(dto.name(), "name").after(stringOps.trim()).is(strings.minLength(2)),
+            that(dto.age(),  "age").is(strings.asInteger().then(ints.atLeast(18)))
     ).map(Person::new);
 }
 
@@ -111,7 +111,7 @@ The project is split into several modules, so you only pull in what you need:
 |----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `core`               | Core datatypes: `Validation`, `Rule`, `MappingRule`, `ErrorMessage`. Minimal dependencies (Vavr only).                                                                                                                              |
 | `rules`              | A large set of ready-made `Rule`/`MappingRule` instances for Strings, numbers, collections, dates, `Optional`/`Option`/`Either`, etc.                                                                                               |
-| `dsl`                | The fluent `DSL` class (`validateThat`, `assertThat`, `asserting`, `validating`, ...) for readable validation code. Depends on `core` and `rules`.                                                                                  |
+| `dsl`                | The fluent `DSL` class (`that`, `assertThat`, `asserting`, `validating`, ...) for readable validation code. Depends on `core` and `rules`.                                                                                          |
 | `assertj`            | AssertJ integration (`assertThatValidation(...)`) for clean test assertions.                                                                                                                                                        |
 | `spring-web`         | Spring Boot integration: auto-registers a `@ControllerAdvice` that maps `ValidationException` to HTTP 422 Problem Details responses. See [Spring Boot integration](docs/spring-integration.md).                                     |
 | `jakarta-validation` | Jakarta Bean Validation bridge: `@FvRule` constraint annotation that plugs any FV `Rule<T>` into BV-aware frameworks (Spring `@Validated`, JPA, Quarkus, etc.). See [Jakarta Bean Validation integration](docs/bean-validation.md). |
@@ -183,8 +183,8 @@ refactor-safe.
 public record Person(String name, int age) {
     public Person {
         var values = asserting(
-                validateThat(name, Person::name).is(strings.minLength(3)),
-                validateThat(age, Person::age).is(ints.atLeast(18))
+                that(name, Person::name).is(strings.minLength(3)),
+                that(age, Person::age).is(ints.atLeast(18))
         );
         name = values._1;
         age = values._2;
@@ -213,8 +213,8 @@ MappingRule<String, Integer> validAge = strings.asInteger().then(ints.positive()
 
 Validation<Person> toPerson(PersonDto dto) {
     return validating(
-            validateThat(dto.name(), "name").is(strings.minLength(3)),
-            validateThat(dto.age(), "age").is(validAge)
+            that(dto.name(), "name").is(strings.minLength(3)),
+            that(dto.age(), "age").is(validAge)
     ).map(Person::new);
 }
 
@@ -254,8 +254,8 @@ Validation<Person> result = toPersonRule.apply(dto); // apply as many times as n
 
 // validating → evaluates immediately; the fields are already in hand
 Validation<Person> result2 = validating(
-        validateThat(dto.name(), "name").is(strings.minLength(3)),
-        validateThat(dto.age(),  "age").is(strings.asInteger().then(ints.positive()))
+        that(dto.name(), "name").is(strings.minLength(3)),
+        that(dto.age(),  "age").is(strings.asInteger().then(ints.positive()))
 ).map(Person::new);
 ```
 
@@ -267,7 +267,7 @@ static field or a Spring bean) and reuse it across controllers, tests, and messa
 ## Nested validation paths
 
 When you validate an object that itself contains other validated objects (or a list of them), the error paths
-nest automatically — each level of `validateThat(..., "name")` (or a `PropertySelector`) prefixes the paths
+nest automatically — each level of `that(..., "name")` (or a `PropertySelector`) prefixes the paths
 produced underneath it, and list elements get an `[index]` segment. This makes it easy to pinpoint exactly where,
 in a deeply nested payload, something went wrong.
 
@@ -278,21 +278,21 @@ record Order(Customer customer, List<BigDecimal> lineAmounts) {}
 
 Validation<Address> validateAddress(Address address) {
     return validating(
-            validateThat(address.street(), "street").is(strings.notBlank()),
-            validateThat(address.city(), "city").is(strings.notBlank())
+            that(address.street(), "street").is(strings.notBlank()),
+            that(address.city(), "city").is(strings.notBlank())
     ).map(Address::new);
 }
 
 Validation<Customer> validateCustomer(Customer customer) {
     return validating(
-            validateThat(customer.name(), "name").is(strings.notBlank()),
-            validateThat(customer.address(), "address").is(this::validateAddress)
+            that(customer.name(), "name").is(strings.notBlank()),
+            that(customer.address(), "address").is(this::validateAddress)
     ).map(Customer::new);
 }
 
 Validation<Order> validateOrder(Order order) {
     return validating(
-            validateThat(order.customer(), "customer").is(this::validateCustomer),
+            that(order.customer(), "customer").is(this::validateCustomer),
             validateThatList(order.lineAmounts(), "lineAmounts").eachIs(bigDecimals.positive()).validate()
     ).map(Order::new);
 }

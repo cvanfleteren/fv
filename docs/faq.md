@@ -46,7 +46,7 @@ feel free to open an issue or reach out to the maintainers.
 - [Ok, but can I do the same when defining a Rule?](#ok-but-can-i-do-the-same-when-defining-a-rule)
 - [How do I perform cross-field validation where one field's validation depends on another?](#how-do-i-perform-cross-field-validation-where-one-fields-validation-depends-on-another)
 - [How do I validate that at least one of multiple fields is valid (cross-field OR / `anyOf`)?](#how-do-i-validate-that-at-least-one-of-multiple-fields-is-valid-cross-field-or--anyof)
-- [What is the difference between `validateThat`, `assertThat`, `validating`, and `asserting`?](#what-is-the-difference-between-validatethat-assertthat-validating-and-asserting)
+- [What is the difference between `that`, `assertThat`, `validating`, and `asserting`?](#what-is-the-difference-between-that-assertthat-validating-and-asserting)
 
 **Exception Interop**
 - [I have some type whose constructor throws an exception, how can I make a Validation for this type?](#i-have-some-type-whose-constructor-throws-an-exception-how-can-i-make-a-validation-for-this-type)
@@ -137,7 +137,7 @@ library then automatically extracts the property name from the method reference.
 **Using Strings:**
 
 ```java
-Validation<String> v = validateThat(user.getName(), "name").is(strings.notEmpty());
+Validation<String> v = that(user.getName(), "name").is(strings.notEmpty());
 // Error path: "name"
 ```
 
@@ -155,7 +155,7 @@ Validation<String> v3 = validateThat(person.email(), Person::email).is(strings.l
 // Error path: "email" (extracted from email)
 ```
 
-You can use `PropertySelector` in many places, including `validateThat`, `assertThat`, and when focusing rules with
+You can use `PropertySelector` in many places, including `that`, `assertThat`, and when focusing rules with
 `Rule.on()` or `rule.on()`.
 
 ---
@@ -491,7 +491,7 @@ Validation<Person> result = toPersonRule.apply(dto);
 ```
 
 If any rule fails, errors from all failing rules are accumulated into a single `Invalid`. See the
-[`validating` vs `combine` section](#what-is-the-difference-between-validatethat-assertthat-validating-and-asserting)
+[`validating` vs `combine` section](#what-is-the-difference-between-that-assertthat-validating-and-asserting)
 for a full comparison.
 
 ---
@@ -556,7 +556,7 @@ optionalRule.apply(Optional.of("abcdef")); // Valid
 ### How can I check that my optional value meets a Rule when it is not empty (but this time empty is NOT allowed)?
 
 If you want to ensure that an `Optional` is **not empty** AND its value satisfies a certain rule, you can use the
-`OptionalRules.required(MappingRule)` or `OptionRules.required(MappingRule)` methods.  
+`OptionalRules.required(RuleLike)` or `OptionRules.required(RuleLike)` methods.  
 We need a MappingRule because we'll be changing the type of Validation from Optional<T> to T.
 
 Unlike `lift().toOptional()`, which returns valid for empty optionals, these methods will return an `Invalid` result with
@@ -849,8 +849,8 @@ There is an alternative syntax using `DSL` that looks like this:
 
 ```java
 Validation<Person> personV = validating(
-        validateThat(dto.name(), Person::name).is(strings.minLength(3)),
-        validateThat(dto.age(), Person::age).is(ints.min(18))
+        that(dto.name(), Person::name).is(strings.minLength(3)),
+        that(dto.age(), Person::age).is(ints.min(18))
 ).map(Person::new);
 ```
 
@@ -865,8 +865,8 @@ import static be.iffy.fv.dsl.DSL.*;
 record Person(String name, int age) {
     public Person {
         asserting(
-                validateThat(name, "name").is(strings.minLength(3)),
-                validateThat(age, "age").is(ints.min(18))
+                that(name, "name").is(strings.minLength(3)),
+                that(age, "age").is(ints.min(18))
         );
     }
 }
@@ -927,8 +927,8 @@ record User(String username, String email) {
     public User {
         // using a var makes this better :)
         Tuple2<String, String> values = asserting(
-                validateThat(username, "username").after(stringOps.trim()).is(strings.minLength(3)),
-                validateThat(email, "email").after(stringOps.toLowerCase()).is(strings.looksLikeEmailAddress())
+                that(username, "username").after(stringOps.trim()).is(strings.minLength(3)),
+                that(email, "email").after(stringOps.toLowercase()).is(strings.looksLikeEmailAddress())
         );
 
         username = values._1; // is trimmed
@@ -960,7 +960,7 @@ import static be.iffy.fv.dsl.DSL.*;
 Rule<String> trimmedMinLength3 = after(stringOps.trim()).is(strings.minLength(3));
 ```
 
-This is very similar to the `validateThat(value).after(...)` syntax used in constructors, but it allows you to package the
+This is very similar to the `that(value).after(...)` syntax used in constructors, but it allows you to package the
 transformation and the validation into a single `Rule` object.
 
 #### Technical Note: Rule vs MappingRule
@@ -1006,10 +1006,10 @@ LocalDate start = LocalDate.of(2026,1,30);
 LocalDate end = LocalDate.of(2026,1,29);
 
 Validation<LocalDate> result = validating(
-  validateThat(start).isNotNull(),
-  validateThat(end).isNotNull()
+  that(start).isNotNull(),
+  that(end).isNotNull()
 ).flatMap((s, e) ->
-  validateThat(s,"start").is(localDates.isBefore(end))
+  that(s,"start").is(localDates.isBefore(end))
 ); 
 // result is an Invalid with "start.must.be.before:{limit:2026-01-29}"
 ```
@@ -1036,8 +1036,8 @@ public record DateRange(LocalDate date1, LocalDate date2) {
     public DateRange {
         asserting(
             validating(
-                notNull(date1, "date1").isNotNull(),
-                notNull(date2, "date2").isNotNull()
+                notNull(date1, "date1"),
+                notNull(date2, "date2")
             ).is(
               (d1, d2) -> d1.isBefore(d2), 
               "date1.must.be.before.date2"
@@ -1088,8 +1088,8 @@ Rule<Tuple2<LocalDate, LocalDate>> atLeastThreeDaysApart =
 
 Tuple2<LocalDate, LocalDate> valid = asserting(
     validating(
-        validateThat(date1, "date1").isNotNull(),
-        validateThat(date2, "date2").isNotNull()
+        that(date1, "date1").isNotNull(),
+        that(date2, "date2").isNotNull()
     ).is(atLeastThreeDaysApart)
 );
 ```
@@ -1121,9 +1121,9 @@ import io.vavr.Tuple3;
 
 Tuple3<BigDecimal, BigDecimal, BigDecimal> valid = asserting(
     validating(
-        validateThat(a, "a").isNotNull(),
-        validateThat(b, "b").isNotNull(),
-        validateThat(total, "total").isNotNull()
+        that(a, "a").isNotNull(),
+        that(b, "b").isNotNull(),
+        that(total, "total").isNotNull()
     ).is((x, y, t) -> x.add(y).equals(t), ErrorMessage.of("sum.must.match.total"))
 );
 ```
@@ -1139,9 +1139,9 @@ Rule<Tuple3<BigDecimal, BigDecimal, BigDecimal>> sumMustMatch =
 
 Tuple3<BigDecimal, BigDecimal, BigDecimal> valid = asserting(
     validating(
-        validateThat(a, "a").isNotNull(),
-        validateThat(b, "b").isNotNull(),
-        validateThat(total, "total").isNotNull()
+        that(a, "a").isNotNull(),
+        that(b, "b").isNotNull(),
+        that(total, "total").isNotNull()
     ).is(sumMustMatch)
 );
 ```
@@ -1161,8 +1161,8 @@ record Contact(String email, String phone) {
     Contact {
         asserting(
             anyOf(
-                validateThat(email, "email").is(strings.notBlank()),
-                validateThat(phone, "phone").is(strings.notBlank())
+                that(email, "email").is(strings.notBlank()),
+                that(phone, "phone").is(strings.notBlank())
             ).orError("contact.at.least.one.must.not.be.blank")
         );
     }
@@ -1176,25 +1176,26 @@ record Contact(String email, String phone) {
 
 ---
 
-### What is the difference between `validateThat`, `assertThat`, `validating`, and `asserting`?
+### What is the difference between `that`, `assertThat`, `validating`, and `asserting`?
 
 These four DSL entry points cover two axes: **single value vs. combined** and **functional (returns `Validation`) vs. asserting (throws on failure)**.
 
-| Method                      | Takes                | Returns              | Throws? |
-|-----------------------------|----------------------|----------------------|---------|
-| `validateThat(value, name)` | a single value       | `Validation<T>`      | no      |
-| `assertThat(value, name)`   | a single value       | the value `T`        | yes     |
-| `validating(v1, v2, …)`     | `Validation` objects | `Validation<mapped>` | no      |
-| `asserting(v1, v2, …)`      | `Validation` objects | `Tuple` of values    | yes     |
+| Method                    | Takes                | Returns              | Throws? |
+|---------------------------|----------------------|----------------------|---------|
+| `that(value, name)`       | a single value       | `Validation<T>`      | no      |
+| `assertThat(value, name)` | a single value       | the value `T`        | yes     |
+| `validating(v1, v2, …)`   | `Validation` objects | `Validation<mapped>` | no      |
+| `asserting(v1, v2, …)`    | `Validation` objects | `Tuple` of values    | yes     |
 
-#### `validateThat` — functional, single value
+#### `that` — functional, single value
 
 Use when you want to validate one value and keep the result as a `Validation` object for later combination.
 Returns `Validation<T>`; never throws.
 
 ```java
-Validation<String> nameV = validateThat(dto.name(), Person::name).is(strings.minLength(3));
+Validation<String> nameV = that(dto.name(), Person::name).is(strings.minLength(3));
 ```
+`that` has a synonym `validateThat`, which can read better in some contexts, see a bit further for examples.
 
 #### `assertThat` — throwing, single value
 
@@ -1214,8 +1215,8 @@ Returns `Validation<MappedType>`; never throws.
 
 ```java
 Validation<Person> personV = validating(
-        validateThat(dto.name(), Person::name).is(strings.minLength(3)),
-        validateThat(dto.age(), Person::age).is(ints.min(18))
+        that(dto.name(), Person::name).is(strings.minLength(3)),
+        that(dto.age(), Person::age).is(ints.min(18))
 ).map(Person::new);
 ```
 
@@ -1226,14 +1227,14 @@ Use inside a constructor to validate multiple fields at once with full error acc
 
 ```java
 Tuple2<String, String> t = asserting(
-        validateThat(username, "username").after(stringOps.trim()).is(strings.minLength(3)),
-        validateThat(email, "email").after(stringOps.toLowerCase()).is(strings.email())
+        that(username, "username").after(stringOps.trim()).is(strings.minLength(3)),
+        that(email, "email").after(stringOps.toLowerCase()).is(strings.looksLikeEmailAddress())
 );
 username = t._1;
 email = t._2;
 ```
 
-**Rule of thumb:** prefer the `validating` / `validateThat` pair when you want a purely functional result
+**Rule of thumb:** prefer the `validating` / `that` pair when you want a purely functional result
 (`Validation`). Use `asserting` / `assertThat` when you are inside a constructor and want the library to throw for
 you.
 
@@ -1244,7 +1245,7 @@ you.
 ### I have some type whose constructor throws an exception, how can I make a Validation for this type?
 
 If you want to validate a type constructed using a method or constructor that can throw an exception (checked or
-unchecked), you can use Vavr's **`Try`** in combination with **`Validation.from()._try(...)`**.
+unchecked), you can use Vavr's **`Try`** in combination with **`Validation.from().attempt(...)`**.
 
 This allows you to wrap the potentially failing construction in a `Try`, and then convert it into a `Validation` object
 which fits perfectly into the rest of the library's ecosystem.
@@ -1260,7 +1261,7 @@ import io.vavr.control.Try;
 import java.net.URL;
 
 public Validation<URL> validateUrl(String input) {
-    return Validation.from()._try(
+    return Validation.from().attempt(
             Try.of(() -> new URL(input)),
             "invalid.url" // Error key to use if Try fails
     );
@@ -1272,7 +1273,7 @@ Note: there's a built-in MappingRule<String, URL> asURL() in StringRules for thi
 In this example:
 
 1. `Try.of(...)` attempts to create the `URL`. If an exception is thrown, it captures it in a `Failure` state.
-2. `Validation.from()._try(tryResult, "invalid.url")` converts the `Try` into a `Validation`.
+2. `Validation.from().attempt(tryResult, "invalid.url")` converts the `Try` into a `Validation`.
 3. If the `Try` was a `Success`, you get a `Valid<URL>`.
 4. If the `Try` was a `Failure`, you get an `Invalid` result with the error key `"invalid.url"`.
 
@@ -1299,12 +1300,12 @@ code that doesn't already speak in `Validation`s.
 `ValidationFactory` currently supports:
 
 * **`Supplier<T>`** via `catching(...)` and `catchingAll(...)` — for code that throws exceptions instead of returning a result type.
-* **`Try<T>`** via `_try(...)` — for code that already returns a Vavr `Try`.
+* **`Try<T>`** via `attempt(...)` — for code that already returns a Vavr `Try`.
 * **`Option<T>`** via `option(...)` — for Vavr's optional type.
 * **`Optional<T>`** via `optional(...)` — for the standard Java optional type.
 * **`Either<L, R>`** via `either(...)` — for Vavr's either type, converting the `Left` into an `ErrorMessage`.
 
-#### `catching` vs `catchingAll` vs `_try`
+#### `catching` vs `catchingAll` vs `attempt`
 
 These three are easy to confuse because they all deal with "things that might fail", but they differ in what they accept and what they catch:
 
@@ -1320,11 +1321,11 @@ These three are easy to confuse because they all deal with "things that might fa
   control and don't want a stray exception to escape as a Java exception. It's also the most dangerous of the three,
   since it can silently swallow bugs like an unexpected `NullPointerException` — only use it when you're sure you want
   every exception treated as a validation failure.
-* **`_try(Try<T>, ...)`** doesn't run anything itself — you hand it an already-evaluated Vavr `Try`. If the `Try` is a
+* **`attempt(Try<T>, ...)`** doesn't run anything itself — you hand it an already-evaluated Vavr `Try`. If the `Try` is a
   `Failure` wrapping a `ValidationException`, its errors are preserved; otherwise the provided `ErrorMessage`/error key
-  is used. There's also a no-argument overload, `_try(Try<T>)`, which uses the error key `failed.from.try` (with a
+  is used. There's also a no-argument overload, `attempt(Try<T>)`, which uses the error key `failed.from.try` (with a
   `message` parameter) for non-`ValidationException` failures, and treats a `Try` that succeeds with `null` as invalid
-  with `"must.not.be.null"`. Prefer `_try` when you're working with an API that already returns `Try`, or when you want
+  with `"must.not.be.null"`. Prefer `attempt` when you're working with an API that already returns `Try`, or when you want
   to build the `Try` yourself (e.g. with `Try.of(...)`) so you control exactly what gets caught.
 
 ```java
@@ -1337,8 +1338,8 @@ Validation<Integer> a = Validation.from().catching(() -> Integer.parseInt(input)
 // catchingAll: every Exception becomes an Invalid with the given error key
 Validation<Integer> b = Validation.from().catchingAll(() -> Integer.parseInt(input), "invalid.number");
 
-// _try: you build the Try yourself, then convert it
-Validation<Integer> c = Validation.from()._try(Try.of(() -> Integer.parseInt(input)), "invalid.number");
+// attempt: you build the Try yourself, then convert it
+Validation<Integer> c = Validation.from().attempt(Try.of(() -> Integer.parseInt(input)), "invalid.number");
 ```
 
 See also [I have some type whose constructor throws an exception, how can I make a Validation for this

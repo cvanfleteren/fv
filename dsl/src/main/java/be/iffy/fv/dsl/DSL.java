@@ -493,6 +493,37 @@ public final class DSL {
     }
 
     /**
+     * Starts a validation process for a single value.
+     */
+    @Contract(pure = true)
+    public static <T> ValidateThatDSL<T> that(T value) {
+        return new ValidateThatDSL<>(value, Option.none());
+    }
+
+    /**
+     * Starts a validation process for a single value with a logical name.
+     * The name will be prepended to any error messages.
+     *
+     * @param name the name of the value (e.g., field name).
+     */
+    @Contract(pure = true)
+    public static <T> ValidateThatDSL<T> that(T value, String name) {
+        return new ValidateThatDSL<>(value, Option.of(name));
+    }
+
+    /**
+     * Starts a validation process for a single value with a logical name.
+     * The PropertySelector will get converted to a name and will be prepended to any error messages.
+     *
+     * @param name a selector for the name of the value (e.g., Field::name).
+     */
+    @Contract(pure = true)
+    public static <S, T> ValidateThatDSL<T> that(T value, PropertySelector<S, T> name) {
+        Objects.requireNonNull(name, "name cannot be null");
+        return new ValidateThatDSL<>(value, Option.of(name.getPropertyName()));
+    }
+
+    /**
      * Starts a builder for validating a {@link List} of values.
      * <p>
      * Unlike {@link #validateThat}, this returns a <em>builder</em>, not a {@link Validation} directly.
